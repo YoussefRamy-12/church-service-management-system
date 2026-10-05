@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../core/config/supabase_initializer.dart';
 import '../features/auth/presentation/login_page.dart';
 import '../features/auth/presentation/session_gate.dart';
+import '../features/service/presentation/service_dashboard_page.dart';
 import 'theme.dart';
 
 class ChurchServiceApp extends StatefulWidget {
@@ -60,6 +61,12 @@ class _ChurchServiceAppState extends State<ChurchServiceApp> {
           GoRoute(
             path: '/session',
             builder: (context, state) => const SessionGate(),
+          ),
+          GoRoute(
+            path: '/service/:serviceId',
+            builder: (context, state) => ServiceDashboardPage(
+              serviceId: state.pathParameters['serviceId']!,
+            ),
           ),
         ],
       );
