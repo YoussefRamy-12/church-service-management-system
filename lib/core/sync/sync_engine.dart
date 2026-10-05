@@ -59,6 +59,12 @@ class SyncEngine {
   Future<void> _apply(SyncOperation operation) async {
     final payload = queue.decode(operation.payloadJson);
     switch (operation.entityType) {
+      case 'meeting':
+        await client.from('meetings').insert(payload);
+        return;
+      case 'student':
+        await client.from('students').insert(payload);
+        return;
       case 'attendance':
         await client.from('attendance_records').upsert({
           'id': payload['id'],
