@@ -1,13 +1,11 @@
-import 'package:supabase_flutter/supabase_flutter.dart';
-
 import '../domain/entities/session_identity.dart';
 import 'servant_profile_repository.dart';
 import 'system_admin_repository.dart';
 
 class SessionIdentityRepository {
-  SessionIdentityRepository(this._client)
-      : _servants = ServantProfileRepository(_client),
-        _admins = SystemAdminRepository(_client);
+  SessionIdentityRepository(SupabaseClient client)
+      : _servants = ServantProfileRepository(client),
+        _admins = SystemAdminRepository(client);
 
   final ServantProfileRepository _servants;
   final SystemAdminRepository _admins;
