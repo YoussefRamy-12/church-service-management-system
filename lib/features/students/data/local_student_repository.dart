@@ -12,7 +12,7 @@ class LocalStudentRepository implements StudentRepository {
   @override
   Stream<List<Student>> watchStudentsForClass(String classId) {
     return (_db.select(_db.cachedStudents)
-          ..where((t) => t.currentClassId.equals(classId))
+          ..where((t) => t.currentClassId.equals(classId) | t.proposedClassId.equals(classId))
           ..orderBy([(t) => OrderingTerm(expression: t.name)]))
         .watch()
         .map((rows) => rows.map(_fromRow).toList());
