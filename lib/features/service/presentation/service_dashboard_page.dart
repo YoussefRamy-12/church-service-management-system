@@ -3,17 +3,28 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../students/presentation/class_students_page.dart';
 import 'service_providers.dart';
 
-class ServiceDashboardPage extends ConsumerWidget {
+class ServiceDashboardPage extends ConsumerStatefulWidget {
   const ServiceDashboardPage({super.key, required this.serviceId});
   final String serviceId;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<ServiceDashboardPage> createState() => _ServiceDashboardPageState();
+}
+
+class _ServiceDashboardPageState extends ConsumerState<ServiceDashboardPage> {
+  @override
+  void initState() {
+    super.initState();
+    Future.microtask(() => ref.read(serviceRepositoryProvider).refreshStages(widget.serviceId));
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final repository = ref.watch(serviceRepositoryProvider);
     return Scaffold(
       appBar: AppBar(title: const Text('خدمة تلاميذ المسيح')),
       body: FutureBuilder(
-        future: repository.getService(serviceId),
+        future: repository.getService(widget.serviceId),
         builder: (context, snapshot) {
           final service = snapshot.data;
           if (service == null) return const Center(child: CircularProgressIndicator());
@@ -25,7 +36,7 @@ class ServiceDashboardPage extends ConsumerWidget {
               const SizedBox(height: 24),
               const Text('المراحل', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
               StreamBuilder(
-                stream: repository.watchStages(serviceId),
+                stream: repository.watchStages(widget.serviceId),
                 builder: (context, stageSnapshot) {
                   final stages = stageSnapshot.data ?? const [];
                   if (stages.isEmpty) return const Text('لا توجد مراحل محفوظة محليًا بعد.');
@@ -39,7 +50,12 @@ class ServiceDashboardPage extends ConsumerWidget {
                           return Column(children: classes.map((item) => ListTile(
                             title: Text(item.name),
                             trailing: const Icon(Icons.chevron_left),
-                            onTap: () => Navigator.of(context).push(
+                            onExpansionChanged: (expanded) {
+                        if (expanded) {
+                          ref.read(serviceRepositoryProvider).refreshClasses(stage.id);
+                        }
+                      },
+                      onTap: () => Navigator.of(context).push(
                               MaterialPageRoute(builder: (_) => ClassStudentsPage(classId: item.id, className: item.name)),
                             ),
                           )).toList());
