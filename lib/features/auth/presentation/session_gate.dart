@@ -50,13 +50,13 @@ class SessionGate extends ConsumerWidget {
   String _roleLabel(String role) {
     switch (role) {
       case 'overall_leader':
-        return 'القائد العام';
+        return 'أمين الخدمة';
       case 'overall_helper':
-        return 'المساعد العام';
+        return 'أمين مساعد';
       case 'stage_leader':
-        return 'قائد المرحلة';
+        return 'أمين المرحلة';
       case 'class_leader':
-        return 'قائد الفصل';
+        return 'أمين الفصل';
       case 'class_servant':
         return 'خادم الفصل';
       default:
