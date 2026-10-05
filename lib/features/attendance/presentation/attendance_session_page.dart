@@ -5,6 +5,7 @@ import '../../students/data/offline_first_student_registration.dart';
 import '../../students/presentation/student_providers.dart';
 import '../../../core/sync/sync_engine_provider.dart';
 import '../../../core/database/database_provider.dart';
+import '../../../core/sync/sync_status_widget.dart';
 import 'attendance_providers.dart';
 import 'qr_scan_page.dart';
 
@@ -46,7 +47,7 @@ class _AttendanceSessionPageState extends ConsumerState<AttendanceSessionPage> {
   Widget build(BuildContext context) {
     final studentsStream = ref.watch(studentRepositoryProvider).watchStudentsForClass(widget.classId);
     return Scaffold(
-      appBar: AppBar(title: const Text('تسجيل الحضور'), actions: [
+      appBar: AppBar(title: const Text('تسجيل الحضور'), actions: [const SyncStatusWidget(),
         IconButton(icon: const Icon(Icons.qr_code_scanner), tooltip: 'QR', onPressed: () async {
           final id = await Navigator.push<String>(context, MaterialPageRoute(builder: (_) => const QrScanPage()));
           if (id == null) return;
