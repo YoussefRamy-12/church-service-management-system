@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-import '../core/config/app_config.dart';
 import '../core/config/supabase_initializer.dart';
 import '../features/auth/presentation/login_page.dart';
+import '../features/auth/presentation/session_gate.dart';
+import 'theme.dart';
 
 class ChurchServiceApp extends StatefulWidget {
   const ChurchServiceApp({super.key});
@@ -40,7 +41,6 @@ class _ChurchServiceAppState extends State<ChurchServiceApp> {
           routerConfig: _router,
           locale: const Locale('ar'),
           supportedLocales: const [Locale('ar')],
-          localizationsDelegates: const [],
           builder: (context, child) => Directionality(
             textDirection: TextDirection.rtl,
             child: child ?? const SizedBox.shrink(),
@@ -56,6 +56,10 @@ class _ChurchServiceAppState extends State<ChurchServiceApp> {
           GoRoute(
             path: '/login',
             builder: (context, state) => const LoginPage(),
+          ),
+          GoRoute(
+            path: '/session',
+            builder: (context, state) => const SessionGate(),
           ),
         ],
       );
