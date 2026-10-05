@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/database/database_provider.dart';
 import '../../../core/network/supabase_client_provider.dart';
+import '../../../core/sync/sync_engine_provider.dart';
 import '../data/local_meeting_repository.dart';
 import '../data/meeting_repository.dart';
 
