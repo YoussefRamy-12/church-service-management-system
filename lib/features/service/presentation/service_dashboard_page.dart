@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../students/presentation/class_students_page.dart';
+import '../../attendance/presentation/meeting_list_page.dart';
 import 'service_providers.dart';
 
 class ServiceDashboardPage extends ConsumerStatefulWidget {
@@ -22,7 +23,18 @@ class _ServiceDashboardPageState extends ConsumerState<ServiceDashboardPage> {
   Widget build(BuildContext context) {
     final repository = ref.watch(serviceRepositoryProvider);
     return Scaffold(
-      appBar: AppBar(title: const Text('خدمة تلاميذ المسيح')),
+      appBar: AppBar(
+        title: const Text('خدمة تلاميذ المسيح'),
+        actions: [
+          IconButton(
+            tooltip: 'الاجتماعات',
+            icon: const Icon(Icons.event),
+            onPressed: () => Navigator.of(context).push(
+              MaterialPageRoute(builder: (_) => MeetingListPage(serviceId: widget.serviceId)),
+            ),
+          ),
+        ],
+      ),
       body: FutureBuilder(
         future: repository.getService(widget.serviceId),
         builder: (context, snapshot) {

@@ -28,20 +28,102 @@ class _AttendanceSessionPageState extends ConsumerState<AttendanceSessionPage> {
   }
 
   Future<void> _register() async {
-    final controller = TextEditingController();
-    final name = await showDialog<String>(context: context, builder: (_) => AlertDialog(
-      title: const Text('تسجيل تلميذ جديد'),
-      content: TextField(controller: controller, autofocus: true, decoration: const InputDecoration(labelText: 'اسم التلميذ')),
-      actions: [TextButton(onPressed: () => Navigator.pop(context), child: const Text('إلغاء')), FilledButton(onPressed: () => Navigator.pop(context, controller.text.trim()), child: const Text('تسجيل'))],
-    ));
-    if (name == null || name.isEmpty) return;
-    final local = ref.read(localStudentRepositoryProvider);
-    final queue = ref.read(syncQueueRepositoryProvider);
-    await OfflineFirstStudentRegistration(local, queue, ref.read(appDatabaseProvider)).registerPending(
-      serviceId: widget.serviceId, proposedClassId: widget.classId, name: name,
+    final nameController = TextEditingController();
+    final phoneController = TextEditingController();
+    final schoolController = TextEditingController();
+    final gradeController = TextEditingController();
+    DateTime? birthDate;
+
+    try {
+      final result = await showDialog<bool>(
+        context: context,
+        builder: (dialogContext) => StatefulBuilder(
+          builder: (context, setDialogState) => AlertDialog(
+            title: const Text('تسجيل تلميذ جديد'),
+            content: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextField(controller: nameController, autofocus: true, decoration: const InputDecoration(labelText: 'اسم التلميذ *')),
+                  TextField(controller: phoneController, keyboardType: TextInputType.phone, decoration: const InputDecoration(labelText: 'رقم الهاتف')),
+                  TextField(controller: schoolController, decoration: const InputDecoration(labelText: 'المدرسة')),
+                  TextField(controller: gradeController, decoration: const InputDecoration(labelText: 'الصف الدراسي')),
+                  ListTile(
+                    contentPadding: EdgeInsets.zero,
+                    title: Text(birthDate == null ? 'تاريخ الميلاد: غير محدد' : 'تاريخ الميلاد: ${birthDate!.toLocal().toString().split(' ').first}'),
+                    trailing: const Icon(Icons.calendar_today),
+                    onTap: () async {
+                      final picked = await showDatePicker(
+                        context: context,
+                        initialDate: DateTime(2015, 1, 1),
+                        firstDate: DateTime(2000),
+                        lastDate: DateTime.now(),
+                        helpText: 'اختر تاريخ الميلاد',
+                      );
+                      if (picked != null) setDialogState(() => birthDate = picked);
+                    },
+                  ),
+                ],
+              ),
+            ),
+            actions: [
+              TextButton(onPressed: () => Navigator.pop(dialogContext, false), child: const Text('إلغاء')),
+              FilledButton(
+                onPressed: nameController.text.trim().isEmpty ? null : () => Navigator.pop(dialogContext, true),
+                child: const Text('تسجيل'),
+              ),
+            ],
+          ),
+        ),
+      );
+
+      if (result != true) return;
+      final local = ref.read(localStudentRepositoryProvider);
+      final queue = ref.read(syncQueueRepositoryProvider);
+      await OfflineFirstStudentRegistration(local, queue, ref.read(appDatabaseProvider)).registerPending(
+        serviceId: widget.serviceId,
+        proposedClassId: widget.classId,
+        name: nameController.text.trim(),
+        birthDate: birthDate,
+        phone: phoneController.text.trim().isEmpty ? null : phoneController.text.trim(),
+        school: schoolController.text.trim().isEmpty ? null : schoolController.text.trim(),
+        grade: gradeController.text.trim().isEmpty ? null : gradeController.text.trim(),
+      );
+      await ref.read(syncEngineProvider).syncNow();
+
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('تم حفظ التلميذ محليًا كـ Pending وسيتم مزامنته.')),
+      );
+    } finally {
+      nameController.dispose();
+      phoneController.dispose();
+      schoolController.dispose();
+      gradeController.dispose();
+    }
+  }
+
+  Future<void> _editAttendance(String attendanceId, DateTime currentTime) async {
+    final time = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay.fromDateTime(currentTime),
+      helpText: 'تعديل وقت تسجيل الحضور',
     );
-    if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('تم حفظ التلميذ محليًا كـ Pending وسيتم مزامنته.')));
+    if (time == null || !mounted) return;
+    final updated = DateTime(currentTime.year, currentTime.month, currentTime.day, time.hour, time.minute);
+    await ref.read(attendanceRepositoryProvider).updateCheckedInAt(
+      attendanceId: attendanceId,
+      checkedInAt: updated,
+    );
+    await ref.read(syncEngineProvider).syncNow();
+  }
+
+  String _attendanceLabel(DateTime checkedInAt) {
+    final start = DateTime(checkedInAt.year, checkedInAt.month, checkedInAt.day, 15);
+    final earlyEnd = start.add(const Duration(minutes: 15));
+    if (checkedInAt.isBefore(start)) return 'قبل بدء الاجتماع';
+    if (checkedInAt.isBefore(earlyEnd)) return 'مبكر';
+    return 'عادي';
   }
 
   @override
@@ -69,11 +151,29 @@ class _AttendanceSessionPageState extends ConsumerState<AttendanceSessionPage> {
             Expanded(child: StreamBuilder(
               stream: ref.watch(attendanceRepositoryProvider).watchForMeeting(widget.meetingId),
               builder: (context, attendanceSnapshot) {
-                final checked = {for (final row in attendanceSnapshot.data ?? const []) row.studentId};
+                final records = attendanceSnapshot.data ?? const [];
+                final checked = {for (final row in records) row.studentId: row};
                 return ListView.builder(itemCount: students.length, itemBuilder: (_, i) {
                   final student = students[i];
-                  final present = checked.contains(student.id);
-                  return ListTile(title: Text(student.name), subtitle: Text(student.isPending ? 'Pending — يحتاج اعتماد' : 'معتمد'), trailing: FilledButton(onPressed: present ? null : () => _checkIn(student), child: Text(present ? 'حاضر' : 'تسجيل')));
+                  final record = checked[student.id];
+                  final present = record != null;
+                  return ListTile(
+                    title: Text(student.name),
+                    subtitle: Text(
+                      present
+                          ? '${student.isPending ? 'Pending' : 'معتمد'} • ${_attendanceLabel(record.checkedInAt)} • ${TimeOfDay.fromDateTime(record.checkedInAt).format(context)}'
+                          : (student.isPending ? 'Pending — يحتاج اعتماد' : 'معتمد'),
+                    ),
+                    trailing: present
+                        ? OutlinedButton(
+                            onPressed: () => _editAttendance(record.id, record.checkedInAt),
+                            child: const Text('تعديل'),
+                          )
+                        : FilledButton(
+                            onPressed: () => _checkIn(student),
+                            child: const Text('تسجيل'),
+                          ),
+                  );
                 });
               },
             )),

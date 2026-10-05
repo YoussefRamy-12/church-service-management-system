@@ -47,6 +47,22 @@ class LocalAttendanceRepository implements AttendanceRepository {
     return record;
   }
 
+  Future<AttendanceRecord> updateCheckedInAt({
+    required String attendanceId,
+    required DateTime checkedInAt,
+  }) async {
+    await (_db.update(_db.cachedAttendanceRecords)
+      ..where((t) => t.id.equals(attendanceId))).write(
+      CachedAttendanceRecordsCompanion(
+        checkedInAt: Value(checkedInAt),
+        syncState: const Value('pending'),
+      ),
+    );
+    final row = await (_db.select(_db.cachedAttendanceRecords)
+      ..where((t) => t.id.equals(attendanceId))).getSingle();
+    return _map(row);
+  }
+
   AttendanceRecord _map(CachedAttendanceRecord r) => AttendanceRecord(
     id: r.id, meetingId: r.meetingId, studentId: r.studentId,
     classIdAtAttendance: r.classIdAtAttendance, checkedInAt: r.checkedInAt,
