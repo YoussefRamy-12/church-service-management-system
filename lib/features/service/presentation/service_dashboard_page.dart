@@ -56,7 +56,7 @@ class _ServiceDashboardPageState extends ConsumerState<ServiceDashboardPage> {
                             title: Text(item.name),
                             trailing: const Icon(Icons.chevron_left),
                             onTap: () => Navigator.of(context).push(
-                              MaterialPageRoute(builder: (_) => ClassStudentsPage(classId: item.id, className: item.name)),
+                              MaterialPageRoute(builder: (_) => ClassStudentsPage(classId: item.id, className: item.name, serviceId: widget.serviceId)),
                             ),
                           )).toList());
                         },
