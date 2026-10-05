@@ -40,7 +40,8 @@ class _AttendanceSessionPageState extends ConsumerState<AttendanceSessionPage> {
     await OfflineFirstStudentRegistration(local, queue, ref.read(appDatabaseProvider)).registerPending(
       serviceId: widget.serviceId, proposedClassId: widget.classId, name: name,
     );
-    if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('تم حفظ التلميذ محليًا كـ Pending وسيتم مزامنته.')));
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('تم حفظ التلميذ محليًا كـ Pending وسيتم مزامنته.')));
   }
 
   @override
@@ -53,7 +54,7 @@ class _AttendanceSessionPageState extends ConsumerState<AttendanceSessionPage> {
           if (id == null) return;
           final students = await studentsStream.first;
           final match = students.where((s) => s.id == id).toList();
-          if (match.isEmpty) { if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('QR غير مرتبط بتلميذ في هذا الفصل.'))); return; }
+          if (match.isEmpty) { if (!context.mounted) return; ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('QR غير مرتبط بتلميذ في هذا الفصل.'))); return; }
           await _checkIn(match.first);
         }),
         IconButton(icon: const Icon(Icons.person_add), tooltip: 'تلميذ جديد', onPressed: _register),

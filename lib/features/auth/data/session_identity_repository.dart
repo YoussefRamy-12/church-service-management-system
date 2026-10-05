@@ -9,7 +9,6 @@ class SessionIdentityRepository {
       : _servants = ServantProfileRepository(_client),
         _admins = SystemAdminRepository(_client);
 
-  final SupabaseClient _client;
   final ServantProfileRepository _servants;
   final SystemAdminRepository _admins;
 

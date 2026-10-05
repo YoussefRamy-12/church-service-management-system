@@ -31,7 +31,7 @@ class AttendancePage extends ConsumerWidget {
           return ListView.separated(
             padding: const EdgeInsets.all(16),
             itemCount: students.length,
-            separatorBuilder: (_, __) => const Divider(),
+            separatorBuilder: (_, _) => const Divider(),
             itemBuilder: (_, index) {
               final student = students[index];
               final present = checked.contains(student.id);

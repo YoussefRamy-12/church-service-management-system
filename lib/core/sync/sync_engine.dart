@@ -77,7 +77,7 @@ class SyncEngine {
         }, onConflict: 'client_operation_id');
         return;
       default:
-        throw UnsupportedError('Unsupported sync entity: ' + operation.entityType);
+        throw UnsupportedError('Unsupported sync entity: ${operation.entityType}');
     }
   }
 }

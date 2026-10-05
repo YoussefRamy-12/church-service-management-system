@@ -22,7 +22,7 @@ class _MeetingListPageState extends ConsumerState<MeetingListPage> {
     final profile = ref.watch(currentServantProfileProvider).value;
     final canCreate = profile?.role == 'overall_leader' || profile?.role == 'overall_helper';
     return Scaffold(
-      appBar: AppBar(title: const Text('الاجتماعات'), actions: [IconButton(icon: const Icon(Icons.sync), onPressed: () => repo.refresh(widget.serviceId))]), floatingActionButton: canCreate ? FloatingActionButton(onPressed: () async { final now = DateTime.now(); await repo.create(serviceId: widget.serviceId, date: now, startTime: '15:00:00'); if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('تم إنشاء الاجتماع محليًا وسيتم مزامنته.'))); }, child: const Icon(Icons.add)) : null,
+      appBar: AppBar(title: const Text('الاجتماعات'), actions: [IconButton(icon: const Icon(Icons.sync), onPressed: () => repo.refresh(widget.serviceId))]), floatingActionButton: canCreate ? FloatingActionButton(onPressed: () async { final now = DateTime.now(); await repo.create(serviceId: widget.serviceId, date: now, startTime: '15:00:00'); if (!context.mounted) return; ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('تم إنشاء الاجتماع محليًا وسيتم مزامنته.'))); }, child: const Icon(Icons.add)) : null,
       body: StreamBuilder(
         stream: repo.watchMeetings(widget.serviceId),
         builder: (context, snapshot) {
@@ -30,7 +30,7 @@ class _MeetingListPageState extends ConsumerState<MeetingListPage> {
           if (meetings.isEmpty) return const Center(child: Text('لا توجد اجتماعات محفوظة محليًا.'));
           return ListView.separated(
             padding: const EdgeInsets.all(16), itemCount: meetings.length,
-            separatorBuilder: (_, __) => const Divider(),
+            separatorBuilder: (_, _) => const Divider(),
             itemBuilder: (_, index) {
               final meeting = meetings[index];
               return ListTile(title: Text('اجتماع ${meeting.meetingDate.toLocal().toString().split(' ').first}'), subtitle: Text('بداية الاجتماع ${meeting.startTime}'));
