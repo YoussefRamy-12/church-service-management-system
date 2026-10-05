@@ -4,7 +4,7 @@ import '../../students/domain/entities/student.dart';
 import '../../students/data/offline_first_student_registration.dart';
 import '../../students/presentation/student_providers.dart';
 import '../../../core/sync/sync_engine_provider.dart';
-import '../domain/repositories/attendance_repository.dart';
+import '../../../core/database/database_provider.dart';
 import 'attendance_providers.dart';
 import 'qr_scan_page.dart';
 
