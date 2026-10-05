@@ -123,4 +123,21 @@ class AppDatabase extends _$AppDatabase {
 
   @override
   int get schemaVersion => 3;
+
+  @override
+  MigrationStrategy get migration => MigrationStrategy(
+        onCreate: (m) => m.createAll(),
+        onUpgrade: (m, from, to) async {
+          if (from < 2) {
+            await m.createTable(cachedServices);
+            await m.createTable(cachedStages);
+            await m.createTable(cachedClasses);
+            await m.createTable(cachedStudents);
+          }
+          if (from < 3) {
+            await m.createTable(cachedMeetings);
+            await m.createTable(cachedAttendanceRecords);
+          }
+        },
+      );
 }
