@@ -1,0 +1,32 @@
+import 'package:supabase_flutter/supabase_flutter.dart';
+
+import '../domain/entities/servant_profile.dart';
+
+class ServantProfileRepository {
+  ServantProfileRepository(this._client);
+
+  final SupabaseClient _client;
+
+  Future<ServantProfile?> getCurrentProfile(String authUserId) async {
+    final row = await _client
+        .from('servant_profiles')
+        .select(
+          'id, auth_user_id, service_id, name, role, account_status, stage_id, class_id',
+        )
+        .eq('auth_user_id', authUserId)
+        .maybeSingle();
+
+    if (row == null) return null;
+
+    return ServantProfile(
+      id: row['id'] as String,
+      authUserId: row['auth_user_id'] as String,
+      serviceId: row['service_id'] as String,
+      name: row['name'] as String,
+      role: row['role'] as String,
+      accountStatus: row['account_status'] as String,
+      stageId: row['stage_id'] as String?,
+      classId: row['class_id'] as String?,
+    );
+  }
+}
