@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'student_providers.dart';
-import '../data/offline_first_student_repository.dart';
 
 class ClassStudentsPage extends ConsumerWidget {
   const ClassStudentsPage({super.key, required this.classId, required this.className});
