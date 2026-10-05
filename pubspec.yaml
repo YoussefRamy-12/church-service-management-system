@@ -1,0 +1,31 @@
+name: church_service_management_system
+description: Offline-first Church Service Management System.
+publish_to: "none"
+version: 0.1.0+1
+
+environment:
+  sdk: ">=3.10.0 <4.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+  cupertino_icons: ^1.0.8
+  flutter_riverpod: ^3.4.3
+  go_router: ^18.0.2
+  supabase_flutter: ^2.18.0
+  drift: ^2.35.1
+  drift_flutter: ^0.3.1
+  connectivity_plus: ^7.0.0
+  intl: ^0.20.2
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+  drift_dev: ^2.35.1
+  build_runner: ^2.10.4
+
+flutter:
+  uses-material-design: true
