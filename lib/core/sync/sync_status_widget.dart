@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'sync_engine_provider.dart';
+import 'sync_status.dart';
 
 class SyncStatusWidget extends ConsumerWidget {
   const SyncStatusWidget({super.key});
