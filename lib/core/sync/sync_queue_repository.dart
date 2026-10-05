@@ -36,6 +36,12 @@ class SyncQueueRepository {
       ..where((t) => t.operationId.equals(operationId))).go();
   }
 
+  Future<void> markConflict(String operationId) async {
+    await (_db.update(_db.syncQueueEntries)..where((t) => t.operationId.equals(operationId))).write(
+      const SyncQueueEntriesCompanion(status: Value('conflict'), lastAttemptAt: Value.absent()),
+    );
+  }
+
   Future<void> markRetry(String operationId) async {
     final row = await (_db.select(_db.syncQueueEntries)
       ..where((t) => t.operationId.equals(operationId))).getSingleOrNull();
