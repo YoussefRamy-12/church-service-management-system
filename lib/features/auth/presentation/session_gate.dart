@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'auth_providers.dart';
 import '../domain/entities/session_identity.dart';
+import '../../../core/sync/sync_engine_provider.dart';
 
 class SessionGate extends ConsumerWidget {
   const SessionGate({super.key});
@@ -32,6 +33,8 @@ class SessionGate extends ConsumerWidget {
             message: 'الحساب غير مرتبط بدور نشط في الخدمة.',
           );
         }
+
+        ref.read(syncEngineProvider).start();
 
         return switch (identity) {
           SuperAdminIdentity() => const _SessionHome(
