@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'student_providers.dart';
+import '../data/offline_first_student_repository.dart';
 
 class ClassStudentsPage extends ConsumerWidget {
   const ClassStudentsPage({super.key, required this.classId, required this.className});
@@ -11,7 +12,7 @@ class ClassStudentsPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final stream = ref.watch(studentRepositoryProvider).watchStudentsForClass(classId);
     return Scaffold(
-      appBar: AppBar(title: Text(className)),
+      appBar: AppBar(title: Text(className), actions: [IconButton(icon: const Icon(Icons.sync), tooltip: 'مزامنة', onPressed: () => ref.read(studentRepositoryProvider).refreshStudents(classId))]),
       body: StreamBuilder(
         stream: stream,
         builder: (context, snapshot) {
