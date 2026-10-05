@@ -1,11 +1,16 @@
+import 'dart:convert';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:uuid/uuid.dart';
+import '../../../core/sync/sync_operation.dart';
+import '../../../core/sync/sync_queue_repository.dart';
 import '../domain/entities/meeting.dart';
 import 'local_meeting_repository.dart';
 
 class MeetingRepository {
-  MeetingRepository(this.local, this.client);
+  MeetingRepository(this.local, this.client, this.queue);
   final LocalMeetingRepository local;
   final SupabaseClient client;
+  final SyncQueueRepository queue;
 
   Stream<List<Meeting>> watchMeetings(String serviceId) => local.watchMeetings(serviceId);
 
@@ -15,9 +20,20 @@ class MeetingRepository {
   }
 
   Future<Meeting> create({required String serviceId, required DateTime date, required String startTime}) async {
-    final row = await client.from('meetings').insert({'service_id': serviceId, 'meeting_date': date.toIso8601String().substring(0, 10), 'start_time': startTime}).select('id, service_id, meeting_date, start_time').single();
-    final item = Meeting(id: row['id'] as String, serviceId: row['service_id'] as String, meetingDate: DateTime.parse(row['meeting_date'].toString()), startTime: row['start_time'] as String);
+    final id = const Uuid().v4();
+    final item = Meeting(id: id, serviceId: serviceId, meetingDate: date, startTime: startTime);
     await local.cacheMeetings([item]);
+    await queue.enqueue(SyncOperation(
+      operationId: const Uuid().v4(),
+      entityType: 'meeting',
+      operationType: 'insert',
+      payloadJson: jsonEncode({
+        'id': id,
+        'service_id': serviceId,
+        'meeting_date': date.toIso8601String().substring(0, 10),
+        'start_time': startTime,
+      }),
+    ));
     return item;
   }
 }
