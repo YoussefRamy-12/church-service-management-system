@@ -7,7 +7,7 @@ class QrScanPage extends StatelessWidget {
   Widget build(BuildContext context) => Scaffold(
     appBar: AppBar(title: const Text('مسح QR')),
     body: MobileScanner(onDetect: (capture) {
-      final value = capture.barcodes.firstOrNull?.rawValue;
+      final value = capture.barcodes.isEmpty ? null : capture.barcodes.first.rawValue;
       if (value != null && value.isNotEmpty) Navigator.of(context).pop(value);
     }),
   );
