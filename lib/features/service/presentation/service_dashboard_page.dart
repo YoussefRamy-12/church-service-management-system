@@ -42,6 +42,11 @@ class _ServiceDashboardPageState extends ConsumerState<ServiceDashboardPage> {
                   if (stages.isEmpty) return const Text('لا توجد مراحل محفوظة محليًا بعد.');
                   return Column(children: stages.map((stage) => ExpansionTile(
                     title: Text(stage.name),
+                    onExpansionChanged: (expanded) {
+                      if (expanded) {
+                        ref.read(serviceRepositoryProvider).refreshClasses(stage.id);
+                      }
+                    },
                     children: [
                       StreamBuilder(
                         stream: repository.watchClasses(stage.id),
@@ -50,12 +55,7 @@ class _ServiceDashboardPageState extends ConsumerState<ServiceDashboardPage> {
                           return Column(children: classes.map((item) => ListTile(
                             title: Text(item.name),
                             trailing: const Icon(Icons.chevron_left),
-                            onExpansionChanged: (expanded) {
-                        if (expanded) {
-                          ref.read(serviceRepositoryProvider).refreshClasses(stage.id);
-                        }
-                      },
-                      onTap: () => Navigator.of(context).push(
+                            onTap: () => Navigator.of(context).push(
                               MaterialPageRoute(builder: (_) => ClassStudentsPage(classId: item.id, className: item.name)),
                             ),
                           )).toList());
