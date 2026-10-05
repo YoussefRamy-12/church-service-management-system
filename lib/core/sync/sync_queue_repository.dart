@@ -1,4 +1,5 @@
 import 'dart:convert';
+
 import 'package:drift/drift.dart';
 import '../database/app_database.dart';
 import 'sync_operation.dart';
@@ -55,6 +56,8 @@ class SyncQueueRepository {
       ),
     );
   }
+
+  Future<int> countByStatus(String status) async => await ((_db.select(_db.syncQueueEntries)..where((t) => t.status.equals(status))).get()).length;
 
   Map<String, dynamic> decode(String payload) => jsonDecode(payload) as Map<String, dynamic>;
 }
