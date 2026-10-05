@@ -59,5 +59,7 @@ class SyncQueueRepository {
 
   Future<int> countByStatus(String status) async => await ((_db.select(_db.syncQueueEntries)..where((t) => t.status.equals(status))).get()).length;
 
+  Stream<int> watchCountByStatus(String status) => (_db.select(_db.syncQueueEntries)..where((t) => t.status.equals(status))).watch().map((rows) => rows.length);
+
   Map<String, dynamic> decode(String payload) => jsonDecode(payload) as Map<String, dynamic>;
 }
