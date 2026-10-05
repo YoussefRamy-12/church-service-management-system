@@ -5,6 +5,7 @@ import '../core/config/supabase_initializer.dart';
 import '../features/auth/presentation/login_page.dart';
 import '../features/auth/presentation/session_gate.dart';
 import '../features/service/presentation/service_dashboard_page.dart';
+import '../features/attendance/presentation/attendance_session_page.dart';
 import '../core/sync/sync_engine_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'theme.dart';
@@ -71,6 +72,15 @@ class _ChurchServiceAppState extends ConsumerState<ChurchServiceApp> {
             path: '/service/:serviceId',
             builder: (context, state) => ServiceDashboardPage(
               serviceId: state.pathParameters['serviceId']!,
+            ),
+          ),
+          GoRoute(
+            path: '/attendance/:meetingId/:classId',
+            builder: (context, state) => AttendanceSessionPage(
+              serviceId: state.uri.queryParameters['serviceId']!,
+              meetingId: state.pathParameters['meetingId']!,
+              classId: state.pathParameters['classId']!,
+              recordedBy: state.uri.queryParameters['recordedBy']!,
             ),
           ),
         ],
