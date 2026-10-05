@@ -6,7 +6,6 @@ import '../features/auth/presentation/login_page.dart';
 import '../features/auth/presentation/session_gate.dart';
 import '../features/service/presentation/service_dashboard_page.dart';
 import '../features/attendance/presentation/attendance_session_page.dart';
-import '../core/sync/sync_engine_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'theme.dart';
 
@@ -37,9 +36,6 @@ class _ChurchServiceAppState extends ConsumerState<ChurchServiceApp> {
             home: _StartupScreen(),
           );
         }
-
-        final syncEngine = ref.read(syncEngineProvider);
-        Future.microtask(syncEngine.start);
 
         return MaterialApp.router(
           title: 'أسرة تلاميذ المسيح',
