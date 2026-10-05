@@ -1,4 +1,4 @@
-import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:supabase_flutter/supabase_flutter.dart' as supabase;
 
 import '../domain/entities/auth_user.dart';
 import '../domain/repositories/auth_repository.dart';
@@ -6,9 +6,9 @@ import '../domain/repositories/auth_repository.dart';
 class SupabaseAuthRepository implements AuthRepository {
   SupabaseAuthRepository(this._client);
 
-  final SupabaseClient _client;
+  final supabase.SupabaseClient _client;
 
-  AuthUser? _map(User? user) {
+  AuthUser? _map(supabase.User? user) {
     if (user == null) return null;
     return AuthUser(
       id: user.id,
@@ -36,7 +36,7 @@ class SupabaseAuthRepository implements AuthRepository {
 
     final user = response.user;
     if (user == null) {
-      throw const AuthException('تعذر تسجيل الدخول.');
+      throw const supabase.AuthException('تعذر تسجيل الدخول.');
     }
 
     return _map(user)!;

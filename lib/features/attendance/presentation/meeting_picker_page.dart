@@ -14,7 +14,7 @@ class _MeetingPickerPageState extends ConsumerState<MeetingPickerPage> {
   @override void initState() { super.initState(); Future.microtask(() => ref.read(meetingRepositoryProvider).refresh(widget.serviceId)); }
   @override Widget build(BuildContext context) {
     final repo = ref.watch(meetingRepositoryProvider);
-    final profile = ref.watch(currentServantProfileProvider).valueOrNull;
+    final profile = ref.watch(currentServantProfileProvider).value;
     return Scaffold(
       appBar: AppBar(title: const Text('اختيار اجتماع الحضور')),
       body: StreamBuilder(

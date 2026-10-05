@@ -57,7 +57,10 @@ class SyncQueueRepository {
     );
   }
 
-  Future<int> countByStatus(String status) async => await ((_db.select(_db.syncQueueEntries)..where((t) => t.status.equals(status))).get()).length;
+  Future<int> countByStatus(String status) async {
+    final rows = await (_db.select(_db.syncQueueEntries)..where((t) => t.status.equals(status))).get();
+    return rows.length;
+  }
 
   Stream<int> watchCountByStatus(String status) => (_db.select(_db.syncQueueEntries)..where((t) => t.status.equals(status))).watch().map((rows) => rows.length);
 

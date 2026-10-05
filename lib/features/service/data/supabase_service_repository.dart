@@ -63,7 +63,7 @@ class SupabaseServiceRepository implements ServiceRepository {
         .eq('stage_id', stageId)
         .order('name');
 
-    yield rows
+    return rows
         .map(
           (row) => ServiceClass(
             id: row['id'] as String,

@@ -19,7 +19,7 @@ class _MeetingListPageState extends ConsumerState<MeetingListPage> {
   @override
   Widget build(BuildContext context) {
     final repo = ref.watch(meetingRepositoryProvider);
-    final profile = ref.watch(currentServantProfileProvider).valueOrNull;
+    final profile = ref.watch(currentServantProfileProvider).value;
     final canCreate = profile?.role == 'overall_leader' || profile?.role == 'overall_helper';
     return Scaffold(
       appBar: AppBar(title: const Text('الاجتماعات'), actions: [IconButton(icon: const Icon(Icons.sync), onPressed: () => repo.refresh(widget.serviceId))]), floatingActionButton: canCreate ? FloatingActionButton(onPressed: () async { final now = DateTime.now(); await repo.create(serviceId: widget.serviceId, date: now, startTime: '15:00:00'); if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('تم إنشاء الاجتماع محليًا وسيتم مزامنته.'))); }, child: const Icon(Icons.add)) : null,

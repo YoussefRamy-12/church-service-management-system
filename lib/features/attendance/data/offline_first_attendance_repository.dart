@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'package:uuid/uuid.dart';
 import '../../../core/sync/sync_operation.dart';
 import '../../../core/sync/sync_queue_repository.dart';
 import '../domain/entities/attendance_record.dart';
@@ -10,7 +9,6 @@ class OfflineFirstAttendanceRepository implements AttendanceRepository {
   OfflineFirstAttendanceRepository({required this.local, required this.queue});
   final LocalAttendanceRepository local;
   final SyncQueueRepository queue;
-  final Uuid _uuid = const Uuid();
 
   @override
   Stream<List<AttendanceRecord>> watchForMeeting(String meetingId) =>
