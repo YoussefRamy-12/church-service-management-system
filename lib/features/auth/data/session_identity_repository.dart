@@ -1,3 +1,5 @@
+import 'package:supabase_flutter/supabase_flutter.dart';
+
 import '../domain/entities/session_identity.dart';
 import 'servant_profile_repository.dart';
 import 'system_admin_repository.dart';
