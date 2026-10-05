@@ -34,8 +34,12 @@ class SyncEngine {
         try {
           await _apply(operation);
           await queue.markDone(operation.operationId);
-        } catch (_) {
-          await queue.markRetry(operation.operationId);
+        } catch (error) {
+          if (error is PostgrestException && (error.code == '23505' || error.code == '23503' || error.code == '42501')) {
+            await queue.markConflict(operation.operationId);
+          } else {
+            await queue.markRetry(operation.operationId);
+          }
         }
       }
     } finally {
