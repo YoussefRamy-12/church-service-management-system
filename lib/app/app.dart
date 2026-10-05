@@ -5,16 +5,18 @@ import '../core/config/supabase_initializer.dart';
 import '../features/auth/presentation/login_page.dart';
 import '../features/auth/presentation/session_gate.dart';
 import '../features/service/presentation/service_dashboard_page.dart';
+import '../core/sync/sync_engine_provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'theme.dart';
 
-class ChurchServiceApp extends StatefulWidget {
+class ChurchServiceApp extends ConsumerStatefulWidget {
   const ChurchServiceApp({super.key});
 
   @override
-  State<ChurchServiceApp> createState() => _ChurchServiceAppState();
+  ConsumerState<ChurchServiceApp> createState() => _ChurchServiceAppState();
 }
 
-class _ChurchServiceAppState extends State<ChurchServiceApp> {
+class _ChurchServiceAppState extends ConsumerState<ChurchServiceApp> {
   late final Future<void> _initialization;
 
   @override
@@ -34,6 +36,9 @@ class _ChurchServiceAppState extends State<ChurchServiceApp> {
             home: _StartupScreen(),
           );
         }
+
+        final syncEngine = ref.read(syncEngineProvider);
+        Future.microtask(syncEngine.start);
 
         return MaterialApp.router(
           title: 'أسرة تلاميذ المسيح',
