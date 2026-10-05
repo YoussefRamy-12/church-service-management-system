@@ -30,10 +30,10 @@ class SupabaseServiceRepository implements ServiceRepository {
 
   @override
   Stream<List<Stage>> watchStages(String serviceId) async* {
-    yield await _fetchStages(serviceId);
+    yield await fetchStages(serviceId);
   }
 
-  Future<List<Stage>> _fetchStages(String serviceId) async {
+  Future<List<Stage>> fetchStages(String serviceId) async {
     final rows = await _client
         .from('stages')
         .select('id, service_id, name')
@@ -53,6 +53,10 @@ class SupabaseServiceRepository implements ServiceRepository {
 
   @override
   Stream<List<ServiceClass>> watchClasses(String stageId) async* {
+    yield await fetchClasses(stageId);
+  }
+
+  Future<List<ServiceClass>> fetchClasses(String stageId) async {
     final rows = await _client
         .from('classes')
         .select('id, stage_id, name')
