@@ -23,6 +23,20 @@ class SupabaseStudentRepository implements StudentRepository {
     yield rows.map(_fromRow).toList();
   }
 
+  Future<List<Student>> fetchStudentsForClass(String classId) async {
+    final rows = await _client
+        .from('students')
+        .select(
+          'id, service_id, current_class_id, proposed_class_id, name, '
+          'birth_date, phone, school, grade, enrollment_at, approval_status, '
+          'photo_path, notes',
+        )
+        .eq('current_class_id', classId)
+        .order('name');
+
+    return rows.map(_fromRow).toList();
+  }
+
   Student _fromRow(Map<String, dynamic> row) => Student(
         id: row['id'] as String,
         serviceId: row['service_id'] as String,
