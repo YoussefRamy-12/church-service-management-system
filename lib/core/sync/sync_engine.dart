@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'sync_queue_repository.dart';
+import 'sync_status.dart';
 import 'sync_operation.dart';
 
 class SyncEngine {
@@ -13,6 +14,8 @@ class SyncEngine {
   final Connectivity _connectivity;
   StreamSubscription<List<ConnectivityResult>>? _subscription;
   bool _running = false;
+  SyncStatus status = SyncStatus.idle;
+  Object? lastError;
 
   Future<void> start() async {
     _subscription ??= _connectivity.onConnectivityChanged.listen((_) => syncNow());
@@ -27,7 +30,9 @@ class SyncEngine {
   Future<void> syncNow() async {
     if (_running) return;
     final results = await _connectivity.checkConnectivity();
-    if (results.every((r) => r == ConnectivityResult.none)) return;
+    if (results.every((r) => r == ConnectivityResult.none)) { status = SyncStatus.offline; return; }
+    status = SyncStatus.syncing;
+    lastError = null;
     _running = true;
     try {
       for (final operation in await queue.pending()) {
@@ -42,8 +47,12 @@ class SyncEngine {
           }
         }
       }
+    } catch (error) {
+      lastError = error;
+      status = SyncStatus.error;
     } finally {
       _running = false;
+      if (lastError == null) status = SyncStatus.idle;
     }
   }
 
