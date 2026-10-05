@@ -69,6 +69,29 @@ class CachedStudents extends Table {
   Set<Column<Object>> get primaryKey => {id};
 }
 
+class CachedMeetings extends Table {
+  TextColumn get id => text()();
+  TextColumn get serviceId => text()();
+  TextColumn get meetingDate => text()();
+  TextColumn get startTime => text()();
+  DateTimeColumn get cachedAt => dateTime()();
+  @override
+  Set<Column<Object>> get primaryKey => {id};
+}
+
+class CachedAttendanceRecords extends Table {
+  TextColumn get id => text()();
+  TextColumn get meetingId => text()();
+  TextColumn get studentId => text()();
+  TextColumn get classIdAtAttendance => text()();
+  DateTimeColumn get checkedInAt => dateTime()();
+  TextColumn get recordedBy => text()();
+  TextColumn get clientOperationId => text()();
+  TextColumn get syncState => text().withDefault(const Constant('pending'))();
+  @override
+  Set<Column<Object>> get primaryKey => {id};
+}
+
 class SyncQueueEntries extends Table {
   TextColumn get operationId => text()();
   TextColumn get entityType => text()();
@@ -90,6 +113,8 @@ class SyncQueueEntries extends Table {
     CachedStages,
     CachedClasses,
     CachedStudents,
+    CachedMeetings,
+    CachedAttendanceRecords,
     SyncQueueEntries,
   ],
 )
@@ -97,5 +122,5 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(driftDatabase(name: 'church_service'));
 
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 3;
 }
