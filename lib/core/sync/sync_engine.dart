@@ -85,6 +85,14 @@ class SyncEngine {
       case 'follow_up':
         await client.from('follow_up_records').insert(payload);
         return;
+      case 'reporting_period':
+        if (operation.operationType == 'insert') {
+          await client.from('reporting_periods').insert(payload);
+          return;
+        }
+        throw UnsupportedError(
+          'Unsupported reporting period operation: ${operation.operationType}',
+        );
       case 'service':
         if (operation.operationType == 'update') {
           final rows = await client
