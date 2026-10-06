@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'sync_engine_provider.dart';
 import 'sync_status.dart';
 
@@ -24,7 +25,8 @@ class SyncStatusWidget extends ConsumerWidget {
                     : engine.status == SyncStatus.offline
                         ? 'أوفلاين'
                         : 'متزامن';
-            return Chip(
+            return ActionChip(
+              onPressed: conflicts > 0 ? () => context.push('/sync/conflicts') : null,
               avatar: Icon(
                 conflicts > 0
                     ? Icons.warning_amber
