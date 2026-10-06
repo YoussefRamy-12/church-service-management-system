@@ -65,6 +65,12 @@ class LocalServiceRepository implements ServiceRepository {
         );
   }
 
+  Future<List<Stage>> getStages(String serviceId) =>
+      watchStages(serviceId).first;
+
+  Future<List<ServiceClass>> getClasses(String stageId) =>
+      watchClasses(stageId).first;
+
   Future<void> cacheService(Service service) async {
     await _db.into(_db.cachedServices).insertOnConflictUpdate(
           CachedServicesCompanion.insert(
