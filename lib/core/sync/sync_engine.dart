@@ -5,6 +5,11 @@ import 'sync_queue_repository.dart';
 import 'sync_status.dart';
 import 'sync_operation.dart';
 
+class SyncConflictException implements Exception {
+  const SyncConflictException(this.message);
+  final String message;
+}
+
 class SyncEngine {
   SyncEngine({required this.queue, required this.client, Connectivity? connectivity})
       : _connectivity = connectivity ?? Connectivity();
@@ -42,6 +47,8 @@ class SyncEngine {
         } catch (error) {
           if (error is PostgrestException && (error.code == '23505' || error.code == '23503' || error.code == '42501')) {
             await queue.markConflict(operation.operationId);
+          } else if (error is SyncConflictException) {
+            await queue.markConflict(operation.operationId);
           } else {
             await queue.markRetry(operation.operationId);
           }
@@ -63,7 +70,18 @@ class SyncEngine {
         await client.from('meetings').insert(payload);
         return;
       case 'student':
-        await client.from('students').insert(payload);
+        if (operation.operationType == 'insert') {
+          await client.from('students').insert(payload);
+          return;
+        }
+        if (operation.operationType == 'update') {
+          final rows = await client.from('students').update(payload).eq('id', payload['id'] as String).select('id');
+          if (rows.isEmpty) {
+            throw const SyncConflictException('Student update was rejected or is no longer accessible.');
+          }
+          return;
+        }
+        throw UnsupportedError('Unsupported student operation: ' + operation.operationType);
         return;
       case 'attendance':
         await client.from('attendance_records').upsert({
