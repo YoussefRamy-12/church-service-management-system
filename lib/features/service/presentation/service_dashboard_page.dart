@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../students/presentation/class_students_page.dart';
+import '../../auth/presentation/auth_providers.dart';
+import 'package:go_router/go_router.dart';
 import '../../attendance/presentation/meeting_list_page.dart';
 import 'service_providers.dart';
 
@@ -22,15 +24,27 @@ class _ServiceDashboardPageState extends ConsumerState<ServiceDashboardPage> {
   @override
   Widget build(BuildContext context) {
     final repository = ref.watch(serviceRepositoryProvider);
+    final profile = ref.watch(currentServantProfileProvider);
     return Scaffold(
       appBar: AppBar(
         title: const Text('خدمة تلاميذ المسيح'),
         actions: [
+          if (profile.hasValue &&
+              profile.value != null &&
+              (profile.value!.role == 'overall_leader' ||
+                  profile.value!.role == 'overall_helper'))
+            IconButton(
+              tooltip: 'إدارة الخدام',
+              icon: const Icon(Icons.people_alt),
+              onPressed: () => context.push('/servants/' + widget.serviceId),
+            ),
           IconButton(
             tooltip: 'الاجتماعات',
             icon: const Icon(Icons.event),
             onPressed: () => Navigator.of(context).push(
-              MaterialPageRoute(builder: (_) => MeetingListPage(serviceId: widget.serviceId)),
+              MaterialPageRoute(
+                builder: (_) => MeetingListPage(serviceId: widget.serviceId),
+              ),
             ),
           ),
         ],
