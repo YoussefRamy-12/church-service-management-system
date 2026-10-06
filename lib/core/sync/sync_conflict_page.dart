@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'sync_engine_provider.dart';
+import 'sync_queue_repository.dart';
 
 class SyncConflictPage extends ConsumerWidget {
   const SyncConflictPage({super.key});
@@ -29,7 +30,7 @@ class SyncConflictPage extends ConsumerWidget {
               return Card(child: ListTile(
                 leading: const Icon(Icons.warning_amber),
                 title: Text(_entityLabel(item.entityType)),
-                subtitle: Text(item.operationType + ' • ' + item.createdAt.toIso8601String().split('T').first),
+                subtitle: Text('${item.operationType} • ${item.createdAt.toIso8601String().split('T').first}'),
                 trailing: IconButton(
                   tooltip: 'إعادة المحاولة',
                   icon: const Icon(Icons.refresh),
