@@ -39,7 +39,7 @@ class _ReportsPageState extends ConsumerState<ReportsPage> {
     } catch (error) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('تعذر تحميل التقرير: ' + error.toString())),
+        SnackBar(content: Text('تعذر تحميل التقرير: ${error.toString()}')),
       );
     } finally {
       if (mounted) setState(() => loading = false);
@@ -76,7 +76,7 @@ class _ReportsPageState extends ConsumerState<ReportsPage> {
         if (selected != null && context.mounted) onPick(selected);
       },
       icon: const Icon(Icons.calendar_month),
-      label: Text(label + ': ' + value),
+      label: Text('$label: $value'),
     );
   }
 }
@@ -93,8 +93,8 @@ class _ReportSummary extends StatelessWidget {
         children: [
           _metric('التلاميذ', report.students.toString(), Icons.groups),
           _metric('الاجتماعات', report.meetings.toString(), Icons.event),
-          _metric('الحضور', report.present.toString() + '/' + report.expectedAttendance.toString(), Icons.fact_check),
-          _metric('نسبة الحضور', report.attendancePercentage.toStringAsFixed(1) + '%', Icons.percent),
+          _metric('الحضور', ${report.present}/${report.expectedAttendance}, Icons.fact_check),
+          _metric('نسبة الحضور', ${report.attendancePercentage.toStringAsFixed(1)}%, Icons.percent),
           _metric('مبكر', report.early.toString(), Icons.schedule),
           _metric('عادي', report.normal.toString(), Icons.access_time),
           _metric('المتابعات', report.followUps.toString(), Icons.phone),
