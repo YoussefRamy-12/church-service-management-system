@@ -1,3 +1,4 @@
+ // ignore_for_file: deprecated_member_use, avoid_web_libraries_in_flutter
 import 'dart:convert';
 import 'dart:typed_data';
 import 'dart:html' as html;
@@ -26,7 +27,9 @@ class CsvExportRepository {
         .get();
 
     final scoped = students.where((student) {
-      if (studentIds != null && !studentIds.contains(student.id)) return false;
+      if (studentIds != null && !studentIds.contains(student.id)) {
+        return false;
+      }
       if (classId != null) return student.currentClassId == classId;
       if (stageId != null) return student.currentClassId != null &&
           allowedClassIds.contains(student.currentClassId);
