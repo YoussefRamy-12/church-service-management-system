@@ -85,6 +85,25 @@ class SyncEngine {
       case 'follow_up':
         await client.from('follow_up_records').insert(payload);
         return;
+      case 'service':
+        if (operation.operationType == 'update') {
+          final rows = await client
+              .from('services')
+              .update({
+                'meeting_start_time': payload['meeting_start_time'],
+              })
+              .eq('id', payload['id'] as String)
+              .select('id');
+          if (rows.isEmpty) {
+            throw const SyncConflictException(
+              'Service settings update was rejected or is no longer accessible.',
+            );
+          }
+          return;
+        }
+        throw UnsupportedError(
+          'Unsupported service operation: ${operation.operationType}',
+        );
       case 'servant':
         if (operation.operationType == 'update') {
           final rows = await client
