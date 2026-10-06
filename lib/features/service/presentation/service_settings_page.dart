@@ -6,7 +6,6 @@ import 'package:uuid/uuid.dart';
 
 import '../../../core/database/app_database.dart';
 import '../../../core/sync/sync_operation.dart';
-import '../../../core/sync/sync_queue_repository.dart';
 import '../../../core/sync/sync_engine_provider.dart';
 import '../../auth/presentation/auth_providers.dart';
 import 'service_providers.dart';
