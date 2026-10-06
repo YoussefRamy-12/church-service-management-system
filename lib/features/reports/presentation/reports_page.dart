@@ -93,8 +93,8 @@ class _ReportSummary extends StatelessWidget {
         children: [
           _metric('التلاميذ', report.students.toString(), Icons.groups),
           _metric('الاجتماعات', report.meetings.toString(), Icons.event),
-          _metric('الحضور', ${report.present}/${report.expectedAttendance}, Icons.fact_check),
-          _metric('نسبة الحضور', ${report.attendancePercentage.toStringAsFixed(1)}%, Icons.percent),
+          _metric('الحضور', '${report.present}/${report.expectedAttendance}', Icons.fact_check),
+          _metric('نسبة الحضور', '${report.attendancePercentage.toStringAsFixed(1)}%', Icons.percent),
           _metric('مبكر', report.early.toString(), Icons.schedule),
           _metric('عادي', report.normal.toString(), Icons.access_time),
           _metric('المتابعات', report.followUps.toString(), Icons.phone),
