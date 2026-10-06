@@ -92,6 +92,25 @@ class CachedAttendanceRecords extends Table {
   Set<Column<Object>> get primaryKey => {id};
 }
 
+class CachedFollowUpRecords extends Table {
+  TextColumn get id => text()();
+  TextColumn get studentId => text()();
+  TextColumn get createdBy => text()();
+  TextColumn get followUpDate => text()();
+  TextColumn get contactStatus => text()();
+  TextColumn get contactMethod => text().nullable()();
+  TextColumn get absenceReason => text().nullable()();
+  TextColumn get studentResponse => text().nullable()();
+  TextColumn get parentResponse => text().nullable()();
+  TextColumn get actionRequired => text().nullable()();
+  TextColumn get notes => text().nullable()();
+  BoolColumn get anotherFollowUpNeeded => boolean().withDefault(const Constant(false))();
+  TextColumn get nextFollowUpDate => text().nullable()();
+  TextColumn get clientOperationId => text()();
+  DateTimeColumn get cachedAt => dateTime()();
+  @override Set<Column<Object>> get primaryKey => {id};
+}
+
 class SyncQueueEntries extends Table {
   TextColumn get operationId => text()();
   TextColumn get entityType => text()();
@@ -115,6 +134,7 @@ class SyncQueueEntries extends Table {
     CachedStudents,
     CachedMeetings,
     CachedAttendanceRecords,
+    CachedFollowUpRecords,
     SyncQueueEntries,
   ],
 )
@@ -122,7 +142,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(driftDatabase(name: 'church_service'));
 
   @override
-  int get schemaVersion => 3;
+  int get schemaVersion => 4;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -137,6 +157,9 @@ class AppDatabase extends _$AppDatabase {
           if (from < 3) {
             await m.createTable(cachedMeetings);
             await m.createTable(cachedAttendanceRecords);
+          }
+          if (from < 4) {
+            await m.createTable(cachedFollowUpRecords);
           }
         },
       );
