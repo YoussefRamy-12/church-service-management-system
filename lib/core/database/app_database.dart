@@ -115,6 +115,19 @@ class CachedFollowUpRecords extends Table {
   @override Set<Column<Object>> get primaryKey => {id};
 }
 
+class CachedReportingPeriods extends Table {
+  TextColumn get id => text()();
+  TextColumn get serviceId => text()();
+  TextColumn get name => text()();
+  TextColumn get type => text()();
+  TextColumn get startDate => text()();
+  TextColumn get endDate => text()();
+  DateTimeColumn get cachedAt => dateTime()();
+
+  @override
+  Set<Column<Object>> get primaryKey => {id};
+}
+
 class SyncQueueEntries extends Table {
   TextColumn get operationId => text()();
   TextColumn get entityType => text()();
@@ -139,6 +152,7 @@ class SyncQueueEntries extends Table {
     CachedMeetings,
     CachedAttendanceRecords,
     CachedFollowUpRecords,
+    CachedReportingPeriods,
     SyncQueueEntries,
   ],
 )
@@ -146,7 +160,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(driftDatabase(name: 'church_service'));
 
   @override
-  int get schemaVersion => 5;
+  int get schemaVersion => 6;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -164,6 +178,9 @@ class AppDatabase extends _$AppDatabase {
           }
           if (from < 4) {
             await m.createTable(cachedFollowUpRecords);
+          }
+          if (from < 6) {
+            await m.createTable(cachedReportingPeriods);
           }
           if (from < 5) {
             await m.addColumn(cachedProfiles, cachedProfiles.phone);
