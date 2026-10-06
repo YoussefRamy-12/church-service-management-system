@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../auth/presentation/auth_providers.dart';
 import '../domain/entities/student.dart';
 import 'student_providers.dart';
+import '../../follow_up/presentation/follow_up_page.dart';
 
 class StudentDetailsPage extends ConsumerStatefulWidget {
   const StudentDetailsPage({super.key, required this.student});
@@ -87,6 +88,7 @@ class _StudentDetailsPageState extends ConsumerState<StudentDetailsPage> {
       appBar: AppBar(
         title: Text(student.name),
         actions: [
+          IconButton(icon: const Icon(Icons.history), tooltip: 'المتابعة', onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => FollowUpPage(student: student)))),
           IconButton(
             icon: const Icon(Icons.edit),
             tooltip: 'تعديل',
