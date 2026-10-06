@@ -4,15 +4,59 @@ import '../domain/entities/stage.dart';
 import '../domain/repositories/service_repository.dart';
 import 'local_service_repository.dart';
 import 'supabase_service_repository.dart';
+import '../../../core/sync/sync_operation.dart';
+import '../../../core/sync/sync_queue_repository.dart';
 
 class OfflineFirstServiceRepository implements ServiceRepository {
   OfflineFirstServiceRepository({
     required this.local,
     required this.remote,
+    required this.queue,
   });
 
   final LocalServiceRepository local;
   final SupabaseServiceRepository remote;
+  final SyncQueueRepository queue;
+
+  Future<void> updateMeetingStartTime({
+    required String serviceId,
+    required String meetingStartTime,
+  }) async {
+    await local.updateMeetingStartTime(
+      serviceId: serviceId,
+      meetingStartTime: meetingStartTime,
+    );
+    await queue.enqueue(
+      SyncOperation(
+        operationId: 'service-settings-$serviceId',
+        entityType: 'service',
+        operationType: 'update',
+        payload: {
+          'id': serviceId,
+          'meeting_start_time': meetingStartTime,
+        },
+      ),
+    );
+  }
+
+  Future<void> refreshReportingPeriods(String serviceId) async {
+    final rows = await remote.fetchReportingPeriods(serviceId);
+    await local.cacheReportingPeriods(
+      rows.map((row) => CachedReportingPeriodsCompanion.insert(
+        id: row['id'] as String,
+        serviceId: row['service_id'] as String,
+        name: row['name'] as String,
+        type: row['type'] as String,
+        startDate: row['start_date'] as String,
+        endDate: row['end_date'] as String,
+        cachedAt: DateTime.now(),
+      )).toList(),
+    );
+  }
+
+  Future<List<CachedReportingPeriodsData>> getReportingPeriods(
+    String serviceId,
+  ) => local.getReportingPeriods(serviceId);
 
   @override
   Future<Service?> getService(String serviceId) async {
