@@ -1,3 +1,6 @@
+import 'dart:convert';
+
+import '../../../core/database/app_database.dart';
 import '../domain/entities/service.dart';
 import '../domain/entities/service_class.dart';
 import '../domain/entities/stage.dart';
@@ -31,10 +34,10 @@ class OfflineFirstServiceRepository implements ServiceRepository {
         operationId: 'service-settings-$serviceId',
         entityType: 'service',
         operationType: 'update',
-        payload: {
+        payloadJson: jsonEncode({
           'id': serviceId,
           'meeting_start_time': meetingStartTime,
-        },
+        }),
       ),
     );
   }
@@ -54,7 +57,7 @@ class OfflineFirstServiceRepository implements ServiceRepository {
     );
   }
 
-  Future<List<CachedReportingPeriodsData>> getReportingPeriods(
+  Future<List<CachedReportingPeriod>> getReportingPeriods(
     String serviceId,
   ) => local.getReportingPeriods(serviceId);
 
