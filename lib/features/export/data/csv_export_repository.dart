@@ -30,9 +30,13 @@ class CsvExportRepository {
       if (studentIds != null && !studentIds.contains(student.id)) {
         return false;
       }
-      if (classId != null) return student.currentClassId == classId;
-      if (stageId != null) return student.currentClassId != null &&
-          allowedClassIds.contains(student.currentClassId);
+      if (classId != null) {
+        return student.currentClassId == classId;
+      }
+      if (stageId != null) {
+        return student.currentClassId != null &&
+            allowedClassIds.contains(student.currentClassId);
+      }
       return true;
     }).toList();
 
