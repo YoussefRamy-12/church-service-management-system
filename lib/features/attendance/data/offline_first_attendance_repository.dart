@@ -23,23 +23,43 @@ class OfflineFirstAttendanceRepository implements AttendanceRepository {
     required DateTime checkedInAt,
   }) async {
     final record = await local.checkIn(
-      meetingId: meetingId, studentId: studentId,
+      meetingId: meetingId,
+      studentId: studentId,
       classIdAtAttendance: classIdAtAttendance,
-      recordedBy: recordedBy, checkedInAt: checkedInAt,
+      recordedBy: recordedBy,
+      checkedInAt: checkedInAt,
     );
-    await queue.enqueue(SyncOperation(
-      operationId: record.clientOperationId,
-      entityType: 'attendance',
-      operationType: 'upsert',
-      payloadJson: jsonEncode({
-        'id': record.id,
-        'meeting_id': record.meetingId,
-        'student_id': record.studentId,
-        'class_id_at_attendance': record.classIdAtAttendance,
-        'checked_in_at': record.checkedInAt.toIso8601String(),
-        'recorded_by': record.recordedBy,
-      }),
-    ));
+    await _enqueue(record);
     return record;
+  }
+
+  Future<AttendanceRecord> updateCheckedInAt({
+    required String attendanceId,
+    required DateTime checkedInAt,
+  }) async {
+    final record = await local.updateCheckedInAt(
+      attendanceId: attendanceId,
+      checkedInAt: checkedInAt,
+    );
+    await _enqueue(record);
+    return record;
+  }
+
+  Future<void> _enqueue(AttendanceRecord record) {
+    return queue.enqueue(
+      SyncOperation(
+        operationId: record.clientOperationId,
+        entityType: 'attendance',
+        operationType: 'upsert',
+        payloadJson: jsonEncode({
+          'id': record.id,
+          'meeting_id': record.meetingId,
+          'student_id': record.studentId,
+          'class_id_at_attendance': record.classIdAtAttendance,
+          'checked_in_at': record.checkedInAt.toIso8601String(),
+          'recorded_by': record.recordedBy,
+        }),
+      ),
+    );
   }
 }
