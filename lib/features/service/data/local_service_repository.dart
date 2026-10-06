@@ -71,6 +71,42 @@ class LocalServiceRepository implements ServiceRepository {
   Future<List<ServiceClass>> getClasses(String stageId) =>
       watchClasses(stageId).first;
 
+  Future<void> updateMeetingStartTime({
+    required String serviceId,
+    required String meetingStartTime,
+  }) async {
+    final current = await getService(serviceId);
+    if (current == null) return;
+    await cacheService(Service(
+      id: current.id,
+      name: current.name,
+      churchName: current.churchName,
+      meetingStartTime: meetingStartTime,
+    ));
+  }
+
+  Future<void> cacheReportingPeriods(
+    List<CachedReportingPeriodsCompanion> periods,
+  ) async {
+    await _db.batch((batch) {
+      for (final period in periods) {
+        batch.insert(
+          _db.cachedReportingPeriods,
+          period,
+          mode: InsertMode.insertOrReplace,
+        );
+      }
+    });
+  }
+
+  Future<List<CachedReportingPeriodsData>> getReportingPeriods(
+    String serviceId,
+  ) =>
+      (_db.select(_db.cachedReportingPeriods)
+            ..where((t) => t.serviceId.equals(serviceId))
+            ..orderBy([(t) => OrderingTerm(expression: t.startDate)]))
+          .get();
+
   Future<void> cacheService(Service service) async {
     await _db.into(_db.cachedServices).insertOnConflictUpdate(
           CachedServicesCompanion.insert(
