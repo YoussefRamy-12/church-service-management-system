@@ -10,6 +10,30 @@ class SupabaseServiceRepository implements ServiceRepository {
 
   final SupabaseClient _client;
 
+  Future<void> updateMeetingStartTime({
+    required String serviceId,
+    required String meetingStartTime,
+  }) async {
+    final rows = await _client
+        .from('services')
+        .update({'meeting_start_time': meetingStartTime})
+        .eq('id', serviceId)
+        .select('id');
+    if (rows.isEmpty) {
+      throw Exception('Service settings update was rejected.');
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> fetchReportingPeriods(
+    String serviceId,
+  ) async {
+    return await _client
+        .from('reporting_periods')
+        .select('id, service_id, name, type, start_date, end_date')
+        .eq('service_id', serviceId)
+        .order('start_date');
+  }
+
   @override
   Future<Service?> getService(String serviceId) async {
     final row = await _client
