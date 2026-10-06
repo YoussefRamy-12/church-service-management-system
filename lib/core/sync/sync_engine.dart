@@ -85,6 +85,32 @@ class SyncEngine {
       case 'follow_up':
         await client.from('follow_up_records').insert(payload);
         return;
+      case 'servant':
+        if (operation.operationType == 'update') {
+          final rows = await client
+              .from('servant_profiles')
+              .update({
+                'name': payload['name'],
+                'phone': payload['phone'],
+                'birth_date': payload['birth_date'],
+                'work_study': payload['work_study'],
+                'role': payload['role'],
+                'stage_id': payload['stage_id'],
+                'class_id': payload['class_id'],
+                'account_status': payload['account_status'],
+              })
+              .eq('id', payload['id'] as String)
+              .select('id');
+          if (rows.isEmpty) {
+            throw const SyncConflictException(
+              'Servant update was rejected or is no longer accessible.',
+            );
+          }
+          return;
+        }
+        throw UnsupportedError(
+          'Unsupported servant operation: ${operation.operationType}',
+        );
       case 'attendance':
         await client.from('attendance_records').upsert({
           'id': payload['id'],
