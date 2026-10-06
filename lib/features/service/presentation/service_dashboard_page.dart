@@ -39,6 +39,11 @@ class _ServiceDashboardPageState extends ConsumerState<ServiceDashboardPage> {
               onPressed: () => context.push('/servants/${widget.serviceId}'),
             ),
           IconButton(
+            tooltip: 'التقارير',
+            icon: const Icon(Icons.bar_chart),
+            onPressed: () => context.push('/reports/' + widget.serviceId),
+          ),
+          IconButton(
             tooltip: 'الاجتماعات',
             icon: const Icon(Icons.event),
             onPressed: () => Navigator.of(context).push(
