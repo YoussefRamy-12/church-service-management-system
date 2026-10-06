@@ -45,6 +45,73 @@ class LocalStudentRepository implements StudentRepository {
     });
   }
 
+  Future<Student?> findById(String studentId) async {
+    final row = await (_db.select(_db.cachedStudents)
+          ..where((t) => t.id.equals(studentId)))
+        .getSingleOrNull();
+    return row == null ? null : _fromRow(row);
+  }
+
+  Future<Student> updateStudent({
+    required String studentId,
+    required String name,
+    DateTime? birthDate,
+    String? phone,
+    String? school,
+    String? grade,
+    String? notes,
+  }) async {
+    final current = await findById(studentId);
+    if (current == null) throw StateError('Student not found locally: $studentId');
+    final updated = Student(
+      id: current.id,
+      serviceId: current.serviceId,
+      name: name.trim(),
+      approvalStatus: current.approvalStatus,
+      currentClassId: current.currentClassId,
+      proposedClassId: current.proposedClassId,
+      birthDate: birthDate,
+      phone: _clean(phone),
+      school: _clean(school),
+      grade: _clean(grade),
+      enrollmentAt: current.enrollmentAt,
+      photoPath: current.photoPath,
+      notes: _clean(notes),
+    );
+    await cacheStudents([updated]);
+    return updated;
+  }
+
+  Future<Student> approvePending(String studentId) async {
+    final current = await findById(studentId);
+    if (current == null) throw StateError('Student not found locally: $studentId');
+    if (!current.isPending || current.proposedClassId == null) {
+      throw StateError('Only pending students with a proposed class can be approved.');
+    }
+    final updated = Student(
+      id: current.id,
+      serviceId: current.serviceId,
+      name: current.name,
+      approvalStatus: 'approved',
+      currentClassId: current.proposedClassId,
+      proposedClassId: null,
+      birthDate: current.birthDate,
+      phone: current.phone,
+      school: current.school,
+      grade: current.grade,
+      enrollmentAt: current.enrollmentAt,
+      photoPath: current.photoPath,
+      notes: current.notes,
+    );
+    await cacheStudents([updated]);
+    return updated;
+  }
+
+  String? _clean(String? value) {
+    final trimmed = value?.trim();
+    return trimmed == null || trimmed.isEmpty ? null : trimmed;
+  }
+
   Student _fromRow(CachedStudent row) => Student(
         id: row.id,
         serviceId: row.serviceId,
