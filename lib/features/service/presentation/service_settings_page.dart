@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
@@ -5,6 +7,7 @@ import 'package:uuid/uuid.dart';
 import '../../../core/database/app_database.dart';
 import '../../../core/sync/sync_operation.dart';
 import '../../../core/sync/sync_queue_repository.dart';
+import '../../../core/sync/sync_engine_provider.dart';
 import '../../auth/presentation/auth_providers.dart';
 import 'service_providers.dart';
 
@@ -44,13 +47,13 @@ class _ServiceSettingsPageState extends ConsumerState<ServiceSettingsPage> {
     try {
       await ref.read(serviceRepositoryProvider).updateMeetingStartTime(
         serviceId: widget.serviceId,
-        meetingStartTime: meetingTime.hour.toString().padLeft(2, '0') + ':' + meetingTime.minute.toString().padLeft(2, '0') + ':00',
+        meetingStartTime: '${meetingTime.hour.toString().padLeft(2, '0')}:${meetingTime.minute.toString().padLeft(2, '0')}:00',
       );
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('تم حفظ وقت بداية الاجتماع محليًا وسيتم مزامنته.')));
     } catch (error) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('تعذر الحفظ: ' + error.toString())));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('تعذر الحفظ: ${error.toString()}')));
     } finally { if (mounted) setState(() => saving = false); }
   }
 
@@ -76,14 +79,14 @@ class _ServiceSettingsPageState extends ConsumerState<ServiceSettingsPage> {
               onChanged: (value) { if (value != null) setDialogState(() => type = value); },
             ),
             ListTile(
-              title: Text('من: ' + start.toIso8601String().split('T').first),
+              title: Text('من: ${start.toIso8601String().split('T').first}'),
               onTap: () async {
                 final value = await showDatePicker(context: context, initialDate: start, firstDate: DateTime(2020), lastDate: DateTime(2100));
                 if (value != null) setDialogState(() => start = value);
               },
             ),
             ListTile(
-              title: Text('إلى: ' + end.toIso8601String().split('T').first),
+              title: Text('إلى: ${end.toIso8601String().split('T').first}'),
               onTap: () async {
                 final value = await showDatePicker(context: context, initialDate: end, firstDate: DateTime(2020), lastDate: DateTime(2100));
                 if (value != null) setDialogState(() => end = value);
@@ -109,7 +112,7 @@ class _ServiceSettingsPageState extends ConsumerState<ServiceSettingsPage> {
       operationId: id,
       entityType: 'reporting_period',
       operationType: 'insert',
-      payload: {'id': id, 'service_id': widget.serviceId, 'name': result.$1, 'type': result.$2, 'start_date': startDate, 'end_date': endDate},
+      payloadJson: jsonEncode({'id': id, 'service_id': widget.serviceId, 'name': result.$1, 'type': result.$2, 'start_date': startDate, 'end_date': endDate}),
     ));
     if (mounted) setState(() {});
   }
@@ -118,10 +121,10 @@ class _ServiceSettingsPageState extends ConsumerState<ServiceSettingsPage> {
     if (loading) return const Scaffold(body: Center(child: CircularProgressIndicator()));
     return Scaffold(
       appBar: AppBar(title: const Text('إعدادات الخدمة')),
-      body: FutureBuilder<List<CachedReportingPeriodsData>>(
+      body: FutureBuilder<List<CachedReportingPeriod>>(
         future: ref.read(serviceRepositoryProvider).getReportingPeriods(widget.serviceId),
         builder: (context, snapshot) {
-          final periods = snapshot.data ?? const <CachedReportingPeriodsData>[];
+          final periods = snapshot.data ?? const <CachedReportingPeriod>[];
           return ListView(padding: const EdgeInsets.all(20), children: [
             TextField(controller: nameController, readOnly: true, decoration: const InputDecoration(labelText: 'اسم الخدمة')),
             TextField(controller: churchController, readOnly: true, decoration: const InputDecoration(labelText: 'الكنيسة')),
@@ -140,7 +143,7 @@ class _ServiceSettingsPageState extends ConsumerState<ServiceSettingsPage> {
               const Expanded(child: Text('فترات التقارير', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold))),
               IconButton(onPressed: _addPeriod, icon: const Icon(Icons.add)),
             ]),
-            ...periods.map((period) => Card(child: ListTile(title: Text(period.name), subtitle: Text(period.type + ' • ' + period.startDate + ' → ' + period.endDate)))),
+            ...periods.map((period) => Card(child: ListTile(title: Text(period.name), subtitle: Text('${period.type} • ${period.startDate} → ${period.endDate}')))),
           ]);
         },
       ),
