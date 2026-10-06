@@ -82,6 +82,9 @@ class SyncEngine {
           return;
         }
         throw UnsupportedError('Unsupported student operation: ${operation.operationType}');
+      case 'follow_up':
+        await client.from('follow_up_records').insert(payload);
+        return;
       case 'attendance':
         await client.from('attendance_records').upsert({
           'id': payload['id'],
