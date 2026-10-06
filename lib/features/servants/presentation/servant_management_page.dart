@@ -130,7 +130,7 @@ class _ServantManagementPageState
                   child: ListTile(
                     leading: CircleAvatar(
                       child: Text(
-                        servant.name.isEmpty ? '?' : servant.name.characters.first,
+                        servant.name.isEmpty ? '?' : servant.name.substring(0, 1),
                       ),
                     ),
                     title: Text(servant.name),
