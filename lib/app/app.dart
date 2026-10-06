@@ -7,6 +7,7 @@ import '../features/auth/presentation/session_gate.dart';
 import '../features/service/presentation/service_dashboard_page.dart';
 import '../features/servants/presentation/servant_management_page.dart';
 import '../features/reports/presentation/reports_page.dart';
+import '../features/export/presentation/export_page.dart';
 import '../features/attendance/presentation/attendance_session_page.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'theme.dart';
@@ -70,6 +71,13 @@ class _ChurchServiceAppState extends ConsumerState<ChurchServiceApp> {
             path: '/service/:serviceId',
             builder: (context, state) => ServiceDashboardPage(
               serviceId: state.pathParameters['serviceId']!,
+            ),
+          ),
+          GoRoute(
+            path: '/export/:serviceId',
+            builder: (context, state) => ExportPage(
+              serviceId: state.pathParameters['serviceId']!,
+              classId: state.uri.queryParameters['classId'],
             ),
           ),
           GoRoute(
