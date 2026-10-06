@@ -99,7 +99,7 @@ class LocalServiceRepository implements ServiceRepository {
     });
   }
 
-  Future<List<CachedReportingPeriodsData>> getReportingPeriods(
+  Future<List<CachedReportingPeriod>> getReportingPeriods(
     String serviceId,
   ) =>
       (_db.select(_db.cachedReportingPeriods)
