@@ -4,6 +4,22 @@ import 'package:drift/drift.dart';
 import '../database/app_database.dart';
 import 'sync_operation.dart';
 
+class SyncConflictItem {
+  const SyncConflictItem({
+    required this.operationId,
+    required this.entityType,
+    required this.operationType,
+    required this.payloadJson,
+    required this.createdAt,
+  });
+
+  final String operationId;
+  final String entityType;
+  final String operationType;
+  final String payloadJson;
+  final DateTime createdAt;
+}
+
 class SyncQueueRepository {
   SyncQueueRepository(this._db);
   final AppDatabase _db;
@@ -16,6 +32,50 @@ class SyncQueueRepository {
         operationType: operation.operationType,
         payloadJson: operation.payloadJson,
         createdAt: DateTime.now(),
+      ),
+    );
+  }
+
+  Stream<List<SyncConflictItem>> watchConflicts() {
+    return (_db.select(_db.syncQueueEntries)
+          ..where((t) => t.status.equals('conflict'))
+          ..orderBy([(t) => OrderingTerm(expression: t.createdAt)]))
+        .watch()
+        .map(
+          (rows) => rows
+              .map(
+                (row) => SyncConflictItem(
+                  operationId: row.operationId,
+                  entityType: row.entityType,
+                  operationType: row.operationType,
+                  payloadJson: row.payloadJson,
+                  createdAt: row.createdAt,
+                ),
+              )
+              .toList(),
+        );
+  }
+
+  Future<void> retryConflict(String operationId) async {
+    await (_db.update(_db.syncQueueEntries)
+          ..where((t) => t.operationId.equals(operationId)))
+        .write(
+      const SyncQueueEntriesCompanion(
+        status: Value('pending'),
+        attempts: Value(0),
+        lastAttemptAt: Value.absent(),
+      ),
+    );
+  }
+
+  Future<void> retryAllConflicts() async {
+    await (_db.update(_db.syncQueueEntries)
+          ..where((t) => t.status.equals('conflict')))
+        .write(
+      const SyncQueueEntriesCompanion(
+        status: Value('pending'),
+        attempts: Value(0),
+        lastAttemptAt: Value.absent(),
       ),
     );
   }
