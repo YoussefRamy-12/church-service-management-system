@@ -9,7 +9,11 @@ class CachedProfiles extends Table {
   TextColumn get serviceId => text()();
   TextColumn get name => text()();
   TextColumn get role => text()();
+  TextColumn get phone => text().nullable()();
+  TextColumn get birthDate => text().nullable()();
+  TextColumn get workStudy => text().nullable()();
   TextColumn get accountStatus => text()();
+  BoolColumn get mustChangePassword => boolean().withDefault(const Constant(false))();
   TextColumn get stageId => text().nullable()();
   TextColumn get classId => text().nullable()();
   DateTimeColumn get cachedAt => dateTime()();
@@ -142,7 +146,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(driftDatabase(name: 'church_service'));
 
   @override
-  int get schemaVersion => 4;
+  int get schemaVersion => 5;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -160,6 +164,12 @@ class AppDatabase extends _$AppDatabase {
           }
           if (from < 4) {
             await m.createTable(cachedFollowUpRecords);
+          }
+          if (from < 5) {
+            await m.addColumn(cachedProfiles, cachedProfiles.phone);
+            await m.addColumn(cachedProfiles, cachedProfiles.birthDate);
+            await m.addColumn(cachedProfiles, cachedProfiles.workStudy);
+            await m.addColumn(cachedProfiles, cachedProfiles.mustChangePassword);
           }
         },
       );
