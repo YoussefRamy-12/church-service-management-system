@@ -280,7 +280,7 @@ class _StudentEditDialogState extends State<StudentEditDialog> {
               ),
               ListTile(
                 contentPadding: EdgeInsets.zero,
-                title: Text('تاريخ الميلاد: ' + _date(birthDate)),
+                title: Text('تاريخ الميلاد: ${_date(birthDate)}'),
                 trailing: IconButton(
                   icon: const Icon(Icons.calendar_month),
                   onPressed: _pickBirthDate,
