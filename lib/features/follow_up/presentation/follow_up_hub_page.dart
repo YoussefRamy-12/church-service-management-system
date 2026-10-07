@@ -29,7 +29,9 @@ class _FollowUpHubPageState extends ConsumerState<FollowUpHubPage> {
     final services = ref.watch(serviceRepositoryProvider);
     return Scaffold(
       appBar: AppBar(title: const Text('المتابعة')),
-      body: StreamBuilder(
+      body: AppContent(
+        maxWidth: 1000,
+        child: StreamBuilder(
         stream: services.watchStages(widget.serviceId),
         builder: (context, stageSnapshot) {
           final stages = stageSnapshot.data ?? const [];
@@ -45,9 +47,16 @@ class _FollowUpHubPageState extends ConsumerState<FollowUpHubPage> {
               TextField(
                 key: const Key('follow_up_search'),
                 onChanged: (value) => setState(() => query = value.trim()),
-                decoration: const InputDecoration(
-                  prefixIcon: Icon(Icons.search),
+                decoration: InputDecoration(
+                  prefixIcon: const Icon(Icons.search),
                   labelText: 'بحث باسم التلميذ',
+                  suffixIcon: query.isEmpty
+                      ? null
+                      : IconButton(
+                          tooltip: 'مسح البحث',
+                          onPressed: () => setState(() => query = ''),
+                          icon: const Icon(Icons.clear),
+                        ),
                 ),
               ),
               const SizedBox(height: 12),
@@ -80,8 +89,20 @@ class _FollowUpHubPageState extends ConsumerState<FollowUpHubPage> {
                                     final students = studentSnapshot.data ?? const [];
                                     final filtered = students.where((student) =>
                                         student.name.toLowerCase().contains(query.toLowerCase())).toList();
+                                    if (studentSnapshot.connectionState == ConnectionState.waiting && students.isEmpty) {
+                                      return const Padding(
+                                        padding: EdgeInsets.all(16),
+                                        child: LinearProgressIndicator(),
+                                      );
+                                    }
+                                    if (filtered.isEmpty) {
+                                      return const Padding(
+                                        padding: EdgeInsets.all(16),
+                                        child: Text('لا توجد نتائج في هذا الفصل.'),
+                                      );
+                                    }
                                     return Column(children: [
-                                      for (final student in filtered)
+                                      for (final student in filtered
                                         ListTile(
                                           key: Key('follow_up_student_' + student.id),
                                           leading: const Icon(Icons.history_edu_outlined),
@@ -107,6 +128,7 @@ class _FollowUpHubPageState extends ConsumerState<FollowUpHubPage> {
           );
         },
       ),
+      );
     );
   }
 }
