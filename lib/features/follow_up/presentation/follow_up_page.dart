@@ -6,6 +6,7 @@ import '../../auth/presentation/auth_providers.dart';
 import '../../students/domain/entities/student.dart';
 import 'follow_up_providers.dart';
 import '../../../app/ui/app_ui.dart';
+import '../../../core/sync/sync_engine_provider.dart';
 
 class FollowUpPage extends ConsumerStatefulWidget {
   const FollowUpPage({super.key, required this.student});
@@ -43,7 +44,7 @@ class _FollowUpPageState extends ConsumerState<FollowUpPage> {
   @override
   Widget build(BuildContext context) {
     final profile = ref.watch(currentServantProfileProvider);
-    final servantId = profile.hasValue ? profile.value!.id : null;
+    final servantId = profile.hasValue ? profile.value?.id : null;
     final history =
         ref.watch(followUpRepositoryProvider).watchForStudent(widget.student.id);
     final formatter = DateFormat('yyyy-MM-dd');
@@ -204,6 +205,7 @@ class _FollowUpPageState extends ConsumerState<FollowUpPage> {
                           nextFollowUpDate:
                               another ? formatter.format(next) : null,
                         );
+                    await ref.read(syncEngineProvider).syncNow();
                     if (!context.mounted) return;
                     ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('تم حفظ المتابعة محليًا وسيتم مزامنتها.')));
                       if (mounted) setState(() => saving = false);
