@@ -1,0 +1,1 @@
+import 'package:drift/drift.dart';\nimport 'package:drift/native.dart';\n\nDatabaseConnection testingDatabaseConnection() =>\n    DatabaseConnection.fromExecutor(NativeDatabase.memory());\n
