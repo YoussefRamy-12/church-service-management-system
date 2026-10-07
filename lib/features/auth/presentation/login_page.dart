@@ -65,11 +65,8 @@ class _LoginPageState extends ConsumerState<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
-    final configured = ref.watch(
-      authRepositoryProvider,
-    );
-
     return Scaffold(
+      key: const Key('login_page'),
       body: Center(
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 440),
@@ -100,6 +97,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                     ),
                     const SizedBox(height: 28),
                     TextFormField(
+                      key: const Key('login_email'),
                       controller: _emailController,
                       keyboardType: TextInputType.emailAddress,
                       decoration: const InputDecoration(
@@ -113,6 +111,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                     ),
                     const SizedBox(height: 16),
                     TextFormField(
+                      key: const Key('login_password'),
                       controller: _passwordController,
                       obscureText: true,
                       decoration: const InputDecoration(
@@ -135,6 +134,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                     ],
                     const SizedBox(height: 24),
                     FilledButton(
+                      key: const Key('login_submit'),
                       onPressed: _loading ? null : _login,
                       child: _loading
                           ? const SizedBox(
@@ -143,11 +143,6 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                               child: CircularProgressIndicator(strokeWidth: 2),
                             )
                           : const Text('تسجيل الدخول'),
-                    ),
-                    const SizedBox(height: 12),
-                    Text(
-                      configured.toString().isEmpty ? '' : '',
-                      textAlign: TextAlign.center,
                     ),
                   ],
                 ),
