@@ -224,7 +224,7 @@ class _FollowUpPageState extends ConsumerState<FollowUpPage> {
           ),
         ],
       ),
-      );
+      ),
     );
   }
 }
