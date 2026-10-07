@@ -10,61 +10,20 @@ class SyncConflictException implements Exception {
   final String message;
 }
 
-class SyncEngine {
-  SyncEngine({required this.queue, required this.client, Connectivity? connectivity})
-      : _connectivity = connectivity ?? Connectivity();
+abstract interface class SyncTransport {
+  Future<void> apply(SyncOperation operation, Map<String, dynamic> payload);
+}
 
-  final SyncQueueRepository queue;
+class SupabaseSyncTransport implements SyncTransport {
+  const SupabaseSyncTransport(this.client);
+
   final SupabaseClient client;
-  final Connectivity _connectivity;
-  StreamSubscription<List<ConnectivityResult>>? _subscription;
-  bool _running = false;
-  SyncStatus status = SyncStatus.idle;
-  Object? lastError;
 
-  Future<void> start() async {
-    _subscription ??= _connectivity.onConnectivityChanged.listen((_) => syncNow());
-    await syncNow();
-  }
-
-  Future<void> dispose() async {
-    await _subscription?.cancel();
-    _subscription = null;
-  }
-
-  Future<void> syncNow() async {
-    if (_running) return;
-    final results = await _connectivity.checkConnectivity();
-    if (results.every((r) => r == ConnectivityResult.none)) { status = SyncStatus.offline; return; }
-    status = SyncStatus.syncing;
-    lastError = null;
-    _running = true;
-    try {
-      for (final operation in await queue.pending()) {
-        try {
-          await _apply(operation);
-          await queue.markDone(operation.operationId);
-        } catch (error) {
-          if (error is PostgrestException && (error.code == '23505' || error.code == '23503' || error.code == '42501')) {
-            await queue.markConflict(operation.operationId);
-          } else if (error is SyncConflictException) {
-            await queue.markConflict(operation.operationId);
-          } else {
-            await queue.markRetry(operation.operationId);
-          }
-        }
-      }
-    } catch (error) {
-      lastError = error;
-      status = SyncStatus.error;
-    } finally {
-      _running = false;
-      if (lastError == null) status = SyncStatus.idle;
-    }
-  }
-
-  Future<void> _apply(SyncOperation operation) async {
-    final payload = queue.decode(operation.payloadJson);
+  @override
+  Future<void> apply(
+    SyncOperation operation,
+    Map<String, dynamic> payload,
+  ) async {
     switch (operation.entityType) {
       case 'meeting':
         await client.from('meetings').insert(payload);
@@ -75,13 +34,21 @@ class SyncEngine {
           return;
         }
         if (operation.operationType == 'update') {
-          final rows = await client.from('students').update(payload).eq('id', payload['id'] as String).select('id');
+          final rows = await client
+              .from('students')
+              .update(payload)
+              .eq('id', payload['id'] as String)
+              .select('id');
           if (rows.isEmpty) {
-            throw const SyncConflictException('Student update was rejected or is no longer accessible.');
+            throw const SyncConflictException(
+              'Student update was rejected or is no longer accessible.',
+            );
           }
           return;
         }
-        throw UnsupportedError('Unsupported student operation: ${operation.operationType}');
+        throw UnsupportedError(
+          'Unsupported student operation: ${operation.operationType}',
+        );
       case 'follow_up':
         await client.from('follow_up_records').insert(payload);
         return;
@@ -150,7 +117,80 @@ class SyncEngine {
         }, onConflict: 'client_operation_id');
         return;
       default:
-        throw UnsupportedError('Unsupported sync entity: ${operation.entityType}');
+        throw UnsupportedError(
+          'Unsupported sync entity: ${operation.entityType}',
+        );
+    }
+  }
+}
+
+class SyncEngine {
+  SyncEngine({
+    required this.queue,
+    SupabaseClient? client,
+    SyncTransport? transport,
+    Connectivity? connectivity,
+    Future<List<ConnectivityResult>> Function()? connectivityChecker,
+  })  : _connectivity = connectivity ?? Connectivity(),
+        _connectivityChecker =
+            connectivityChecker ?? (connectivity ?? Connectivity()).checkConnectivity,
+        _transport = transport ?? SupabaseSyncTransport(client!);
+
+  final SyncQueueRepository queue;
+  final Connectivity _connectivity;
+  final Future<List<ConnectivityResult>> Function() _connectivityChecker;
+  final SyncTransport _transport;
+  StreamSubscription<List<ConnectivityResult>>? _subscription;
+  bool _running = false;
+  SyncStatus status = SyncStatus.idle;
+  Object? lastError;
+
+  Future<void> start() async {
+    _subscription ??= _connectivity.onConnectivityChanged.listen((_) => syncNow());
+    await syncNow();
+  }
+
+  Future<void> dispose() async {
+    await _subscription?.cancel();
+    _subscription = null;
+  }
+
+  Future<void> syncNow() async {
+    if (_running) return;
+    final results = await _connectivityChecker();
+    if (results.every((r) => r == ConnectivityResult.none)) {
+      status = SyncStatus.offline;
+      return;
+    }
+
+    status = SyncStatus.syncing;
+    lastError = null;
+    _running = true;
+    try {
+      for (final operation in await queue.pending()) {
+        try {
+          final payload = queue.decode(operation.payloadJson);
+          await _transport.apply(operation, payload);
+          await queue.markDone(operation.operationId);
+        } catch (error) {
+          if (error is PostgrestException &&
+              (error.code == '23505' ||
+                  error.code == '23503' ||
+                  error.code == '42501')) {
+            await queue.markConflict(operation.operationId);
+          } else if (error is SyncConflictException) {
+            await queue.markConflict(operation.operationId);
+          } else {
+            await queue.markRetry(operation.operationId);
+          }
+        }
+      }
+    } catch (error) {
+      lastError = error;
+      status = SyncStatus.error;
+    } finally {
+      _running = false;
+      if (lastError == null) status = SyncStatus.idle;
     }
   }
 }
