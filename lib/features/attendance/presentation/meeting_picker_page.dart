@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../auth/presentation/auth_providers.dart';
 import 'meeting_providers.dart';
 import 'attendance_session_page.dart';
+import '../../../app/ui/app_ui.dart';
+import '../../../core/sync/sync_status_widget.dart';
 
 class MeetingPickerPage extends ConsumerStatefulWidget {
   const MeetingPickerPage({super.key, required this.serviceId, required this.classId});
@@ -14,10 +16,16 @@ class _MeetingPickerPageState extends ConsumerState<MeetingPickerPage> {
   @override void initState() { super.initState(); Future.microtask(() => ref.read(meetingRepositoryProvider).refresh(widget.serviceId)); }
   @override Widget build(BuildContext context) {
     final repo = ref.watch(meetingRepositoryProvider);
-    final profile = ref.watch(currentServantProfileProvider).value;
+    final profileState = ref.watch(currentServantProfileProvider);
+    final profile = profileState.hasValue ? profileState.value : null;
     return Scaffold(
-      appBar: AppBar(title: const Text('اختيار اجتماع الحضور')),
-      body: StreamBuilder(
+      appBar: AppBar(
+        title: const Text('اختيار اجتماع الحضور'),
+        actions: [const SyncStatusWidget()],
+      ),
+      body: AppContent(
+        maxWidth: 900,
+        child: StreamBuilder(
         stream: repo.watchMeetings(widget.serviceId),
         builder: (context, snapshot) {
           final meetings = snapshot.data ?? const [];
