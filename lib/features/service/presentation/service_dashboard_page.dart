@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../../auth/presentation/auth_providers.dart';
 import 'service_providers.dart';
 
@@ -70,26 +71,26 @@ class _ServiceDashboardPageState extends ConsumerState<ServiceDashboardPage> {
                     key: const Key('dashboard_students'),
                     icon: Icons.school_outlined,
                     label: 'التلاميذ',
-                    onTap: () => ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('استخدم قائمة التلاميذ من القائمة الجانبية.'))),
+                    onTap: () => context.go('/service/' + widget.serviceId + '/students'),
                   ),
                   _QuickAction(
                     key: const Key('dashboard_attendance'),
                     icon: Icons.fact_check_outlined,
                     label: 'الحضور',
-                    onTap: () => ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('استخدم قائمة الحضور من القائمة الجانبية.'))),
+                    onTap: () => context.go('/service/' + widget.serviceId + '/attendance'),
                   ),
                   _QuickAction(
                     key: const Key('dashboard_follow_up'),
                     icon: Icons.history_edu_outlined,
                     label: 'المتابعة',
-                    onTap: () => ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('استخدم قائمة المتابعة من القائمة الجانبية.'))),
+                    onTap: () => context.go('/service/' + widget.serviceId + '/follow-up'),
                   ),
                   if (canManage)
                     _QuickAction(
                       key: const Key('dashboard_servants'),
                       icon: Icons.people_alt_outlined,
                       label: 'الخدام',
-                      onTap: () => ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('استخدم قائمة الخدام من القائمة الجانبية.'))),
+                      onTap: () => context.go('/service/' + widget.serviceId + '/servants'),
                     ),
                 ],
               ),
