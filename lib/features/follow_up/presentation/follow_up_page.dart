@@ -54,8 +54,10 @@ class _FollowUpPageState extends ConsumerState<FollowUpPage> {
       appBar: AppBar(
         title: Text('متابعة — ${widget.student.name}'),
       ),
-      body: ListView(
-        padding: const EdgeInsets.all(20),
+      body: AppContent(
+        maxWidth: 900,
+        child: ListView(
+        padding: const EdgeInsets.fromLTRB(0, 16, 0, 32),
         children: [
           Text(
             'سجل المتابعة',
@@ -88,6 +90,8 @@ class _FollowUpPageState extends ConsumerState<FollowUpPage> {
             },
           ),
           const Divider(height: 32),
+          Text('إضافة متابعة', style: Theme.of(context).textTheme.titleLarge),
+          const SizedBox(height: 12),
           DropdownButtonFormField<String>(
             initialValue: status,
             decoration: const InputDecoration(labelText: 'الحالة'),
@@ -220,6 +224,7 @@ class _FollowUpPageState extends ConsumerState<FollowUpPage> {
           ),
         ],
       ),
+      );
     );
   }
 }
