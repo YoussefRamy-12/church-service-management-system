@@ -55,7 +55,7 @@ class _MeetingPickerPageState extends ConsumerState<MeetingPickerPage> {
             return ListView.separated(
               padding: const EdgeInsets.fromLTRB(0, 16, 0, 32),
               itemCount: meetings.length,
-              separatorBuilder: (_, __) => const SizedBox(height: 8),
+              separatorBuilder: (_, _) => const SizedBox(height: 8),
               itemBuilder: (_, i) {
                 final meeting = meetings[i];
                 return Card(
