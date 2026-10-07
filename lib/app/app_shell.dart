@@ -32,7 +32,7 @@ class AppShell extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final location = GoRouterState.of(context).uri.path;
-    final profile = ref.watch(currentServantProfileProvider).valueOrNull;
+    final profile = ref.watch(currentServantProfileProvider).value;
     final compact = MediaQuery.sizeOf(context).width < 1000;
     final canManage = _canSeeManagement(profile?.role);
 
