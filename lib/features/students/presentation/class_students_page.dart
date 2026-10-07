@@ -29,10 +29,12 @@ class _ClassStudentsPageState extends ConsumerState<ClassStudentsPage> {
         ref.watch(studentRepositoryProvider).watchStudentsForClass(widget.classId);
 
     return Scaffold(
+      key: const Key('students_class_page'),
       appBar: AppBar(
         title: Text(widget.className),
         actions: [
           IconButton(
+            key: const Key('attendance_open'),
             icon: const Icon(Icons.fact_check),
             tooltip: 'الحضور',
             onPressed: () => Navigator.of(context).push(
@@ -74,6 +76,7 @@ class _ClassStudentsPageState extends ConsumerState<ClassStudentsPage> {
               Padding(
                 padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
                 child: TextField(
+                  key: const Key('student_search'),
                   onChanged: (value) => setState(() => query = value.trim()),
                   decoration: const InputDecoration(
                     prefixIcon: Icon(Icons.search),
@@ -92,6 +95,7 @@ class _ClassStudentsPageState extends ConsumerState<ClassStudentsPage> {
                         itemBuilder: (_, index) {
                           final student = filtered[index];
                           return ListTile(
+                            key: Key('student_item_' + student.id),
                             leading: CircleAvatar(
                               child: Text(student.name.characters.first),
                             ),
