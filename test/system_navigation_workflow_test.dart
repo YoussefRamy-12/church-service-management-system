@@ -116,7 +116,7 @@ void main() {
       };
 
         for (final entry in workflows.entries) {
-          await tester.tap(find.byKey(Key(entry.key));
+          await tester.tap(find.byKey(Key(entry.key)));
         await tester.pumpAndSettle();
           expect(find.text(entry.value), findsOneWidget);
         }
