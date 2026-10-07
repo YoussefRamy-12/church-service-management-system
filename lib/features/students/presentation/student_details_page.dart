@@ -85,11 +85,13 @@ class _StudentDetailsPageState extends ConsumerState<StudentDetailsPage> {
     final canApprove = profile != null && _canApprove(profile.role);
 
     return Scaffold(
+      key: const Key('student_details'),
       appBar: AppBar(
         title: Text(student.name),
         actions: [
-          IconButton(icon: const Icon(Icons.history), tooltip: 'المتابعة', onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => FollowUpPage(student: student)))),
+          IconButton(key: const Key('student_follow_up'), icon: const Icon(Icons.history), tooltip: 'المتابعة', onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => FollowUpPage(student: student)))),
           IconButton(
+            key: const Key('student_edit'),
             icon: const Icon(Icons.edit),
             tooltip: 'تعديل',
             onPressed: _edit,
