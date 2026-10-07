@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
+
+import 'package:church_service_management_system/core/sync/sync_operation.dart';
 
 import 'package:church_service_management_system/core/sync/sync_engine.dart';
 import 'package:church_service_management_system/core/sync/sync_engine_provider.dart';
