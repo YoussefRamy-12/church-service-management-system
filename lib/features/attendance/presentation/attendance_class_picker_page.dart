@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../auth/presentation/auth_providers.dart';
 import '../../service/presentation/service_providers.dart';
+import '../../../app/ui/app_ui.dart';
 
 class AttendanceClassPickerPage extends ConsumerStatefulWidget {
   const AttendanceClassPickerPage({
@@ -30,7 +31,8 @@ class _AttendanceClassPickerPageState extends ConsumerState<AttendanceClassPicke
   @override
   Widget build(BuildContext context) {
     final repository = ref.watch(serviceRepositoryProvider);
-    final profile = ref.watch(currentServantProfileProvider).value;
+    final profileState = ref.watch(currentServantProfileProvider);
+    final profile = profileState.hasValue ? profileState.value : null;
 
     return Scaffold(
       appBar: AppBar(title: const Text('اختيار الفصل للحضور')),
@@ -38,12 +40,9 @@ class _AttendanceClassPickerPageState extends ConsumerState<AttendanceClassPicke
         stream: repository.watchStages(widget.serviceId),
         builder: (context, snapshot) {
           final stages = snapshot.data ?? const [];
-          if (stages.isEmpty) {
-            return const Center(child: Text('لا توجد مراحل محفوظة محليًا.'));
-          }
-          if (profile == null) {
-            return const Center(child: CircularProgressIndicator());
-          }
+          if (snapshot.connectionState == ConnectionState.waiting && stages.isEmpty) return const LoadingView(message: 'جاري تحميل المراحل...');
+          if (stages.isEmpty) return const EmptyState(icon: Icons.school_outlined, title: 'لا توجد مراحل متاحة', message: 'حدّث البيانات عند توفر اتصال.');
+          if (profile == null) return const LoadingView(message: 'جاري تجهيز الحساب...');
 
           return ListView(
             padding: const EdgeInsets.all(20),
