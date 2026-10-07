@@ -47,6 +47,7 @@ class _FollowUpPageState extends ConsumerState<FollowUpPage> {
     final formatter = DateFormat('yyyy-MM-dd');
 
     return Scaffold(
+      key: const Key('follow_up_page'),
       appBar: AppBar(
         title: Text('متابعة — ${widget.student.name}'),
       ),
@@ -185,6 +186,7 @@ class _FollowUpPageState extends ConsumerState<FollowUpPage> {
               ),
             ),
           FilledButton(
+            key: const Key('follow_up_save'),
             onPressed: servantId == null
                 ? null
                 : () async {
