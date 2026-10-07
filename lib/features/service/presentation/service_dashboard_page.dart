@@ -30,7 +30,7 @@ class _ServiceDashboardPageState extends ConsumerState<ServiceDashboardPage> {
         if (service == null) {
           return const Scaffold(body: Center(child: CircularProgressIndicator()));
         }
-        final role = profile.valueOrNull?.role;
+        final role = profile.hasValue ? profile.value?.role : null;
         final canManage = role == 'overall_leader' || role == 'overall_helper' || role == 'leader' || role == 'helper';
         return Scaffold(
           body: LayoutBuilder(
