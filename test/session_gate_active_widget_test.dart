@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:go_router/go_router.dart';
 
 import 'package:church_service_management_system/core/sync/sync_operation.dart';
-
 import 'package:church_service_management_system/core/sync/sync_engine.dart';
 import 'package:church_service_management_system/core/sync/sync_engine_provider.dart';
 import 'package:church_service_management_system/core/sync/sync_queue_repository.dart';
@@ -37,7 +37,8 @@ void main() {
     await db.close();
   });
 
-  testWidgets('session gate renders the servant role for an active identity', (tester) async {
+  testWidgets('session gate redirects an active servant to the service dashboard',
+      (tester) async {
     const profile = ServantProfile(
       id: 'servant-1',
       authUserId: 'auth-1',
@@ -48,6 +49,27 @@ void main() {
       classId: 'class-1',
     );
 
+    final router = GoRouter(
+      initialLocation: '/session',
+      routes: [
+        GoRoute(
+          path: '/session',
+          builder: (context, state) => const SessionGate(),
+        ),
+        GoRoute(
+          path: '/service/:serviceId/dashboard',
+          builder: (context, state) => const Scaffold(
+            body: Column(
+              children: [
+                Text('مرحبًا Peter'),
+                Text('أمين الفصل'),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
@@ -56,13 +78,16 @@ void main() {
           ),
           syncEngineProvider.overrideWithValue(engine),
         ],
-        child: const MaterialApp(home: SessionGate()),
+        child: MaterialApp.router(routerConfig: router),
       ),
     );
 
     await tester.pumpAndSettle();
 
+    expect(router.state.uri.path, '/service/service-1/dashboard');
     expect(find.text('مرحبًا Peter'), findsOneWidget);
     expect(find.text('أمين الفصل'), findsOneWidget);
+
+    router.dispose();
   });
 }
