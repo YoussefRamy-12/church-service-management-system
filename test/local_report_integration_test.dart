@@ -195,4 +195,48 @@ void main() {
 
     expect(report.followUps, 1);
   });
+
+  test('report counts duplicate attendance for one student and meeting once', () async {
+    await seedBaseData();
+
+    await db.batch((batch) {
+      batch.insert(
+        db.cachedAttendanceRecords,
+        CachedAttendanceRecordsCompanion.insert(
+          id: 'attendance-duplicate-1',
+          meetingId: 'meeting-1',
+          studentId: 'student-1',
+          classIdAtAttendance: 'class-1',
+          checkedInAt: DateTime(2026, 10, 5, 10, 10),
+          recordedBy: 'servant-1',
+          clientOperationId: 'op-duplicate-1',
+          syncState: const Value('synced'),
+        ),
+      );
+      batch.insert(
+        db.cachedAttendanceRecords,
+        CachedAttendanceRecordsCompanion.insert(
+          id: 'attendance-duplicate-2',
+          meetingId: 'meeting-1',
+          studentId: 'student-1',
+          classIdAtAttendance: 'class-1',
+          checkedInAt: DateTime(2026, 10, 5, 10, 11),
+          recordedBy: 'servant-1',
+          clientOperationId: 'op-duplicate-2',
+          syncState: const Value('synced'),
+        ),
+      );
+    });
+
+    final report = await repo.fetch(
+      serviceId: 'service-1',
+      start: DateTime(2026, 10, 1),
+      end: DateTime(2026, 10, 31),
+    );
+
+    expect(report.present, 1);
+    expect(report.early, 1);
+    expect(report.normal, 0);
+  });
+
 }
