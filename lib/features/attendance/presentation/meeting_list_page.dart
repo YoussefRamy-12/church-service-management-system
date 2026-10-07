@@ -6,6 +6,7 @@ import 'meeting_providers.dart';
 import 'package:go_router/go_router.dart';
 import '../../auth/presentation/auth_providers.dart';
 import '../../../app/ui/app_ui.dart';
+import '../../../core/sync/sync_status_widget.dart';
 
 class MeetingListPage extends ConsumerStatefulWidget {
   const MeetingListPage({super.key, required this.serviceId});
@@ -71,9 +72,10 @@ class _MeetingListPageState extends ConsumerState<MeetingListPage> {
       appBar: AppBar(
         title: const Text('الاجتماعات'),
         actions: [
+          const SyncStatusWidget(),
           IconButton(
             icon: const Icon(Icons.sync),
-            tooltip: 'تحديث',
+            tooltip: 'تحديث الاجتماعات',
             onPressed: () => repo.refresh(widget.serviceId),
           ),
         ],
@@ -104,8 +106,10 @@ class _MeetingListPageState extends ConsumerState<MeetingListPage> {
               ]),
             ));
           }
-          return ListView.separated(
-            padding: const EdgeInsets.fromLTRB(20, 20, 20, 100),
+          return AppContent(
+            maxWidth: 900,
+            child: ListView.separated(
+            padding: const EdgeInsets.fromLTRB(0, 16, 0, 100),
             itemCount: meetings.length,
             separatorBuilder: (_, _) => const Divider(),
             itemBuilder: (_, index) {
@@ -120,6 +124,7 @@ class _MeetingListPageState extends ConsumerState<MeetingListPage> {
                 onTap: () => context.go('/service/' + widget.serviceId + '/attendance/class-picker/' + meeting.id),
               );
             },
+          ),
           );
         },
       ),
