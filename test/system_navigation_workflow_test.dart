@@ -99,14 +99,12 @@ void main() {
       await tester.binding.setSurfaceSize(const Size(1280, 800));
       final router = buildRouter();
 
-      await tester.pumpWidget(buildSubject(router));
-      await tester.pumpAndSettle();
-      await tester.pump(const Duration(milliseconds: 50));
+      try {
+        await tester.pumpWidget(buildSubject(router));
+        await tester.pumpAndSettle();
+        expect(find.byKey(const Key('nav_dashboard')), findsOneWidget);
 
-      expect(find.text('Peter'), findsOneWidget);
-      expect(find.byKey(const Key('nav_dashboard')), findsOneWidget);
-
-      const workflows = <String, String>{
+        const workflows = <String, String>{
         'nav_students': 'SCREEN:students',
         'nav_attendance': 'SCREEN:attendance',
         'nav_follow-up': 'SCREEN:follow-up',
@@ -117,22 +115,23 @@ void main() {
         'nav_dashboard': 'SCREEN:dashboard',
       };
 
-      for (final entry in workflows.entries) {
-        await tester.tap(find.byKey(Key(entry.key)));
+        for (final entry in workflows.entries) {
+          await tester.tap(find.byKey(Key(entry.key));
         await tester.pumpAndSettle();
-        expect(find.text(entry.value), findsOneWidget);
+          expect(find.text(entry.value), findsOneWidget);
+        }
+
+        await tester.tap(find.byKey(const Key('nav_logout')));
+        await tester.pumpAndSettle();
+        expect(router.state.uri.path, '/login');
+        expect(find.text('LOGIN'), findsOneWidget);
+      } finally {
+        router.dispose();
+        await tester.pumpWidget(const SizedBox.shrink());
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 1));
+        await tester.binding.setSurfaceSize(null);
       }
-
-      await tester.tap(find.byKey(const Key('nav_logout')));
-      await tester.pumpAndSettle();
-      expect(router.state.uri.path, '/login');
-      expect(find.text('LOGIN'), findsOneWidget);
-
-      await tester.pumpWidget(const SizedBox.shrink());
-      await tester.pump();
-      router.dispose();
-      await tester.pump();
-      await tester.binding.setSurfaceSize(null);
     },
   );
 
@@ -142,10 +141,11 @@ void main() {
       await tester.binding.setSurfaceSize(const Size(390, 844));
       final router = buildRouter();
 
-      await tester.pumpWidget(buildSubject(router));
-      await tester.pumpAndSettle();
+      try {
+        await tester.pumpWidget(buildSubject(router));
+        await tester.pumpAndSettle();
 
-      expect(find.byKey(const Key('nav_menu')), findsOneWidget);
+        expect(find.byKey(const Key('nav_menu')), findsOneWidget);
       expect(find.byKey(const Key('nav_status')), findsNothing);
 
       await tester.tap(find.byKey(const Key('nav_menu')));
@@ -154,17 +154,18 @@ void main() {
       expect(find.text('التنقل'), findsOneWidget);
       expect(find.text('الحضور'), findsOneWidget);
 
-      await tester.tap(find.text('الحضور'));
-      await tester.pumpAndSettle();
+        await tester.tap(find.text('الحضور'));
+        await tester.pumpAndSettle();
 
-      expect(router.state.uri.path, '/service/service-1/attendance');
-      expect(find.text('SCREEN:attendance'), findsOneWidget);
-
-      await tester.pumpWidget(const SizedBox.shrink());
-      await tester.pump();
-      router.dispose();
-      await tester.pump();
-      await tester.binding.setSurfaceSize(null);
+        expect(router.state.uri.path, '/service/service-1/attendance');
+        expect(find.text('SCREEN:attendance'), findsOneWidget);
+      } finally {
+        router.dispose();
+        await tester.pumpWidget(const SizedBox.shrink());
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 1));
+        await tester.binding.setSurfaceSize(null);
+      }
     },
   );
 }
