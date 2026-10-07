@@ -87,11 +87,23 @@ class _MeetingListPageState extends ConsumerState<MeetingListPage> {
         stream: repo.watchMeetings(widget.serviceId),
         builder: (context, snapshot) {
           final meetings = snapshot.data ?? const [];
+          if (snapshot.connectionState == ConnectionState.waiting && meetings.isEmpty) {
+            return const Center(child: CircularProgressIndicator());
+          }
           if (meetings.isEmpty) {
-            return const Center(child: Text('لا توجد اجتماعات محفوظة محليًا.'));
+            return Center(child: Padding(
+              padding: const EdgeInsets.all(32),
+              child: Column(mainAxisSize: MainAxisSize.min, children: [
+                Icon(Icons.event_available_outlined, size: 48, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                const SizedBox(height: 12),
+                Text('لا توجد اجتماعات بعد', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800)),
+                const SizedBox(height: 6),
+                const Text('أنشئ اجتماعًا جديدًا لبدء تسجيل الحضور.'),
+              ]),
+            ));
           }
           return ListView.separated(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.fromLTRB(20, 20, 20, 100),
             itemCount: meetings.length,
             separatorBuilder: (_, _) => const Divider(),
             itemBuilder: (_, index) {
