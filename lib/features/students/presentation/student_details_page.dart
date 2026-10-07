@@ -5,6 +5,7 @@ import '../../auth/presentation/auth_providers.dart';
 import '../domain/entities/student.dart';
 import 'student_providers.dart';
 import '../../follow_up/presentation/follow_up_page.dart';
+import '../../../app/ui/app_ui.dart';
 
 class StudentDetailsPage extends ConsumerStatefulWidget {
   const StudentDetailsPage({super.key, required this.student});
@@ -98,8 +99,8 @@ class _StudentDetailsPageState extends ConsumerState<StudentDetailsPage> {
           ),
         ],
       ),
-      body: ListView(
-        padding: const EdgeInsets.all(20),
+      body: AppContent(maxWidth: 900, child: ListView(
+        padding: const EdgeInsets.fromLTRB(0, 20, 0, 32),
         children: [
           if (student.isPending && canApprove)
             Card(
@@ -142,7 +143,7 @@ class _StudentDetailsPageState extends ConsumerState<StudentDetailsPage> {
             ),
           ]),
         ],
-      ),
+      )),
     );
   }
 
@@ -256,8 +257,9 @@ class _StudentEditDialogState extends State<StudentEditDialog> {
   Widget build(BuildContext context) {
     return AlertDialog(
       title: const Text('تعديل بيانات التلميذ'),
-      content: SizedBox(
-        width: 420,
+      insetPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
+      content: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 520, maxHeight: 520),
         child: SingleChildScrollView(
           child: Column(
             children: [
