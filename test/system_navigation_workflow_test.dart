@@ -101,6 +101,7 @@ void main() {
 
       await tester.pumpWidget(buildSubject(router));
       await tester.pumpAndSettle();
+      await tester.pump(const Duration(milliseconds: 50));
 
       expect(find.text('Peter'), findsOneWidget);
       expect(find.byKey(const Key('nav_dashboard')), findsOneWidget);
@@ -127,7 +128,10 @@ void main() {
       expect(router.state.uri.path, '/login');
       expect(find.text('LOGIN'), findsOneWidget);
 
+      await tester.pumpWidget(const SizedBox.shrink());
+      await tester.pump();
       router.dispose();
+      await tester.pump();
       await tester.binding.setSurfaceSize(null);
     },
   );
@@ -156,7 +160,10 @@ void main() {
       expect(router.state.uri.path, '/service/service-1/attendance');
       expect(find.text('SCREEN:attendance'), findsOneWidget);
 
+      await tester.pumpWidget(const SizedBox.shrink());
+      await tester.pump();
       router.dispose();
+      await tester.pump();
       await tester.binding.setSurfaceSize(null);
     },
   );
