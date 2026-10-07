@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../app/ui/app_ui.dart';
 import '../../students/domain/entities/student.dart';
 import '../../students/data/offline_first_student_registration.dart';
 import '../../students/presentation/student_providers.dart';
@@ -157,29 +156,19 @@ class _AttendanceSessionPageState extends ConsumerState<AttendanceSessionPage> {
       body: StreamBuilder<List<Student>>(
         stream: studentsStream,
         builder: (context, snapshot) {
-          final allStudents = snapshot.data ?? const <Student>[];
+          final students = (snapshot.data ?? const <Student>[]).where((s) => s.name.contains(query)).toList();
           return Column(children: [
-            Padding(padding: const EdgeInsets.fromLTRB(16, 12, 16, 8), child: TextField(key: const Key('attendance_search'), onChanged: (v) => setState(() => query = v), decoration: InputDecoration(prefixIcon: const Icon(Icons.search), labelText: 'بحث باسم التلميذ', suffixIcon: query.isEmpty ? null : IconButton(tooltip: 'مسح البحث', onPressed: () => setState(() => query = ''), icon: const Icon(Icons.clear))))),
-            Padding(padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4), child: Row(children: [Expanded(child: StatusBanner(icon: Icons.how_to_reg_outlined, title: ', tone: StatusTone.success)), const SizedBox(width: 8), Expanded(child: StatusBanner(icon: Icons.person_off_outlined, title: (allStudents.length - presentCount).toString() + ' غائب', message: 'اضغط تسجيل لإثبات الحضور'))])),
-            SizedBox(height: 46, child: ListView(padding: const EdgeInsets.symmetric(horizontal: 16), scrollDirection: Axis.horizontal, children: [_filterChip('all', 'الكل', allStudents.length), const SizedBox(width: 8), _filterChip('present', 'حاضر', presentCount), const SizedBox(width: 8), _filterChip('absent', 'غائب', allStudents.length - presentCount)])),
+            Padding(padding: const EdgeInsets.all(12), child: TextField(onChanged: (v) => setState(() => query = v), decoration: const InputDecoration(prefixIcon: Icon(Icons.search), labelText: 'بحث بالاسم'))),
             Expanded(child: StreamBuilder(
               stream: ref.watch(attendanceRepositoryProvider).watchForMeeting(widget.meetingId),
               builder: (context, attendanceSnapshot) {
                 final records = attendanceSnapshot.data ?? const [];
                 final checked = {for (final row in records) row.studentId: row};
-                final presentCount = checked.length;
-                final normalizedQuery = query.trim().toLowerCase();
-                final students = allStudents.where((s) {
-                  final matchesSearch = normalizedQuery.isEmpty || s.name.toLowerCase().contains(normalizedQuery);
-                  final isPresent = checked.containsKey(s.id);
-                  final matchesFilter = filter == 'present' ? isPresent : filter == 'absent' ? !isPresent : true;
-                  return matchesSearch && matchesFilter;
-                }).toList();
                 return ListView.builder(itemCount: students.length, itemBuilder: (_, i) {
                   final student = students[i];
                   final record = checked[student.id];
                   final present = record != null;
-                  return ListTile(key: Key('attendance_student_' + student.id), minVerticalPadding: 12,
+                  return ListTile(
                     title: Text(student.name),
                     subtitle: Text(
                       present
@@ -203,54 +192,5 @@ class _AttendanceSessionPageState extends ConsumerState<AttendanceSessionPage> {
         },
       ),
     );
-  Widget _filterChip(String value, String label, int count) {
-    return FilterChip(key: Key('attendance_filter_' + value), selected: filter == value, label: Text(label + ' (' + count.toString() + ')'), onSelected: (_) => setState(() => filter = value));
-  }
-}
- + presentCount.toString() + ' حاضر', message: allStudents.length.toString() + ' تلميذ', tone: StatusTone.success)), const SizedBox(width: 8), Expanded(child: StatusBanner(icon: Icons.person_off_outlined, title: '\${allStudents.length - presentCount} غائب', message: 'اضغط تسجيل لإثبات الحضور'))])),
-            SizedBox(height: 46, child: ListView(padding: const EdgeInsets.symmetric(horizontal: 16), scrollDirection: Axis.horizontal, children: [_filterChip('all', 'الكل', allStudents.length), const SizedBox(width: 8), _filterChip('present', 'حاضر', presentCount), const SizedBox(width: 8), _filterChip('absent', 'غائب', allStudents.length - presentCount)])),
-            Expanded(child: StreamBuilder(
-              stream: ref.watch(attendanceRepositoryProvider).watchForMeeting(widget.meetingId),
-              builder: (context, attendanceSnapshot) {
-                final records = attendanceSnapshot.data ?? const [];
-                final checked = {for (final row in records) row.studentId: row};
-                final presentCount = checked.length;
-                final normalizedQuery = query.trim().toLowerCase();
-                final students = allStudents.where((s) {
-                  final matchesSearch = normalizedQuery.isEmpty || s.name.toLowerCase().contains(normalizedQuery);
-                  final isPresent = checked.containsKey(s.id);
-                  final matchesFilter = filter == 'present' ? isPresent : filter == 'absent' ? !isPresent : true;
-                  return matchesSearch && matchesFilter;
-                }).toList();
-                return ListView.builder(itemCount: students.length, itemBuilder: (_, i) {
-                  final student = students[i];
-                  final record = checked[student.id];
-                  final present = record != null;
-                  return ListTile(key: Key('attendance_student_' + student.id), minVerticalPadding: 12,
-                    title: Text(student.name),
-                    subtitle: Text(
-                      present
-                          ? '${student.isPending ? 'Pending' : 'معتمد'} • ${_attendanceLabel(record.checkedInAt)} • ${TimeOfDay.fromDateTime(record.checkedInAt).format(context)}'
-                          : (student.isPending ? 'Pending — يحتاج اعتماد' : 'معتمد'),
-                    ),
-                    trailing: present
-                        ? OutlinedButton(
-                            onPressed: () => _editAttendance(record.id, record.checkedInAt),
-                            child: const Text('تعديل'),
-                          )
-                        : FilledButton(
-                            onPressed: () => _checkIn(student),
-                            child: const Text('تسجيل'),
-                          ),
-                  );
-                });
-              },
-            )),
-          ]);
-        },
-      ),
-    );
-  Widget _filterChip(String value, String label, int count) {
-    return FilterChip(key: Key('attendance_filter_' + value), selected: filter == value, label: Text(label + ' (' + count.toString() + ')'), onSelected: (_) => setState(() => filter = value));
   }
 }
