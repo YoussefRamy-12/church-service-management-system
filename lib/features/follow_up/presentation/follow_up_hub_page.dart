@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../service/presentation/service_providers.dart';
 import '../../students/presentation/student_providers.dart';
 import 'follow_up_page.dart';
+import '../../../app/ui/app_ui.dart';
 
 class FollowUpHubPage extends ConsumerStatefulWidget {
   const FollowUpHubPage({super.key, required this.serviceId});
@@ -32,9 +33,8 @@ class _FollowUpHubPageState extends ConsumerState<FollowUpHubPage> {
         stream: services.watchStages(widget.serviceId),
         builder: (context, stageSnapshot) {
           final stages = stageSnapshot.data ?? const [];
-          if (stages.isEmpty) {
-            return const Center(child: Text('لا توجد مراحل محفوظة محليًا.'));
-          }
+          if (stageSnapshot.connectionState == ConnectionState.waiting && stages.isEmpty) return const LoadingView(message: 'جاري تحميل المراحل...');
+          if (stages.isEmpty) return const EmptyState(icon: Icons.volunteer_activism_outlined, title: 'لا توجد مراحل متاحة', message: 'حدّث البيانات عند توفر اتصال.');
           return ListView(
             padding: const EdgeInsets.all(20),
             children: [
