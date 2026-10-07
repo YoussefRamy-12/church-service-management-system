@@ -51,7 +51,7 @@ void main() {
   GoRouter buildRouter() => GoRouter(
         initialLocation: '/service/service-1/dashboard',
         routes: [
-          GoRoute(path: '/login', builder: (_, __) => const Text('LOGIN')),
+          GoRoute(path: '/login', builder: (_, _) => const Text('LOGIN')),
           ShellRoute(
             builder: (context, state, child) => AppShell(
               serviceId: 'service-1',
@@ -70,7 +70,7 @@ void main() {
               ])
                 GoRoute(
                   path: '/service/service-1/$segment',
-                  builder: (_, __) => Scaffold(
+                  builder: (_, _) => Scaffold(
                     body: Center(child: Text('SCREEN:$segment')),
                   ),
                 ),
