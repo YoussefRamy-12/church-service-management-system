@@ -130,6 +130,7 @@ class _AttendanceSessionPageState extends ConsumerState<AttendanceSessionPage> {
   Widget build(BuildContext context) {
     final studentsStream = ref.watch(studentRepositoryProvider).watchStudentsForClass(widget.classId);
     return Scaffold(
+      key: const Key('attendance_session'),
       appBar: AppBar(title: const Text('تسجيل الحضور'), actions: [const SyncStatusWidget(),
         IconButton(icon: const Icon(Icons.qr_code_scanner), tooltip: 'QR', onPressed: () async {
           final id = await Navigator.push<String>(context, MaterialPageRoute(builder: (_) => const QrScanPage()));
