@@ -1,0 +1,1 @@
+import 'package:drift/drift.dart';\nimport 'package:drift_flutter/drift_flutter.dart';\n\nDatabaseConnection testingDatabaseConnection() => driftDatabase(\n      name: 'church_service_test',\n      web: DriftWebOptions(\n        sqlite3Wasm: Uri.parse('sqlite3.wasm'),\n        driftWorker: Uri.parse('drift_worker.dart.js'),\n      ),\n    );\n
