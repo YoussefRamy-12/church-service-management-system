@@ -1,17 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../students/presentation/class_students_page.dart';
 import '../../auth/presentation/auth_providers.dart';
-import 'package:go_router/go_router.dart';
-import '../../attendance/presentation/meeting_list_page.dart';
 import 'service_providers.dart';
 
 class ServiceDashboardPage extends ConsumerStatefulWidget {
   const ServiceDashboardPage({super.key, required this.serviceId});
   final String serviceId;
-
-  @override
-  ConsumerState<ServiceDashboardPage> createState() => _ServiceDashboardPageState();
+  @override ConsumerState<ServiceDashboardPage> createState() => _ServiceDashboardPageState();
 }
 
 class _ServiceDashboardPageState extends ConsumerState<ServiceDashboardPage> {
@@ -25,80 +20,121 @@ class _ServiceDashboardPageState extends ConsumerState<ServiceDashboardPage> {
   Widget build(BuildContext context) {
     final repository = ref.watch(serviceRepositoryProvider);
     final profile = ref.watch(currentServantProfileProvider);
+
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('خدمة تلاميذ المسيح'),
-        actions: [
-          if (profile.hasValue &&
-              profile.value != null &&
-              (profile.value!.role == 'overall_leader' ||
-                  profile.value!.role == 'overall_helper'))
-            IconButton(
-              tooltip: 'إدارة الخدام',
-              icon: const Icon(Icons.people_alt),
-              onPressed: () => context.push('/servants/${widget.serviceId}'),
-            ),
-          IconButton(
-            tooltip: 'التصدير',
-            icon: const Icon(Icons.download),
-            onPressed: () => context.push('/export/${widget.serviceId}'),
-          ),
-          IconButton(
-            tooltip: 'التقارير',
-            icon: const Icon(Icons.bar_chart),
-            onPressed: () => context.push('/reports/${widget.serviceId}'),
-          ),
-          IconButton(
-            tooltip: 'الاجتماعات',
-            icon: const Icon(Icons.event),
-            onPressed: () => Navigator.of(context).push(
-              MaterialPageRoute(
-                builder: (_) => MeetingListPage(serviceId: widget.serviceId),
-              ),
-            ),
-          ),
-        ],
-      ),
+      appBar: AppBar(title: const Text('الرئيسية')),
       body: FutureBuilder(
         future: repository.getService(widget.serviceId),
         builder: (context, snapshot) {
           final service = snapshot.data;
           if (service == null) return const Center(child: CircularProgressIndicator());
+
+          final canManage = profile.hasValue &&
+              profile.value != null &&
+              (profile.value!.role == 'overall_leader' ||
+                  profile.value!.role == 'overall_helper');
+
           return ListView(
-            padding: const EdgeInsets.all(24),
+            padding: const EdgeInsets.fromLTRB(20, 8, 20, 32),
             children: [
-              Text(service.name, style: Theme.of(context).textTheme.headlineSmall),
-              Text(service.churchName),
+              Card(
+                child: Padding(
+                  padding: const EdgeInsets.all(20),
+                  child: Row(children: [
+                    CircleAvatar(
+                      radius: 28,
+                      child: Icon(Icons.church, color: Theme.of(context).colorScheme.primary),
+                    ),
+                    const SizedBox(width: 14),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(service.name, style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700)),
+                          const SizedBox(height: 4),
+                          Text(service.churchName),
+                        ],
+                      ),
+                    ),
+                  ]),
+                ),
+              ),
+              const SizedBox(height: 20),
+              Text('الوصول السريع', style: Theme.of(context).textTheme.titleLarge),
+              const SizedBox(height: 10),
+              Wrap(
+                spacing: 10,
+                runSpacing: 10,
+                children: [
+                  _QuickAction(
+                    key: const Key('dashboard_students'),
+                    icon: Icons.school_outlined,
+                    label: 'التلاميذ',
+                    onTap: () => ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('استخدم قائمة التلاميذ من القائمة الجانبية.'))),
+                  ),
+                  _QuickAction(
+                    key: const Key('dashboard_attendance'),
+                    icon: Icons.fact_check_outlined,
+                    label: 'الحضور',
+                    onTap: () => ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('استخدم قائمة الحضور من القائمة الجانبية.'))),
+                  ),
+                  _QuickAction(
+                    key: const Key('dashboard_follow_up'),
+                    icon: Icons.history_edu_outlined,
+                    label: 'المتابعة',
+                    onTap: () => ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('استخدم قائمة المتابعة من القائمة الجانبية.'))),
+                  ),
+                  if (canManage)
+                    _QuickAction(
+                      key: const Key('dashboard_servants'),
+                      icon: Icons.people_alt_outlined,
+                      label: 'الخدام',
+                      onTap: () => ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('استخدم قائمة الخدام من القائمة الجانبية.'))),
+                    ),
+                ],
+              ),
               const SizedBox(height: 24),
-              const Text('المراحل', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+              Text('المراحل', style: Theme.of(context).textTheme.titleLarge),
+              const SizedBox(height: 10),
               StreamBuilder(
                 stream: repository.watchStages(widget.serviceId),
                 builder: (context, stageSnapshot) {
                   final stages = stageSnapshot.data ?? const [];
-                  if (stages.isEmpty) return const Text('لا توجد مراحل محفوظة محليًا بعد.');
-                  return Column(children: stages.map((stage) => ExpansionTile(
-                    title: Text(stage.name),
-                    onExpansionChanged: (expanded) {
-                      if (expanded) {
-                        ref.read(serviceRepositoryProvider).refreshClasses(stage.id);
-                      }
-                    },
-                    children: [
-                      StreamBuilder(
-                        stream: repository.watchClasses(stage.id),
-                        builder: (context, classSnapshot) {
-                          final classes = classSnapshot.data ?? const [];
-                          return Column(children: classes.map((item) => ListTile(
-                            title: Text(item.name),
-                            trailing: const Icon(Icons.chevron_left),
-                            onTap: () => Navigator.of(context).push(
-                              MaterialPageRoute(builder: (_) => ClassStudentsPage(classId: item.id, className: item.name, serviceId: widget.serviceId)),
-                            ),
-                          )).toList());
-                        },
+                  if (stages.isEmpty) {
+                    return const Card(
+                      child: Padding(
+                        padding: EdgeInsets.all(20),
+                        child: Text('لا توجد مراحل محفوظة محليًا بعد.'),
                       ),
-                    ],
-                  )).toList());
+                    );
+                  }
+                  return Column(
+                    children: stages.map((stage) => Card(
+                      margin: const EdgeInsets.only(bottom: 10),
+                      child: ExpansionTile(
+                        key: Key('dashboard_stage_' + stage.id),
+                        title: Text(stage.name),
+                        onExpansionChanged: (expanded) {
+                          if (expanded) repository.refreshClasses(stage.id);
+                        },
+                        children: [
+                          StreamBuilder(
+                            stream: repository.watchClasses(stage.id),
+                            builder: (context, classSnapshot) {
+                              final classes = classSnapshot.data ?? const [];
+                              return Column(
+                                children: classes.map((item) => ListTile(
+                                  key: Key('dashboard_class_' + item.id),
+                                  title: Text(item.name),
+                                  trailing: const Icon(Icons.chevron_left),
+                                )).toList(),
+                              );
+                            },
+                          ),
+                        ],
+                      ),
+                    )).toList(),
+                  );
                 },
               ),
             ],
@@ -107,4 +143,17 @@ class _ServiceDashboardPageState extends ConsumerState<ServiceDashboardPage> {
       ),
     );
   }
+}
+
+class _QuickAction extends StatelessWidget {
+  const _QuickAction({super.key, required this.icon, required this.label, required this.onTap});
+  final IconData icon;
+  final String label;
+  final VoidCallback onTap;
+  @override
+  Widget build(BuildContext context) => ActionChip(
+        avatar: Icon(icon, size: 18),
+        label: Text(label),
+        onPressed: onTap,
+      );
 }
