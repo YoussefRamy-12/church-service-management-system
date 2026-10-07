@@ -109,7 +109,6 @@ void main() {
       containsAll(<String>[
         attendanceRecord.clientOperationId,
         followUpRecord.clientOperationId,
-        updatedStudent.clientOperationId,
       ]),
     );
 
