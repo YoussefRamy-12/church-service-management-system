@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'meeting_providers.dart';
+import 'package:go_router/go_router.dart';
 import '../../auth/presentation/auth_providers.dart';
 
 class MeetingListPage extends ConsumerStatefulWidget {
@@ -94,10 +95,13 @@ class _MeetingListPageState extends ConsumerState<MeetingListPage> {
             itemBuilder: (_, index) {
               final meeting = meetings[index];
               return ListTile(
+                key: Key('attendance_meeting_' + meeting.id),
                 title: Text(
                   'اجتماع ${meeting.meetingDate.toLocal().toString().split(' ').first}',
                 ),
-                subtitle: Text('بداية الاجتماع ${meeting.startTime}'),
+                subtitle: Text('بداية الاجتماع ' + meeting.startTime),
+                trailing: const Icon(Icons.chevron_left),
+                onTap: () => context.go('/service/' + widget.serviceId + '/attendance/class-picker/' + meeting.id),
               );
             },
           );
