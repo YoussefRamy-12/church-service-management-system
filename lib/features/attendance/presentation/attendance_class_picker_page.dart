@@ -7,6 +7,7 @@ import 'package:go_router/go_router.dart';
 import '../../auth/presentation/auth_providers.dart';
 import '../../service/presentation/service_providers.dart';
 import '../../../app/ui/app_ui.dart';
+import '../../../core/sync/sync_status_widget.dart';
 
 class AttendanceClassPickerPage extends ConsumerStatefulWidget {
   const AttendanceClassPickerPage({
@@ -35,7 +36,17 @@ class _AttendanceClassPickerPageState extends ConsumerState<AttendanceClassPicke
     final profile = profileState.hasValue ? profileState.value : null;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('اختيار الفصل للحضور')),
+      appBar: AppBar(
+        title: const Text('اختيار الفصل للحضور'),
+        actions: [
+          const SyncStatusWidget(),
+          IconButton(
+            icon: const Icon(Icons.sync),
+            tooltip: 'تحديث المراحل',
+            onPressed: () => repository.refreshStages(widget.serviceId),
+          ),
+        ],
+      ),
       body: StreamBuilder(
         stream: repository.watchStages(widget.serviceId),
         builder: (context, snapshot) {
@@ -44,10 +55,14 @@ class _AttendanceClassPickerPageState extends ConsumerState<AttendanceClassPicke
           if (stages.isEmpty) return const EmptyState(icon: Icons.school_outlined, title: 'لا توجد مراحل متاحة', message: 'حدّث البيانات عند توفر اتصال.');
           if (profile == null) return const LoadingView(message: 'جاري تجهيز الحساب...');
 
-          return ListView(
-            padding: const EdgeInsets.all(20),
+          return AppContent(
+            maxWidth: 900,
+            child: ListView(
+            padding: const EdgeInsets.fromLTRB(0, 16, 0, 32),
             children: [
-              const Text('اختر الفصل الذي ستسجل حضوره.'),
+              Text('اختر الفصل الذي ستسجل حضوره.', style: Theme.of(context).textTheme.titleMedium),
+              const SizedBox(height: 4),
+              const Text('افتح المرحلة ثم اختر الفصل لبدء تسجيل الحضور.'),
               const SizedBox(height: 16),
               for (final stage in stages)
                 ExpansionTile(
@@ -65,6 +80,8 @@ class _AttendanceClassPickerPageState extends ConsumerState<AttendanceClassPicke
                           children: [
                             for (final item in classes)
                               ListTile(
+                                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                                leading: const CircleAvatar(child: Icon(Icons.class_outlined)),
                                 key: Key('attendance_class_' + item.id),
                                 title: Text(item.name),
                                 trailing: const Icon(Icons.chevron_left),
@@ -82,6 +99,7 @@ class _AttendanceClassPickerPageState extends ConsumerState<AttendanceClassPicke
                   ],
                 ),
             ],
+          ),
           );
         },
       ),
