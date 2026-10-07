@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import 'auth_providers.dart';
 
@@ -39,11 +40,17 @@ class _LoginPageState extends ConsumerState<LoginPage> {
           );
 
       ref.invalidate(currentServantProfileProvider);
+      ref.invalidate(currentSessionIdentityProvider);
 
       if (!mounted) return;
+
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('تم تسجيل الدخول بنجاح.')),
       );
+
+      // The session gate resolves the authenticated user's role/profile
+      // before rendering the appropriate authenticated area.
+      context.go('/session');
     } catch (error) {
       if (!mounted) return;
       setState(() => _error = _friendlyError(error));
