@@ -1,5 +1,5 @@
 import 'package:drift/drift.dart';
-import 'package:drift/native.dart';
+import 'testing_database_connection.dart';
 import 'package:drift_flutter/drift_flutter.dart';
 
 part 'app_database.g.dart';
@@ -161,7 +161,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(driftDatabase(name: 'church_service'));
 
   /// Creates an isolated in-memory database for automated tests.
-  AppDatabase.forTesting() : super(NativeDatabase.memory());
+  AppDatabase.forTesting() : super(testingDatabaseConnection());
 
   @override
   int get schemaVersion => 6;
