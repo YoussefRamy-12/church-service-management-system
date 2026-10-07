@@ -136,7 +136,7 @@ class _ClassStudentsPageState extends ConsumerState<ClassStudentsPage> {
           );
         },
       ),
-      );
+      ),
     );
   }
 }
