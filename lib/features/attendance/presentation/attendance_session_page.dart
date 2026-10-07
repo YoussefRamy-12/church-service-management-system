@@ -8,6 +8,7 @@ import '../../../core/database/database_provider.dart';
 import '../../../core/sync/sync_status_widget.dart';
 import 'attendance_providers.dart';
 import 'qr_scan_page.dart';
+import '../../../app/ui/app_ui.dart';
 
 class AttendanceSessionPage extends ConsumerStatefulWidget {
   const AttendanceSessionPage({super.key, required this.serviceId, required this.classId, required this.meetingId, required this.recordedBy});
@@ -17,14 +18,24 @@ class AttendanceSessionPage extends ConsumerStatefulWidget {
 
 class _AttendanceSessionPageState extends ConsumerState<AttendanceSessionPage> {
   String query = '';
+  String? busyStudentId;
 
   Future<void> _checkIn(Student student) async {
-    await ref.read(attendanceRepositoryProvider).checkIn(
+    if (busyStudentId != null) return;
+    setState(() => busyStudentId = student.id);
+    try {
+      await ref.read(attendanceRepositoryProvider).checkIn(
       meetingId: widget.meetingId, studentId: student.id,
       classIdAtAttendance: student.currentClassId ?? widget.classId,
       recordedBy: widget.recordedBy, checkedInAt: DateTime.now(),
     );
     await ref.read(syncEngineProvider).syncNow();
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('تم تسجيل الحضور محليًا.')));
+    } catch (e) {
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('تعذر تسجيل الحضور: $e')));
+    } finally {
+      if (mounted) setState(() => busyStudentId = null);
+    }
   }
 
   Future<void> _register() async {
