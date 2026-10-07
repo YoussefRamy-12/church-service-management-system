@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'meeting_providers.dart';
 import 'package:go_router/go_router.dart';
 import '../../auth/presentation/auth_providers.dart';
+import '../../../app/ui/app_ui.dart';
 
 class MeetingListPage extends ConsumerStatefulWidget {
   const MeetingListPage({super.key, required this.serviceId});
@@ -60,7 +61,8 @@ class _MeetingListPageState extends ConsumerState<MeetingListPage> {
   @override
   Widget build(BuildContext context) {
     final repo = ref.watch(meetingRepositoryProvider);
-    final profile = ref.watch(currentServantProfileProvider).value;
+    final profileState = ref.watch(currentServantProfileProvider);
+    final profile = profileState.hasValue ? profileState.value : null;
     final canCreate =
         profile?.role == 'overall_leader' ||
         profile?.role == 'overall_helper';
@@ -88,7 +90,7 @@ class _MeetingListPageState extends ConsumerState<MeetingListPage> {
         builder: (context, snapshot) {
           final meetings = snapshot.data ?? const [];
           if (snapshot.connectionState == ConnectionState.waiting && meetings.isEmpty) {
-            return const Center(child: CircularProgressIndicator());
+            return const LoadingView(message: 'جاري تحميل الاجتماعات...');
           }
           if (meetings.isEmpty) {
             return Center(child: Padding(
