@@ -96,7 +96,8 @@ void main() {
   testWidgets(
     'desktop shell navigates through every management workflow',
     (tester) async {
-      await tester.binding.setSurfaceSize(const Size(1280, 800));
+      tester.view.devicePixelRatio = 1.0;
+      tester.view.physicalSize = const Size(1280, 800);
       final router = buildRouter();
 
       try {
@@ -130,7 +131,8 @@ void main() {
         await tester.pumpWidget(const SizedBox.shrink());
         await tester.pump();
         await tester.pump(const Duration(milliseconds: 1));
-        await tester.binding.setSurfaceSize(null);
+        tester.view.resetDevicePixelRatio();
+        tester.view.resetPhysicalSize();
       }
     },
   );
