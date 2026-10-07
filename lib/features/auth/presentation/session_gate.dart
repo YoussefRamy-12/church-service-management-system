@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import 'auth_providers.dart';
 import '../domain/entities/session_identity.dart';
+import '../domain/entities/servant_profile.dart';
 import '../../../core/sync/sync_engine_provider.dart';
 
 class SessionGate extends ConsumerWidget {
@@ -41,7 +42,7 @@ class SessionGate extends ConsumerWidget {
 
 class _ServiceEntry extends StatefulWidget {
   const _ServiceEntry({required this.profile});
-  final dynamic profile;
+  final ServantProfile profile;
 
   @override State<_ServiceEntry> createState() => _ServiceEntryState();
 }
