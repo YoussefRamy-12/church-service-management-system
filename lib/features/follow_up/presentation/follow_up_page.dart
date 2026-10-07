@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import '../../auth/presentation/auth_providers.dart';
 import '../../students/domain/entities/student.dart';
 import 'follow_up_providers.dart';
+import '../../../app/ui/app_ui.dart';
 
 class FollowUpPage extends ConsumerStatefulWidget {
   const FollowUpPage({super.key, required this.student});
@@ -19,6 +20,7 @@ class _FollowUpPageState extends ConsumerState<FollowUpPage> {
   String status = 'contacted';
   String method = 'phone';
   bool another = false;
+  bool saving = false;
   DateTime date = DateTime.now();
   DateTime next = DateTime.now().add(const Duration(days: 7));
 
@@ -62,12 +64,7 @@ class _FollowUpPageState extends ConsumerState<FollowUpPage> {
             stream: history,
             builder: (context, snap) {
               final rows = snap.data ?? const [];
-              if (rows.isEmpty) {
-                return const Padding(
-                  padding: EdgeInsets.all(16),
-                  child: Text('لا توجد متابعات مسجلة بعد.'),
-                );
-              }
+              if (rows.isEmpty) return const EmptyState(icon: Icons.history_toggle_off_rounded, title: 'لا توجد متابعات بعد', message: 'عند تسجيل أول متابعة ستظهر هنا.');
 
               return Column(
                 children: rows
@@ -187,9 +184,11 @@ class _FollowUpPageState extends ConsumerState<FollowUpPage> {
             ),
           FilledButton(
             key: const Key('follow_up_save'),
-            onPressed: servantId == null
+            onPressed: servantId == null || saving
                 ? null
                 : () async {
+                    setState(() => saving = true);
+                    try {
                     await ref.read(followUpRepositoryProvider).create(
                           studentId: widget.student.id,
                           createdBy: servantId,
@@ -206,13 +205,16 @@ class _FollowUpPageState extends ConsumerState<FollowUpPage> {
                               another ? formatter.format(next) : null,
                         );
                     if (!context.mounted) return;
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('تم حفظ المتابعة محليًا وسيتم مزامنتها.'),
-                      ),
-                    );
+                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('تم حفظ المتابعة محليًا وسيتم مزامنتها.')));
+                      if (mounted) setState(() => saving = false);
+                    } catch (error) {
+                      if (mounted) {
+                        setState(() => saving = false);
+                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('تعذر حفظ المتابعة: $error')));
+                      }
+                    }
                   },
-            child: const Text('حفظ المتابعة'),
+            child: saving ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2)) : const Text('حفظ المتابعة'),
           ),
         ],
       ),
