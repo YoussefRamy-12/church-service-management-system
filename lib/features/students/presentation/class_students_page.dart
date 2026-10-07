@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'student_providers.dart';
+import '../../../app/ui/app_ui.dart';
 import '../../attendance/presentation/meeting_picker_page.dart';
 import 'student_details_page.dart';
 
@@ -67,16 +68,13 @@ class _ClassStudentsPageState extends ConsumerState<ClassStudentsPage> {
               )
               .toList();
 
-          if (rows.isEmpty) {
-            return const Center(
-              child: Text('لا يوجد تلاميذ محفوظون محليًا.'),
-            );
-          }
+          if (snapshot.connectionState == ConnectionState.waiting && rows.isEmpty) return const LoadingView(message: 'جاري تحميل التلاميذ...');
+          if (rows.isEmpty) return const EmptyState(icon: Icons.school_outlined, title: 'لا يوجد تلاميذ في هذا الفصل', message: 'يمكنك تحديث البيانات عند توفر اتصال.');
 
           return Column(
             children: [
               Padding(
-                padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+                padding: const EdgeInsets.fromLTRB(16, 16, 16, 10),
                 child: TextField(
                   key: const Key('student_search'),
                   onChanged: (value) => setState(() => query = value.trim()),
@@ -88,7 +86,7 @@ class _ClassStudentsPageState extends ConsumerState<ClassStudentsPage> {
               ),
               Expanded(
                 child: filtered.isEmpty
-                    ? const Center(child: Text('لا توجد نتائج للبحث.'))
+                    ? const EmptyState(icon: Icons.search_off_rounded, title: 'لا توجد نتائج', message: 'جرّب اسمًا مختلفًا.')
                     : ListView.separated(
                         padding: const EdgeInsets.all(16),
                         itemCount: filtered.length,
@@ -104,7 +102,7 @@ class _ClassStudentsPageState extends ConsumerState<ClassStudentsPage> {
                             title: Text(student.name),
                             subtitle: Text(
                               student.isPending
-                                  ? 'Pending — يحتاج اعتماد'
+                                  ? 'في انتظار الاعتماد'
                                   : (student.school ?? 'بدون مدرسة مسجلة'),
                             ),
                             trailing: const Icon(Icons.chevron_left),
