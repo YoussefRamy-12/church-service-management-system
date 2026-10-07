@@ -80,6 +80,33 @@ void main() {
     expect(pending, hasLength(1));
   });
 
+  test('updating check-in time updates local state and replaces the queued payload', () async {
+    final original = await attendance.checkIn(
+      meetingId: 'meeting-1',
+      studentId: 'student-1',
+      classIdAtAttendance: 'class-1',
+      recordedBy: 'servant-1',
+      checkedInAt: DateTime(2026, 10, 7, 10, 30),
+    );
+
+    final updatedAt = DateTime(2026, 10, 7, 10, 45);
+    final updated = await attendance.updateCheckedInAt(
+      attendanceId: original.id,
+      checkedInAt: updatedAt,
+    );
+
+    final localRows = await db.select(db.cachedAttendanceRecords).get();
+    final pending = await queue.pending();
+    final payload = jsonDecode(pending.single.payloadJson) as Map<String, dynamic>;
+
+    expect(updated.id, original.id);
+    expect(updated.checkedInAt, updatedAt);
+    expect(localRows.single.checkedInAt, updatedAt);
+    expect(pending, hasLength(1));
+    expect(pending.single.operationId, original.clientOperationId);
+    expect(payload['checked_in_at'], updatedAt.toIso8601String());
+  });
+
   test('attendance can be read through the local watch stream', () async {
     final stream = attendance.watchForMeeting('meeting-1');
 
