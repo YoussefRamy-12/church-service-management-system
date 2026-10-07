@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../core/config/supabase_initializer.dart';
 import '../core/sync/sync_conflict_page.dart';
 import '../features/attendance/presentation/attendance_session_page.dart';
+import '../features/attendance/presentation/attendance_class_picker_page.dart';
 import '../features/attendance/presentation/meeting_list_page.dart';
 import '../features/auth/presentation/login_page.dart';
 import '../features/auth/presentation/session_gate.dart';
@@ -76,6 +77,13 @@ class _ChurchServiceAppState extends ConsumerState<ChurchServiceApp> {
                   GoRoute(
                     path: 'attendance',
                     builder: (context, state) => MeetingListPage(serviceId: state.pathParameters['serviceId']!),
+                  ),
+                  GoRoute(
+                    path: 'attendance/class-picker/:meetingId',
+                    builder: (context, state) => AttendanceClassPickerPage(
+                      serviceId: state.pathParameters['serviceId']!,
+                      meetingId: state.pathParameters['meetingId']!,
+                    ),
                   ),
                   GoRoute(
                     path: 'follow-up',
