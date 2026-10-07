@@ -144,12 +144,13 @@ void main() {
   });
 
   test('cacheStudents replaces an existing student by id', () async {
+    final stream = repo.watchStudentsForClass('class-1');
+
     await repo.cacheStudents([_student(name: 'Original')]);
     await repo.cacheStudents([_student(name: 'Updated')]);
 
-    final rows = await repo.watchStudentsForClass('class-1').first;
+    final rows = await stream.firstWhere((items) => items.length == 1);
 
-    expect(rows, hasLength(1));
     expect(rows.single.name, 'Updated');
   });
 }
