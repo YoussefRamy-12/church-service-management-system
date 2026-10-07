@@ -66,8 +66,12 @@ class LocalReportRepository {
     var present = 0;
     var early = 0;
     var normal = 0;
+    final counted = <String>{};
     for (final row in attendance) {
       if (!studentIds.contains(row.studentId)) continue;
+      final key = '${row.meetingId}:${row.studentId}';
+      if (!counted.add(key)) continue;
+
       present++;
       final meeting = meetings.firstWhere((item) => item.id == row.meetingId);
       final parts = meeting.startTime.split(':');
