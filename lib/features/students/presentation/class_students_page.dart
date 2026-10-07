@@ -57,7 +57,9 @@ class _ClassStudentsPageState extends ConsumerState<ClassStudentsPage> {
           ),
         ],
       ),
-      body: StreamBuilder(
+      body: AppContent(
+        maxWidth: 900,
+        child: StreamBuilder(
         stream: stream,
         builder: (context, snapshot) {
           final rows = snapshot.data ?? const [];
@@ -78,10 +80,24 @@ class _ClassStudentsPageState extends ConsumerState<ClassStudentsPage> {
                 child: TextField(
                   key: const Key('student_search'),
                   onChanged: (value) => setState(() => query = value.trim()),
-                  decoration: const InputDecoration(
-                    prefixIcon: Icon(Icons.search),
+                  decoration: InputDecoration(
+                    prefixIcon: const Icon(Icons.search),
                     labelText: 'بحث باسم التلميذ',
+                    suffixIcon: query.isEmpty
+                        ? null
+                        : IconButton(
+                            tooltip: 'مسح البحث',
+                            onPressed: () => setState(() => query = ''),
+                            icon: const Icon(Icons.clear),
+                          ),
                   ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                child: Align(
+                  alignment: AlignmentDirectional.centerStart,
+                  child: Text('${filtered.length} تلميذ', style: Theme.of(context).textTheme.bodyMedium),
                 ),
               ),
               Expanded(
@@ -120,6 +136,7 @@ class _ClassStudentsPageState extends ConsumerState<ClassStudentsPage> {
           );
         },
       ),
+      );
     );
   }
 }
