@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../app/ui/app_ui.dart';
 import '../../students/domain/entities/student.dart';
 import '../../students/data/offline_first_student_registration.dart';
 import '../../students/presentation/student_providers.dart';
@@ -54,7 +55,7 @@ class _AttendanceSessionPageState extends ConsumerState<AttendanceSessionPage> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  TextField(controller: nameController, autofocus: true, decoration: const InputDecoration(labelText: 'اسم التلميذ *')),
+                  TextField(controller: nameController, autofocus: true, onChanged: (_) => setDialogState(() {}), decoration: const InputDecoration(labelText: 'اسم التلميذ *')),
                   TextField(controller: phoneController, keyboardType: TextInputType.phone, decoration: const InputDecoration(labelText: 'رقم الهاتف')),
                   TextField(controller: schoolController, decoration: const InputDecoration(labelText: 'المدرسة')),
                   TextField(controller: gradeController, decoration: const InputDecoration(labelText: 'الصف الدراسي')),
@@ -156,19 +157,24 @@ class _AttendanceSessionPageState extends ConsumerState<AttendanceSessionPage> {
       body: StreamBuilder<List<Student>>(
         stream: studentsStream,
         builder: (context, snapshot) {
-          final students = (snapshot.data ?? const <Student>[]).where((s) => s.name.contains(query)).toList();
+          final allStudents = snapshot.data ?? const <Student>[];
+          final normalizedQuery = query.trim().toLowerCase();
+          final students = allStudents.where((s) { final matchesSearch = normalizedQuery.isEmpty || s.name.toLowerCase().contains(normalizedQuery); final isPresent = checked.containsKey(s.id); final matchesFilter = filter == 'present' ? isPresent : filter == 'absent' ? !isPresent : true; return matchesSearch && matchesFilter; }).toList();
           return Column(children: [
-            Padding(padding: const EdgeInsets.all(12), child: TextField(onChanged: (v) => setState(() => query = v), decoration: const InputDecoration(prefixIcon: Icon(Icons.search), labelText: 'بحث بالاسم'))),
+            Padding(padding: const EdgeInsets.fromLTRB(16, 12, 16, 8), child: TextField(key: const Key('attendance_search'), onChanged: (v) => setState(() => query = v), decoration: InputDecoration(prefixIcon: const Icon(Icons.search), labelText: 'بحث باسم التلميذ', suffixIcon: query.isEmpty ? null : IconButton(tooltip: 'مسح البحث', onPressed: () => setState(() => query = ''), icon: const Icon(Icons.clear))))),
+            Padding(padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4), child: Row(children: [Expanded(child: StatusBanner(icon: Icons.how_to_reg_outlined, title: '\$presentCount حاضر', message: '\${allStudents.length} تلميذ', tone: StatusTone.success)), const SizedBox(width: 8), Expanded(child: StatusBanner(icon: Icons.person_off_outlined, title: '\${allStudents.length - presentCount} غائب', message: 'اضغط تسجيل لإثبات الحضور'))])),
+            SizedBox(height: 46, child: ListView(padding: const EdgeInsets.symmetric(horizontal: 16), scrollDirection: Axis.horizontal, children: [_filterChip('all', 'الكل', allStudents.length), const SizedBox(width: 8), _filterChip('present', 'حاضر', presentCount), const SizedBox(width: 8), _filterChip('absent', 'غائب', allStudents.length - presentCount)])),
             Expanded(child: StreamBuilder(
               stream: ref.watch(attendanceRepositoryProvider).watchForMeeting(widget.meetingId),
               builder: (context, attendanceSnapshot) {
                 final records = attendanceSnapshot.data ?? const [];
                 final checked = {for (final row in records) row.studentId: row};
+                final presentCount = checked.length;
                 return ListView.builder(itemCount: students.length, itemBuilder: (_, i) {
                   final student = students[i];
                   final record = checked[student.id];
                   final present = record != null;
-                  return ListTile(
+                  return ListTile(key: Key('attendance_student_' + student.id), minVerticalPadding: 12,
                     title: Text(student.name),
                     subtitle: Text(
                       present
@@ -192,5 +198,7 @@ class _AttendanceSessionPageState extends ConsumerState<AttendanceSessionPage> {
         },
       ),
     );
+  Widget _filterChip(String value, String label, int count) {
+    return FilterChip(key: Key('attendance_filter_' + value), selected: filter == value, label: Text(label + ' (' + count.toString() + ')'), onSelected: (_) => setState(() => filter = value));
   }
 }
