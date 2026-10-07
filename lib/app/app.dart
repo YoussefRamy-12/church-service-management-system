@@ -1,6 +1,7 @@
 // ignore_for_file: prefer_interpolation_to_compose_strings
 
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -44,6 +45,11 @@ class _ChurchServiceAppState extends ConsumerState<ChurchServiceApp> {
             routerConfig: _router,
             locale: const Locale('ar'),
             supportedLocales: const [Locale('ar')],
+            localizationsDelegates: const [
+              GlobalMaterialLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+            ],
             builder: (context, child) => Directionality(
               textDirection: TextDirection.rtl,
               child: child ?? const SizedBox.shrink(),
