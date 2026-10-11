@@ -16,6 +16,12 @@ class LocalAttendanceRepository implements AttendanceRepository {
         ..orderBy([(t) => OrderingTerm(expression: t.checkedInAt)]))
       .watch().map((rows) => rows.map(_map).toList());
 
+  Stream<List<AttendanceRecord>> watchForStudent(String studentId) =>
+      (_db.select(_db.cachedAttendanceRecords)
+        ..where((t) => t.studentId.equals(studentId))
+        ..orderBy([(t) => OrderingTerm.desc(t.checkedInAt)]))
+      .watch().map((rows) => rows.map(_map).toList());
+
   @override
   Future<AttendanceRecord> checkIn({
     required String meetingId,

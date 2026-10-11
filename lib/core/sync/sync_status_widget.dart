@@ -20,19 +20,27 @@ class SyncStatusWidget extends ConsumerWidget {
             final conflicts = conflictSnapshot.data ?? 0;
             final label = conflicts > 0
                 ? 'تعارض $conflicts'
-                : pending > 0
-                    ? 'معلق $pending'
-                    : engine.status == SyncStatus.offline
-                        ? 'أوفلاين'
-                        : 'متزامن';
+                    : pending > 0
+                        ? 'معلق $pending'
+                        : engine.status == SyncStatus.offline
+                            ? 'أوفلاين'
+                            : engine.status == SyncStatus.error
+                                ? 'خطأ مزامنة'
+                                : engine.status == SyncStatus.syncing
+                                    ? 'جارٍ التزامن'
+                                    : 'متزامن';
             return ActionChip(
-              onPressed: conflicts > 0 ? () => context.push('/sync/conflicts') : null,
+              onPressed: () => context.push(conflicts > 0 ? '/sync/conflicts' : '/sync'),
               avatar: Icon(
                 conflicts > 0
                     ? Icons.warning_amber
                     : pending > 0
                         ? Icons.sync
-                        : Icons.cloud_done,
+                        : engine.status == SyncStatus.offline
+                            ? Icons.cloud_off
+                            : engine.status == SyncStatus.error
+                                ? Icons.cloud_off
+                                : Icons.cloud_done,
                 size: 18,
               ),
               label: Text(label),

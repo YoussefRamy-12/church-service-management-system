@@ -5,6 +5,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../service/presentation/service_providers.dart';
 import '../../students/presentation/student_providers.dart';
 import 'follow_up_page.dart';
+import 'absence_prioritization_page.dart';
+import 'weekly_follow_up_page.dart';
 import '../../../app/ui/app_ui.dart';
 
 class FollowUpHubPage extends ConsumerStatefulWidget {
@@ -28,7 +30,10 @@ class _FollowUpHubPageState extends ConsumerState<FollowUpHubPage> {
   Widget build(BuildContext context) {
     final services = ref.watch(serviceRepositoryProvider);
     return Scaffold(
-      appBar: AppBar(title: const Text('المتابعة')),
+      appBar: AppBar(title: const Text('المتابعة'), actions: [
+        IconButton(key: const Key('follow_up_weekly'), tooltip: 'متابعات هذا الأسبوع', icon: const Icon(Icons.calendar_view_week_rounded), onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => WeeklyFollowUpPage(serviceId: widget.serviceId)))),
+        IconButton(key: const Key('follow_up_priority'), tooltip: 'أولوية حسب الغياب', icon: const Icon(Icons.priority_high_rounded), onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => AbsencePrioritizationPage(serviceId: widget.serviceId)))),
+      ]),
       body: AppContent(
         maxWidth: 1000,
         child: StreamBuilder(

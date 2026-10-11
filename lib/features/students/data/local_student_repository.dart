@@ -18,6 +18,14 @@ class LocalStudentRepository implements StudentRepository {
         .map((rows) => rows.map(_fromRow).toList());
   }
 
+  Stream<List<Student>> watchStudentsForService(String serviceId) {
+    return (_db.select(_db.cachedStudents)
+          ..where((t) => t.serviceId.equals(serviceId))
+          ..orderBy([(t) => OrderingTerm(expression: t.name)]))
+        .watch()
+        .map((rows) => rows.map(_fromRow).toList());
+  }
+
   Future<void> cacheStudents(List<Student> students) async {
     await _db.batch((batch) {
       for (final student in students) {

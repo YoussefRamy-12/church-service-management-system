@@ -1,5 +1,4 @@
 import 'package:drift/drift.dart';
-import 'testing_database_connection.dart';
 import 'package:drift_flutter/drift_flutter.dart';
 
 part 'app_database.g.dart';
@@ -14,7 +13,8 @@ class CachedProfiles extends Table {
   TextColumn get birthDate => text().nullable()();
   TextColumn get workStudy => text().nullable()();
   TextColumn get accountStatus => text()();
-  BoolColumn get mustChangePassword => boolean().withDefault(const Constant(false))();
+  BoolColumn get mustChangePassword =>
+      boolean().withDefault(const Constant(false))();
   TextColumn get stageId => text().nullable()();
   TextColumn get classId => text().nullable()();
   DateTimeColumn get cachedAt => dateTime()();
@@ -109,11 +109,13 @@ class CachedFollowUpRecords extends Table {
   TextColumn get parentResponse => text().nullable()();
   TextColumn get actionRequired => text().nullable()();
   TextColumn get notes => text().nullable()();
-  BoolColumn get anotherFollowUpNeeded => boolean().withDefault(const Constant(false))();
+  BoolColumn get anotherFollowUpNeeded =>
+      boolean().withDefault(const Constant(false))();
   TextColumn get nextFollowUpDate => text().nullable()();
   TextColumn get clientOperationId => text()();
   DateTimeColumn get cachedAt => dateTime()();
-  @override Set<Column<Object>> get primaryKey => {id};
+  @override
+  Set<Column<Object>> get primaryKey => {id};
 }
 
 class CachedReportingPeriods extends Table {
@@ -158,40 +160,46 @@ class SyncQueueEntries extends Table {
   ],
 )
 class AppDatabase extends _$AppDatabase {
-  AppDatabase() : super(driftDatabase(name: 'church_service'));
-
-  /// Creates an isolated in-memory database for automated tests.
-  AppDatabase.forTesting() : super(testingDatabaseConnection());
+  AppDatabase()
+    : super(
+        driftDatabase(
+          name: 'church_service',
+          web: DriftWebOptions(
+            sqlite3Wasm: Uri.parse('sqlite3.wasm'),
+            driftWorker: Uri.parse('drift_worker.js'),
+          ),
+        ),
+      );
 
   @override
   int get schemaVersion => 6;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
-        onCreate: (m) => m.createAll(),
-        onUpgrade: (m, from, to) async {
-          if (from < 2) {
-            await m.createTable(cachedServices);
-            await m.createTable(cachedStages);
-            await m.createTable(cachedClasses);
-            await m.createTable(cachedStudents);
-          }
-          if (from < 3) {
-            await m.createTable(cachedMeetings);
-            await m.createTable(cachedAttendanceRecords);
-          }
-          if (from < 4) {
-            await m.createTable(cachedFollowUpRecords);
-          }
-          if (from < 6) {
-            await m.createTable(cachedReportingPeriods);
-          }
-          if (from < 5) {
-            await m.addColumn(cachedProfiles, cachedProfiles.phone);
-            await m.addColumn(cachedProfiles, cachedProfiles.birthDate);
-            await m.addColumn(cachedProfiles, cachedProfiles.workStudy);
-            await m.addColumn(cachedProfiles, cachedProfiles.mustChangePassword);
-          }
-        },
-      );
+    onCreate: (m) => m.createAll(),
+    onUpgrade: (m, from, to) async {
+      if (from < 2) {
+        await m.createTable(cachedServices);
+        await m.createTable(cachedStages);
+        await m.createTable(cachedClasses);
+        await m.createTable(cachedStudents);
+      }
+      if (from < 3) {
+        await m.createTable(cachedMeetings);
+        await m.createTable(cachedAttendanceRecords);
+      }
+      if (from < 4) {
+        await m.createTable(cachedFollowUpRecords);
+      }
+      if (from < 6) {
+        await m.createTable(cachedReportingPeriods);
+      }
+      if (from < 5) {
+        await m.addColumn(cachedProfiles, cachedProfiles.phone);
+        await m.addColumn(cachedProfiles, cachedProfiles.birthDate);
+        await m.addColumn(cachedProfiles, cachedProfiles.workStudy);
+        await m.addColumn(cachedProfiles, cachedProfiles.mustChangePassword);
+      }
+    },
+  );
 }

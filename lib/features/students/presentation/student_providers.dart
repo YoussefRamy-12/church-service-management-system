@@ -5,6 +5,7 @@ import '../../../core/network/supabase_client_provider.dart';
 import '../../../core/sync/sync_queue_repository.dart';
 import '../data/local_student_repository.dart';
 import '../data/offline_first_student_repository.dart';
+import '../data/offline_first_student_registration.dart';
 import '../data/supabase_student_repository.dart';
 
 final localStudentRepositoryProvider = Provider<LocalStudentRepository>((ref) {
@@ -22,5 +23,14 @@ final studentRepositoryProvider =
     local: ref.watch(localStudentRepositoryProvider),
     remote: ref.watch(remoteStudentRepositoryProvider),
     queue: SyncQueueRepository(ref.watch(appDatabaseProvider)),
+  );
+});
+
+final studentRegistrationProvider = Provider<OfflineFirstStudentRegistration>((ref) {
+  final db = ref.watch(appDatabaseProvider);
+  return OfflineFirstStudentRegistration(
+    ref.watch(localStudentRepositoryProvider),
+    SyncQueueRepository(db),
+    db,
   );
 });

@@ -24,6 +24,22 @@ class SupabaseServiceRepository implements ServiceRepository {
     }
   }
 
+  Future<void> updateMeetingSchedule({
+    required String serviceId,
+    required String meetingStartTime,
+    required String meetingFrequency,
+    required int meetingWeekday,
+    required int meetingMonthDay,
+  }) async {
+    final rows = await _client.from('services').update({
+      'meeting_start_time': meetingStartTime,
+      'meeting_frequency': meetingFrequency,
+      'meeting_weekday': meetingWeekday,
+      'meeting_month_day': meetingMonthDay,
+    }).eq('id', serviceId).select('id');
+    if (rows.isEmpty) throw Exception('Service schedule update was rejected.');
+  }
+
   Future<List<Map<String, dynamic>>> fetchReportingPeriods(
     String serviceId,
   ) async {
@@ -38,7 +54,7 @@ class SupabaseServiceRepository implements ServiceRepository {
   Future<Service?> getService(String serviceId) async {
     final row = await _client
         .from('services')
-        .select('id, name, church_name, meeting_start_time')
+        .select('id, name, church_name, meeting_start_time, meeting_frequency, meeting_weekday, meeting_month_day')
         .eq('id', serviceId)
         .maybeSingle();
 
@@ -49,6 +65,9 @@ class SupabaseServiceRepository implements ServiceRepository {
       name: row['name'] as String,
       churchName: row['church_name'] as String,
       meetingStartTime: row['meeting_start_time'] as String,
+      meetingFrequency: row['meeting_frequency'] as String? ?? 'weekly',
+      meetingWeekday: row['meeting_weekday'] as int? ?? 5,
+      meetingMonthDay: row['meeting_month_day'] as int? ?? 1,
     );
   }
 

@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../core/sync/sync_status_widget.dart';
 import '../features/auth/presentation/auth_providers.dart';
+import '../features/auth/domain/entities/session_identity.dart';
 
 class AppShell extends ConsumerWidget {
   const AppShell({super.key, required this.serviceId, required this.child});
@@ -17,6 +18,7 @@ class AppShell extends ConsumerWidget {
     _NavItem('التقارير', Icons.bar_chart_rounded, 'reports'),
     _NavItem('الخدام', Icons.groups_rounded, 'servants'),
     _NavItem('التصدير', Icons.file_download_rounded, 'export'),
+    _NavItem('التخرج', Icons.school_outlined, 'graduation'),
     _NavItem('الإعدادات', Icons.settings_rounded, 'settings'),
   ];
 
@@ -34,14 +36,24 @@ class AppShell extends ConsumerWidget {
     final location = GoRouterState.of(context).uri.path;
     final profileValue = ref.watch(currentServantProfileProvider);
     final profile = profileValue.hasValue ? profileValue.value : null;
+    final identityValue = ref.watch(currentSessionIdentityProvider);
+    final isSuperAdmin = identityValue.hasValue && identityValue.value is SuperAdminIdentity;
     final compact = MediaQuery.sizeOf(context).width < 1000;
-    final canManage = _canSeeManagement(profile?.role);
+    final canManage = isSuperAdmin || _canSeeManagement(profile?.role);
+    final displayName = profile?.name ?? (isSuperAdmin ? 'مسؤول النظام' : null);
+    final pageTitle = _pageTitle(location);
+    Future<void> logout() async {
+      await ref.read(authRepositoryProvider).signOut();
+      ref.invalidate(currentServantProfileProvider);
+      ref.invalidate(currentSessionIdentityProvider);
+      if (context.mounted) context.go('/login');
+    }
 
     final visibleItems = _items.where((item) {
       if (item.segment == 'settings') {
-        return profile?.role == 'overall_leader' || profile?.role == 'overall_helper';
+        return isSuperAdmin || profile?.role == 'overall_leader' || profile?.role == 'overall_helper';
       }
-      if (item.segment == 'servants' || item.segment == 'export' || item.segment == 'reports') {
+      if (item.segment == 'servants' || item.segment == 'export' || item.segment == 'graduation' || item.segment == 'reports') {
         return canManage;
       }
       return true;
@@ -54,20 +66,23 @@ class AppShell extends ConsumerWidget {
           if (!compact) _DesktopSidebar(
             serviceId: serviceId,
             location: location,
-            profileName: profile?.name,
-            profileRole: profile?.role,
+            profileName: displayName,
+            profileRole: isSuperAdmin ? 'system_admin' : profile?.role,
             items: visibleItems,
             onNavigate: (segment) => _go(context, segment),
-            onLogout: () => context.go('/login'),
+            onLogout: logout,
           ),
           Expanded(
             child: Column(
               children: [
-                if (compact)
-                  _MobileHeader(
-                    profileName: profile?.name,
-                    onMenu: () => _showNavigation(context, visibleItems),
-                  ),
+                _ShellTopBar(
+                  compact: compact,
+                  title: pageTitle,
+                  profileName: displayName,
+                  profileRole: isSuperAdmin ? 'system_admin' : profile?.role,
+                  onMenu: () => _showNavigation(context, visibleItems, logout),
+                  onLogout: logout,
+                ),
                 Expanded(child: child),
               ],
             ),
@@ -77,7 +92,26 @@ class AppShell extends ConsumerWidget {
     );
   }
 
-  void _showNavigation(BuildContext context, List<_NavItem> items) {
+  String _pageTitle(String path) {
+    final segments = path.split('/').where((part) => part.isNotEmpty).toList();
+    final segment = segments.isEmpty ? null : segments.last;
+    return switch (segment) {
+      'dashboard' => 'الرئيسية',
+      'students' => 'التلاميذ',
+      'attendance' => 'الحضور',
+      'follow-up' => 'المتابعة',
+      'reports' => 'التقارير',
+      'servants' => 'الخدام',
+      'export' => 'التصدير',
+      'graduation' => 'التخرج',
+      'settings' => 'الإعدادات',
+      'structure' => 'المراحل والفصول',
+      'system' => 'إعدادات النظام',
+      _ => 'إدارة الخدمة',
+    };
+  }
+
+  void _showNavigation(BuildContext context, List<_NavItem> items, VoidCallback onLogout) {
     showModalBottomSheet<void>(
       context: context,
       showDragHandle: true,
@@ -109,7 +143,7 @@ class AppShell extends ConsumerWidget {
                 title: const Text('تسجيل الخروج'),
                 onTap: () {
                   Navigator.pop(sheetContext);
-                  context.go('/login');
+                  onLogout();
                 },
               ),
             ],
@@ -245,6 +279,7 @@ class _DesktopSidebar extends StatelessWidget {
   }
 
   String _roleLabel(String? role) => switch (role) {
+        'system_admin' => 'مسؤول النظام',
         'overall_leader' => 'مسؤول الخدمة',
         'overall_helper' => 'مساعد مسؤول الخدمة',
         'leader' => 'أمين مرحلة',
@@ -253,10 +288,14 @@ class _DesktopSidebar extends StatelessWidget {
       };
 }
 
-class _MobileHeader extends StatelessWidget {
-  const _MobileHeader({required this.profileName, required this.onMenu});
+class _ShellTopBar extends StatelessWidget {
+  const _ShellTopBar({required this.compact, required this.title, required this.profileName, required this.profileRole, required this.onMenu, required this.onLogout});
+  final bool compact;
+  final String title;
   final String? profileName;
+  final String? profileRole;
   final VoidCallback onMenu;
+  final VoidCallback onLogout;
 
   @override
   Widget build(BuildContext context) {
@@ -268,24 +307,33 @@ class _MobileHeader extends StatelessWidget {
           height: 68,
           child: Row(
             children: [
-              IconButton(
+              if (compact) IconButton(
                 key: const Key('nav_menu'),
                 tooltip: 'القائمة',
                 onPressed: onMenu,
                 icon: const Icon(Icons.menu_rounded),
               ),
-              const SizedBox(width: 4),
-              const Expanded(
-                child: Text('خدمة تلاميذ المسيح', style: TextStyle(fontWeight: FontWeight.w800)),
-              ),
-              if (profileName != null)
-                Padding(
-                  padding: const EdgeInsetsDirectional.only(end: 8),
-                  child: CircleAvatar(
-                    radius: 18,
-                    child: Text(profileName!.trim().substring(0, 1)),
-                  ),
+              if (compact) const SizedBox(width: 4),
+              Expanded(
+                child: Padding(
+                  padding: EdgeInsetsDirectional.only(start: compact ? 0 : 24),
+                  child: Column(mainAxisAlignment: MainAxisAlignment.center, crossAxisAlignment: CrossAxisAlignment.start, children: [
+                    Text('خدمة تلاميذ المسيح', style: TextStyle(fontWeight: FontWeight.w700, fontSize: compact ? 12 : 11, color: Theme.of(context).colorScheme.onSurfaceVariant)),
+                    Text(title, style: TextStyle(fontWeight: FontWeight.w800, fontSize: compact ? 17 : 20)),
+                  ]),
                 ),
+              ),
+              PopupMenuButton<String>(
+                key: const Key('user_menu'),
+                tooltip: 'قائمة المستخدم',
+                onSelected: (value) { if (value == 'logout') onLogout(); },
+                itemBuilder: (context) => [
+                  PopupMenuItem<String>(enabled: false, child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text(profileName ?? 'حساب الخدمة', style: const TextStyle(fontWeight: FontWeight.w700)), Text(_roleLabel(profileRole), style: Theme.of(context).textTheme.bodySmall)])),
+                  const PopupMenuDivider(),
+                  const PopupMenuItem(value: 'logout', child: ListTile(contentPadding: EdgeInsets.zero, leading: Icon(Icons.logout_rounded), title: Text('تسجيل الخروج'))),
+                ],
+                child: Padding(padding: const EdgeInsetsDirectional.only(start: 8, end: 8), child: CircleAvatar(radius: 18, child: Text((profileName?.trim().isNotEmpty ?? false) ? profileName!.trim().substring(0, 1) : 'خ'))),
+              ),
               const Padding(
                 padding: EdgeInsetsDirectional.only(end: 8),
                 child: SyncStatusWidget(key: Key('sync_status_mobile')),
@@ -296,6 +344,11 @@ class _MobileHeader extends StatelessWidget {
       ),
     );
   }
+
+  String _roleLabel(String? role) => switch (role) {
+    'system_admin' => 'مسؤول النظام',
+    'overall_leader' => 'مسؤول الخدمة', 'overall_helper' => 'مساعد مسؤول الخدمة', 'leader' => 'أمين مرحلة', 'helper' => 'خادم', 'class_leader' => 'أمين الفصل', _ => 'مستخدم',
+  };
 }
 
 class _NavTile extends StatelessWidget {

@@ -42,6 +42,34 @@ class OfflineFirstServiceRepository implements ServiceRepository {
     );
   }
 
+  Future<void> updateMeetingSchedule({
+    required String serviceId,
+    required String meetingStartTime,
+    required String meetingFrequency,
+    required int meetingWeekday,
+    required int meetingMonthDay,
+  }) async {
+    await local.updateMeetingSchedule(
+      serviceId: serviceId,
+      meetingStartTime: meetingStartTime,
+      meetingFrequency: meetingFrequency,
+      meetingWeekday: meetingWeekday,
+      meetingMonthDay: meetingMonthDay,
+    );
+    await queue.enqueue(SyncOperation(
+      operationId: 'service-settings-$serviceId',
+      entityType: 'service',
+      operationType: 'update',
+      payloadJson: jsonEncode({
+        'id': serviceId,
+        'meeting_start_time': meetingStartTime,
+        'meeting_frequency': meetingFrequency,
+        'meeting_weekday': meetingWeekday,
+        'meeting_month_day': meetingMonthDay,
+      }),
+    ));
+  }
+
   Future<void> refreshReportingPeriods(String serviceId) async {
     final rows = await remote.fetchReportingPeriods(serviceId);
     await local.cacheReportingPeriods(
@@ -63,14 +91,16 @@ class OfflineFirstServiceRepository implements ServiceRepository {
 
   @override
   Future<Service?> getService(String serviceId) async {
-    final cached = await local.getService(serviceId);
-    if (cached != null) return cached;
-
-    final remoteValue = await remote.getService(serviceId);
-    if (remoteValue != null) {
-      await local.cacheService(remoteValue);
+    try {
+      final remoteValue = await remote.getService(serviceId);
+      if (remoteValue != null) {
+        await local.cacheService(remoteValue);
+        return remoteValue;
+      }
+    } catch (_) {
+      // Fall back to the cached service schedule while offline.
     }
-    return remoteValue;
+    return local.getService(serviceId);
   }
 
   @override

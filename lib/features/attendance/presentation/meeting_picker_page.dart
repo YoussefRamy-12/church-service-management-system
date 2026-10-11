@@ -5,6 +5,8 @@ import 'meeting_providers.dart';
 import 'attendance_session_page.dart';
 import '../../../app/ui/app_ui.dart';
 import '../../../core/sync/sync_status_widget.dart';
+import '../../../core/sync/sync_engine_provider.dart';
+import '../../service/presentation/service_providers.dart';
 
 class MeetingPickerPage extends ConsumerStatefulWidget {
   const MeetingPickerPage({super.key, required this.serviceId, required this.classId});
@@ -18,7 +20,21 @@ class _MeetingPickerPageState extends ConsumerState<MeetingPickerPage> {
   @override
   void initState() {
     super.initState();
-    Future.microtask(() => ref.read(meetingRepositoryProvider).refresh(widget.serviceId));
+    Future.microtask(_loadAndEnsureSchedule);
+  }
+
+  Future<void> _loadAndEnsureSchedule() async {
+    final meetings = ref.read(meetingRepositoryProvider);
+    try {
+      await meetings.refresh(widget.serviceId);
+    } catch (_) {}
+    try {
+      final service = await ref.read(serviceRepositoryProvider).getService(widget.serviceId);
+      if (service != null) {
+        await meetings.ensureConfiguredSchedule(service);
+        await ref.read(syncEngineProvider).syncNow();
+      }
+    } catch (_) {}
   }
 
   @override

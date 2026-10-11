@@ -22,8 +22,16 @@ class OfflineFirstStudentRepository implements StudentRepository {
   Stream<List<Student>> watchStudentsForClass(String classId) =>
       local.watchStudentsForClass(classId);
 
+  Stream<List<Student>> watchStudentsForService(String serviceId) =>
+      local.watchStudentsForService(serviceId);
+
   Future<void> refreshStudents(String classId) async {
     final values = await remote.fetchStudentsForClass(classId);
+    await local.cacheStudents(values);
+  }
+
+  Future<void> refreshStudentsForService(String serviceId) async {
+    final values = await remote.fetchStudentsForService(serviceId);
     await local.cacheStudents(values);
   }
 

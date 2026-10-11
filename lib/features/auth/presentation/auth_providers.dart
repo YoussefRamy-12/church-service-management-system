@@ -47,3 +47,8 @@ final currentServantProfileProvider =
     _ => null,
   };
 });
+
+final isSuperAdminProvider = Provider<bool>((ref) {
+  final identity = ref.watch(currentSessionIdentityProvider);
+  return identity.hasValue && identity.value is SuperAdminIdentity;
+});

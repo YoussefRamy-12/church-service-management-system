@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../auth/presentation/auth_providers.dart';
+import '../../auth/domain/entities/session_identity.dart';
 import '../../service/presentation/service_providers.dart';
 import '../../../app/ui/app_ui.dart';
 import '../../../core/sync/sync_status_widget.dart';
@@ -34,6 +35,11 @@ class _AttendanceClassPickerPageState extends ConsumerState<AttendanceClassPicke
     final repository = ref.watch(serviceRepositoryProvider);
     final profileState = ref.watch(currentServantProfileProvider);
     final profile = profileState.hasValue ? profileState.value : null;
+    final identityState = ref.watch(currentSessionIdentityProvider);
+    final recordedBy = profile?.id ?? (identityState.hasValue ? switch (identityState.value) {
+      SuperAdminIdentity(:final profile) => profile.id,
+      _ => null,
+    } : null);
 
     return Scaffold(
       appBar: AppBar(
@@ -52,8 +58,7 @@ class _AttendanceClassPickerPageState extends ConsumerState<AttendanceClassPicke
         builder: (context, snapshot) {
           final stages = snapshot.data ?? const [];
           if (snapshot.connectionState == ConnectionState.waiting && stages.isEmpty) return const LoadingView(message: 'جاري تحميل المراحل...');
-          if (stages.isEmpty) return const EmptyState(icon: Icons.school_outlined, title: 'لا توجد مراحل متاحة', message: 'حدّث البيانات عند توفر اتصال.');
-          if (profile == null) return const LoadingView(message: 'جاري تجهيز الحساب...');
+          if (recordedBy == null) return const LoadingView(message: 'جاري تجهيز الحساب...');
 
           return AppContent(
             maxWidth: 900,
@@ -64,6 +69,27 @@ class _AttendanceClassPickerPageState extends ConsumerState<AttendanceClassPicke
               const SizedBox(height: 4),
               const Text('افتح المرحلة ثم اختر الفصل لبدء تسجيل الحضور.'),
               const SizedBox(height: 16),
+              Card(
+                child: ListTile(
+                  key: const Key('attendance_all_students'),
+                  leading: const CircleAvatar(child: Icon(Icons.groups_rounded)),
+                  title: const Text('كل طلاب الخدمة'),
+                  subtitle: const Text('قائمة واحدة للبحث وتسجيل الحضور عند المدخل.'),
+                  trailing: const Icon(Icons.chevron_left),
+                  onTap: () => context.go(
+                    '/service/${widget.serviceId}/attendance/session/${widget.meetingId}/all?recordedBy=$recordedBy',
+                  ),
+                ),
+              ),
+              if (stages.isEmpty)
+                const Padding(
+                  padding: EdgeInsets.only(top: 12),
+                  child: EmptyState(
+                    icon: Icons.school_outlined,
+                    title: 'لا توجد مراحل متاحة',
+                    message: 'يمكن تسجيل الحضور من قائمة كل طلاب الخدمة.',
+                  ),
+                ),
               for (final stage in stages)
                 ExpansionTile(
                   key: Key('attendance_stage_' + stage.id),
@@ -89,7 +115,7 @@ class _AttendanceClassPickerPageState extends ConsumerState<AttendanceClassPicke
                                   '/service/' + widget.serviceId +
                                   '/attendance/session/' + widget.meetingId +
                                   '/' + item.id +
-                                  '?recordedBy=' + profile.id,
+                                  '?recordedBy=' + recordedBy,
                                 ),
                               ),
                           ],

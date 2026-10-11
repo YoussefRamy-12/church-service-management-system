@@ -7,6 +7,8 @@ import 'package:go_router/go_router.dart';
 import '../../auth/presentation/auth_providers.dart';
 import '../../../app/ui/app_ui.dart';
 import '../../../core/sync/sync_status_widget.dart';
+import '../../../core/sync/sync_engine_provider.dart';
+import '../../service/presentation/service_providers.dart';
 
 class MeetingListPage extends ConsumerStatefulWidget {
   const MeetingListPage({super.key, required this.serviceId});
@@ -20,9 +22,21 @@ class _MeetingListPageState extends ConsumerState<MeetingListPage> {
   @override
   void initState() {
     super.initState();
-    Future.microtask(
-      () => ref.read(meetingRepositoryProvider).refresh(widget.serviceId),
-    );
+    Future.microtask(_loadAndEnsureSchedule);
+  }
+
+  Future<void> _loadAndEnsureSchedule() async {
+    final meetings = ref.read(meetingRepositoryProvider);
+    try {
+      await meetings.refresh(widget.serviceId);
+    } catch (_) {}
+    try {
+      final service = await ref.read(serviceRepositoryProvider).getService(widget.serviceId);
+      if (service != null) {
+        await meetings.ensureConfiguredSchedule(service);
+        await ref.read(syncEngineProvider).syncNow();
+      }
+    } catch (_) {}
   }
 
   Future<void> _createMeeting() async {
@@ -64,7 +78,7 @@ class _MeetingListPageState extends ConsumerState<MeetingListPage> {
     final repo = ref.watch(meetingRepositoryProvider);
     final profileState = ref.watch(currentServantProfileProvider);
     final profile = profileState.hasValue ? profileState.value : null;
-    final canCreate =
+    final canCreate = ref.watch(isSuperAdminProvider) ||
         profile?.role == 'overall_leader' ||
         profile?.role == 'overall_helper';
 

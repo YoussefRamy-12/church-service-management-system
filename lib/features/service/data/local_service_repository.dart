@@ -19,11 +19,15 @@ class LocalServiceRepository implements ServiceRepository {
 
     if (row == null) return null;
 
+    final schedule = row.meetingStartTime.split('|');
     return Service(
       id: row.id,
       name: row.name,
       churchName: row.churchName,
-      meetingStartTime: row.meetingStartTime,
+      meetingStartTime: schedule[0],
+      meetingFrequency: schedule.length > 1 ? schedule[1] : 'weekly',
+      meetingWeekday: schedule.length > 2 ? int.tryParse(schedule[2]) ?? 5 : 5,
+      meetingMonthDay: schedule.length > 3 ? int.tryParse(schedule[3]) ?? 1 : 1,
     );
   }
 
@@ -82,6 +86,29 @@ class LocalServiceRepository implements ServiceRepository {
       name: current.name,
       churchName: current.churchName,
       meetingStartTime: meetingStartTime,
+      meetingFrequency: current.meetingFrequency,
+      meetingWeekday: current.meetingWeekday,
+      meetingMonthDay: current.meetingMonthDay,
+    ));
+  }
+
+  Future<void> updateMeetingSchedule({
+    required String serviceId,
+    required String meetingStartTime,
+    required String meetingFrequency,
+    required int meetingWeekday,
+    required int meetingMonthDay,
+  }) async {
+    final current = await getService(serviceId);
+    if (current == null) return;
+    await cacheService(Service(
+      id: current.id,
+      name: current.name,
+      churchName: current.churchName,
+      meetingStartTime: meetingStartTime,
+      meetingFrequency: meetingFrequency,
+      meetingWeekday: meetingWeekday,
+      meetingMonthDay: meetingMonthDay,
     ));
   }
 
@@ -113,7 +140,9 @@ class LocalServiceRepository implements ServiceRepository {
             id: service.id,
             name: service.name,
             churchName: service.churchName,
-            meetingStartTime: service.meetingStartTime,
+            // Reuse the existing cached text column so schedule settings are
+            // available offline without a local database schema change.
+            meetingStartTime: '${service.meetingStartTime}|${service.meetingFrequency}|${service.meetingWeekday}|${service.meetingMonthDay}',
             cachedAt: DateTime.now(),
           ),
         );

@@ -7,6 +7,7 @@ import 'package:go_router/go_router.dart';
 
 import '../core/config/supabase_initializer.dart';
 import '../core/sync/sync_conflict_page.dart';
+import '../core/sync/sync_center_page.dart';
 import '../features/attendance/presentation/attendance_session_page.dart';
 import '../features/attendance/presentation/attendance_class_picker_page.dart';
 import '../features/attendance/presentation/meeting_list_page.dart';
@@ -17,6 +18,10 @@ import '../features/follow_up/presentation/follow_up_hub_page.dart';
 import '../features/reports/presentation/reports_page.dart';
 import '../features/servants/presentation/servant_management_page.dart';
 import '../features/service/presentation/service_dashboard_page.dart';
+import '../features/service/presentation/stage_dashboard_page.dart';
+import '../features/service/presentation/structure_settings_page.dart';
+import '../features/service/presentation/system_settings_page.dart';
+import '../features/auth/presentation/system_admin_home_page.dart';
 import '../features/service/presentation/service_settings_page.dart';
 import '../features/students/presentation/students_page.dart';
 import 'app_shell.dart';
@@ -61,12 +66,18 @@ class _ChurchServiceAppState extends ConsumerState<ChurchServiceApp> {
   GoRouter get _router => GoRouter(
         initialLocation: '/login',
         routes: [
+          GoRoute(path: '/app', redirect: (context, state) => '/session'),
+          GoRoute(path: '/admin', builder: (context, state) => const SystemAdminHomePage()),
           GoRoute(path: '/login', builder: (context, state) => const LoginPage()),
           GoRoute(path: '/session', builder: (context, state) => const SessionGate()),
           GoRoute(path: '/sync/conflicts', builder: (context, state) => const SyncConflictPage()),
+          GoRoute(path: '/sync', builder: (context, state) => const SyncCenterPage()),
           GoRoute(
             path: '/service/:serviceId',
-            redirect: (context, state) => '/service/' + state.pathParameters['serviceId']! + '/dashboard',
+            redirect: (context, state) {
+              final servicePath = '/service/${state.pathParameters['serviceId']}';
+              return state.uri.path == servicePath ? '$servicePath/dashboard' : null;
+            },
             routes: [
               ShellRoute(
                 builder: (context, state, child) => AppShell(
@@ -77,6 +88,23 @@ class _ChurchServiceAppState extends ConsumerState<ChurchServiceApp> {
                   GoRoute(
                     path: 'dashboard',
                     builder: (context, state) => ServiceDashboardPage(serviceId: state.pathParameters['serviceId']!),
+                  ),
+                  GoRoute(
+                    path: 'stage/:stageId',
+                    builder: (context, state) => StageDashboardPage(
+                      serviceId: state.pathParameters['serviceId']!,
+                      stageId: state.pathParameters['stageId']!,
+                    ),
+                    routes: [
+                      GoRoute(
+                        path: 'class/:classId',
+                        builder: (context, state) => ClassDashboardPage(
+                          serviceId: state.pathParameters['serviceId']!,
+                          stageId: state.pathParameters['stageId']!,
+                          classId: state.pathParameters['classId']!,
+                        ),
+                      ),
+                    ],
                   ),
                   GoRoute(
                     path: 'students',
@@ -113,8 +141,23 @@ class _ChurchServiceAppState extends ConsumerState<ChurchServiceApp> {
                     ),
                   ),
                   GoRoute(
+                    path: 'graduation',
+                    builder: (context, state) => ExportPage(
+                      serviceId: state.pathParameters['serviceId']!,
+                      graduationOnly: true,
+                    ),
+                  ),
+                  GoRoute(
                     path: 'settings',
                     builder: (context, state) => ServiceSettingsPage(serviceId: state.pathParameters['serviceId']!),
+                  ),
+                  GoRoute(
+                    path: 'settings/structure',
+                    builder: (context, state) => StructureSettingsPage(serviceId: state.pathParameters['serviceId']!),
+                  ),
+                  GoRoute(
+                    path: 'settings/system',
+                    builder: (context, state) => SystemSettingsPage(serviceId: state.pathParameters['serviceId']!),
                   ),
                   GoRoute(
                     path: 'attendance/session/:meetingId/:classId',

@@ -66,6 +66,9 @@ class SupabaseSyncTransport implements SyncTransport {
               .from('services')
               .update({
                 'meeting_start_time': payload['meeting_start_time'],
+                'meeting_frequency': payload['meeting_frequency'] ?? 'weekly',
+                'meeting_weekday': payload['meeting_weekday'] ?? 5,
+                'meeting_month_day': payload['meeting_month_day'] ?? 1,
               })
               .eq('id', payload['id'] as String)
               .select('id');

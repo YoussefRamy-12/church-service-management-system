@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 
 import '../../auth/presentation/auth_providers.dart';
 import '../domain/entities/student.dart';
 import 'student_providers.dart';
 import '../../follow_up/presentation/follow_up_page.dart';
 import '../../../app/ui/app_ui.dart';
+import '../../attendance/presentation/attendance_providers.dart';
+import '../../follow_up/presentation/follow_up_providers.dart';
 
 class StudentDetailsPage extends ConsumerStatefulWidget {
   const StudentDetailsPage({super.key, required this.student});
@@ -83,14 +86,18 @@ class _StudentDetailsPageState extends ConsumerState<StudentDetailsPage> {
   Widget build(BuildContext context) {
     final profileState = ref.watch(currentServantProfileProvider);
     final profile = profileState.hasValue ? profileState.value : null;
-    final canApprove = profile != null && _canApprove(profile.role);
+    final canApprove = ref.watch(isSuperAdminProvider) || (profile != null && _canApprove(profile.role));
 
-    return Scaffold(
+    return DefaultTabController(length: 3, child: Scaffold(
       key: const Key('student_details'),
       appBar: AppBar(
         title: Text(student.name),
+        bottom: const TabBar(tabs: [
+          Tab(key: Key('student_tab_profile'), icon: Icon(Icons.person_outline), text: 'الملف'),
+          Tab(key: Key('student_tab_attendance'), icon: Icon(Icons.fact_check_outlined), text: 'الحضور'),
+          Tab(key: Key('student_tab_follow_up'), icon: Icon(Icons.history_rounded), text: 'المتابعة'),
+        ]),
         actions: [
-          IconButton(key: const Key('student_follow_up'), icon: const Icon(Icons.history), tooltip: 'المتابعة', onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => FollowUpPage(student: student)))),
           IconButton(
             key: const Key('student_edit'),
             icon: const Icon(Icons.edit),
@@ -99,7 +106,8 @@ class _StudentDetailsPageState extends ConsumerState<StudentDetailsPage> {
           ),
         ],
       ),
-      body: AppContent(maxWidth: 900, child: ListView(
+      body: TabBarView(children: [
+        AppContent(maxWidth: 900, child: ListView(
         padding: const EdgeInsets.fromLTRB(0, 20, 0, 32),
         children: [
           if (student.isPending && canApprove)
@@ -144,7 +152,10 @@ class _StudentDetailsPageState extends ConsumerState<StudentDetailsPage> {
           ]),
         ],
       )),
-    );
+        _StudentAttendanceTab(student: student),
+        _StudentFollowUpTab(student: student),
+      ]),
+    ));
   }
 
   Widget _section(
@@ -179,6 +190,62 @@ class _StudentDetailsPageState extends ConsumerState<StudentDetailsPage> {
         ],
       ),
     );
+  }
+}
+
+class _StudentAttendanceTab extends ConsumerWidget {
+  const _StudentAttendanceTab({required this.student});
+  final Student student;
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final stream = ref.watch(attendanceRepositoryProvider).watchForStudent(student.id);
+    return AppContent(maxWidth: 900, child: StreamBuilder(
+      stream: stream,
+      builder: (context, snapshot) {
+        if (snapshot.hasError) return const EmptyState(icon: Icons.error_outline, title: 'تعذر تحميل سجل الحضور');
+        if (!snapshot.hasData) return const LoadingView(message: 'جاري تحميل سجل الحضور...');
+        final rows = snapshot.data!;
+        if (rows.isEmpty) return const EmptyState(icon: Icons.fact_check_outlined, title: 'لا يوجد سجل حضور بعد', message: 'ستظهر سجلات الاجتماعات التي سُجل فيها التلميذ هنا.');
+        return ListView(padding: const EdgeInsets.symmetric(vertical: 16), children: [
+          Text('سجل الحضور', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800)),
+          const SizedBox(height: 8),
+          for (final record in rows) Card(margin: const EdgeInsets.only(bottom: 8), child: ListTile(
+            leading: const CircleAvatar(child: Icon(Icons.check_rounded)),
+            title: Text(DateFormat('yyyy-MM-dd • HH:mm').format(record.checkedInAt.toLocal())),
+            subtitle: Text('اجتماع ${record.meetingId.substring(0, record.meetingId.length > 8 ? 8 : record.meetingId.length)}'),
+            trailing: Icon(record.syncState == 'synced' ? Icons.cloud_done_outlined : Icons.cloud_upload_outlined, semanticLabel: record.syncState == 'synced' ? 'تمت المزامنة' : 'بانتظار المزامنة'),
+          )),
+        ]);
+      },
+    ));
+  }
+}
+
+class _StudentFollowUpTab extends ConsumerWidget {
+  const _StudentFollowUpTab({required this.student});
+  final Student student;
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final stream = ref.watch(followUpRepositoryProvider).watchForStudent(student.id);
+    return AppContent(maxWidth: 900, child: StreamBuilder(
+      stream: stream,
+      builder: (context, snapshot) {
+        if (snapshot.hasError) return const EmptyState(icon: Icons.error_outline, title: 'تعذر تحميل سجل المتابعة');
+        if (!snapshot.hasData) return const LoadingView(message: 'جاري تحميل سجل المتابعة...');
+        final rows = snapshot.data!;
+        return ListView(padding: const EdgeInsets.symmetric(vertical: 16), children: [
+          Row(children: [Expanded(child: Text('سجل المتابعة', style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800))), FilledButton.icon(key: const Key('student_follow_up_add'), onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => FollowUpPage(student: student))), icon: const Icon(Icons.add), label: const Text('إضافة'))]),
+          const SizedBox(height: 12),
+          if (rows.isEmpty) const EmptyState(icon: Icons.history_toggle_off_rounded, title: 'لا توجد متابعات بعد', message: 'سجّل متابعة جديدة لتظهر في هذا السجل.'),
+          for (final record in rows) Card(margin: const EdgeInsets.only(bottom: 8), child: ListTile(
+            leading: Icon(record.contactStatus == 'contacted' ? Icons.call_made_rounded : Icons.phone_missed_rounded),
+            title: Text('${record.followUpDate} — ${record.contactStatus == 'contacted' ? 'تم التواصل' : 'لم يتم التواصل'}'),
+            subtitle: Text(record.notes?.isNotEmpty == true ? record.notes! : (record.actionRequired?.isNotEmpty == true ? record.actionRequired! : 'لا توجد ملاحظات')),
+            trailing: record.anotherFollowUpNeeded ? const Tooltip(message: 'متابعة أخرى مطلوبة', child: Icon(Icons.event_repeat_rounded)) : null,
+          )),
+        ]);
+      },
+    ));
   }
 }
 

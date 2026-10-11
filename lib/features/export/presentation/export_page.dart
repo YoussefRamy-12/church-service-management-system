@@ -7,15 +7,16 @@ import '../../service/presentation/service_providers.dart';
 import '../data/csv_export_repository.dart';
 
 class ExportPage extends ConsumerStatefulWidget {
-  const ExportPage({super.key, required this.serviceId, this.classId});
+  const ExportPage({super.key, required this.serviceId, this.classId, this.graduationOnly = false});
   final String serviceId;
   final String? classId;
+  final bool graduationOnly;
   @override ConsumerState<ExportPage> createState() => _ExportPageState();
 }
 
 class _ExportPageState extends ConsumerState<ExportPage> {
   String scope = 'service';
-  bool graduationOnly = false;
+  late bool graduationOnly = widget.graduationOnly;
   String? stageId;
   String? selectedClassId;
   Set<String> selectedStudentIds = {};
@@ -30,6 +31,7 @@ class _ExportPageState extends ConsumerState<ExportPage> {
 
   Future<void> _load() async {
     final profile = await ref.read(currentServantProfileProvider.future);
+    final isSuperAdmin = ref.read(isSuperAdminProvider);
     final db = ref.read(appDatabaseProvider);
     final allStages = await ref.read(serviceRepositoryProvider).local.getStages(widget.serviceId);
     final allClasses = <dynamic>[];
@@ -38,7 +40,7 @@ class _ExportPageState extends ConsumerState<ExportPage> {
     }
     final cachedStudents = await (db.select(db.cachedStudents)..where((t) => t.serviceId.equals(widget.serviceId))).get();
     if (!mounted) return;
-    role = profile?.role ?? '';
+    role = isSuperAdmin ? 'system_admin' : profile?.role ?? '';
     if (role == 'class_leader' || role == 'class_servant') {
       scope = 'class';
       selectedClassId = profile?.classId;
@@ -68,6 +70,18 @@ class _ExportPageState extends ConsumerState<ExportPage> {
   Future<void> _export() async {
     if ((scope == 'class' || scope == 'students') && selectedClassId == null) return;
     if (scope == 'students' && selectedStudentIds.isEmpty) return;
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(graduationOnly ? 'تأكيد تصدير بيانات التخرج' : 'مراجعة التصدير'),
+        content: Text('النطاق: ${scope == 'service' ? 'الخدمة بالكامل' : scope == 'stage' ? 'مرحلة' : scope == 'class' ? 'فصل' : 'تلاميذ محددون'}\n${graduationOnly ? 'سيحتوي الملف على بيانات التخرج الأساسية فقط.' : 'سيتم تجهيز ملف CSV للنطاق المحدد.'}'),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('رجوع')),
+          FilledButton(onPressed: () => Navigator.pop(context, true), child: const Text('تأكيد وإنشاء الملف')),
+        ],
+      ),
+    );
+    if (confirm != true || !mounted) return;
     setState(() => exporting = true);
     try {
       final repository = CsvExportRepository(ref.read(appDatabaseProvider));
@@ -99,15 +113,15 @@ class _ExportPageState extends ConsumerState<ExportPage> {
 
   @override Widget build(BuildContext context) {
     if (loading) return const Scaffold(body: Center(child: CircularProgressIndicator()));
-    final canChooseService = role == 'overall_leader' || role == 'overall_helper';
+    final canChooseService = role == 'system_admin' || role == 'overall_leader' || role == 'overall_helper';
     final scopeItems = <DropdownMenuItem<String>>[
       if (canChooseService) const DropdownMenuItem(value: 'service', child: Text('الخدمة بالكامل')),
-      if (role == 'overall_leader' || role == 'overall_helper' || role == 'stage_leader') const DropdownMenuItem(value: 'stage', child: Text('مرحلة')),
+      if (role == 'system_admin' || role == 'overall_leader' || role == 'overall_helper' || role == 'stage_leader') const DropdownMenuItem(value: 'stage', child: Text('مرحلة')),
       const DropdownMenuItem(value: 'class', child: Text('فصل')),
       const DropdownMenuItem(value: 'students', child: Text('تلاميذ محددون')),
     ];
     return Scaffold(
-      appBar: AppBar(title: const Text('التصدير')),
+      appBar: AppBar(title: Text(widget.graduationOnly ? 'تصدير بيانات التخرج' : 'التصدير')),
       body: ListView(padding: const EdgeInsets.all(20), children: [
         DropdownButtonFormField<String>(
           initialValue: scope,
@@ -135,7 +149,7 @@ class _ExportPageState extends ConsumerState<ExportPage> {
             if (value == true) { selectedStudentIds.add(student.id as String); } else { selectedStudentIds.remove(student.id as String); }
           }),
         )),
-        SwitchListTile(
+        if (!widget.graduationOnly) SwitchListTile(
           title: const Text('تصدير بيانات التخرج فقط'),
           subtitle: const Text('بدون الحضور أو المتابعة أو البيانات الحساسة.'),
           value: graduationOnly,

@@ -7,6 +7,7 @@ import '../../students/domain/entities/student.dart';
 import 'follow_up_providers.dart';
 import '../../../app/ui/app_ui.dart';
 import '../../../core/sync/sync_engine_provider.dart';
+import '../../auth/domain/entities/session_identity.dart';
 
 class FollowUpPage extends ConsumerStatefulWidget {
   const FollowUpPage({super.key, required this.student});
@@ -44,7 +45,12 @@ class _FollowUpPageState extends ConsumerState<FollowUpPage> {
   @override
   Widget build(BuildContext context) {
     final profile = ref.watch(currentServantProfileProvider);
+    final identity = ref.watch(currentSessionIdentityProvider);
     final servantId = profile.hasValue ? profile.value?.id : null;
+    final actorId = servantId ?? (identity.hasValue ? switch (identity.value) {
+      SuperAdminIdentity(:final profile) => profile.id,
+      _ => null,
+    } : null);
     final history =
         ref.watch(followUpRepositoryProvider).watchForStudent(widget.student.id);
     final formatter = DateFormat('yyyy-MM-dd');
@@ -189,14 +195,14 @@ class _FollowUpPageState extends ConsumerState<FollowUpPage> {
             ),
           FilledButton(
             key: const Key('follow_up_save'),
-            onPressed: servantId == null || saving
+            onPressed: actorId == null || saving
                 ? null
                 : () async {
                     setState(() => saving = true);
                     try {
                     await ref.read(followUpRepositoryProvider).create(
                           studentId: widget.student.id,
-                          createdBy: servantId,
+                          createdBy: actorId,
                           followUpDate: formatter.format(date),
                           contactStatus: status,
                           contactMethod: method,

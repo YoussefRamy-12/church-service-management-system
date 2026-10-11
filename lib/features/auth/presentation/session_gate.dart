@@ -66,14 +66,27 @@ class _ServiceEntryState extends State<_ServiceEntry> {
       );
 }
 
-class _SessionHome extends StatelessWidget {
+class _SessionHome extends StatefulWidget {
   const _SessionHome({required this.title, required this.subtitle});
   final String title;
   final String subtitle;
   @override
+  State<_SessionHome> createState() => _SessionHomeState();
+}
+
+class _SessionHomeState extends State<_SessionHome> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) context.go('/admin');
+    });
+  }
+
+  @override
   Widget build(BuildContext context) => Scaffold(
-        appBar: AppBar(title: Text(title)),
-        body: Center(child: Text(subtitle, style: Theme.of(context).textTheme.headlineSmall)),
+        appBar: AppBar(title: Text(widget.title)),
+        body: const Center(child: CircularProgressIndicator()),
       );
 }
 

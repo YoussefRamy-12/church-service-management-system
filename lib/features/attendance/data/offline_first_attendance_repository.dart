@@ -14,6 +14,9 @@ class OfflineFirstAttendanceRepository implements AttendanceRepository {
   Stream<List<AttendanceRecord>> watchForMeeting(String meetingId) =>
       local.watchForMeeting(meetingId);
 
+  Stream<List<AttendanceRecord>> watchForStudent(String studentId) =>
+      local.watchForStudent(studentId);
+
   @override
   Future<AttendanceRecord> checkIn({
     required String meetingId,
