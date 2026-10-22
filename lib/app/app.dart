@@ -15,6 +15,7 @@ import '../features/auth/presentation/session_gate.dart';
 import '../features/export/presentation/export_page.dart';
 import '../features/follow_up/presentation/follow_up_hub_page.dart';
 import '../features/reports/presentation/reports_page.dart';
+import '../features/weekly_prep/presentation/weekly_prep_page.dart';
 import '../features/servants/presentation/servant_management_page.dart';
 import '../features/service/presentation/service_dashboard_page.dart';
 import '../features/service/presentation/stage_dashboard_page.dart';
@@ -168,6 +169,12 @@ class _ChurchServiceAppState extends ConsumerState<ChurchServiceApp> {
                 path: 'reports',
                 builder: (context, state) =>
                     ReportsPage(serviceId: state.pathParameters['serviceId']!),
+              ),
+              GoRoute(
+                path: 'prep',
+                builder: (context, state) => WeeklyPrepPage(
+                  serviceId: state.pathParameters['serviceId']!,
+                ),
               ),
               GoRoute(
                 path: 'servants',
