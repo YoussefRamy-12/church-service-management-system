@@ -1,13 +1,12 @@
-import 'dart:convert';
-
 import 'package:church_service_management_system/app/ui/app_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:uuid/uuid.dart';
 
+import '../../../app/theme.dart';
+import '../../../core/config/config_provider.dart';
 import '../../../core/database/app_database.dart';
-import '../../../core/sync/sync_operation.dart';
+import '../../../core/network/network_error_formatter.dart';
 import '../../../core/sync/sync_engine_provider.dart';
 import '../../attendance/presentation/meeting_providers.dart';
 import '../../auth/presentation/auth_providers.dart';
@@ -93,21 +92,32 @@ class _ServiceSettingsPageState extends ConsumerState<ServiceSettingsPage> {
             meetingWeekday: meetingWeekday,
             meetingMonthDay: meetingMonthDay,
           );
-      final service = await ref.read(serviceRepositoryProvider).local.getService(widget.serviceId);
+      final service = await ref
+          .read(serviceRepositoryProvider)
+          .getService(widget.serviceId);
       if (service != null) {
-        await ref.read(meetingRepositoryProvider).ensureConfiguredSchedule(service);
+        await ref
+            .read(meetingRepositoryProvider)
+            .ensureConfiguredSchedule(service);
       }
-      await ref.read(syncEngineProvider).syncNow();
+      final isOffline = ref.read(offlineSyncEnabledProvider);
+      if (isOffline) {
+        await ref.read(syncEngineProvider).syncNow();
+      }
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('تم حفظ جدول الاجتماع محليًا وسيتم مزامنته.'),
+        SnackBar(
+          content: Text(
+            isOffline
+                ? 'تم حفظ جدول الاجتماع محليًا وسيتم مزامنته.'
+                : 'تم حفظ جدول الاجتماع بنجاح.',
+          ),
         ),
       );
     } catch (error) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('تعذر الحفظ: ${error.toString()}')),
+        SnackBar(content: Text('تعذر الحفظ: ${NetworkErrorFormatter.format(error)}')),
       );
     } finally {
       if (mounted) setState(() => saving = false);
@@ -119,12 +129,22 @@ class _ServiceSettingsPageState extends ConsumerState<ServiceSettingsPage> {
       context: context,
       builder: (_) => const _AddPeriodDialog(),
     );
-    if (result == null || result.$1.isEmpty || result.$4.isBefore(result.$3))
+    if (result == null || result.$1.isEmpty || result.$4.isBefore(result.$3)) {
       return;
-    final id = const Uuid().v4();
+    }
+
     final startDate = result.$3.toIso8601String().split('T').first;
     final endDate = result.$4.toIso8601String().split('T').first;
-    await ref.read(serviceRepositoryProvider).local.cacheReportingPeriods([
+    await ref
+        .read(serviceRepositoryProvider)
+        .addReportingPeriod(
+          serviceId: widget.serviceId,
+          name: result.$1,
+          type: result.$2,
+          startDate: startDate,
+          endDate: endDate,
+        );
+    /*
       CachedReportingPeriodsCompanion.insert(
         id: id,
         serviceId: widget.serviceId,
@@ -151,7 +171,7 @@ class _ServiceSettingsPageState extends ConsumerState<ServiceSettingsPage> {
               'end_date': endDate,
             }),
           ),
-        );
+        );*/
     if (mounted) setState(() {});
   }
 
@@ -177,121 +197,315 @@ class _ServiceSettingsPageState extends ConsumerState<ServiceSettingsPage> {
             .getReportingPeriods(widget.serviceId),
         builder: (context, snapshot) {
           final periods = snapshot.data ?? const <CachedReportingPeriod>[];
-          return ListView(
-            padding: const EdgeInsets.all(20),
-            children: [
-              TextField(
-                controller: nameController,
-                readOnly: true,
-                decoration: const InputDecoration(labelText: 'اسم الخدمة'),
-              ),
-              TextField(
-                controller: churchController,
-                readOnly: true,
-                decoration: const InputDecoration(labelText: 'الكنيسة'),
-              ),
-              ListTile(
-                title: const Text('وقت الاجتماع'),
-                subtitle: Text(meetingTime.format(context)),
-                trailing: const Icon(Icons.schedule),
-                onTap: () async {
-                  final value = await showTimePicker(
-                    context: context,
-                    initialTime: meetingTime,
-                  );
-                  if (value != null && mounted)
-                    setState(() => meetingTime = value);
-                },
-              ),
-              DropdownButtonFormField<String>(
-                initialValue: meetingFrequency,
-                decoration: const InputDecoration(labelText: 'تكرار الاجتماع'),
-                items: const [
-                  DropdownMenuItem(value: 'weekly', child: Text('أسبوعي')),
-                  DropdownMenuItem(value: 'monthly', child: Text('شهري')),
-                ],
-                onChanged: (value) {
-                  if (value != null) setState(() => meetingFrequency = value);
-                },
-              ),
-              if (meetingFrequency == 'weekly')
-                DropdownButtonFormField<int>(
-                  initialValue: meetingWeekday,
-                  decoration: const InputDecoration(labelText: 'يوم الاجتماع'),
-                  items: const [
-                    DropdownMenuItem(value: 1, child: Text('الاثنين')),
-                    DropdownMenuItem(value: 2, child: Text('الثلاثاء')),
-                    DropdownMenuItem(value: 3, child: Text('الأربعاء')),
-                    DropdownMenuItem(value: 4, child: Text('الخميس')),
-                    DropdownMenuItem(value: 5, child: Text('الجمعة')),
-                    DropdownMenuItem(value: 6, child: Text('السبت')),
-                    DropdownMenuItem(value: 7, child: Text('الأحد')),
+          final currentThemeMode = ref.watch(themeModeProvider);
+
+          return AppContent(
+            maxWidth: 800,
+            child: ListView(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+              children: [
+                // Theme Appearance Card
+                SolidCard(
+                  padding: const EdgeInsets.all(16),
+                  margin: const EdgeInsets.only(bottom: 18),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Icon(
+                            currentThemeMode == ThemeMode.dark
+                                ? Icons.dark_mode_rounded
+                                : Icons.light_mode_rounded,
+                            color: const Color(0xFF4F46E5),
+                            size: 22,
+                          ),
+                          const SizedBox(width: 10),
+                          const Text(
+                            'المظهر البصري والسمة',
+                            style: TextStyle(
+                              fontWeight: FontWeight.w800,
+                              fontSize: 16,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 12),
+                      ListTile(
+                        contentPadding: EdgeInsets.zero,
+                        title: const Text('الوضع الليلي (Dark Mode)'),
+                        subtitle: Text(
+                          currentThemeMode == ThemeMode.dark
+                              ? 'الوضع الليلي مفعّل'
+                              : 'الوضع النهاري مفعّل',
+                          style: Theme.of(context).textTheme.bodySmall,
+                        ),
+                        trailing: Switch(
+                          value: currentThemeMode == ThemeMode.dark,
+                          onChanged: (isDark) {
+                            ref
+                                .read(themeModeProvider.notifier)
+                                .setThemeMode(
+                                  isDark ? ThemeMode.dark : ThemeMode.light,
+                                );
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
+                // Service Details Card
+                SolidCard(
+                  padding: const EdgeInsets.all(16),
+                  margin: const EdgeInsets.only(bottom: 18),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Row(
+                        children: [
+                          Icon(
+                            Icons.church_rounded,
+                            color: Color(0xFF4F46E5),
+                            size: 22,
+                          ),
+                          SizedBox(width: 10),
+                          Text(
+                            'بيانات الخدمة والكنيسة',
+                            style: TextStyle(
+                              fontWeight: FontWeight.w800,
+                              fontSize: 16,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 14),
+                      TextField(
+                        controller: nameController,
+                        readOnly: true,
+                        decoration: const InputDecoration(
+                          labelText: 'اسم الخدمة',
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      TextField(
+                        controller: churchController,
+                        readOnly: true,
+                        decoration: const InputDecoration(labelText: 'الكنيسة'),
+                      ),
+                    ],
+                  ),
+                ),
+
+                // Meeting Schedule Card
+                SolidCard(
+                  padding: const EdgeInsets.all(16),
+                  margin: const EdgeInsets.only(bottom: 18),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Row(
+                        children: [
+                          Icon(
+                            Icons.schedule_rounded,
+                            color: Color(0xFF4F46E5),
+                            size: 22,
+                          ),
+                          SizedBox(width: 10),
+                          Text(
+                            'جدول ومواعيد الاجتماع',
+                            style: TextStyle(
+                              fontWeight: FontWeight.w800,
+                              fontSize: 16,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 14),
+                      ListTile(
+                        contentPadding: EdgeInsets.zero,
+                        leading: const Icon(Icons.access_time_rounded),
+                        title: const Text('وقت بدء الاجتماع'),
+                        subtitle: Text(
+                          meetingTime.format(context),
+                          style: const TextStyle(fontWeight: FontWeight.w700),
+                        ),
+                        trailing: OutlinedButton(
+                          onPressed: () async {
+                            final value = await showTimePicker(
+                              context: context,
+                              initialTime: meetingTime,
+                            );
+                            if (value != null && mounted) {
+                              setState(() => meetingTime = value);
+                            }
+                          },
+                          child: const Text('تغيير الوقت'),
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      DropdownButtonFormField<String>(
+                        initialValue: meetingFrequency,
+                        decoration: const InputDecoration(
+                          labelText: 'تكرار الاجتماع',
+                        ),
+                        items: const [
+                          DropdownMenuItem(
+                            value: 'weekly',
+                            child: Text('أسبوعي'),
+                          ),
+                          DropdownMenuItem(
+                            value: 'monthly',
+                            child: Text('شهري'),
+                          ),
+                        ],
+                        onChanged: (value) {
+                          if (value != null) {
+                            setState(() => meetingFrequency = value);
+                          }
+                        },
+                      ),
+                      if (meetingFrequency == 'weekly') ...[
+                        const SizedBox(height: 12),
+                        DropdownButtonFormField<int>(
+                          initialValue: meetingWeekday,
+                          decoration: const InputDecoration(
+                            labelText: 'يوم الاجتماع',
+                          ),
+                          items: const [
+                            DropdownMenuItem(value: 1, child: Text('الاثنين')),
+                            DropdownMenuItem(value: 2, child: Text('الثلاثاء')),
+                            DropdownMenuItem(value: 3, child: Text('الأربعاء')),
+                            DropdownMenuItem(value: 4, child: Text('الخميس')),
+                            DropdownMenuItem(value: 5, child: Text('الجمعة')),
+                            DropdownMenuItem(value: 6, child: Text('السبت')),
+                            DropdownMenuItem(value: 7, child: Text('الأحد')),
+                          ],
+                          onChanged: (value) {
+                            if (value != null) {
+                              setState(() => meetingWeekday = value);
+                            }
+                          },
+                        ),
+                      ],
+                      if (meetingFrequency == 'monthly') ...[
+                        const SizedBox(height: 12),
+                        DropdownButtonFormField<int>(
+                          initialValue: meetingMonthDay,
+                          decoration: const InputDecoration(
+                            labelText: 'يوم الشهر',
+                          ),
+                          items: [
+                            for (var day = 1; day <= 31; day++)
+                              DropdownMenuItem(value: day, child: Text('$day')),
+                          ],
+                          onChanged: (value) {
+                            if (value != null) {
+                              setState(() => meetingMonthDay = value);
+                            }
+                          },
+                        ),
+                      ],
+                      const SizedBox(height: 16),
+                      FilledButton.icon(
+                        onPressed: saving ? null : _saveMeetingTime,
+                        icon: saving
+                            ? const SizedBox(
+                                width: 16,
+                                height: 16,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: Colors.white,
+                                ),
+                              )
+                            : const Icon(Icons.save_rounded),
+                        label: Text(
+                          saving ? 'جاري الحفظ...' : 'حفظ جدول وموعد الاجتماع',
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
+                // Quick Navigation Cards
+                SolidCard(
+                  padding: const EdgeInsets.all(16),
+                  margin: const EdgeInsets.only(bottom: 20),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Row(
+                        children: [
+                          Icon(
+                            Icons.layers_outlined,
+                            color: Color(0xFF4F46E5),
+                            size: 22,
+                          ),
+                          SizedBox(width: 10),
+                          Text(
+                            'الإدارة الهيكلية والنظام',
+                            style: TextStyle(
+                              fontWeight: FontWeight.w800,
+                              fontSize: 16,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 14),
+                      OutlinedButton.icon(
+                        onPressed: () => context.go(
+                          '/service/${widget.serviceId}/settings/structure',
+                        ),
+                        icon: const Icon(Icons.account_tree_outlined),
+                        label: const Text('إدارة المراحل والفصول'),
+                        style: OutlinedButton.styleFrom(
+                          minimumSize: const Size(double.infinity, 48),
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      OutlinedButton.icon(
+                        onPressed: () => context.go(
+                          '/service/${widget.serviceId}/settings/system',
+                        ),
+                        icon: const Icon(Icons.tune_rounded),
+                        label: const Text('إعدادات النظام والحساب'),
+                        style: OutlinedButton.styleFrom(
+                          minimumSize: const Size(double.infinity, 48),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Row(
+                  children: [
+                    const Expanded(
+                      child: Text(
+                        'فترات التقارير',
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                    IconButton(
+                      onPressed: _addPeriod,
+                      icon: const Icon(Icons.add),
+                    ),
                   ],
-                  onChanged: (value) {
-                    if (value != null) setState(() => meetingWeekday = value);
-                  },
                 ),
-              if (meetingFrequency == 'monthly')
-                DropdownButtonFormField<int>(
-                  initialValue: meetingMonthDay,
-                  decoration: const InputDecoration(labelText: 'يوم الشهر'),
-                  items: [
-                    for (var day = 1; day <= 31; day++)
-                      DropdownMenuItem(value: day, child: Text('$day')),
-                  ],
-                  onChanged: (value) {
-                    if (value != null) setState(() => meetingMonthDay = value);
-                  },
-                ),
-              FilledButton.icon(
-                onPressed: saving ? null : _saveMeetingTime,
-                icon: const Icon(Icons.save),
-                label: const Text('حفظ جدول الاجتماع'),
-              ),
-              const SizedBox(height: 12),
-              OutlinedButton.icon(
-                onPressed: () => context.go(
-                  '/service/${widget.serviceId}/settings/structure',
-                ),
-                icon: const Icon(Icons.account_tree_outlined),
-                label: const Text('إدارة المراحل والفصول'),
-              ),
-              const SizedBox(height: 8),
-              OutlinedButton.icon(
-                onPressed: () =>
-                    context.go('/service/${widget.serviceId}/settings/system'),
-                icon: const Icon(Icons.tune_rounded),
-                label: const Text('إعدادات النظام والحساب'),
-              ),
-              const SizedBox(height: 28),
-              Row(
-                children: [
-                  const Expanded(
-                    child: Text(
-                      'فترات التقارير',
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
+                ...periods.map(
+                  (period) => Card(
+                    child: ListTile(
+                      title: Text(period.name),
+                      subtitle: Text(
+                        '${period.type} • ${period.startDate} → ${period.endDate}',
                       ),
                     ),
                   ),
-                  IconButton(
-                    onPressed: _addPeriod,
-                    icon: const Icon(Icons.add),
-                  ),
-                ],
-              ),
-              ...periods.map(
-                (period) => Card(
-                  child: ListTile(
-                    title: Text(period.name),
-                    subtitle: Text(
-                      '${period.type} • ${period.startDate} → ${period.endDate}',
-                    ),
-                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           );
         },
       ),
@@ -312,29 +526,73 @@ class _AddPeriodDialogState extends State<_AddPeriodDialog> {
   DateTime _end = DateTime(DateTime.now().year, 6, 30);
 
   @override
-  void dispose() { _name.dispose(); super.dispose(); }
+  void dispose() {
+    _name.dispose();
+    super.dispose();
+  }
 
   Future<void> _pickDate({required bool start}) async {
     final current = start ? _start : _end;
-    final value = await showDatePicker(context: context, initialDate: current, firstDate: DateTime(2020), lastDate: DateTime(2100));
-    if (value != null && mounted) setState(() { if (start) { _start = value; } else { _end = value; } });
+    final value = await showDatePicker(
+      context: context,
+      initialDate: current,
+      firstDate: DateTime(2020),
+      lastDate: DateTime(2100),
+    );
+    if (value != null && mounted) {
+      setState(() {
+        if (start) {
+          _start = value;
+        } else {
+          _end = value;
+        }
+      });
+    }
   }
 
   @override
   Widget build(BuildContext context) => AlertDialog(
     title: const Text('إضافة فترة'),
-    content: SingleChildScrollView(child: Column(mainAxisSize: MainAxisSize.min, children: [
-      TextField(controller: _name, decoration: const InputDecoration(labelText: 'اسم الفترة')),
-      DropdownButtonFormField<String>(initialValue: _type, decoration: const InputDecoration(labelText: 'النوع'), items: const [
-        DropdownMenuItem(value: 'semester', child: Text('ترم')),
-        DropdownMenuItem(value: 'service_year', child: Text('سنة خدمة')),
-      ], onChanged: (value) { if (value != null) setState(() => _type = value); }),
-      ListTile(title: Text('من: ${_start.toIso8601String().split('T').first}'), onTap: () => _pickDate(start: true)),
-      ListTile(title: Text('إلى: ${_end.toIso8601String().split('T').first}'), onTap: () => _pickDate(start: false)),
-    ])),
+    content: SingleChildScrollView(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          TextField(
+            controller: _name,
+            decoration: const InputDecoration(labelText: 'اسم الفترة'),
+          ),
+          DropdownButtonFormField<String>(
+            initialValue: _type,
+            decoration: const InputDecoration(labelText: 'النوع'),
+            items: const [
+              DropdownMenuItem(value: 'semester', child: Text('ترم')),
+              DropdownMenuItem(value: 'service_year', child: Text('سنة خدمة')),
+            ],
+            onChanged: (value) {
+              if (value != null) setState(() => _type = value);
+            },
+          ),
+          ListTile(
+            title: Text('من: ${_start.toIso8601String().split('T').first}'),
+            onTap: () => _pickDate(start: true),
+          ),
+          ListTile(
+            title: Text('إلى: ${_end.toIso8601String().split('T').first}'),
+            onTap: () => _pickDate(start: false),
+          ),
+        ],
+      ),
+    ),
     actions: [
-      TextButton(onPressed: () => Navigator.pop(context), child: const Text('إلغاء')),
-      FilledButton(onPressed: () => Navigator.pop(context, (_name.text.trim(), _type, _start, _end)), child: const Text('حفظ')),
+      TextButton(
+        onPressed: () => Navigator.pop(context),
+        child: const Text('إلغاء'),
+      ),
+      FilledButton(
+        onPressed: () =>
+            Navigator.pop(context, (_name.text.trim(), _type, _start, _end)),
+        child: const Text('حفظ'),
+      ),
     ],
   );
 }

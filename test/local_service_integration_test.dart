@@ -18,12 +18,14 @@ void main() {
   tearDown(() async => db.close());
 
   test('service cache can be read and updated locally', () async {
-    await repo.cacheService(const Service(
-      id: 'service-1',
-      name: 'Primary Service',
-      churchName: 'Church',
-      meetingStartTime: '10:00:00',
-    ));
+    await repo.cacheService(
+      const Service(
+        id: 'service-1',
+        name: 'Primary Service',
+        churchName: 'Church',
+        meetingStartTime: '10:00:00',
+      ),
+    );
 
     expect((await repo.getService('service-1'))?.meetingStartTime, '10:00:00');
 

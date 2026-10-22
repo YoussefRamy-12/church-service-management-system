@@ -16,7 +16,10 @@ import 'package:church_service_management_system/features/auth/presentation/sess
 
 class _NoopTransport implements SyncTransport {
   @override
-  Future<void> apply(SyncOperation operation, Map<String, dynamic> payload) async {}
+  Future<void> apply(
+    SyncOperation operation,
+    Map<String, dynamic> payload,
+  ) async {}
 }
 
 void main() {
@@ -37,57 +40,56 @@ void main() {
     await db.close();
   });
 
-  testWidgets('session gate redirects an active servant to the service dashboard',
-      (tester) async {
-    const profile = ServantProfile(
-      id: 'servant-1',
-      authUserId: 'auth-1',
-      serviceId: 'service-1',
-      name: 'Peter',
-      role: 'class_leader',
-      accountStatus: 'active',
-      classId: 'class-1',
-    );
+  testWidgets(
+    'session gate redirects an active servant to the service dashboard',
+    (tester) async {
+      const profile = ServantProfile(
+        id: 'servant-1',
+        authUserId: 'auth-1',
+        serviceId: 'service-1',
+        name: 'Peter',
+        role: 'class_leader',
+        accountStatus: 'active',
+        classId: 'class-1',
+      );
 
-    final router = GoRouter(
-      initialLocation: '/session',
-      routes: [
-        GoRoute(
-          path: '/session',
-          builder: (context, state) => const SessionGate(),
-        ),
-        GoRoute(
-          path: '/service/:serviceId/dashboard',
-          builder: (context, state) => const Scaffold(
-            body: Column(
-              children: [
-                Text('مرحبًا Peter'),
-                Text('أمين الفصل'),
-              ],
+      final router = GoRouter(
+        initialLocation: '/session',
+        routes: [
+          GoRoute(
+            path: '/session',
+            builder: (context, state) => const SessionGate(),
+          ),
+          GoRoute(
+            path: '/service/:serviceId/dashboard',
+            builder: (context, state) => const Scaffold(
+              body: Column(
+                children: [Text('مرحبًا Peter'), Text('أمين الفصل')],
+              ),
             ),
           ),
-        ),
-      ],
-    );
-
-    await tester.pumpWidget(
-      ProviderScope(
-        overrides: [
-          currentSessionIdentityProvider.overrideWith(
-            (ref) async => const ServantIdentity(profile),
-          ),
-          syncEngineProvider.overrideWithValue(engine),
         ],
-        child: MaterialApp.router(routerConfig: router),
-      ),
-    );
+      );
 
-    await tester.pumpAndSettle();
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            currentSessionIdentityProvider.overrideWith(
+              (ref) async => const ServantIdentity(profile),
+            ),
+            syncEngineProvider.overrideWithValue(engine),
+          ],
+          child: MaterialApp.router(routerConfig: router),
+        ),
+      );
 
-    expect(router.state.uri.path, '/service/service-1/dashboard');
-    expect(find.text('مرحبًا Peter'), findsOneWidget);
-    expect(find.text('أمين الفصل'), findsOneWidget);
+      await tester.pumpAndSettle();
 
-    router.dispose();
-  });
+      expect(router.state.uri.path, '/service/service-1/dashboard');
+      expect(find.text('مرحبًا Peter'), findsOneWidget);
+      expect(find.text('أمين الفصل'), findsOneWidget);
+
+      router.dispose();
+    },
+  );
 }

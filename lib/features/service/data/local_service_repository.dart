@@ -4,18 +4,16 @@ import '../../../core/database/app_database.dart';
 import '../domain/entities/service.dart';
 import '../domain/entities/service_class.dart';
 import '../domain/entities/stage.dart';
-import '../domain/repositories/service_repository.dart';
 
-class LocalServiceRepository implements ServiceRepository {
+class LocalServiceRepository {
   LocalServiceRepository(this._db);
 
   final AppDatabase _db;
 
-  @override
   Future<Service?> getService(String serviceId) async {
-    final row = await (_db.select(_db.cachedServices)
-          ..where((t) => t.id.equals(serviceId)))
-        .getSingleOrNull();
+    final row = await (_db.select(
+      _db.cachedServices,
+    )..where((t) => t.id.equals(serviceId))).getSingleOrNull();
 
     if (row == null) return null;
 
@@ -31,7 +29,6 @@ class LocalServiceRepository implements ServiceRepository {
     );
   }
 
-  @override
   Stream<List<Stage>> watchStages(String serviceId) {
     return (_db.select(_db.cachedStages)
           ..where((t) => t.serviceId.equals(serviceId))
@@ -40,17 +37,13 @@ class LocalServiceRepository implements ServiceRepository {
         .map(
           (rows) => rows
               .map(
-                (row) => Stage(
-                  id: row.id,
-                  serviceId: row.serviceId,
-                  name: row.name,
-                ),
+                (row) =>
+                    Stage(id: row.id, serviceId: row.serviceId, name: row.name),
               )
               .toList(),
         );
   }
 
-  @override
   Stream<List<ServiceClass>> watchClasses(String stageId) {
     return (_db.select(_db.cachedClasses)
           ..where((t) => t.stageId.equals(stageId))
@@ -75,21 +68,38 @@ class LocalServiceRepository implements ServiceRepository {
   Future<List<ServiceClass>> getClasses(String stageId) =>
       watchClasses(stageId).first;
 
+  Future<void> deleteStage(String stageId) async {
+    await (_db.delete(
+      _db.cachedClasses,
+    )..where((t) => t.stageId.equals(stageId))).go();
+    await (_db.delete(
+      _db.cachedStages,
+    )..where((t) => t.id.equals(stageId))).go();
+  }
+
+  Future<void> deleteClass(String classId) async {
+    await (_db.delete(
+      _db.cachedClasses,
+    )..where((t) => t.id.equals(classId))).go();
+  }
+
   Future<void> updateMeetingStartTime({
     required String serviceId,
     required String meetingStartTime,
   }) async {
     final current = await getService(serviceId);
     if (current == null) return;
-    await cacheService(Service(
-      id: current.id,
-      name: current.name,
-      churchName: current.churchName,
-      meetingStartTime: meetingStartTime,
-      meetingFrequency: current.meetingFrequency,
-      meetingWeekday: current.meetingWeekday,
-      meetingMonthDay: current.meetingMonthDay,
-    ));
+    await cacheService(
+      Service(
+        id: current.id,
+        name: current.name,
+        churchName: current.churchName,
+        meetingStartTime: meetingStartTime,
+        meetingFrequency: current.meetingFrequency,
+        meetingWeekday: current.meetingWeekday,
+        meetingMonthDay: current.meetingMonthDay,
+      ),
+    );
   }
 
   Future<void> updateMeetingSchedule({
@@ -101,15 +111,17 @@ class LocalServiceRepository implements ServiceRepository {
   }) async {
     final current = await getService(serviceId);
     if (current == null) return;
-    await cacheService(Service(
-      id: current.id,
-      name: current.name,
-      churchName: current.churchName,
-      meetingStartTime: meetingStartTime,
-      meetingFrequency: meetingFrequency,
-      meetingWeekday: meetingWeekday,
-      meetingMonthDay: meetingMonthDay,
-    ));
+    await cacheService(
+      Service(
+        id: current.id,
+        name: current.name,
+        churchName: current.churchName,
+        meetingStartTime: meetingStartTime,
+        meetingFrequency: meetingFrequency,
+        meetingWeekday: meetingWeekday,
+        meetingMonthDay: meetingMonthDay,
+      ),
+    );
   }
 
   Future<void> cacheReportingPeriods(
@@ -126,23 +138,24 @@ class LocalServiceRepository implements ServiceRepository {
     });
   }
 
-  Future<List<CachedReportingPeriod>> getReportingPeriods(
-    String serviceId,
-  ) =>
+  Future<List<CachedReportingPeriod>> getReportingPeriods(String serviceId) =>
       (_db.select(_db.cachedReportingPeriods)
             ..where((t) => t.serviceId.equals(serviceId))
             ..orderBy([(t) => OrderingTerm(expression: t.startDate)]))
           .get();
 
   Future<void> cacheService(Service service) async {
-    await _db.into(_db.cachedServices).insertOnConflictUpdate(
+    await _db
+        .into(_db.cachedServices)
+        .insertOnConflictUpdate(
           CachedServicesCompanion.insert(
             id: service.id,
             name: service.name,
             churchName: service.churchName,
             // Reuse the existing cached text column so schedule settings are
             // available offline without a local database schema change.
-            meetingStartTime: '${service.meetingStartTime}|${service.meetingFrequency}|${service.meetingWeekday}|${service.meetingMonthDay}',
+            meetingStartTime:
+                '${service.meetingStartTime}|${service.meetingFrequency}|${service.meetingWeekday}|${service.meetingMonthDay}',
             cachedAt: DateTime.now(),
           ),
         );

@@ -30,9 +30,9 @@ void main() {
       ),
     ]);
 
-    final rows = await repo.watchMeetings('service-1').firstWhere(
-      (items) => items.length == 2,
-    );
+    final rows = await repo
+        .watchMeetings('service-1')
+        .firstWhere((items) => items.length == 2);
 
     expect(rows.map((item) => item.id), ['meeting-new', 'meeting-old']);
   });
@@ -53,9 +53,9 @@ void main() {
       ),
     ]);
 
-    final rows = await repo.watchMeetings('service-1').firstWhere(
-      (items) => items.length == 1,
-    );
+    final rows = await repo
+        .watchMeetings('service-1')
+        .firstWhere((items) => items.length == 1);
 
     expect(rows.single.id, 'meeting-1');
   });
@@ -79,9 +79,9 @@ void main() {
       ),
     ]);
 
-    final rows = await repo.watchMeetings('service-1').firstWhere(
-      (items) => items.length == 1,
-    );
+    final rows = await repo
+        .watchMeetings('service-1')
+        .firstWhere((items) => items.length == 1);
 
     expect(rows.single.meetingDate, DateTime(2026, 10, 12));
     expect(rows.single.startTime, '11:30:00');

@@ -14,3 +14,23 @@ class ServantIdentity extends SessionIdentity {
   const ServantIdentity(this.profile);
   final ServantProfile profile;
 }
+
+class MultiServiceServantIdentity extends SessionIdentity {
+  const MultiServiceServantIdentity(this.profiles);
+  final List<ServantProfile> profiles;
+}
+
+class PendingServantIdentity extends SessionIdentity {
+  const PendingServantIdentity({
+    required this.name,
+    required this.status,
+    this.phone,
+    this.birthDate,
+    this.workStudy,
+  });
+  final String name;
+  final String status;
+  final String? phone;
+  final DateTime? birthDate;
+  final String? workStudy;
+}

@@ -1,1 +1,3 @@
-import 'package:drift/drift.dart';\n\nNever testingDatabaseConnection() =>\n    throw UnsupportedError('No database test implementation is available on this platform.');\n
+Never testingDatabaseConnection() => throw UnsupportedError(
+  'No database test implementation is available on this platform.',
+);

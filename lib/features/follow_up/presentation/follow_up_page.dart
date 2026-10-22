@@ -6,6 +6,8 @@ import '../../auth/presentation/auth_providers.dart';
 import '../../students/domain/entities/student.dart';
 import 'follow_up_providers.dart';
 import '../../../app/ui/app_ui.dart';
+import '../../../core/config/config_provider.dart';
+import '../../../core/network/network_error_formatter.dart';
 import '../../../core/sync/sync_engine_provider.dart';
 import '../../auth/domain/entities/session_identity.dart';
 
@@ -47,189 +49,207 @@ class _FollowUpPageState extends ConsumerState<FollowUpPage> {
     final profile = ref.watch(currentServantProfileProvider);
     final identity = ref.watch(currentSessionIdentityProvider);
     final servantId = profile.hasValue ? profile.value?.id : null;
-    final actorId = servantId ?? (identity.hasValue ? switch (identity.value) {
-      SuperAdminIdentity(:final profile) => profile.id,
-      _ => null,
-    } : null);
-    final history =
-        ref.watch(followUpRepositoryProvider).watchForStudent(widget.student.id);
+    final actorId =
+        servantId ??
+        (identity.hasValue
+            ? switch (identity.value) {
+                SuperAdminIdentity(:final profile) => profile.id,
+                _ => null,
+              }
+            : null);
+    final history = ref
+        .watch(followUpRepositoryProvider)
+        .watchForStudent(widget.student.id);
     final formatter = DateFormat('yyyy-MM-dd');
 
     return Scaffold(
       key: const Key('follow_up_page'),
-      appBar: AppBar(
-        title: Text('متابعة — ${widget.student.name}'),
-      ),
+      appBar: AppBar(title: Text('متابعة — ${widget.student.name}')),
       body: AppContent(
         maxWidth: 900,
         child: ListView(
-        padding: const EdgeInsets.fromLTRB(0, 16, 0, 32),
-        children: [
-          Text(
-            'سجل المتابعة',
-            style: Theme.of(context).textTheme.titleLarge,
-          ),
-          StreamBuilder(
-            stream: history,
-            builder: (context, snap) {
-              final rows = snap.data ?? const [];
-              if (rows.isEmpty) return const EmptyState(icon: Icons.history_toggle_off_rounded, title: 'لا توجد متابعات بعد', message: 'عند تسجيل أول متابعة ستظهر هنا.');
+          padding: const EdgeInsets.fromLTRB(0, 16, 0, 32),
+          children: [
+            Text('سجل المتابعة', style: Theme.of(context).textTheme.titleLarge),
+            StreamBuilder(
+              stream: history,
+              builder: (context, snap) {
+                final rows = snap.data ?? const [];
+                if (rows.isEmpty) {
+                  return const EmptyState(
+                    icon: Icons.history_toggle_off_rounded,
+                    title: 'لا توجد متابعات بعد',
+                    message: 'عند تسجيل أول متابعة ستظهر هنا.',
+                  );
+                }
 
-              return Column(
-                children: rows
-                    .map(
-                      (r) => Card(
-                        child: ListTile(
-                          title: Text(
-                            "${r.followUpDate} — ${r.contactStatus == 'contacted' ? 'تم التواصل' : 'لم يتم التواصل'}",
-                          ),
-                          subtitle: Text(
-                            r.notes?.isNotEmpty == true
-                                ? r.notes!
-                                : (r.actionRequired ?? ''),
+                return Column(
+                  children: rows
+                      .map(
+                        (r) => Card(
+                          child: ListTile(
+                            title: Text(
+                              "${r.followUpDate} — ${r.contactStatus == 'contacted' ? 'تم التواصل' : 'لم يتم التواصل'}",
+                            ),
+                            subtitle: Text(
+                              r.notes?.isNotEmpty == true
+                                  ? r.notes!
+                                  : (r.actionRequired ?? ''),
+                            ),
                           ),
                         ),
-                      ),
-                    )
-                    .toList(),
-              );
-            },
-          ),
-          const Divider(height: 32),
-          Text('إضافة متابعة', style: Theme.of(context).textTheme.titleLarge),
-          const SizedBox(height: 12),
-          DropdownButtonFormField<String>(
-            initialValue: status,
-            decoration: const InputDecoration(labelText: 'الحالة'),
-            items: const [
-              DropdownMenuItem(
-                value: 'contacted',
-                child: Text('تم التواصل'),
-              ),
-              DropdownMenuItem(
-                value: 'not_contacted',
-                child: Text('لم يتم التواصل'),
-              ),
-            ],
-            onChanged: (value) => setState(() => status = value!),
-          ),
-          DropdownButtonFormField<String>(
-            initialValue: method,
-            decoration: const InputDecoration(labelText: 'طريقة التواصل'),
-            items: const [
-              DropdownMenuItem(
-                value: 'phone',
-                child: Text('مكالمة'),
-              ),
-              DropdownMenuItem(
-                value: 'whatsapp',
-                child: Text('WhatsApp'),
-              ),
-              DropdownMenuItem(
-                value: 'in_person',
-                child: Text('مقابلة'),
-              ),
-            ],
-            onChanged: (value) => setState(() => method = value!),
-          ),
-          ListTile(
-            title: Text('تاريخ المتابعة: ${formatter.format(date)}'),
-            trailing: IconButton(
-              icon: const Icon(Icons.calendar_month),
-              onPressed: () async {
-                final selected = await showDatePicker(
-                  context: context,
-                  initialDate: date,
-                  firstDate: DateTime(2020),
-                  lastDate: DateTime(2100),
+                      )
+                      .toList(),
                 );
-                if (selected != null && context.mounted) {
-                  setState(() => date = selected);
-                }
               },
             ),
-          ),
-          TextField(
-            controller: reason,
-            decoration: const InputDecoration(labelText: 'سبب الغياب'),
-          ),
-          TextField(
-            controller: studentResponse,
-            decoration: const InputDecoration(labelText: 'رد التلميذ'),
-          ),
-          TextField(
-            controller: parentResponse,
-            decoration: const InputDecoration(labelText: 'رد ولي الأمر'),
-          ),
-          TextField(
-            controller: action,
-            decoration: const InputDecoration(labelText: 'الإجراء المطلوب'),
-          ),
-          TextField(
-            controller: notes,
-            maxLines: 3,
-            decoration: const InputDecoration(labelText: 'ملاحظات'),
-          ),
-          SwitchListTile(
-            title: const Text('متابعة أخرى مطلوبة'),
-            value: another,
-            onChanged: (value) => setState(() => another = value),
-          ),
-          if (another)
+            const Divider(height: 32),
+            Text('إضافة متابعة', style: Theme.of(context).textTheme.titleLarge),
+            const SizedBox(height: 12),
+            DropdownButtonFormField<String>(
+              initialValue: status,
+              decoration: const InputDecoration(labelText: 'الحالة'),
+              items: const [
+                DropdownMenuItem(value: 'contacted', child: Text('تم التواصل')),
+                DropdownMenuItem(
+                  value: 'not_contacted',
+                  child: Text('لم يتم التواصل'),
+                ),
+              ],
+              onChanged: (value) => setState(() => status = value!),
+            ),
+            DropdownButtonFormField<String>(
+              initialValue: method,
+              decoration: const InputDecoration(labelText: 'طريقة التواصل'),
+              items: const [
+                DropdownMenuItem(value: 'phone', child: Text('مكالمة')),
+                DropdownMenuItem(value: 'whatsapp', child: Text('WhatsApp')),
+                DropdownMenuItem(value: 'in_person', child: Text('مقابلة')),
+              ],
+              onChanged: (value) => setState(() => method = value!),
+            ),
             ListTile(
-              title: Text('المتابعة القادمة: ${formatter.format(next)}'),
+              title: Text('تاريخ المتابعة: ${formatter.format(date)}'),
               trailing: IconButton(
                 icon: const Icon(Icons.calendar_month),
                 onPressed: () async {
                   final selected = await showDatePicker(
                     context: context,
-                    initialDate: next,
+                    initialDate: date,
                     firstDate: DateTime(2020),
                     lastDate: DateTime(2100),
                   );
                   if (selected != null && context.mounted) {
-                    setState(() => next = selected);
+                    setState(() => date = selected);
                   }
                 },
               ),
             ),
-          FilledButton(
-            key: const Key('follow_up_save'),
-            onPressed: actorId == null || saving
-                ? null
-                : () async {
-                    setState(() => saving = true);
-                    try {
-                    await ref.read(followUpRepositoryProvider).create(
-                          studentId: widget.student.id,
-                          createdBy: actorId,
-                          followUpDate: formatter.format(date),
-                          contactStatus: status,
-                          contactMethod: method,
-                          absenceReason: reason.text,
-                          studentResponse: studentResponse.text,
-                          parentResponse: parentResponse.text,
-                          actionRequired: action.text,
-                          notes: notes.text,
-                          anotherFollowUpNeeded: another,
-                          nextFollowUpDate:
-                              another ? formatter.format(next) : null,
-                        );
-                    await ref.read(syncEngineProvider).syncNow();
-                    if (!context.mounted) return;
-                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('تم حفظ المتابعة محليًا وسيتم مزامنتها.')));
-                      if (mounted) setState(() => saving = false);
-                    } catch (error) {
-                      if (mounted) {
-                        setState(() => saving = false);
-                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('تعذر حفظ المتابعة: $error')));
-                      }
+            TextField(
+              controller: reason,
+              decoration: const InputDecoration(labelText: 'سبب الغياب'),
+            ),
+            TextField(
+              controller: studentResponse,
+              decoration: const InputDecoration(labelText: 'رد التلميذ'),
+            ),
+            TextField(
+              controller: parentResponse,
+              decoration: const InputDecoration(labelText: 'رد ولي الأمر'),
+            ),
+            TextField(
+              controller: action,
+              decoration: const InputDecoration(labelText: 'الإجراء المطلوب'),
+            ),
+            TextField(
+              controller: notes,
+              maxLines: 3,
+              decoration: const InputDecoration(labelText: 'ملاحظات'),
+            ),
+            SwitchListTile(
+              title: const Text('متابعة أخرى مطلوبة'),
+              value: another,
+              onChanged: (value) => setState(() => another = value),
+            ),
+            if (another)
+              ListTile(
+                title: Text('المتابعة القادمة: ${formatter.format(next)}'),
+                trailing: IconButton(
+                  icon: const Icon(Icons.calendar_month),
+                  onPressed: () async {
+                    final selected = await showDatePicker(
+                      context: context,
+                      initialDate: next,
+                      firstDate: DateTime(2020),
+                      lastDate: DateTime(2100),
+                    );
+                    if (selected != null && context.mounted) {
+                      setState(() => next = selected);
                     }
                   },
-            child: saving ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2)) : const Text('حفظ المتابعة'),
-          ),
-        ],
-      ),
+                ),
+              ),
+            FilledButton(
+              key: const Key('follow_up_save'),
+              onPressed: actorId == null || saving
+                  ? null
+                  : () async {
+                      setState(() => saving = true);
+                      try {
+                        await ref
+                            .read(followUpRepositoryProvider)
+                            .create(
+                              studentId: widget.student.id,
+                              createdBy: actorId,
+                              followUpDate: formatter.format(date),
+                              contactStatus: status,
+                              contactMethod: method,
+                              absenceReason: reason.text,
+                              studentResponse: studentResponse.text,
+                              parentResponse: parentResponse.text,
+                              actionRequired: action.text,
+                              notes: notes.text,
+                              anotherFollowUpNeeded: another,
+                              nextFollowUpDate: another
+                                  ? formatter.format(next)
+                                  : null,
+                            );
+                        final isOffline = ref.read(offlineSyncEnabledProvider);
+                        if (isOffline) {
+                          await ref.read(syncEngineProvider).syncNow();
+                        }
+                        if (!context.mounted) return;
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              isOffline
+                                  ? 'تم حفظ المتابعة محليًا وسيتم مزامنتها.'
+                                  : 'تم حفظ المتابعة بنجاح.',
+                            ),
+                          ),
+                        );
+                        if (mounted) setState(() => saving = false);
+                      } catch (error) {
+                        if (mounted) {
+                          setState(() => saving = false);
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text('تعذر حفظ المتابعة: ${NetworkErrorFormatter.format(error)}'),
+                            ),
+                          );
+                        }
+                      }
+                    },
+              child: saving
+                  ? const SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : const Text('حفظ المتابعة'),
+            ),
+          ],
+        ),
       ),
     );
   }

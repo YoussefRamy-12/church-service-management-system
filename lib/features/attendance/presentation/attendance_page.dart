@@ -25,8 +25,7 @@ class AttendancePage extends ConsumerWidget {
         stream: repository.watchForMeeting(meetingId),
         builder: (context, snapshot) {
           final checked = {
-            for (final row in snapshot.data ?? const [])
-              row.studentId,
+            for (final row in snapshot.data ?? const []) row.studentId,
           };
           return ListView.separated(
             padding: const EdgeInsets.all(16),
@@ -40,15 +39,17 @@ class AttendancePage extends ConsumerWidget {
                 trailing: FilledButton.icon(
                   icon: Icon(present ? Icons.check : Icons.how_to_reg),
                   label: Text(present ? 'حاضر' : 'تسجيل'),
-                  onPressed: present ? null : () async {
-                    await repository.checkIn(
-                      meetingId: meetingId,
-                      studentId: student.id,
-                      classIdAtAttendance: classId,
-                      recordedBy: recordedBy,
-                      checkedInAt: DateTime.now(),
-                    );
-                  },
+                  onPressed: present
+                      ? null
+                      : () async {
+                          await repository.checkIn(
+                            meetingId: meetingId,
+                            studentId: student.id,
+                            classIdAtAttendance: classId,
+                            recordedBy: recordedBy,
+                            checkedInAt: DateTime.now(),
+                          );
+                        },
                 ),
               );
             },

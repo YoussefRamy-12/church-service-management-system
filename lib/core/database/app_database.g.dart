@@ -1872,6 +1872,21 @@ class $CachedStudentsTable extends CachedStudents
     type: DriftSqlType.string,
     requiredDuringInsert: true,
   );
+  static const VerificationMeta _isDeaconMeta = const VerificationMeta(
+    'isDeacon',
+  );
+  @override
+  late final GeneratedColumn<bool> isDeacon = GeneratedColumn<bool>(
+    'is_deacon',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("is_deacon" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
   static const VerificationMeta _photoPathMeta = const VerificationMeta(
     'photoPath',
   );
@@ -1916,6 +1931,7 @@ class $CachedStudentsTable extends CachedStudents
     grade,
     enrollmentAt,
     approvalStatus,
+    isDeacon,
     photoPath,
     notes,
     cachedAt,
@@ -2015,6 +2031,12 @@ class $CachedStudentsTable extends CachedStudents
     } else if (isInserting) {
       context.missing(_approvalStatusMeta);
     }
+    if (data.containsKey('is_deacon')) {
+      context.handle(
+        _isDeaconMeta,
+        isDeacon.isAcceptableOrUnknown(data['is_deacon']!, _isDeaconMeta),
+      );
+    }
     if (data.containsKey('photo_path')) {
       context.handle(
         _photoPathMeta,
@@ -2088,6 +2110,10 @@ class $CachedStudentsTable extends CachedStudents
         DriftSqlType.string,
         data['${effectivePrefix}approval_status'],
       )!,
+      isDeacon: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}is_deacon'],
+      )!,
       photoPath: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}photo_path'],
@@ -2121,6 +2147,7 @@ class CachedStudent extends DataClass implements Insertable<CachedStudent> {
   final String? grade;
   final String? enrollmentAt;
   final String approvalStatus;
+  final bool isDeacon;
   final String? photoPath;
   final String? notes;
   final DateTime cachedAt;
@@ -2136,6 +2163,7 @@ class CachedStudent extends DataClass implements Insertable<CachedStudent> {
     this.grade,
     this.enrollmentAt,
     required this.approvalStatus,
+    required this.isDeacon,
     this.photoPath,
     this.notes,
     required this.cachedAt,
@@ -2168,6 +2196,7 @@ class CachedStudent extends DataClass implements Insertable<CachedStudent> {
       map['enrollment_at'] = Variable<String>(enrollmentAt);
     }
     map['approval_status'] = Variable<String>(approvalStatus);
+    map['is_deacon'] = Variable<bool>(isDeacon);
     if (!nullToAbsent || photoPath != null) {
       map['photo_path'] = Variable<String>(photoPath);
     }
@@ -2205,6 +2234,7 @@ class CachedStudent extends DataClass implements Insertable<CachedStudent> {
           ? const Value.absent()
           : Value(enrollmentAt),
       approvalStatus: Value(approvalStatus),
+      isDeacon: Value(isDeacon),
       photoPath: photoPath == null && nullToAbsent
           ? const Value.absent()
           : Value(photoPath),
@@ -2232,6 +2262,7 @@ class CachedStudent extends DataClass implements Insertable<CachedStudent> {
       grade: serializer.fromJson<String?>(json['grade']),
       enrollmentAt: serializer.fromJson<String?>(json['enrollmentAt']),
       approvalStatus: serializer.fromJson<String>(json['approvalStatus']),
+      isDeacon: serializer.fromJson<bool>(json['isDeacon']),
       photoPath: serializer.fromJson<String?>(json['photoPath']),
       notes: serializer.fromJson<String?>(json['notes']),
       cachedAt: serializer.fromJson<DateTime>(json['cachedAt']),
@@ -2252,6 +2283,7 @@ class CachedStudent extends DataClass implements Insertable<CachedStudent> {
       'grade': serializer.toJson<String?>(grade),
       'enrollmentAt': serializer.toJson<String?>(enrollmentAt),
       'approvalStatus': serializer.toJson<String>(approvalStatus),
+      'isDeacon': serializer.toJson<bool>(isDeacon),
       'photoPath': serializer.toJson<String?>(photoPath),
       'notes': serializer.toJson<String?>(notes),
       'cachedAt': serializer.toJson<DateTime>(cachedAt),
@@ -2270,6 +2302,7 @@ class CachedStudent extends DataClass implements Insertable<CachedStudent> {
     Value<String?> grade = const Value.absent(),
     Value<String?> enrollmentAt = const Value.absent(),
     String? approvalStatus,
+    bool? isDeacon,
     Value<String?> photoPath = const Value.absent(),
     Value<String?> notes = const Value.absent(),
     DateTime? cachedAt,
@@ -2289,6 +2322,7 @@ class CachedStudent extends DataClass implements Insertable<CachedStudent> {
     grade: grade.present ? grade.value : this.grade,
     enrollmentAt: enrollmentAt.present ? enrollmentAt.value : this.enrollmentAt,
     approvalStatus: approvalStatus ?? this.approvalStatus,
+    isDeacon: isDeacon ?? this.isDeacon,
     photoPath: photoPath.present ? photoPath.value : this.photoPath,
     notes: notes.present ? notes.value : this.notes,
     cachedAt: cachedAt ?? this.cachedAt,
@@ -2314,6 +2348,7 @@ class CachedStudent extends DataClass implements Insertable<CachedStudent> {
       approvalStatus: data.approvalStatus.present
           ? data.approvalStatus.value
           : this.approvalStatus,
+      isDeacon: data.isDeacon.present ? data.isDeacon.value : this.isDeacon,
       photoPath: data.photoPath.present ? data.photoPath.value : this.photoPath,
       notes: data.notes.present ? data.notes.value : this.notes,
       cachedAt: data.cachedAt.present ? data.cachedAt.value : this.cachedAt,
@@ -2334,6 +2369,7 @@ class CachedStudent extends DataClass implements Insertable<CachedStudent> {
           ..write('grade: $grade, ')
           ..write('enrollmentAt: $enrollmentAt, ')
           ..write('approvalStatus: $approvalStatus, ')
+          ..write('isDeacon: $isDeacon, ')
           ..write('photoPath: $photoPath, ')
           ..write('notes: $notes, ')
           ..write('cachedAt: $cachedAt')
@@ -2354,6 +2390,7 @@ class CachedStudent extends DataClass implements Insertable<CachedStudent> {
     grade,
     enrollmentAt,
     approvalStatus,
+    isDeacon,
     photoPath,
     notes,
     cachedAt,
@@ -2373,6 +2410,7 @@ class CachedStudent extends DataClass implements Insertable<CachedStudent> {
           other.grade == this.grade &&
           other.enrollmentAt == this.enrollmentAt &&
           other.approvalStatus == this.approvalStatus &&
+          other.isDeacon == this.isDeacon &&
           other.photoPath == this.photoPath &&
           other.notes == this.notes &&
           other.cachedAt == this.cachedAt);
@@ -2390,6 +2428,7 @@ class CachedStudentsCompanion extends UpdateCompanion<CachedStudent> {
   final Value<String?> grade;
   final Value<String?> enrollmentAt;
   final Value<String> approvalStatus;
+  final Value<bool> isDeacon;
   final Value<String?> photoPath;
   final Value<String?> notes;
   final Value<DateTime> cachedAt;
@@ -2406,6 +2445,7 @@ class CachedStudentsCompanion extends UpdateCompanion<CachedStudent> {
     this.grade = const Value.absent(),
     this.enrollmentAt = const Value.absent(),
     this.approvalStatus = const Value.absent(),
+    this.isDeacon = const Value.absent(),
     this.photoPath = const Value.absent(),
     this.notes = const Value.absent(),
     this.cachedAt = const Value.absent(),
@@ -2423,6 +2463,7 @@ class CachedStudentsCompanion extends UpdateCompanion<CachedStudent> {
     this.grade = const Value.absent(),
     this.enrollmentAt = const Value.absent(),
     required String approvalStatus,
+    this.isDeacon = const Value.absent(),
     this.photoPath = const Value.absent(),
     this.notes = const Value.absent(),
     required DateTime cachedAt,
@@ -2444,6 +2485,7 @@ class CachedStudentsCompanion extends UpdateCompanion<CachedStudent> {
     Expression<String>? grade,
     Expression<String>? enrollmentAt,
     Expression<String>? approvalStatus,
+    Expression<bool>? isDeacon,
     Expression<String>? photoPath,
     Expression<String>? notes,
     Expression<DateTime>? cachedAt,
@@ -2461,6 +2503,7 @@ class CachedStudentsCompanion extends UpdateCompanion<CachedStudent> {
       if (grade != null) 'grade': grade,
       if (enrollmentAt != null) 'enrollment_at': enrollmentAt,
       if (approvalStatus != null) 'approval_status': approvalStatus,
+      if (isDeacon != null) 'is_deacon': isDeacon,
       if (photoPath != null) 'photo_path': photoPath,
       if (notes != null) 'notes': notes,
       if (cachedAt != null) 'cached_at': cachedAt,
@@ -2480,6 +2523,7 @@ class CachedStudentsCompanion extends UpdateCompanion<CachedStudent> {
     Value<String?>? grade,
     Value<String?>? enrollmentAt,
     Value<String>? approvalStatus,
+    Value<bool>? isDeacon,
     Value<String?>? photoPath,
     Value<String?>? notes,
     Value<DateTime>? cachedAt,
@@ -2497,6 +2541,7 @@ class CachedStudentsCompanion extends UpdateCompanion<CachedStudent> {
       grade: grade ?? this.grade,
       enrollmentAt: enrollmentAt ?? this.enrollmentAt,
       approvalStatus: approvalStatus ?? this.approvalStatus,
+      isDeacon: isDeacon ?? this.isDeacon,
       photoPath: photoPath ?? this.photoPath,
       notes: notes ?? this.notes,
       cachedAt: cachedAt ?? this.cachedAt,
@@ -2540,6 +2585,9 @@ class CachedStudentsCompanion extends UpdateCompanion<CachedStudent> {
     if (approvalStatus.present) {
       map['approval_status'] = Variable<String>(approvalStatus.value);
     }
+    if (isDeacon.present) {
+      map['is_deacon'] = Variable<bool>(isDeacon.value);
+    }
     if (photoPath.present) {
       map['photo_path'] = Variable<String>(photoPath.value);
     }
@@ -2569,8 +2617,1146 @@ class CachedStudentsCompanion extends UpdateCompanion<CachedStudent> {
           ..write('grade: $grade, ')
           ..write('enrollmentAt: $enrollmentAt, ')
           ..write('approvalStatus: $approvalStatus, ')
+          ..write('isDeacon: $isDeacon, ')
           ..write('photoPath: $photoPath, ')
           ..write('notes: $notes, ')
+          ..write('cachedAt: $cachedAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $CachedStudentSensitiveDataTable extends CachedStudentSensitiveData
+    with
+        TableInfo<
+          $CachedStudentSensitiveDataTable,
+          CachedStudentSensitiveDataData
+        > {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $CachedStudentSensitiveDataTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _studentIdMeta = const VerificationMeta(
+    'studentId',
+  );
+  @override
+  late final GeneratedColumn<String> studentId = GeneratedColumn<String>(
+    'student_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _fatherJobMeta = const VerificationMeta(
+    'fatherJob',
+  );
+  @override
+  late final GeneratedColumn<String> fatherJob = GeneratedColumn<String>(
+    'father_job',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _fatherPhoneMeta = const VerificationMeta(
+    'fatherPhone',
+  );
+  @override
+  late final GeneratedColumn<String> fatherPhone = GeneratedColumn<String>(
+    'father_phone',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _motherNameMeta = const VerificationMeta(
+    'motherName',
+  );
+  @override
+  late final GeneratedColumn<String> motherName = GeneratedColumn<String>(
+    'mother_name',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _motherJobMeta = const VerificationMeta(
+    'motherJob',
+  );
+  @override
+  late final GeneratedColumn<String> motherJob = GeneratedColumn<String>(
+    'mother_job',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _motherPhoneMeta = const VerificationMeta(
+    'motherPhone',
+  );
+  @override
+  late final GeneratedColumn<String> motherPhone = GeneratedColumn<String>(
+    'mother_phone',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _familySizeMeta = const VerificationMeta(
+    'familySize',
+  );
+  @override
+  late final GeneratedColumn<int> familySize = GeneratedColumn<int>(
+    'family_size',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _birthOrderMeta = const VerificationMeta(
+    'birthOrder',
+  );
+  @override
+  late final GeneratedColumn<int> birthOrder = GeneratedColumn<int>(
+    'birth_order',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _confessorMeta = const VerificationMeta(
+    'confessor',
+  );
+  @override
+  late final GeneratedColumn<String> confessor = GeneratedColumn<String>(
+    'confessor',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _medicalNotesMeta = const VerificationMeta(
+    'medicalNotes',
+  );
+  @override
+  late final GeneratedColumn<String> medicalNotes = GeneratedColumn<String>(
+    'medical_notes',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _financialStatusMeta = const VerificationMeta(
+    'financialStatus',
+  );
+  @override
+  late final GeneratedColumn<String> financialStatus = GeneratedColumn<String>(
+    'financial_status',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _addressMeta = const VerificationMeta(
+    'address',
+  );
+  @override
+  late final GeneratedColumn<String> address = GeneratedColumn<String>(
+    'address',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _addressBuildingMeta = const VerificationMeta(
+    'addressBuilding',
+  );
+  @override
+  late final GeneratedColumn<String> addressBuilding = GeneratedColumn<String>(
+    'address_building',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _addressStreetMeta = const VerificationMeta(
+    'addressStreet',
+  );
+  @override
+  late final GeneratedColumn<String> addressStreet = GeneratedColumn<String>(
+    'address_street',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _addressFloorMeta = const VerificationMeta(
+    'addressFloor',
+  );
+  @override
+  late final GeneratedColumn<String> addressFloor = GeneratedColumn<String>(
+    'address_floor',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _addressApartmentMeta = const VerificationMeta(
+    'addressApartment',
+  );
+  @override
+  late final GeneratedColumn<String> addressApartment = GeneratedColumn<String>(
+    'address_apartment',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _confidentialNotesMeta = const VerificationMeta(
+    'confidentialNotes',
+  );
+  @override
+  late final GeneratedColumn<String> confidentialNotes =
+      GeneratedColumn<String>(
+        'confidential_notes',
+        aliasedName,
+        true,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+      );
+  static const VerificationMeta _studyYearMeta = const VerificationMeta(
+    'studyYear',
+  );
+  @override
+  late final GeneratedColumn<String> studyYear = GeneratedColumn<String>(
+    'study_year',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _cachedAtMeta = const VerificationMeta(
+    'cachedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> cachedAt = GeneratedColumn<DateTime>(
+    'cached_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    studentId,
+    fatherJob,
+    fatherPhone,
+    motherName,
+    motherJob,
+    motherPhone,
+    familySize,
+    birthOrder,
+    confessor,
+    medicalNotes,
+    financialStatus,
+    address,
+    addressBuilding,
+    addressStreet,
+    addressFloor,
+    addressApartment,
+    confidentialNotes,
+    studyYear,
+    cachedAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'cached_student_sensitive_data';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<CachedStudentSensitiveDataData> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('student_id')) {
+      context.handle(
+        _studentIdMeta,
+        studentId.isAcceptableOrUnknown(data['student_id']!, _studentIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_studentIdMeta);
+    }
+    if (data.containsKey('father_job')) {
+      context.handle(
+        _fatherJobMeta,
+        fatherJob.isAcceptableOrUnknown(data['father_job']!, _fatherJobMeta),
+      );
+    }
+    if (data.containsKey('father_phone')) {
+      context.handle(
+        _fatherPhoneMeta,
+        fatherPhone.isAcceptableOrUnknown(
+          data['father_phone']!,
+          _fatherPhoneMeta,
+        ),
+      );
+    }
+    if (data.containsKey('mother_name')) {
+      context.handle(
+        _motherNameMeta,
+        motherName.isAcceptableOrUnknown(data['mother_name']!, _motherNameMeta),
+      );
+    }
+    if (data.containsKey('mother_job')) {
+      context.handle(
+        _motherJobMeta,
+        motherJob.isAcceptableOrUnknown(data['mother_job']!, _motherJobMeta),
+      );
+    }
+    if (data.containsKey('mother_phone')) {
+      context.handle(
+        _motherPhoneMeta,
+        motherPhone.isAcceptableOrUnknown(
+          data['mother_phone']!,
+          _motherPhoneMeta,
+        ),
+      );
+    }
+    if (data.containsKey('family_size')) {
+      context.handle(
+        _familySizeMeta,
+        familySize.isAcceptableOrUnknown(data['family_size']!, _familySizeMeta),
+      );
+    }
+    if (data.containsKey('birth_order')) {
+      context.handle(
+        _birthOrderMeta,
+        birthOrder.isAcceptableOrUnknown(data['birth_order']!, _birthOrderMeta),
+      );
+    }
+    if (data.containsKey('confessor')) {
+      context.handle(
+        _confessorMeta,
+        confessor.isAcceptableOrUnknown(data['confessor']!, _confessorMeta),
+      );
+    }
+    if (data.containsKey('medical_notes')) {
+      context.handle(
+        _medicalNotesMeta,
+        medicalNotes.isAcceptableOrUnknown(
+          data['medical_notes']!,
+          _medicalNotesMeta,
+        ),
+      );
+    }
+    if (data.containsKey('financial_status')) {
+      context.handle(
+        _financialStatusMeta,
+        financialStatus.isAcceptableOrUnknown(
+          data['financial_status']!,
+          _financialStatusMeta,
+        ),
+      );
+    }
+    if (data.containsKey('address')) {
+      context.handle(
+        _addressMeta,
+        address.isAcceptableOrUnknown(data['address']!, _addressMeta),
+      );
+    }
+    if (data.containsKey('address_building')) {
+      context.handle(
+        _addressBuildingMeta,
+        addressBuilding.isAcceptableOrUnknown(
+          data['address_building']!,
+          _addressBuildingMeta,
+        ),
+      );
+    }
+    if (data.containsKey('address_street')) {
+      context.handle(
+        _addressStreetMeta,
+        addressStreet.isAcceptableOrUnknown(
+          data['address_street']!,
+          _addressStreetMeta,
+        ),
+      );
+    }
+    if (data.containsKey('address_floor')) {
+      context.handle(
+        _addressFloorMeta,
+        addressFloor.isAcceptableOrUnknown(
+          data['address_floor']!,
+          _addressFloorMeta,
+        ),
+      );
+    }
+    if (data.containsKey('address_apartment')) {
+      context.handle(
+        _addressApartmentMeta,
+        addressApartment.isAcceptableOrUnknown(
+          data['address_apartment']!,
+          _addressApartmentMeta,
+        ),
+      );
+    }
+    if (data.containsKey('confidential_notes')) {
+      context.handle(
+        _confidentialNotesMeta,
+        confidentialNotes.isAcceptableOrUnknown(
+          data['confidential_notes']!,
+          _confidentialNotesMeta,
+        ),
+      );
+    }
+    if (data.containsKey('study_year')) {
+      context.handle(
+        _studyYearMeta,
+        studyYear.isAcceptableOrUnknown(data['study_year']!, _studyYearMeta),
+      );
+    }
+    if (data.containsKey('cached_at')) {
+      context.handle(
+        _cachedAtMeta,
+        cachedAt.isAcceptableOrUnknown(data['cached_at']!, _cachedAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_cachedAtMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {studentId};
+  @override
+  CachedStudentSensitiveDataData map(
+    Map<String, dynamic> data, {
+    String? tablePrefix,
+  }) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return CachedStudentSensitiveDataData(
+      studentId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}student_id'],
+      )!,
+      fatherJob: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}father_job'],
+      ),
+      fatherPhone: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}father_phone'],
+      ),
+      motherName: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}mother_name'],
+      ),
+      motherJob: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}mother_job'],
+      ),
+      motherPhone: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}mother_phone'],
+      ),
+      familySize: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}family_size'],
+      ),
+      birthOrder: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}birth_order'],
+      ),
+      confessor: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}confessor'],
+      ),
+      medicalNotes: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}medical_notes'],
+      ),
+      financialStatus: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}financial_status'],
+      ),
+      address: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}address'],
+      ),
+      addressBuilding: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}address_building'],
+      ),
+      addressStreet: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}address_street'],
+      ),
+      addressFloor: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}address_floor'],
+      ),
+      addressApartment: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}address_apartment'],
+      ),
+      confidentialNotes: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}confidential_notes'],
+      ),
+      studyYear: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}study_year'],
+      ),
+      cachedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}cached_at'],
+      )!,
+    );
+  }
+
+  @override
+  $CachedStudentSensitiveDataTable createAlias(String alias) {
+    return $CachedStudentSensitiveDataTable(attachedDatabase, alias);
+  }
+}
+
+class CachedStudentSensitiveDataData extends DataClass
+    implements Insertable<CachedStudentSensitiveDataData> {
+  final String studentId;
+  final String? fatherJob;
+  final String? fatherPhone;
+  final String? motherName;
+  final String? motherJob;
+  final String? motherPhone;
+  final int? familySize;
+  final int? birthOrder;
+  final String? confessor;
+  final String? medicalNotes;
+  final String? financialStatus;
+  final String? address;
+  final String? addressBuilding;
+  final String? addressStreet;
+  final String? addressFloor;
+  final String? addressApartment;
+  final String? confidentialNotes;
+  final String? studyYear;
+  final DateTime cachedAt;
+  const CachedStudentSensitiveDataData({
+    required this.studentId,
+    this.fatherJob,
+    this.fatherPhone,
+    this.motherName,
+    this.motherJob,
+    this.motherPhone,
+    this.familySize,
+    this.birthOrder,
+    this.confessor,
+    this.medicalNotes,
+    this.financialStatus,
+    this.address,
+    this.addressBuilding,
+    this.addressStreet,
+    this.addressFloor,
+    this.addressApartment,
+    this.confidentialNotes,
+    this.studyYear,
+    required this.cachedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['student_id'] = Variable<String>(studentId);
+    if (!nullToAbsent || fatherJob != null) {
+      map['father_job'] = Variable<String>(fatherJob);
+    }
+    if (!nullToAbsent || fatherPhone != null) {
+      map['father_phone'] = Variable<String>(fatherPhone);
+    }
+    if (!nullToAbsent || motherName != null) {
+      map['mother_name'] = Variable<String>(motherName);
+    }
+    if (!nullToAbsent || motherJob != null) {
+      map['mother_job'] = Variable<String>(motherJob);
+    }
+    if (!nullToAbsent || motherPhone != null) {
+      map['mother_phone'] = Variable<String>(motherPhone);
+    }
+    if (!nullToAbsent || familySize != null) {
+      map['family_size'] = Variable<int>(familySize);
+    }
+    if (!nullToAbsent || birthOrder != null) {
+      map['birth_order'] = Variable<int>(birthOrder);
+    }
+    if (!nullToAbsent || confessor != null) {
+      map['confessor'] = Variable<String>(confessor);
+    }
+    if (!nullToAbsent || medicalNotes != null) {
+      map['medical_notes'] = Variable<String>(medicalNotes);
+    }
+    if (!nullToAbsent || financialStatus != null) {
+      map['financial_status'] = Variable<String>(financialStatus);
+    }
+    if (!nullToAbsent || address != null) {
+      map['address'] = Variable<String>(address);
+    }
+    if (!nullToAbsent || addressBuilding != null) {
+      map['address_building'] = Variable<String>(addressBuilding);
+    }
+    if (!nullToAbsent || addressStreet != null) {
+      map['address_street'] = Variable<String>(addressStreet);
+    }
+    if (!nullToAbsent || addressFloor != null) {
+      map['address_floor'] = Variable<String>(addressFloor);
+    }
+    if (!nullToAbsent || addressApartment != null) {
+      map['address_apartment'] = Variable<String>(addressApartment);
+    }
+    if (!nullToAbsent || confidentialNotes != null) {
+      map['confidential_notes'] = Variable<String>(confidentialNotes);
+    }
+    if (!nullToAbsent || studyYear != null) {
+      map['study_year'] = Variable<String>(studyYear);
+    }
+    map['cached_at'] = Variable<DateTime>(cachedAt);
+    return map;
+  }
+
+  CachedStudentSensitiveDataCompanion toCompanion(bool nullToAbsent) {
+    return CachedStudentSensitiveDataCompanion(
+      studentId: Value(studentId),
+      fatherJob: fatherJob == null && nullToAbsent
+          ? const Value.absent()
+          : Value(fatherJob),
+      fatherPhone: fatherPhone == null && nullToAbsent
+          ? const Value.absent()
+          : Value(fatherPhone),
+      motherName: motherName == null && nullToAbsent
+          ? const Value.absent()
+          : Value(motherName),
+      motherJob: motherJob == null && nullToAbsent
+          ? const Value.absent()
+          : Value(motherJob),
+      motherPhone: motherPhone == null && nullToAbsent
+          ? const Value.absent()
+          : Value(motherPhone),
+      familySize: familySize == null && nullToAbsent
+          ? const Value.absent()
+          : Value(familySize),
+      birthOrder: birthOrder == null && nullToAbsent
+          ? const Value.absent()
+          : Value(birthOrder),
+      confessor: confessor == null && nullToAbsent
+          ? const Value.absent()
+          : Value(confessor),
+      medicalNotes: medicalNotes == null && nullToAbsent
+          ? const Value.absent()
+          : Value(medicalNotes),
+      financialStatus: financialStatus == null && nullToAbsent
+          ? const Value.absent()
+          : Value(financialStatus),
+      address: address == null && nullToAbsent
+          ? const Value.absent()
+          : Value(address),
+      addressBuilding: addressBuilding == null && nullToAbsent
+          ? const Value.absent()
+          : Value(addressBuilding),
+      addressStreet: addressStreet == null && nullToAbsent
+          ? const Value.absent()
+          : Value(addressStreet),
+      addressFloor: addressFloor == null && nullToAbsent
+          ? const Value.absent()
+          : Value(addressFloor),
+      addressApartment: addressApartment == null && nullToAbsent
+          ? const Value.absent()
+          : Value(addressApartment),
+      confidentialNotes: confidentialNotes == null && nullToAbsent
+          ? const Value.absent()
+          : Value(confidentialNotes),
+      studyYear: studyYear == null && nullToAbsent
+          ? const Value.absent()
+          : Value(studyYear),
+      cachedAt: Value(cachedAt),
+    );
+  }
+
+  factory CachedStudentSensitiveDataData.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return CachedStudentSensitiveDataData(
+      studentId: serializer.fromJson<String>(json['studentId']),
+      fatherJob: serializer.fromJson<String?>(json['fatherJob']),
+      fatherPhone: serializer.fromJson<String?>(json['fatherPhone']),
+      motherName: serializer.fromJson<String?>(json['motherName']),
+      motherJob: serializer.fromJson<String?>(json['motherJob']),
+      motherPhone: serializer.fromJson<String?>(json['motherPhone']),
+      familySize: serializer.fromJson<int?>(json['familySize']),
+      birthOrder: serializer.fromJson<int?>(json['birthOrder']),
+      confessor: serializer.fromJson<String?>(json['confessor']),
+      medicalNotes: serializer.fromJson<String?>(json['medicalNotes']),
+      financialStatus: serializer.fromJson<String?>(json['financialStatus']),
+      address: serializer.fromJson<String?>(json['address']),
+      addressBuilding: serializer.fromJson<String?>(json['addressBuilding']),
+      addressStreet: serializer.fromJson<String?>(json['addressStreet']),
+      addressFloor: serializer.fromJson<String?>(json['addressFloor']),
+      addressApartment: serializer.fromJson<String?>(json['addressApartment']),
+      confidentialNotes: serializer.fromJson<String?>(
+        json['confidentialNotes'],
+      ),
+      studyYear: serializer.fromJson<String?>(json['studyYear']),
+      cachedAt: serializer.fromJson<DateTime>(json['cachedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'studentId': serializer.toJson<String>(studentId),
+      'fatherJob': serializer.toJson<String?>(fatherJob),
+      'fatherPhone': serializer.toJson<String?>(fatherPhone),
+      'motherName': serializer.toJson<String?>(motherName),
+      'motherJob': serializer.toJson<String?>(motherJob),
+      'motherPhone': serializer.toJson<String?>(motherPhone),
+      'familySize': serializer.toJson<int?>(familySize),
+      'birthOrder': serializer.toJson<int?>(birthOrder),
+      'confessor': serializer.toJson<String?>(confessor),
+      'medicalNotes': serializer.toJson<String?>(medicalNotes),
+      'financialStatus': serializer.toJson<String?>(financialStatus),
+      'address': serializer.toJson<String?>(address),
+      'addressBuilding': serializer.toJson<String?>(addressBuilding),
+      'addressStreet': serializer.toJson<String?>(addressStreet),
+      'addressFloor': serializer.toJson<String?>(addressFloor),
+      'addressApartment': serializer.toJson<String?>(addressApartment),
+      'confidentialNotes': serializer.toJson<String?>(confidentialNotes),
+      'studyYear': serializer.toJson<String?>(studyYear),
+      'cachedAt': serializer.toJson<DateTime>(cachedAt),
+    };
+  }
+
+  CachedStudentSensitiveDataData copyWith({
+    String? studentId,
+    Value<String?> fatherJob = const Value.absent(),
+    Value<String?> fatherPhone = const Value.absent(),
+    Value<String?> motherName = const Value.absent(),
+    Value<String?> motherJob = const Value.absent(),
+    Value<String?> motherPhone = const Value.absent(),
+    Value<int?> familySize = const Value.absent(),
+    Value<int?> birthOrder = const Value.absent(),
+    Value<String?> confessor = const Value.absent(),
+    Value<String?> medicalNotes = const Value.absent(),
+    Value<String?> financialStatus = const Value.absent(),
+    Value<String?> address = const Value.absent(),
+    Value<String?> addressBuilding = const Value.absent(),
+    Value<String?> addressStreet = const Value.absent(),
+    Value<String?> addressFloor = const Value.absent(),
+    Value<String?> addressApartment = const Value.absent(),
+    Value<String?> confidentialNotes = const Value.absent(),
+    Value<String?> studyYear = const Value.absent(),
+    DateTime? cachedAt,
+  }) => CachedStudentSensitiveDataData(
+    studentId: studentId ?? this.studentId,
+    fatherJob: fatherJob.present ? fatherJob.value : this.fatherJob,
+    fatherPhone: fatherPhone.present ? fatherPhone.value : this.fatherPhone,
+    motherName: motherName.present ? motherName.value : this.motherName,
+    motherJob: motherJob.present ? motherJob.value : this.motherJob,
+    motherPhone: motherPhone.present ? motherPhone.value : this.motherPhone,
+    familySize: familySize.present ? familySize.value : this.familySize,
+    birthOrder: birthOrder.present ? birthOrder.value : this.birthOrder,
+    confessor: confessor.present ? confessor.value : this.confessor,
+    medicalNotes: medicalNotes.present ? medicalNotes.value : this.medicalNotes,
+    financialStatus: financialStatus.present
+        ? financialStatus.value
+        : this.financialStatus,
+    address: address.present ? address.value : this.address,
+    addressBuilding: addressBuilding.present
+        ? addressBuilding.value
+        : this.addressBuilding,
+    addressStreet: addressStreet.present
+        ? addressStreet.value
+        : this.addressStreet,
+    addressFloor: addressFloor.present ? addressFloor.value : this.addressFloor,
+    addressApartment: addressApartment.present
+        ? addressApartment.value
+        : this.addressApartment,
+    confidentialNotes: confidentialNotes.present
+        ? confidentialNotes.value
+        : this.confidentialNotes,
+    studyYear: studyYear.present ? studyYear.value : this.studyYear,
+    cachedAt: cachedAt ?? this.cachedAt,
+  );
+  CachedStudentSensitiveDataData copyWithCompanion(
+    CachedStudentSensitiveDataCompanion data,
+  ) {
+    return CachedStudentSensitiveDataData(
+      studentId: data.studentId.present ? data.studentId.value : this.studentId,
+      fatherJob: data.fatherJob.present ? data.fatherJob.value : this.fatherJob,
+      fatherPhone: data.fatherPhone.present
+          ? data.fatherPhone.value
+          : this.fatherPhone,
+      motherName: data.motherName.present
+          ? data.motherName.value
+          : this.motherName,
+      motherJob: data.motherJob.present ? data.motherJob.value : this.motherJob,
+      motherPhone: data.motherPhone.present
+          ? data.motherPhone.value
+          : this.motherPhone,
+      familySize: data.familySize.present
+          ? data.familySize.value
+          : this.familySize,
+      birthOrder: data.birthOrder.present
+          ? data.birthOrder.value
+          : this.birthOrder,
+      confessor: data.confessor.present ? data.confessor.value : this.confessor,
+      medicalNotes: data.medicalNotes.present
+          ? data.medicalNotes.value
+          : this.medicalNotes,
+      financialStatus: data.financialStatus.present
+          ? data.financialStatus.value
+          : this.financialStatus,
+      address: data.address.present ? data.address.value : this.address,
+      addressBuilding: data.addressBuilding.present
+          ? data.addressBuilding.value
+          : this.addressBuilding,
+      addressStreet: data.addressStreet.present
+          ? data.addressStreet.value
+          : this.addressStreet,
+      addressFloor: data.addressFloor.present
+          ? data.addressFloor.value
+          : this.addressFloor,
+      addressApartment: data.addressApartment.present
+          ? data.addressApartment.value
+          : this.addressApartment,
+      confidentialNotes: data.confidentialNotes.present
+          ? data.confidentialNotes.value
+          : this.confidentialNotes,
+      studyYear: data.studyYear.present ? data.studyYear.value : this.studyYear,
+      cachedAt: data.cachedAt.present ? data.cachedAt.value : this.cachedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CachedStudentSensitiveDataData(')
+          ..write('studentId: $studentId, ')
+          ..write('fatherJob: $fatherJob, ')
+          ..write('fatherPhone: $fatherPhone, ')
+          ..write('motherName: $motherName, ')
+          ..write('motherJob: $motherJob, ')
+          ..write('motherPhone: $motherPhone, ')
+          ..write('familySize: $familySize, ')
+          ..write('birthOrder: $birthOrder, ')
+          ..write('confessor: $confessor, ')
+          ..write('medicalNotes: $medicalNotes, ')
+          ..write('financialStatus: $financialStatus, ')
+          ..write('address: $address, ')
+          ..write('addressBuilding: $addressBuilding, ')
+          ..write('addressStreet: $addressStreet, ')
+          ..write('addressFloor: $addressFloor, ')
+          ..write('addressApartment: $addressApartment, ')
+          ..write('confidentialNotes: $confidentialNotes, ')
+          ..write('studyYear: $studyYear, ')
+          ..write('cachedAt: $cachedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    studentId,
+    fatherJob,
+    fatherPhone,
+    motherName,
+    motherJob,
+    motherPhone,
+    familySize,
+    birthOrder,
+    confessor,
+    medicalNotes,
+    financialStatus,
+    address,
+    addressBuilding,
+    addressStreet,
+    addressFloor,
+    addressApartment,
+    confidentialNotes,
+    studyYear,
+    cachedAt,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is CachedStudentSensitiveDataData &&
+          other.studentId == this.studentId &&
+          other.fatherJob == this.fatherJob &&
+          other.fatherPhone == this.fatherPhone &&
+          other.motherName == this.motherName &&
+          other.motherJob == this.motherJob &&
+          other.motherPhone == this.motherPhone &&
+          other.familySize == this.familySize &&
+          other.birthOrder == this.birthOrder &&
+          other.confessor == this.confessor &&
+          other.medicalNotes == this.medicalNotes &&
+          other.financialStatus == this.financialStatus &&
+          other.address == this.address &&
+          other.addressBuilding == this.addressBuilding &&
+          other.addressStreet == this.addressStreet &&
+          other.addressFloor == this.addressFloor &&
+          other.addressApartment == this.addressApartment &&
+          other.confidentialNotes == this.confidentialNotes &&
+          other.studyYear == this.studyYear &&
+          other.cachedAt == this.cachedAt);
+}
+
+class CachedStudentSensitiveDataCompanion
+    extends UpdateCompanion<CachedStudentSensitiveDataData> {
+  final Value<String> studentId;
+  final Value<String?> fatherJob;
+  final Value<String?> fatherPhone;
+  final Value<String?> motherName;
+  final Value<String?> motherJob;
+  final Value<String?> motherPhone;
+  final Value<int?> familySize;
+  final Value<int?> birthOrder;
+  final Value<String?> confessor;
+  final Value<String?> medicalNotes;
+  final Value<String?> financialStatus;
+  final Value<String?> address;
+  final Value<String?> addressBuilding;
+  final Value<String?> addressStreet;
+  final Value<String?> addressFloor;
+  final Value<String?> addressApartment;
+  final Value<String?> confidentialNotes;
+  final Value<String?> studyYear;
+  final Value<DateTime> cachedAt;
+  final Value<int> rowid;
+  const CachedStudentSensitiveDataCompanion({
+    this.studentId = const Value.absent(),
+    this.fatherJob = const Value.absent(),
+    this.fatherPhone = const Value.absent(),
+    this.motherName = const Value.absent(),
+    this.motherJob = const Value.absent(),
+    this.motherPhone = const Value.absent(),
+    this.familySize = const Value.absent(),
+    this.birthOrder = const Value.absent(),
+    this.confessor = const Value.absent(),
+    this.medicalNotes = const Value.absent(),
+    this.financialStatus = const Value.absent(),
+    this.address = const Value.absent(),
+    this.addressBuilding = const Value.absent(),
+    this.addressStreet = const Value.absent(),
+    this.addressFloor = const Value.absent(),
+    this.addressApartment = const Value.absent(),
+    this.confidentialNotes = const Value.absent(),
+    this.studyYear = const Value.absent(),
+    this.cachedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  CachedStudentSensitiveDataCompanion.insert({
+    required String studentId,
+    this.fatherJob = const Value.absent(),
+    this.fatherPhone = const Value.absent(),
+    this.motherName = const Value.absent(),
+    this.motherJob = const Value.absent(),
+    this.motherPhone = const Value.absent(),
+    this.familySize = const Value.absent(),
+    this.birthOrder = const Value.absent(),
+    this.confessor = const Value.absent(),
+    this.medicalNotes = const Value.absent(),
+    this.financialStatus = const Value.absent(),
+    this.address = const Value.absent(),
+    this.addressBuilding = const Value.absent(),
+    this.addressStreet = const Value.absent(),
+    this.addressFloor = const Value.absent(),
+    this.addressApartment = const Value.absent(),
+    this.confidentialNotes = const Value.absent(),
+    this.studyYear = const Value.absent(),
+    required DateTime cachedAt,
+    this.rowid = const Value.absent(),
+  }) : studentId = Value(studentId),
+       cachedAt = Value(cachedAt);
+  static Insertable<CachedStudentSensitiveDataData> custom({
+    Expression<String>? studentId,
+    Expression<String>? fatherJob,
+    Expression<String>? fatherPhone,
+    Expression<String>? motherName,
+    Expression<String>? motherJob,
+    Expression<String>? motherPhone,
+    Expression<int>? familySize,
+    Expression<int>? birthOrder,
+    Expression<String>? confessor,
+    Expression<String>? medicalNotes,
+    Expression<String>? financialStatus,
+    Expression<String>? address,
+    Expression<String>? addressBuilding,
+    Expression<String>? addressStreet,
+    Expression<String>? addressFloor,
+    Expression<String>? addressApartment,
+    Expression<String>? confidentialNotes,
+    Expression<String>? studyYear,
+    Expression<DateTime>? cachedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (studentId != null) 'student_id': studentId,
+      if (fatherJob != null) 'father_job': fatherJob,
+      if (fatherPhone != null) 'father_phone': fatherPhone,
+      if (motherName != null) 'mother_name': motherName,
+      if (motherJob != null) 'mother_job': motherJob,
+      if (motherPhone != null) 'mother_phone': motherPhone,
+      if (familySize != null) 'family_size': familySize,
+      if (birthOrder != null) 'birth_order': birthOrder,
+      if (confessor != null) 'confessor': confessor,
+      if (medicalNotes != null) 'medical_notes': medicalNotes,
+      if (financialStatus != null) 'financial_status': financialStatus,
+      if (address != null) 'address': address,
+      if (addressBuilding != null) 'address_building': addressBuilding,
+      if (addressStreet != null) 'address_street': addressStreet,
+      if (addressFloor != null) 'address_floor': addressFloor,
+      if (addressApartment != null) 'address_apartment': addressApartment,
+      if (confidentialNotes != null) 'confidential_notes': confidentialNotes,
+      if (studyYear != null) 'study_year': studyYear,
+      if (cachedAt != null) 'cached_at': cachedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  CachedStudentSensitiveDataCompanion copyWith({
+    Value<String>? studentId,
+    Value<String?>? fatherJob,
+    Value<String?>? fatherPhone,
+    Value<String?>? motherName,
+    Value<String?>? motherJob,
+    Value<String?>? motherPhone,
+    Value<int?>? familySize,
+    Value<int?>? birthOrder,
+    Value<String?>? confessor,
+    Value<String?>? medicalNotes,
+    Value<String?>? financialStatus,
+    Value<String?>? address,
+    Value<String?>? addressBuilding,
+    Value<String?>? addressStreet,
+    Value<String?>? addressFloor,
+    Value<String?>? addressApartment,
+    Value<String?>? confidentialNotes,
+    Value<String?>? studyYear,
+    Value<DateTime>? cachedAt,
+    Value<int>? rowid,
+  }) {
+    return CachedStudentSensitiveDataCompanion(
+      studentId: studentId ?? this.studentId,
+      fatherJob: fatherJob ?? this.fatherJob,
+      fatherPhone: fatherPhone ?? this.fatherPhone,
+      motherName: motherName ?? this.motherName,
+      motherJob: motherJob ?? this.motherJob,
+      motherPhone: motherPhone ?? this.motherPhone,
+      familySize: familySize ?? this.familySize,
+      birthOrder: birthOrder ?? this.birthOrder,
+      confessor: confessor ?? this.confessor,
+      medicalNotes: medicalNotes ?? this.medicalNotes,
+      financialStatus: financialStatus ?? this.financialStatus,
+      address: address ?? this.address,
+      addressBuilding: addressBuilding ?? this.addressBuilding,
+      addressStreet: addressStreet ?? this.addressStreet,
+      addressFloor: addressFloor ?? this.addressFloor,
+      addressApartment: addressApartment ?? this.addressApartment,
+      confidentialNotes: confidentialNotes ?? this.confidentialNotes,
+      studyYear: studyYear ?? this.studyYear,
+      cachedAt: cachedAt ?? this.cachedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (studentId.present) {
+      map['student_id'] = Variable<String>(studentId.value);
+    }
+    if (fatherJob.present) {
+      map['father_job'] = Variable<String>(fatherJob.value);
+    }
+    if (fatherPhone.present) {
+      map['father_phone'] = Variable<String>(fatherPhone.value);
+    }
+    if (motherName.present) {
+      map['mother_name'] = Variable<String>(motherName.value);
+    }
+    if (motherJob.present) {
+      map['mother_job'] = Variable<String>(motherJob.value);
+    }
+    if (motherPhone.present) {
+      map['mother_phone'] = Variable<String>(motherPhone.value);
+    }
+    if (familySize.present) {
+      map['family_size'] = Variable<int>(familySize.value);
+    }
+    if (birthOrder.present) {
+      map['birth_order'] = Variable<int>(birthOrder.value);
+    }
+    if (confessor.present) {
+      map['confessor'] = Variable<String>(confessor.value);
+    }
+    if (medicalNotes.present) {
+      map['medical_notes'] = Variable<String>(medicalNotes.value);
+    }
+    if (financialStatus.present) {
+      map['financial_status'] = Variable<String>(financialStatus.value);
+    }
+    if (address.present) {
+      map['address'] = Variable<String>(address.value);
+    }
+    if (addressBuilding.present) {
+      map['address_building'] = Variable<String>(addressBuilding.value);
+    }
+    if (addressStreet.present) {
+      map['address_street'] = Variable<String>(addressStreet.value);
+    }
+    if (addressFloor.present) {
+      map['address_floor'] = Variable<String>(addressFloor.value);
+    }
+    if (addressApartment.present) {
+      map['address_apartment'] = Variable<String>(addressApartment.value);
+    }
+    if (confidentialNotes.present) {
+      map['confidential_notes'] = Variable<String>(confidentialNotes.value);
+    }
+    if (studyYear.present) {
+      map['study_year'] = Variable<String>(studyYear.value);
+    }
+    if (cachedAt.present) {
+      map['cached_at'] = Variable<DateTime>(cachedAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CachedStudentSensitiveDataCompanion(')
+          ..write('studentId: $studentId, ')
+          ..write('fatherJob: $fatherJob, ')
+          ..write('fatherPhone: $fatherPhone, ')
+          ..write('motherName: $motherName, ')
+          ..write('motherJob: $motherJob, ')
+          ..write('motherPhone: $motherPhone, ')
+          ..write('familySize: $familySize, ')
+          ..write('birthOrder: $birthOrder, ')
+          ..write('confessor: $confessor, ')
+          ..write('medicalNotes: $medicalNotes, ')
+          ..write('financialStatus: $financialStatus, ')
+          ..write('address: $address, ')
+          ..write('addressBuilding: $addressBuilding, ')
+          ..write('addressStreet: $addressStreet, ')
+          ..write('addressFloor: $addressFloor, ')
+          ..write('addressApartment: $addressApartment, ')
+          ..write('confidentialNotes: $confidentialNotes, ')
+          ..write('studyYear: $studyYear, ')
           ..write('cachedAt: $cachedAt, ')
           ..write('rowid: $rowid')
           ..write(')'))
@@ -5410,6 +6596,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $CachedStagesTable cachedStages = $CachedStagesTable(this);
   late final $CachedClassesTable cachedClasses = $CachedClassesTable(this);
   late final $CachedStudentsTable cachedStudents = $CachedStudentsTable(this);
+  late final $CachedStudentSensitiveDataTable cachedStudentSensitiveData =
+      $CachedStudentSensitiveDataTable(this);
   late final $CachedMeetingsTable cachedMeetings = $CachedMeetingsTable(this);
   late final $CachedAttendanceRecordsTable cachedAttendanceRecords =
       $CachedAttendanceRecordsTable(this);
@@ -5430,6 +6618,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     cachedStages,
     cachedClasses,
     cachedStudents,
+    cachedStudentSensitiveData,
     cachedMeetings,
     cachedAttendanceRecords,
     cachedFollowUpRecords,
@@ -6419,6 +7608,7 @@ typedef $$CachedStudentsTableCreateCompanionBuilder =
       Value<String?> grade,
       Value<String?> enrollmentAt,
       required String approvalStatus,
+      Value<bool> isDeacon,
       Value<String?> photoPath,
       Value<String?> notes,
       required DateTime cachedAt,
@@ -6437,6 +7627,7 @@ typedef $$CachedStudentsTableUpdateCompanionBuilder =
       Value<String?> grade,
       Value<String?> enrollmentAt,
       Value<String> approvalStatus,
+      Value<bool> isDeacon,
       Value<String?> photoPath,
       Value<String?> notes,
       Value<DateTime> cachedAt,
@@ -6504,6 +7695,11 @@ class $$CachedStudentsTableFilterComposer
 
   ColumnFilters<String> get approvalStatus => $composableBuilder(
     column: $table.approvalStatus,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get isDeacon => $composableBuilder(
+    column: $table.isDeacon,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -6587,6 +7783,11 @@ class $$CachedStudentsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<bool> get isDeacon => $composableBuilder(
+    column: $table.isDeacon,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<String> get photoPath => $composableBuilder(
     column: $table.photoPath,
     builder: (column) => ColumnOrderings(column),
@@ -6653,6 +7854,9 @@ class $$CachedStudentsTableAnnotationComposer
     builder: (column) => column,
   );
 
+  GeneratedColumn<bool> get isDeacon =>
+      $composableBuilder(column: $table.isDeacon, builder: (column) => column);
+
   GeneratedColumn<String> get photoPath =>
       $composableBuilder(column: $table.photoPath, builder: (column) => column);
 
@@ -6707,6 +7911,7 @@ class $$CachedStudentsTableTableManager
                 Value<String?> grade = const Value.absent(),
                 Value<String?> enrollmentAt = const Value.absent(),
                 Value<String> approvalStatus = const Value.absent(),
+                Value<bool> isDeacon = const Value.absent(),
                 Value<String?> photoPath = const Value.absent(),
                 Value<String?> notes = const Value.absent(),
                 Value<DateTime> cachedAt = const Value.absent(),
@@ -6723,6 +7928,7 @@ class $$CachedStudentsTableTableManager
                 grade: grade,
                 enrollmentAt: enrollmentAt,
                 approvalStatus: approvalStatus,
+                isDeacon: isDeacon,
                 photoPath: photoPath,
                 notes: notes,
                 cachedAt: cachedAt,
@@ -6741,6 +7947,7 @@ class $$CachedStudentsTableTableManager
                 Value<String?> grade = const Value.absent(),
                 Value<String?> enrollmentAt = const Value.absent(),
                 required String approvalStatus,
+                Value<bool> isDeacon = const Value.absent(),
                 Value<String?> photoPath = const Value.absent(),
                 Value<String?> notes = const Value.absent(),
                 required DateTime cachedAt,
@@ -6757,6 +7964,7 @@ class $$CachedStudentsTableTableManager
                 grade: grade,
                 enrollmentAt: enrollmentAt,
                 approvalStatus: approvalStatus,
+                isDeacon: isDeacon,
                 photoPath: photoPath,
                 notes: notes,
                 cachedAt: cachedAt,
@@ -6794,6 +8002,527 @@ typedef $$CachedStudentsTableProcessedTableManager =
         BaseReferences<_$AppDatabase, $CachedStudentsTable, CachedStudent>,
       ),
       CachedStudent,
+      PrefetchHooks Function()
+    >;
+typedef $$CachedStudentSensitiveDataTableCreateCompanionBuilder =
+    CachedStudentSensitiveDataCompanion Function({
+      required String studentId,
+      Value<String?> fatherJob,
+      Value<String?> fatherPhone,
+      Value<String?> motherName,
+      Value<String?> motherJob,
+      Value<String?> motherPhone,
+      Value<int?> familySize,
+      Value<int?> birthOrder,
+      Value<String?> confessor,
+      Value<String?> medicalNotes,
+      Value<String?> financialStatus,
+      Value<String?> address,
+      Value<String?> addressBuilding,
+      Value<String?> addressStreet,
+      Value<String?> addressFloor,
+      Value<String?> addressApartment,
+      Value<String?> confidentialNotes,
+      Value<String?> studyYear,
+      required DateTime cachedAt,
+      Value<int> rowid,
+    });
+typedef $$CachedStudentSensitiveDataTableUpdateCompanionBuilder =
+    CachedStudentSensitiveDataCompanion Function({
+      Value<String> studentId,
+      Value<String?> fatherJob,
+      Value<String?> fatherPhone,
+      Value<String?> motherName,
+      Value<String?> motherJob,
+      Value<String?> motherPhone,
+      Value<int?> familySize,
+      Value<int?> birthOrder,
+      Value<String?> confessor,
+      Value<String?> medicalNotes,
+      Value<String?> financialStatus,
+      Value<String?> address,
+      Value<String?> addressBuilding,
+      Value<String?> addressStreet,
+      Value<String?> addressFloor,
+      Value<String?> addressApartment,
+      Value<String?> confidentialNotes,
+      Value<String?> studyYear,
+      Value<DateTime> cachedAt,
+      Value<int> rowid,
+    });
+
+class $$CachedStudentSensitiveDataTableFilterComposer
+    extends Composer<_$AppDatabase, $CachedStudentSensitiveDataTable> {
+  $$CachedStudentSensitiveDataTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get studentId => $composableBuilder(
+    column: $table.studentId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get fatherJob => $composableBuilder(
+    column: $table.fatherJob,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get fatherPhone => $composableBuilder(
+    column: $table.fatherPhone,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get motherName => $composableBuilder(
+    column: $table.motherName,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get motherJob => $composableBuilder(
+    column: $table.motherJob,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get motherPhone => $composableBuilder(
+    column: $table.motherPhone,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get familySize => $composableBuilder(
+    column: $table.familySize,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get birthOrder => $composableBuilder(
+    column: $table.birthOrder,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get confessor => $composableBuilder(
+    column: $table.confessor,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get medicalNotes => $composableBuilder(
+    column: $table.medicalNotes,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get financialStatus => $composableBuilder(
+    column: $table.financialStatus,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get address => $composableBuilder(
+    column: $table.address,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get addressBuilding => $composableBuilder(
+    column: $table.addressBuilding,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get addressStreet => $composableBuilder(
+    column: $table.addressStreet,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get addressFloor => $composableBuilder(
+    column: $table.addressFloor,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get addressApartment => $composableBuilder(
+    column: $table.addressApartment,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get confidentialNotes => $composableBuilder(
+    column: $table.confidentialNotes,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get studyYear => $composableBuilder(
+    column: $table.studyYear,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get cachedAt => $composableBuilder(
+    column: $table.cachedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$CachedStudentSensitiveDataTableOrderingComposer
+    extends Composer<_$AppDatabase, $CachedStudentSensitiveDataTable> {
+  $$CachedStudentSensitiveDataTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get studentId => $composableBuilder(
+    column: $table.studentId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get fatherJob => $composableBuilder(
+    column: $table.fatherJob,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get fatherPhone => $composableBuilder(
+    column: $table.fatherPhone,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get motherName => $composableBuilder(
+    column: $table.motherName,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get motherJob => $composableBuilder(
+    column: $table.motherJob,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get motherPhone => $composableBuilder(
+    column: $table.motherPhone,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get familySize => $composableBuilder(
+    column: $table.familySize,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get birthOrder => $composableBuilder(
+    column: $table.birthOrder,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get confessor => $composableBuilder(
+    column: $table.confessor,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get medicalNotes => $composableBuilder(
+    column: $table.medicalNotes,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get financialStatus => $composableBuilder(
+    column: $table.financialStatus,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get address => $composableBuilder(
+    column: $table.address,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get addressBuilding => $composableBuilder(
+    column: $table.addressBuilding,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get addressStreet => $composableBuilder(
+    column: $table.addressStreet,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get addressFloor => $composableBuilder(
+    column: $table.addressFloor,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get addressApartment => $composableBuilder(
+    column: $table.addressApartment,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get confidentialNotes => $composableBuilder(
+    column: $table.confidentialNotes,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get studyYear => $composableBuilder(
+    column: $table.studyYear,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get cachedAt => $composableBuilder(
+    column: $table.cachedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$CachedStudentSensitiveDataTableAnnotationComposer
+    extends Composer<_$AppDatabase, $CachedStudentSensitiveDataTable> {
+  $$CachedStudentSensitiveDataTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get studentId =>
+      $composableBuilder(column: $table.studentId, builder: (column) => column);
+
+  GeneratedColumn<String> get fatherJob =>
+      $composableBuilder(column: $table.fatherJob, builder: (column) => column);
+
+  GeneratedColumn<String> get fatherPhone => $composableBuilder(
+    column: $table.fatherPhone,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get motherName => $composableBuilder(
+    column: $table.motherName,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get motherJob =>
+      $composableBuilder(column: $table.motherJob, builder: (column) => column);
+
+  GeneratedColumn<String> get motherPhone => $composableBuilder(
+    column: $table.motherPhone,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get familySize => $composableBuilder(
+    column: $table.familySize,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get birthOrder => $composableBuilder(
+    column: $table.birthOrder,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get confessor =>
+      $composableBuilder(column: $table.confessor, builder: (column) => column);
+
+  GeneratedColumn<String> get medicalNotes => $composableBuilder(
+    column: $table.medicalNotes,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get financialStatus => $composableBuilder(
+    column: $table.financialStatus,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get address =>
+      $composableBuilder(column: $table.address, builder: (column) => column);
+
+  GeneratedColumn<String> get addressBuilding => $composableBuilder(
+    column: $table.addressBuilding,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get addressStreet => $composableBuilder(
+    column: $table.addressStreet,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get addressFloor => $composableBuilder(
+    column: $table.addressFloor,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get addressApartment => $composableBuilder(
+    column: $table.addressApartment,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get confidentialNotes => $composableBuilder(
+    column: $table.confidentialNotes,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get studyYear =>
+      $composableBuilder(column: $table.studyYear, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get cachedAt =>
+      $composableBuilder(column: $table.cachedAt, builder: (column) => column);
+}
+
+class $$CachedStudentSensitiveDataTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $CachedStudentSensitiveDataTable,
+          CachedStudentSensitiveDataData,
+          $$CachedStudentSensitiveDataTableFilterComposer,
+          $$CachedStudentSensitiveDataTableOrderingComposer,
+          $$CachedStudentSensitiveDataTableAnnotationComposer,
+          $$CachedStudentSensitiveDataTableCreateCompanionBuilder,
+          $$CachedStudentSensitiveDataTableUpdateCompanionBuilder,
+          (
+            CachedStudentSensitiveDataData,
+            BaseReferences<
+              _$AppDatabase,
+              $CachedStudentSensitiveDataTable,
+              CachedStudentSensitiveDataData
+            >,
+          ),
+          CachedStudentSensitiveDataData,
+          PrefetchHooks Function()
+        > {
+  $$CachedStudentSensitiveDataTableTableManager(
+    _$AppDatabase db,
+    $CachedStudentSensitiveDataTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$CachedStudentSensitiveDataTableFilterComposer(
+                $db: db,
+                $table: table,
+              ),
+          createOrderingComposer: () =>
+              $$CachedStudentSensitiveDataTableOrderingComposer(
+                $db: db,
+                $table: table,
+              ),
+          createComputedFieldComposer: () =>
+              $$CachedStudentSensitiveDataTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<String> studentId = const Value.absent(),
+                Value<String?> fatherJob = const Value.absent(),
+                Value<String?> fatherPhone = const Value.absent(),
+                Value<String?> motherName = const Value.absent(),
+                Value<String?> motherJob = const Value.absent(),
+                Value<String?> motherPhone = const Value.absent(),
+                Value<int?> familySize = const Value.absent(),
+                Value<int?> birthOrder = const Value.absent(),
+                Value<String?> confessor = const Value.absent(),
+                Value<String?> medicalNotes = const Value.absent(),
+                Value<String?> financialStatus = const Value.absent(),
+                Value<String?> address = const Value.absent(),
+                Value<String?> addressBuilding = const Value.absent(),
+                Value<String?> addressStreet = const Value.absent(),
+                Value<String?> addressFloor = const Value.absent(),
+                Value<String?> addressApartment = const Value.absent(),
+                Value<String?> confidentialNotes = const Value.absent(),
+                Value<String?> studyYear = const Value.absent(),
+                Value<DateTime> cachedAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => CachedStudentSensitiveDataCompanion(
+                studentId: studentId,
+                fatherJob: fatherJob,
+                fatherPhone: fatherPhone,
+                motherName: motherName,
+                motherJob: motherJob,
+                motherPhone: motherPhone,
+                familySize: familySize,
+                birthOrder: birthOrder,
+                confessor: confessor,
+                medicalNotes: medicalNotes,
+                financialStatus: financialStatus,
+                address: address,
+                addressBuilding: addressBuilding,
+                addressStreet: addressStreet,
+                addressFloor: addressFloor,
+                addressApartment: addressApartment,
+                confidentialNotes: confidentialNotes,
+                studyYear: studyYear,
+                cachedAt: cachedAt,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String studentId,
+                Value<String?> fatherJob = const Value.absent(),
+                Value<String?> fatherPhone = const Value.absent(),
+                Value<String?> motherName = const Value.absent(),
+                Value<String?> motherJob = const Value.absent(),
+                Value<String?> motherPhone = const Value.absent(),
+                Value<int?> familySize = const Value.absent(),
+                Value<int?> birthOrder = const Value.absent(),
+                Value<String?> confessor = const Value.absent(),
+                Value<String?> medicalNotes = const Value.absent(),
+                Value<String?> financialStatus = const Value.absent(),
+                Value<String?> address = const Value.absent(),
+                Value<String?> addressBuilding = const Value.absent(),
+                Value<String?> addressStreet = const Value.absent(),
+                Value<String?> addressFloor = const Value.absent(),
+                Value<String?> addressApartment = const Value.absent(),
+                Value<String?> confidentialNotes = const Value.absent(),
+                Value<String?> studyYear = const Value.absent(),
+                required DateTime cachedAt,
+                Value<int> rowid = const Value.absent(),
+              }) => CachedStudentSensitiveDataCompanion.insert(
+                studentId: studentId,
+                fatherJob: fatherJob,
+                fatherPhone: fatherPhone,
+                motherName: motherName,
+                motherJob: motherJob,
+                motherPhone: motherPhone,
+                familySize: familySize,
+                birthOrder: birthOrder,
+                confessor: confessor,
+                medicalNotes: medicalNotes,
+                financialStatus: financialStatus,
+                address: address,
+                addressBuilding: addressBuilding,
+                addressStreet: addressStreet,
+                addressFloor: addressFloor,
+                addressApartment: addressApartment,
+                confidentialNotes: confidentialNotes,
+                studyYear: studyYear,
+                cachedAt: cachedAt,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable<
+                    $CachedStudentSensitiveDataTable,
+                    CachedStudentSensitiveDataData
+                  >(table),
+                  BaseReferences<
+                    _$AppDatabase,
+                    $CachedStudentSensitiveDataTable,
+                    CachedStudentSensitiveDataData
+                  >(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$CachedStudentSensitiveDataTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $CachedStudentSensitiveDataTable,
+      CachedStudentSensitiveDataData,
+      $$CachedStudentSensitiveDataTableFilterComposer,
+      $$CachedStudentSensitiveDataTableOrderingComposer,
+      $$CachedStudentSensitiveDataTableAnnotationComposer,
+      $$CachedStudentSensitiveDataTableCreateCompanionBuilder,
+      $$CachedStudentSensitiveDataTableUpdateCompanionBuilder,
+      (
+        CachedStudentSensitiveDataData,
+        BaseReferences<
+          _$AppDatabase,
+          $CachedStudentSensitiveDataTable,
+          CachedStudentSensitiveDataData
+        >,
+      ),
+      CachedStudentSensitiveDataData,
       PrefetchHooks Function()
     >;
 typedef $$CachedMeetingsTableCreateCompanionBuilder =
@@ -8311,6 +10040,12 @@ class $AppDatabaseManager {
       $$CachedClassesTableTableManager(_db, _db.cachedClasses);
   $$CachedStudentsTableTableManager get cachedStudents =>
       $$CachedStudentsTableTableManager(_db, _db.cachedStudents);
+  $$CachedStudentSensitiveDataTableTableManager
+  get cachedStudentSensitiveData =>
+      $$CachedStudentSensitiveDataTableTableManager(
+        _db,
+        _db.cachedStudentSensitiveData,
+      );
   $$CachedMeetingsTableTableManager get cachedMeetings =>
       $$CachedMeetingsTableTableManager(_db, _db.cachedMeetings);
   $$CachedAttendanceRecordsTableTableManager get cachedAttendanceRecords =>

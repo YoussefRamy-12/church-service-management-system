@@ -19,19 +19,23 @@ void main() {
   });
 
   test('queue preserves FIFO order for pending operations', () async {
-    await queue.enqueue(const SyncOperation(
-      operationId: 'op-1',
-      entityType: 'student',
-      operationType: 'update',
-      payloadJson: '{"id":"student-1"}',
-    ));
+    await queue.enqueue(
+      const SyncOperation(
+        operationId: 'op-1',
+        entityType: 'student',
+        operationType: 'update',
+        payloadJson: '{"id":"student-1"}',
+      ),
+    );
     await Future<void>.delayed(const Duration(milliseconds: 2));
-    await queue.enqueue(const SyncOperation(
-      operationId: 'op-2',
-      entityType: 'attendance',
-      operationType: 'upsert',
-      payloadJson: '{"id":"attendance-1"}',
-    ));
+    await queue.enqueue(
+      const SyncOperation(
+        operationId: 'op-2',
+        entityType: 'attendance',
+        operationType: 'upsert',
+        payloadJson: '{"id":"attendance-1"}',
+      ),
+    );
 
     final pending = await queue.pending();
 
@@ -39,18 +43,20 @@ void main() {
   });
 
   test('retry increments attempts and keeps operation pending', () async {
-    await queue.enqueue(const SyncOperation(
-      operationId: 'op-1',
-      entityType: 'student',
-      operationType: 'update',
-      payloadJson: '{"id":"student-1"}',
-    ));
+    await queue.enqueue(
+      const SyncOperation(
+        operationId: 'op-1',
+        entityType: 'student',
+        operationType: 'update',
+        payloadJson: '{"id":"student-1"}',
+      ),
+    );
 
     await queue.markRetry('op-1');
 
-    final row = await (db.select(db.syncQueueEntries)
-          ..where((t) => t.operationId.equals('op-1')))
-        .getSingle();
+    final row = await (db.select(
+      db.syncQueueEntries,
+    )..where((t) => t.operationId.equals('op-1'))).getSingle();
 
     expect(row.status, 'pending');
     expect(row.attempts, 1);
@@ -58,12 +64,14 @@ void main() {
   });
 
   test('conflict can be surfaced and explicitly retried', () async {
-    await queue.enqueue(const SyncOperation(
-      operationId: 'op-1',
-      entityType: 'student',
-      operationType: 'update',
-      payloadJson: '{"id":"student-1"}',
-    ));
+    await queue.enqueue(
+      const SyncOperation(
+        operationId: 'op-1',
+        entityType: 'student',
+        operationType: 'update',
+        payloadJson: '{"id":"student-1"}',
+      ),
+    );
 
     await queue.markConflict('op-1');
 
@@ -85,12 +93,14 @@ void main() {
       'approval_status': 'approved',
     };
 
-    await queue.enqueue(SyncOperation(
-      operationId: 'op-json',
-      entityType: 'student',
-      operationType: 'update',
-      payloadJson: jsonEncode(payload),
-    ));
+    await queue.enqueue(
+      SyncOperation(
+        operationId: 'op-json',
+        entityType: 'student',
+        operationType: 'update',
+        payloadJson: jsonEncode(payload),
+      ),
+    );
 
     final pending = await queue.pending();
     expect(queue.decode(pending.single.payloadJson), payload);

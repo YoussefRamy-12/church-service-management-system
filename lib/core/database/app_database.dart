@@ -1,5 +1,6 @@
 import 'package:drift/drift.dart';
 import 'package:drift_flutter/drift_flutter.dart';
+import 'connection/testing_database_connection.dart';
 
 part 'app_database.g.dart';
 
@@ -66,12 +67,38 @@ class CachedStudents extends Table {
   TextColumn get grade => text().nullable()();
   TextColumn get enrollmentAt => text().nullable()();
   TextColumn get approvalStatus => text()();
+  BoolColumn get isDeacon => boolean().withDefault(const Constant(false))();
   TextColumn get photoPath => text().nullable()();
   TextColumn get notes => text().nullable()();
   DateTimeColumn get cachedAt => dateTime()();
 
   @override
   Set<Column<Object>> get primaryKey => {id};
+}
+
+class CachedStudentSensitiveData extends Table {
+  TextColumn get studentId => text()();
+  TextColumn get fatherJob => text().nullable()();
+  TextColumn get fatherPhone => text().nullable()();
+  TextColumn get motherName => text().nullable()();
+  TextColumn get motherJob => text().nullable()();
+  TextColumn get motherPhone => text().nullable()();
+  IntColumn get familySize => integer().nullable()();
+  IntColumn get birthOrder => integer().nullable()();
+  TextColumn get confessor => text().nullable()();
+  TextColumn get medicalNotes => text().nullable()();
+  TextColumn get financialStatus => text().nullable()();
+  TextColumn get address => text().nullable()();
+  TextColumn get addressBuilding => text().nullable()();
+  TextColumn get addressStreet => text().nullable()();
+  TextColumn get addressFloor => text().nullable()();
+  TextColumn get addressApartment => text().nullable()();
+  TextColumn get confidentialNotes => text().nullable()();
+  TextColumn get studyYear => text().nullable()();
+  DateTimeColumn get cachedAt => dateTime()();
+
+  @override
+  Set<Column<Object>> get primaryKey => {studentId};
 }
 
 class CachedMeetings extends Table {
@@ -152,6 +179,7 @@ class SyncQueueEntries extends Table {
     CachedStages,
     CachedClasses,
     CachedStudents,
+    CachedStudentSensitiveData,
     CachedMeetings,
     CachedAttendanceRecords,
     CachedFollowUpRecords,
@@ -170,9 +198,10 @@ class AppDatabase extends _$AppDatabase {
           ),
         ),
       );
+  AppDatabase.forTesting() : super(testingDatabaseConnection());
 
   @override
-  int get schemaVersion => 6;
+  int get schemaVersion => 7;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -199,6 +228,10 @@ class AppDatabase extends _$AppDatabase {
         await m.addColumn(cachedProfiles, cachedProfiles.birthDate);
         await m.addColumn(cachedProfiles, cachedProfiles.workStudy);
         await m.addColumn(cachedProfiles, cachedProfiles.mustChangePassword);
+      }
+      if (from < 7) {
+        await m.addColumn(cachedStudents, cachedStudents.isDeacon);
+        await m.createTable(cachedStudentSensitiveData);
       }
     },
   );

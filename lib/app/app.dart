@@ -5,7 +5,6 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../core/config/supabase_initializer.dart';
 import '../core/sync/sync_conflict_page.dart';
 import '../core/sync/sync_center_page.dart';
 import '../features/attendance/presentation/attendance_session_page.dart';
@@ -22,6 +21,8 @@ import '../features/service/presentation/stage_dashboard_page.dart';
 import '../features/service/presentation/structure_settings_page.dart';
 import '../features/service/presentation/system_settings_page.dart';
 import '../features/auth/presentation/system_admin_home_page.dart';
+import '../features/auth/presentation/servant_sign_up_page.dart';
+import '../features/auth/presentation/servant_registration_requests_page.dart';
 import '../features/service/presentation/service_settings_page.dart';
 import '../features/students/presentation/students_page.dart';
 import 'app_shell.dart';
@@ -29,164 +30,206 @@ import 'theme.dart';
 
 class ChurchServiceApp extends ConsumerStatefulWidget {
   const ChurchServiceApp({super.key});
-  @override ConsumerState<ChurchServiceApp> createState() => _ChurchServiceAppState();
+  @override
+  ConsumerState<ChurchServiceApp> createState() => _ChurchServiceAppState();
 }
 
 class _ChurchServiceAppState extends ConsumerState<ChurchServiceApp> {
-  late final Future<void> _initialization;
-  @override void initState() { super.initState(); _initialization = initializeSupabase(); }
+  late final GoRouter _router;
 
   @override
-  Widget build(BuildContext context) => FutureBuilder<void>(
-        future: _initialization,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState != ConnectionState.done) {
-            return const MaterialApp(debugShowCheckedModeBanner: false, home: _StartupScreen());
-          }
-          return MaterialApp.router(
-            title: 'أسرة تلاميذ المسيح',
-            debugShowCheckedModeBanner: false,
-            theme: buildAppTheme(),
-            routerConfig: _router,
-            locale: const Locale('ar'),
-            supportedLocales: const [Locale('ar')],
-            localizationsDelegates: const [
-              GlobalMaterialLocalizations.delegate,
-              GlobalCupertinoLocalizations.delegate,
-              GlobalWidgetsLocalizations.delegate,
-            ],
-            builder: (context, child) => Directionality(
-              textDirection: TextDirection.rtl,
-              child: child ?? const SizedBox.shrink(),
-            ),
-          );
-        },
-      );
+  void initState() {
+    super.initState();
+    _router = _createRouter();
+  }
 
-  GoRouter get _router => GoRouter(
-        initialLocation: '/login',
+  @override
+  void dispose() {
+    _router.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final themeMode = ref.watch(themeModeProvider);
+    return MaterialApp.router(
+      title: 'أسرة تلاميذ المسيح',
+      debugShowCheckedModeBanner: false,
+      theme: buildAppTheme(),
+      darkTheme: buildAppDarkTheme(),
+      themeMode: themeMode,
+      routerConfig: _router,
+      locale: const Locale('ar'),
+      supportedLocales: const [Locale('ar')],
+      localizationsDelegates: const [
+        GlobalMaterialLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+      ],
+      builder: (context, child) => Directionality(
+        textDirection: TextDirection.rtl,
+        child: child ?? const SizedBox.shrink(),
+      ),
+    );
+  }
+
+  GoRouter _createRouter() => GoRouter(
+    initialLocation: '/login',
+    routes: [
+      GoRoute(path: '/app', redirect: (context, state) => '/session'),
+      GoRoute(
+        path: '/admin',
+        builder: (context, state) => const SystemAdminHomePage(),
+      ),
+      GoRoute(
+        path: '/admin/servant-registrations',
+        builder: (context, state) => const ServantRegistrationRequestsPage(),
+      ),
+      GoRoute(path: '/login', builder: (context, state) => const LoginPage()),
+      GoRoute(
+        path: '/signup',
+        builder: (context, state) => const ServantSignUpPage(),
+      ),
+      GoRoute(
+        path: '/session',
+        builder: (context, state) => const SessionGate(),
+      ),
+      GoRoute(
+        path: '/sync/conflicts',
+        builder: (context, state) => const SyncConflictPage(),
+      ),
+      GoRoute(
+        path: '/sync',
+        builder: (context, state) => const SyncCenterPage(),
+      ),
+      GoRoute(
+        path: '/service/:serviceId',
+        redirect: (context, state) {
+          final servicePath = '/service/${state.pathParameters['serviceId']}';
+          return state.uri.path == servicePath
+              ? '$servicePath/dashboard'
+              : null;
+        },
         routes: [
-          GoRoute(path: '/app', redirect: (context, state) => '/session'),
-          GoRoute(path: '/admin', builder: (context, state) => const SystemAdminHomePage()),
-          GoRoute(path: '/login', builder: (context, state) => const LoginPage()),
-          GoRoute(path: '/session', builder: (context, state) => const SessionGate()),
-          GoRoute(path: '/sync/conflicts', builder: (context, state) => const SyncConflictPage()),
-          GoRoute(path: '/sync', builder: (context, state) => const SyncCenterPage()),
-          GoRoute(
-            path: '/service/:serviceId',
-            redirect: (context, state) {
-              final servicePath = '/service/${state.pathParameters['serviceId']}';
-              return state.uri.path == servicePath ? '$servicePath/dashboard' : null;
-            },
+          ShellRoute(
+            builder: (context, state, child) => AppShell(
+              serviceId: state.pathParameters['serviceId']!,
+              child: child,
+            ),
             routes: [
-              ShellRoute(
-                builder: (context, state, child) => AppShell(
+              GoRoute(
+                path: 'dashboard',
+                builder: (context, state) => ServiceDashboardPage(
                   serviceId: state.pathParameters['serviceId']!,
-                  child: child,
+                ),
+              ),
+              GoRoute(
+                path: 'stage/:stageId',
+                builder: (context, state) => StageDashboardPage(
+                  serviceId: state.pathParameters['serviceId']!,
+                  stageId: state.pathParameters['stageId']!,
                 ),
                 routes: [
                   GoRoute(
-                    path: 'dashboard',
-                    builder: (context, state) => ServiceDashboardPage(serviceId: state.pathParameters['serviceId']!),
-                  ),
-                  GoRoute(
-                    path: 'stage/:stageId',
-                    builder: (context, state) => StageDashboardPage(
+                    path: 'class/:classId',
+                    builder: (context, state) => ClassDashboardPage(
                       serviceId: state.pathParameters['serviceId']!,
                       stageId: state.pathParameters['stageId']!,
-                    ),
-                    routes: [
-                      GoRoute(
-                        path: 'class/:classId',
-                        builder: (context, state) => ClassDashboardPage(
-                          serviceId: state.pathParameters['serviceId']!,
-                          stageId: state.pathParameters['stageId']!,
-                          classId: state.pathParameters['classId']!,
-                        ),
-                      ),
-                    ],
-                  ),
-                  GoRoute(
-                    path: 'students',
-                    builder: (context, state) => StudentsPage(serviceId: state.pathParameters['serviceId']!),
-                  ),
-                  GoRoute(
-                    path: 'attendance',
-                    builder: (context, state) => MeetingListPage(serviceId: state.pathParameters['serviceId']!),
-                  ),
-                  GoRoute(
-                    path: 'attendance/class-picker/:meetingId',
-                    builder: (context, state) => AttendanceClassPickerPage(
-                      serviceId: state.pathParameters['serviceId']!,
-                      meetingId: state.pathParameters['meetingId']!,
-                    ),
-                  ),
-                  GoRoute(
-                    path: 'follow-up',
-                    builder: (context, state) => FollowUpHubPage(serviceId: state.pathParameters['serviceId']!),
-                  ),
-                  GoRoute(
-                    path: 'reports',
-                    builder: (context, state) => ReportsPage(serviceId: state.pathParameters['serviceId']!),
-                  ),
-                  GoRoute(
-                    path: 'servants',
-                    builder: (context, state) => ServantManagementPage(serviceId: state.pathParameters['serviceId']!),
-                  ),
-                  GoRoute(
-                    path: 'export',
-                    builder: (context, state) => ExportPage(
-                      serviceId: state.pathParameters['serviceId']!,
-                      classId: state.uri.queryParameters['classId'],
-                    ),
-                  ),
-                  GoRoute(
-                    path: 'graduation',
-                    builder: (context, state) => ExportPage(
-                      serviceId: state.pathParameters['serviceId']!,
-                      graduationOnly: true,
-                    ),
-                  ),
-                  GoRoute(
-                    path: 'settings',
-                    builder: (context, state) => ServiceSettingsPage(serviceId: state.pathParameters['serviceId']!),
-                  ),
-                  GoRoute(
-                    path: 'settings/structure',
-                    builder: (context, state) => StructureSettingsPage(serviceId: state.pathParameters['serviceId']!),
-                  ),
-                  GoRoute(
-                    path: 'settings/system',
-                    builder: (context, state) => SystemSettingsPage(serviceId: state.pathParameters['serviceId']!),
-                  ),
-                  GoRoute(
-                    path: 'attendance/session/:meetingId/:classId',
-                    builder: (context, state) => AttendanceSessionPage(
-                      serviceId: state.pathParameters['serviceId']!,
-                      meetingId: state.pathParameters['meetingId']!,
                       classId: state.pathParameters['classId']!,
-                      recordedBy: state.uri.queryParameters['recordedBy']!,
                     ),
                   ),
                 ],
               ),
+              GoRoute(
+                path: 'students',
+                builder: (context, state) =>
+                    StudentsPage(serviceId: state.pathParameters['serviceId']!),
+              ),
+              GoRoute(
+                path: 'attendance',
+                builder: (context, state) => MeetingListPage(
+                  serviceId: state.pathParameters['serviceId']!,
+                ),
+              ),
+              GoRoute(
+                path: 'attendance/class-picker/:meetingId',
+                builder: (context, state) => AttendanceClassPickerPage(
+                  serviceId: state.pathParameters['serviceId']!,
+                  meetingId: state.pathParameters['meetingId']!,
+                ),
+              ),
+              GoRoute(
+                path: 'follow-up',
+                builder: (context, state) => FollowUpHubPage(
+                  serviceId: state.pathParameters['serviceId']!,
+                ),
+              ),
+              GoRoute(
+                path: 'reports',
+                builder: (context, state) =>
+                    ReportsPage(serviceId: state.pathParameters['serviceId']!),
+              ),
+              GoRoute(
+                path: 'servants',
+                builder: (context, state) => ServantManagementPage(
+                  serviceId: state.pathParameters['serviceId']!,
+                  openAddOnLoad: state.uri.queryParameters['add'] == 'true',
+                ),
+              ),
+              GoRoute(
+                path: 'export',
+                builder: (context, state) => ExportPage(
+                  serviceId: state.pathParameters['serviceId']!,
+                  classId: state.uri.queryParameters['classId'],
+                ),
+              ),
+              GoRoute(
+                path: 'graduation',
+                builder: (context, state) => ExportPage(
+                  serviceId: state.pathParameters['serviceId']!,
+                  graduationOnly: true,
+                ),
+              ),
+              GoRoute(
+                path: 'settings',
+                builder: (context, state) => ServiceSettingsPage(
+                  serviceId: state.pathParameters['serviceId']!,
+                ),
+              ),
+              GoRoute(
+                path: 'settings/structure',
+                builder: (context, state) => StructureSettingsPage(
+                  serviceId: state.pathParameters['serviceId']!,
+                ),
+              ),
+              GoRoute(
+                path: 'settings/system',
+                builder: (context, state) => SystemSettingsPage(
+                  serviceId: state.pathParameters['serviceId']!,
+                ),
+              ),
+              GoRoute(
+                path: 'attendance/session/:meetingId/:classId',
+                builder: (context, state) => AttendanceSessionPage(
+                  serviceId: state.pathParameters['serviceId']!,
+                  meetingId: state.pathParameters['meetingId']!,
+                  classId: state.pathParameters['classId']!,
+                  recordedBy: state.uri.queryParameters['recordedBy']!,
+                ),
+              ),
             ],
           ),
-          GoRoute(
-            path: '/attendance/:meetingId/:classId',
-            builder: (context, state) => AttendanceSessionPage(
-              serviceId: state.uri.queryParameters['serviceId']!,
-              meetingId: state.pathParameters['meetingId']!,
-              classId: state.pathParameters['classId']!,
-              recordedBy: state.uri.queryParameters['recordedBy']!,
-            ),
-          ),
         ],
-      );
-}
-
-class _StartupScreen extends StatelessWidget {
-  const _StartupScreen();
-  @override Widget build(BuildContext context) =>
-      const Scaffold(body: Center(child: CircularProgressIndicator()));
+      ),
+      GoRoute(
+        path: '/attendance/:meetingId/:classId',
+        builder: (context, state) => AttendanceSessionPage(
+          serviceId: state.uri.queryParameters['serviceId']!,
+          meetingId: state.pathParameters['meetingId']!,
+          classId: state.pathParameters['classId']!,
+          recordedBy: state.uri.queryParameters['recordedBy']!,
+        ),
+      ),
+    ],
+  );
 }

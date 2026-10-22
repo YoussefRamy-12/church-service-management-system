@@ -3,9 +3,8 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../domain/entities/service.dart';
 import '../domain/entities/service_class.dart';
 import '../domain/entities/stage.dart';
-import '../domain/repositories/service_repository.dart';
 
-class SupabaseServiceRepository implements ServiceRepository {
+class SupabaseServiceRepository {
   SupabaseServiceRepository(this._client);
 
   final SupabaseClient _client;
@@ -31,12 +30,16 @@ class SupabaseServiceRepository implements ServiceRepository {
     required int meetingWeekday,
     required int meetingMonthDay,
   }) async {
-    final rows = await _client.from('services').update({
-      'meeting_start_time': meetingStartTime,
-      'meeting_frequency': meetingFrequency,
-      'meeting_weekday': meetingWeekday,
-      'meeting_month_day': meetingMonthDay,
-    }).eq('id', serviceId).select('id');
+    final rows = await _client
+        .from('services')
+        .update({
+          'meeting_start_time': meetingStartTime,
+          'meeting_frequency': meetingFrequency,
+          'meeting_weekday': meetingWeekday,
+          'meeting_month_day': meetingMonthDay,
+        })
+        .eq('id', serviceId)
+        .select('id');
     if (rows.isEmpty) throw Exception('Service schedule update was rejected.');
   }
 
@@ -50,11 +53,12 @@ class SupabaseServiceRepository implements ServiceRepository {
         .order('start_date');
   }
 
-  @override
   Future<Service?> getService(String serviceId) async {
     final row = await _client
         .from('services')
-        .select('id, name, church_name, meeting_start_time, meeting_frequency, meeting_weekday, meeting_month_day')
+        .select(
+          'id, name, church_name, meeting_start_time, meeting_frequency, meeting_weekday, meeting_month_day',
+        )
         .eq('id', serviceId)
         .maybeSingle();
 
@@ -71,7 +75,6 @@ class SupabaseServiceRepository implements ServiceRepository {
     );
   }
 
-  @override
   Stream<List<Stage>> watchStages(String serviceId) async* {
     yield await fetchStages(serviceId);
   }
@@ -94,7 +97,6 @@ class SupabaseServiceRepository implements ServiceRepository {
         .toList();
   }
 
-  @override
   Stream<List<ServiceClass>> watchClasses(String stageId) async* {
     yield await fetchClasses(stageId);
   }

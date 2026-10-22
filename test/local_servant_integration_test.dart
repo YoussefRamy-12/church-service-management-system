@@ -62,9 +62,9 @@ void main() {
       ),
     ]);
 
-    final values = await repo.watchForService('service-1').firstWhere(
-      (items) => items.length == 2,
-    );
+    final values = await repo
+        .watchForService('service-1')
+        .firstWhere((items) => items.length == 2);
 
     expect(values.map((item) => item.name), ['Adam', 'Zack']);
   });
@@ -90,54 +90,57 @@ void main() {
       ),
     ]);
 
-    final values = await repo.watchForService('service-1').firstWhere(
-      (items) => items.length == 1,
-    );
+    final values = await repo
+        .watchForService('service-1')
+        .firstWhere((items) => items.length == 1);
 
     expect(values.single.name, 'New Name');
     expect(values.single.role, 'class_leader');
     expect(values.single.classId, 'class-2');
   });
 
-  test('updateProfile changes local profile fields and preserves identity', () async {
-    await repo.cacheProfiles([
-      profile(
-        id: 'servant-1',
-        serviceId: 'service-1',
-        name: 'Peter',
-        role: 'class_servant',
+  test(
+    'updateProfile changes local profile fields and preserves identity',
+    () async {
+      await repo.cacheProfiles([
+        profile(
+          id: 'servant-1',
+          serviceId: 'service-1',
+          name: 'Peter',
+          role: 'class_servant',
+          stageId: 'stage-1',
+          classId: 'class-1',
+        ),
+      ]);
+
+      final updated = await repo.updateProfile(
+        servantId: 'servant-1',
+        name: 'Peter Updated',
+        phone: '01111111111',
+        birthDate: DateTime(2001, 2, 3),
+        workStudy: 'engineer',
+        role: 'stage_leader',
         stageId: 'stage-1',
-        classId: 'class-1',
-      ),
-    ]);
+        classId: null,
+        accountStatus: 'active',
+      );
 
-    final updated = await repo.updateProfile(
-      servantId: 'servant-1',
-      name: 'Peter Updated',
-      phone: '01111111111',
-      birthDate: DateTime(2001, 2, 3),
-      workStudy: 'engineer',
-      role: 'stage_leader',
-      stageId: 'stage-1',
-      classId: null,
-      accountStatus: 'active',
-    );
+      expect(updated.id, 'servant-1');
+      expect(updated.authUserId, 'auth-servant-1');
+      expect(updated.serviceId, 'service-1');
+      expect(updated.name, 'Peter Updated');
+      expect(updated.role, 'stage_leader');
+      expect(updated.classId, isNull);
+      expect(updated.birthDate, DateTime(2001, 2, 3));
 
-    expect(updated.id, 'servant-1');
-    expect(updated.authUserId, 'auth-servant-1');
-    expect(updated.serviceId, 'service-1');
-    expect(updated.name, 'Peter Updated');
-    expect(updated.role, 'stage_leader');
-    expect(updated.classId, isNull);
-    expect(updated.birthDate, DateTime(2001, 2, 3));
-
-    final cached = await repo.watchForService('service-1').firstWhere(
-      (items) => items.length == 1,
-    );
-    expect(cached.single.name, 'Peter Updated');
-    expect(cached.single.phone, '01111111111');
-    expect(cached.single.workStudy, 'engineer');
-  });
+      final cached = await repo
+          .watchForService('service-1')
+          .firstWhere((items) => items.length == 1);
+      expect(cached.single.name, 'Peter Updated');
+      expect(cached.single.phone, '01111111111');
+      expect(cached.single.workStudy, 'engineer');
+    },
+  );
 
   test('updateProfile rejects an unknown servant', () async {
     expect(

@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+
+<html dir="rtl" lang="ar"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_dashboard" name="shell-type"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&amp;family=IBM+Plex+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;font-family:'Cairo','IBM Plex Sans',sans-serif;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { "colors": { "secondary-container": "#fe932c", "inverse-on-surface": "#eaf1ff", "secondary-fixed": "#ffdcc3", "on-surface-variant": "#444651", "on-secondary-container": "#663500", "background": "#f8f9ff", "surface-container": "#e6eeff", "on-error-container": "#93000a", "on-secondary-fixed-variant": "#6e3900", "primary-fixed": "#dce1ff", "error": "#ba1a1a", "on-error": "#ffffff", "on-secondary": "#ffffff", "surface-container-lowest": "#ffffff", "surface-bright": "#f8f9ff", "secondary": "#904d00", "surface-tint": "#4059aa", "inverse-primary": "#b6c4ff", "surface-variant": "#d5e3fc", "outline-variant": "#c5c5d3", "error-container": "#ffdad6", "primary-fixed-dim": "#b6c4ff", "tertiary-container": "#004a32", "inverse-surface": "#233144", "surface": "#f8f9ff", "surface-container-highest": "#d5e3fc", "on-tertiary": "#ffffff", "on-tertiary-fixed": "#002114", "on-primary-fixed-variant": "#264191", "on-tertiary-fixed-variant": "#005137", "on-surface": "#0d1c2e", "on-primary-fixed": "#00164e", "on-background": "#0d1c2e", "outline": "#757682", "primary-container": "#1e3a8a", "primary": "#00236f", "on-primary-container": "#90a8ff", "on-primary": "#ffffff", "tertiary": "#003120", "tertiary-fixed-dim": "#68dba9", "tertiary-fixed": "#85f8c4", "surface-dim": "#ccdbf3", "on-secondary-fixed": "#2f1500", "surface-container-high": "#dce9ff", "secondary-fixed-dim": "#ffb77d", "surface-container-low": "#eff4ff", "on-tertiary-container": "#4ac08f" }, "borderRadius": { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" }, "spacing": { "space-md": "1rem", "margin": "2rem", "space-xl": "2.25rem", "gutter-mobile": "0.75rem", "space-sm": "0.5rem", "margin-mobile": "1rem", "space-lg": "1.5rem", "gutter": "1.25rem", "space-xs": "0.25rem" }, "fontFamily": { "headline-sm": ["IBM Plex Sans"], "label-lg": ["IBM Plex Sans"], "label-sm": ["IBM Plex Sans"], "body-lg": ["IBM Plex Sans"], "body-md": ["IBM Plex Sans"], "label-md": ["IBM Plex Sans"], "display-lg": ["IBM Plex Sans"], "headline-lg-mobile": ["IBM Plex Sans"], "headline-md": ["IBM Plex Sans"], "headline-lg": ["IBM Plex Sans"], "body-sm": ["IBM Plex Sans"] }, "fontSize": { "headline-sm": ["18px", { "lineHeight": "26px", "fontWeight": "600" }], "label-lg": ["14px", { "lineHeight": "20px", "fontWeight": "600" }], "label-sm": ["11px", { "lineHeight": "14px", "fontWeight": "500" }], "body-lg": ["16px", { "lineHeight": "26px", "fontWeight": "400" }], "body-md": ["14px", { "lineHeight": "22px", "fontWeight": "400" }], "label-md": ["12px", { "lineHeight": "16px", "fontWeight": "500" }], "display-lg": ["36px", { "lineHeight": "48px", "fontWeight": "700" }], "headline-lg-mobile": ["22px", { "lineHeight": "30px", "fontWeight": "600" }], "headline-md": ["20px", { "lineHeight": "28px", "fontWeight": "600" }], "headline-lg": ["28px", { "lineHeight": "38px", "fontWeight": "600" }], "body-sm": ["12px", { "lineHeight": "18px", "fontWeight": "400" }] } } } };</script></head><body class="bg-surface text-on-surface antialiased selection:bg-primary-fixed selection:text-on-primary-fixed"><header class="fixed top-0 right-0 left-0 h-16 z-40 bg-surface-container-lowest/90 backdrop-blur-md shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="h-16 w-full px-gutter flex items-center justify-between"><div class="flex items-center gap-space-md"><img alt="Profile" class="w-8 h-8 rounded-full object-cover" src="https://lh3.googleusercontent.com/aida/AEtjO1WwNTRBf6PAy5pTaO3Ndt7Bq7hqBF2NWj0c0i5tVUrZIAIkzx4d8JgonUjg0hJofx4dDESzQQJZ2JFp-qTr6mBDRTnAQgsyPMd9eTCA6LZKLs-pAL2HvFq7LqQwFwxJw7J_vX_pXCywSmrMIEQ4YIeZzR9n77x1-_jDdgKFRkkaiEFKwDlJNnJhHdwRBKkQgvelwnmt_IqjNhcQQA3EPXAOQJxzBSVVzTfdvfRGMehF-2oIOWkC7dUgHiY"/><div class="flex flex-col"><div class="flex items-center gap-space-xs"><span class="font-label-lg text-label-lg text-primary">أسرة تلاميذ المسيح</span><span class="px-space-xs py-0.5 rounded-full bg-surface-container-high text-on-surface text-label-sm font-label-sm">خدمة 5 و 6 ابتدائي بنين</span></div><span class="text-label-sm font-label-sm text-on-surface-variant">كنيسة السيدة العذراء مريم بعياد بك - شبرا</span></div></div><div class="flex items-center gap-space-md"><div class="hidden xl:flex items-center gap-space-xs px-space-sm py-1.5 rounded-lg bg-surface-container-low"><span class="flex h-2 w-2 relative"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-tertiary-fixed-dim opacity-75"></span><span class="relative inline-flex rounded-full h-2 w-2 bg-tertiary"></span></span><span class="font-label-md text-label-md text-tertiary">متصل وخادم سحابي</span><span class="font-body-sm text-body-sm text-on-surface-variant mr-1">• آخر مزامنة منذ دقيقتين</span></div><div class="hidden lg:flex items-center gap-space-xs px-space-sm py-1 rounded-lg bg-surface-container-high"><span class="material-symbols-outlined text-secondary text-base">event_upcoming</span><span class="font-label-sm text-label-sm text-on-surface">اجتماع الجمعة | 3:00 م</span><span class="px-space-xs py-0.5 rounded bg-secondary-fixed text-on-secondary-fixed font-label-sm text-label-sm">حضور مبكر ساري</span></div><button class="relative p-space-xs rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" type="button"><span class="material-symbols-outlined text-xl">notifications</span><span class="absolute top-1 left-1 flex h-4 w-4 items-center justify-center rounded-full bg-error text-on-error text-label-sm font-label-sm">3</span></button><div class="flex items-center gap-space-sm pr-space-sm"><div class="hidden md:flex flex-col text-left"><span class="font-label-md text-label-md text-on-surface">شماس / مينا سمير</span><span class="font-label-sm text-label-sm text-primary">أمين الخدمة العام</span></div><div class="w-8 h-8 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center font-label-md text-label-md font-bold">م.س</div></div></div></div></header><aside class="fixed right-0 top-0 bottom-0 w-72 bg-surface-container-lowest shadow-[0_1px_8px_rgba(0,0,0,0.04)] z-50 flex flex-col justify-between pt-16"><div class="flex flex-col flex-1 overflow-y-auto px-space-sm py-space-md"><div class="px-space-sm pb-space-sm mb-space-sm"><span class="font-label-sm text-label-sm text-outline tracking-wider block">لوحة التحكم الإدارية والخدمية</span></div><nav class="flex flex-col gap-space-xs" data-active-classes="bg-primary-container text-on-primary-container font-bold"><a class="flex items-center justify-between px-space-sm py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all" data-path="dashboard" href="#"><div class="flex items-center gap-space-sm"><span class="material-symbols-outlined text-xl">grid_view</span><span class="font-label-lg text-label-lg">الرئيسية</span></div></a><a class="flex items-center justify-between px-space-sm py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all" data-path="students" href="#"><div class="flex items-center gap-space-sm"><span class="material-symbols-outlined text-xl">groups</span><span class="font-label-lg text-label-lg">التلاميذ</span></div><span class="px-space-xs py-0.5 rounded-full bg-surface-container-high text-on-surface font-label-sm text-label-sm">142</span></a><a class="flex items-center justify-between px-space-sm py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all" data-path="attendance" href="#"><div class="flex items-center gap-space-sm"><span class="material-symbols-outlined text-xl">how_to_reg</span><span class="font-label-lg text-label-lg">تسجيل الحضور</span></div><span class="flex h-2 w-2 rounded-full bg-error animate-pulse"></span></a><a class="flex items-center justify-between px-space-sm py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all" data-path="follow-up" href="#"><div class="flex items-center gap-space-sm"><span class="material-symbols-outlined text-xl">call_log</span><span class="font-label-lg text-label-lg">المتابعة والافتقاد</span></div><span class="px-space-xs py-0.5 rounded bg-error-container text-on-error-container font-label-sm text-label-sm">12 غياب</span></a><a class="flex items-center justify-between px-space-sm py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all" data-path="reports" href="#"><div class="flex items-center gap-space-sm"><span class="material-symbols-outlined text-xl">insights</span><span class="font-label-lg text-label-lg">التقارير والإحصائيات</span></div></a><a class="flex items-center justify-between px-space-sm py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all" data-path="servants" href="#"><div class="flex items-center gap-space-sm"><span class="material-symbols-outlined text-xl">supervised_user_circle</span><span class="font-label-lg text-label-lg">خدام الأسرة</span></div></a><a class="flex items-center justify-between px-space-sm py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all" data-path="approvals" href="#"><div class="flex items-center gap-space-sm"><span class="material-symbols-outlined text-xl">verified_user</span><span class="font-label-lg text-label-lg">الإدارة والاعتمادات</span></div><span class="px-space-xs py-0.5 rounded-full bg-secondary-fixed text-on-secondary-fixed font-label-sm text-label-sm">4 معلقة</span></a></nav></div><div class="p-space-sm flex flex-col gap-space-sm bg-surface-container-low"><div class="flex items-center gap-space-xs px-space-xs py-1 rounded bg-surface-container-lowest"><span class="material-symbols-outlined text-tertiary text-sm">cloud_done</span><span class="font-body-sm text-body-sm text-on-surface-variant">تم حفظ 142 تلميذ محلياً (جاهز دون إنترنت)</span></div><div class="flex items-center justify-between px-space-xs"><span class="font-label-sm text-label-sm text-outline">عرض دور الخادم:</span><span class="font-label-sm text-label-sm text-primary font-bold">أمين خدمة</span></div></div></aside><div class="pr-72"><main class="relative pt-16 bg-surface min-h-screen"><div class="flex flex-col w-full">
+<!-- Pastoral Context Canvas -->
+<div class="p-margin space-y-space-lg">
+<!-- Top Connectivity & Breadcrumb Bar -->
+<div class="flex flex-wrap items-center justify-between gap-space-md">
+<!-- Return Nav / Breadcrumb -->
+<a class="inline-flex items-center gap-space-xs px-space-md py-space-sm rounded-lg bg-surface-container-lowest text-primary shadow-sm hover:bg-surface-container-high transition-all" href="#">
+<span class="material-symbols-outlined text-lg">arrow_forward</span>
+<span class="font-label-lg text-label-lg">العودة لقائمة المتابعة الأسبوعية</span>
+</a>
+<!-- Offline Synced Badge -->
+<div class="inline-flex items-center gap-space-xs px-space-md py-space-xs rounded-full bg-surface-container-low text-tertiary">
+<span class="flex h-2 w-2 relative">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-tertiary-fixed-dim opacity-75"></span>
+<span class="relative inline-flex rounded-full h-2 w-2 bg-tertiary"></span>
+</span>
+<span class="font-label-md text-label-md">متصل • يتم الحفظ والمزامنة تلقائيًا (يعمل دون إنترنت بنسبة 100%)</span>
+</div>
+</div>
+<!-- Pre-Selected Student Hero Card (Fixed Identity Banner) -->
+<div class="rounded-xl bg-surface-container-lowest p-space-lg shadow-sm">
+<div class="flex flex-col lg:flex-row lg:items-center justify-between gap-space-lg">
+<!-- Student Identity Group -->
+<div class="flex items-start md:items-center gap-space-md">
+<div class="relative flex-shrink-0">
+<img class="w-20 h-20 rounded-xl object-cover shadow-sm" data-alt="Close-up portrait of a cheerful 11-year-old Egyptian Coptic Christian boy wearing a warm navy crewneck in a gentle indoor daylight church meeting room setting, with warm natural light and calm authentic expression." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBYH-8Qzb9_cyC9iVytseYPIYlcbNMtZ-Fhj9MI6n56W2xfoYb-6pW0Zq0bsgvx_DAFbI3lGjkUUv3vmH1YyWY5THk2PwX5cMuID3KAn82vcTYxn7x3nVgg774RZpaDFu3cz9fJApCh8_y9dh1Tr2nbhT5O2TRwF5SdMCvb6T0JIq3a762laYZRuR3-rO4el0eWaNyxQ_oUMAV6XzclOcRyFPQSdT3Q6vkHSklicf188k7kcY1pPJJ-"/>
+<span class="absolute -bottom-1 -left-1 p-1 rounded-full bg-error text-on-error flex items-center justify-center shadow" title="غياب متكرر عاجل">
+<span class="material-symbols-outlined text-sm">priority_high</span>
+</span>
+</div>
+<div class="flex flex-col gap-1 min-w-0">
+<div class="flex flex-wrap items-center gap-space-xs">
+<span class="font-headline-lg text-headline-lg text-on-surface">أبانوب وحيد رزق</span>
+<span class="px-space-xs py-0.5 rounded-md bg-surface-container-high text-primary font-label-sm text-label-sm">تلميذ محدد تلقائيًا</span>
+</div>
+<div class="flex flex-wrap items-center gap-y-1 gap-x-space-md text-on-surface-variant">
+<span class="inline-flex items-center gap-1 font-body-md text-body-md">
+<span class="material-symbols-outlined text-base text-outline">school</span>
+                فصل 5/2 (الأنبا أنطونيوس)
+              </span>
+<span class="inline-flex items-center gap-1 font-body-md text-body-md">
+<span class="material-symbols-outlined text-base text-outline">supervisor_account</span>
+                خادم الفصل المسؤول: <strong class="text-on-surface font-label-md text-label-md">أ. أندرو عادل</strong>
+</span>
+</div>
+</div>
+</div>
+<!-- Pastoral Critical Metrics & Status Indicators -->
+<div class="grid grid-cols-1 sm:grid-cols-3 gap-space-sm bg-surface-container-low p-space-md rounded-xl">
+<div class="flex flex-col gap-0.5 px-space-sm">
+<span class="font-label-sm text-label-sm text-outline">نسبة الغياب الحالية</span>
+<div class="flex items-baseline gap-1">
+<span class="font-headline-md text-headline-md text-error">42%</span>
+<span class="font-label-sm text-label-sm text-error-container bg-error px-1.5 py-0.2 rounded-full">الأعلى غياباً</span>
+</div>
+<span class="font-body-sm text-body-sm text-error">يحتاج رعاية وافتقاد عاجل</span>
+</div>
+<div class="flex flex-col gap-0.5 px-space-sm border-r border-transparent">
+<span class="font-label-sm text-label-sm text-outline">نسبة الحضور التراكمي</span>
+<div class="flex items-baseline gap-1">
+<span class="font-headline-md text-headline-md text-primary">58%</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">من إجمالي الاجتماعات</span>
+</div>
+<span class="font-body-sm text-body-sm text-tertiary">حضر 7 من 12 أسبوعاً</span>
+</div>
+<div class="flex flex-col gap-0.5 px-space-sm bg-error-container/40 p-space-xs rounded-lg">
+<span class="font-label-sm text-label-sm text-on-error-container">تنبيه الانقطاع</span>
+<div class="flex items-center gap-1 text-on-error-container">
+<span class="material-symbols-outlined text-lg">event_busy</span>
+<span class="font-label-lg text-label-lg">غائب منذ 3 أسابيع</span>
+</div>
+<span class="font-body-sm text-body-sm text-on-error-container">آخر تواجد: الجمعة 3 أكتوبر</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Main Content Dual Grid: Follow-up Form + Historical Pastoral Log -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-space-lg items-start">
+<!-- Form Container (Left/Main in RTL) -->
+<section class="lg:col-span-8 bg-surface-container-lowest p-space-xl rounded-xl shadow-sm space-y-space-lg">
+<!-- Form Section Heading -->
+<div class="flex items-center justify-between pb-space-sm">
+<div class="flex items-center gap-space-sm">
+<span class="material-symbols-outlined text-2xl text-primary-container">assignment_add</span>
+<div>
+<h1 class="font-headline-sm text-headline-sm text-on-surface">تسجيل بيانات المتابعة الأسبوعية</h1>
+<p class="font-body-sm text-body-sm text-on-surface-variant">توثيق المكالمة والظروف الأسرية وتعهدات التلميذ للرعاية المستمرة</p>
+</div>
+</div>
+<span class="px-space-sm py-0.5 rounded-full bg-secondary-fixed text-on-secondary-fixed font-label-sm text-label-sm">مرحلة 5 و 6 ابتدائي</span>
+</div>
+<form class="space-y-space-lg" id="followUpForm" onsubmit="event.preventDefault();">
+<!-- Date Field -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-space-md">
+<div class="flex flex-col gap-space-xs">
+<label class="font-label-md text-label-md text-on-surface flex items-center gap-1" for="followUpDate">
+<span class="material-symbols-outlined text-sm text-primary">calendar_month</span>
+                تاريخ المتابعة
+              </label>
+<div class="relative">
+<input class="w-full bg-surface-container-low px-space-md py-space-sm rounded-lg font-body-md text-body-md text-on-surface focus:outline-none focus:ring-2 focus:ring-primary focus:bg-surface-container-lowest transition-all" id="followUpDate" type="text" value="الجمعة 24 أكتوبر 2025"/>
+<span class="material-symbols-outlined absolute left-3 top-3 text-outline pointer-events-none text-lg">event</span>
+</div>
+</div>
+<!-- Pre-assigned Servant -->
+<div class="flex flex-col gap-space-xs">
+<label class="font-label-md text-label-md text-on-surface flex items-center gap-1">
+<span class="material-symbols-outlined text-sm text-primary">person_check</span>
+                القائم بالمتابعة
+              </label>
+<div class="w-full bg-surface-container-low px-space-md py-space-sm rounded-lg font-body-md text-body-md text-on-surface-variant flex items-center justify-between">
+<span>أ. أندرو عادل (خادم الفصل)</span>
+<span class="font-label-sm text-label-sm text-outline">مسجل بالنظام</span>
+</div>
+</div>
+</div>
+<!-- Contact Status Radios (Toggle Card) -->
+<div class="flex flex-col gap-space-xs">
+<span class="font-label-md text-label-md text-on-surface">حالة التواصل</span>
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-space-md">
+<label class="relative flex items-center gap-space-sm p-space-md rounded-xl bg-surface-container-low hover:bg-surface-container transition cursor-pointer has-[:checked]:bg-primary-fixed/40">
+<input checked="" class="w-4 h-4 text-primary focus:ring-primary" id="statusSuccess" name="contactStatus" onchange="toggleContactMethodVisibility()" type="radio" value="reached"/>
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-tertiary">check_circle</span>
+<span class="font-label-lg text-label-lg text-on-surface">تم التواصل بنجاح</span>
+</div>
+</label>
+<label class="relative flex items-center gap-space-sm p-space-md rounded-xl bg-surface-container-low hover:bg-surface-container transition cursor-pointer has-[:checked]:bg-error-container/50">
+<input class="w-4 h-4 text-error focus:ring-error" id="statusFailed" name="contactStatus" onchange="toggleContactMethodVisibility()" type="radio" value="unreached"/>
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-error">phone_disabled</span>
+<span class="font-label-lg text-label-lg text-on-surface">لم يتم التواصل (تعذر الوصول)</span>
+</div>
+</label>
+</div>
+</div>
+<!-- Contact Method Options (Dynamic based on successful contact) -->
+<div class="flex flex-col gap-space-xs" id="contactMethodSection">
+<span class="font-label-md text-label-md text-on-surface">طريقة التواصل المنفذة</span>
+<div class="grid grid-cols-1 sm:grid-cols-3 gap-space-sm">
+<label class="flex items-center justify-center gap-2 p-space-sm rounded-lg bg-surface-container-low cursor-pointer hover:bg-surface-container transition has-[:checked]:bg-primary-container has-[:checked]:text-on-primary">
+<input checked="" class="hidden" name="contactMethod" type="radio" value="phone"/>
+<span class="material-symbols-outlined text-lg">call</span>
+<span class="font-label-md text-label-md">مكالمة هاتفية</span>
+</label>
+<label class="flex items-center justify-center gap-2 p-space-sm rounded-lg bg-surface-container-low cursor-pointer hover:bg-surface-container transition has-[:checked]:bg-primary-container has-[:checked]:text-on-primary">
+<input class="hidden" name="contactMethod" type="radio" value="whatsapp"/>
+<span class="material-symbols-outlined text-lg">chat</span>
+<span class="font-label-md text-label-md">واتساب</span>
+</label>
+<label class="flex items-center justify-center gap-2 p-space-sm rounded-lg bg-surface-container-low cursor-pointer hover:bg-surface-container transition has-[:checked]:bg-primary-container has-[:checked]:text-on-primary">
+<input class="hidden" name="contactMethod" type="radio" value="visit"/>
+<span class="material-symbols-outlined text-lg">home_pin</span>
+<span class="font-label-md text-label-md">مقابلة شخصية</span>
+</label>
+</div>
+</div>
+<!-- Reason for Absence -->
+<div class="flex flex-col gap-space-xs">
+<div class="flex items-center justify-between">
+<label class="font-label-md text-label-md text-on-surface" for="absenceReason">سبب الغياب المذكور</label>
+<span class="font-label-sm text-label-sm text-outline">اكتب السبب أو اختر من الأمثلة</span>
+</div>
+<textarea class="w-full bg-surface-container-low p-space-md rounded-lg font-body-md text-body-md text-on-surface placeholder:text-outline focus:outline-none focus:ring-2 focus:ring-primary focus:bg-surface-container-lowest transition-all" id="absenceReason" placeholder="مثال: ظروف دراسية وامتحانات شهرية، سفر عائلي، وعكة صحية، مواعيد تمرين رياضي..." rows="2">ظروف امتحانات الشهر وتعارض مواعيد الدروس الخصوصية في مادة الرياضيات يوم الجمعة صباحاً.</textarea>
+</div>
+<!-- Student & Parent Responses (Side-by-side or stacked on mobile) -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-space-md">
+<!-- Student Response -->
+<div class="flex flex-col gap-space-xs">
+<label class="font-label-md text-label-md text-on-surface flex items-center gap-1" for="studentResponse">
+<span class="material-symbols-outlined text-sm text-primary">face</span>
+                رد التلميذ (أبانوب)
+              </label>
+<textarea class="w-full bg-surface-container-low p-space-md rounded-lg font-body-md text-body-md text-on-surface placeholder:text-outline focus:outline-none focus:ring-2 focus:ring-primary focus:bg-surface-container-lowest transition-all" id="studentResponse" placeholder="ماذا قال التلميذ في المكالمة؟" rows="3">مشتاق للاجتماع والألحان مع الشماس، ووعد بالقداس والحضور الجمعة القادمة مبكراً لتسليم طقس رفع بخور عشية.</textarea>
+</div>
+<!-- Parent Response -->
+<div class="flex flex-col gap-space-xs">
+<label class="font-label-md text-label-md text-on-surface flex items-center gap-1" for="parentResponse">
+<span class="material-symbols-outlined text-sm text-primary">family_restroom</span>
+                رد ولي الأمر (الأم / الأب)
+              </label>
+<textarea class="w-full bg-surface-container-low p-space-md rounded-lg font-body-md text-body-md text-on-surface placeholder:text-outline focus:outline-none focus:ring-2 focus:ring-primary focus:bg-surface-container-lowest transition-all" id="parentResponse" placeholder="موقف وملاحظات ولي الأمر..." rows="3">تحدثت مع والدته (تريزة) وأكدت حرصها الشديد على نزوله مع الخادم والتنسيق لتغيير ميعاد درس الحساب ليكون السبت.</textarea>
+</div>
+</div>
+<!-- Action Required (الإجراء المطلوب) -->
+<div class="flex flex-col gap-space-xs">
+<label class="font-label-md text-label-md text-on-surface flex items-center gap-1" for="actionRequired">
+<span class="material-symbols-outlined text-sm text-secondary">task_alt</span>
+              الإجراء المطلوب والمكلف به
+            </label>
+<input class="w-full bg-surface-container-low px-space-md py-space-sm rounded-lg font-body-md text-body-md text-on-surface placeholder:text-outline focus:outline-none focus:ring-2 focus:ring-primary focus:bg-surface-container-lowest transition-all" id="actionRequired" placeholder="مثال: تذكير يوم الخميس هاتفياً، التنسيق لزيارة منزلية، متابعة مع أب الاعتراف..." type="text" value="تذكير هاتفياً مساء الخميس + التنسيق مع الخادم المساعد لمروره عليه صباح الجمعة"/>
+</div>
+<!-- Additional Notes -->
+<div class="flex flex-col gap-space-xs">
+<label class="font-label-md text-label-md text-on-surface" for="additionalNotes">ملاحظات رعوية إضافية (خاصة بأمين الخدمة والخادم)</label>
+<textarea class="w-full bg-surface-container-low p-space-md rounded-lg font-body-md text-body-md text-on-surface placeholder:text-outline focus:outline-none focus:ring-2 focus:ring-primary focus:bg-surface-container-lowest transition-all" id="additionalNotes" placeholder="أي تفاصيل خاصة بروحية التلميذ، مواظبته على الاعتراف، علاقته بزملائه بالفصل..." rows="2">الولد متفاعل نفسياً بشكل جيد وسبب غيابه ليس النفور بل ضغط الدروس. يحتاج تشجيع بهدية رمزية عند حضوره القادم.</textarea>
+</div>
+<!-- Next Follow-up Toggle Card -->
+<div class="p-space-md rounded-xl bg-surface-container-low space-y-space-sm">
+<div class="flex items-center justify-between">
+<label class="flex items-center gap-space-sm cursor-pointer">
+<input checked="" class="w-5 h-5 rounded text-primary focus:ring-primary" id="nextFollowUpToggle" onchange="toggleNextDateField()" type="checkbox"/>
+<div class="flex flex-col">
+<span class="font-label-lg text-label-lg text-on-surface">نعم، الحالة تحتاج متابعة أخرى</span>
+<span class="font-body-sm text-body-sm text-on-surface-variant">جدولة تذكير آلي في جدول متابعات الخدام</span>
+</div>
+</label>
+<span class="material-symbols-outlined text-secondary text-xl">event_repeat</span>
+</div>
+<!-- Datepicker if checked -->
+<div class="pt-space-xs" id="nextDateContainer">
+<label class="font-label-md text-label-md text-on-surface block mb-1" for="nextDateInput">تاريخ المتابعة القادمة المقترح</label>
+<div class="relative w-full max-w-sm">
+<input class="w-full bg-surface-container-lowest px-space-md py-space-sm rounded-lg font-body-md text-body-md text-on-surface focus:outline-none focus:ring-2 focus:ring-primary transition-all" id="nextDateInput" type="text" value="الأربعاء 29 أكتوبر 2025"/>
+<span class="material-symbols-outlined absolute left-3 top-3 text-outline pointer-events-none text-lg">calendar_today</span>
+</div>
+</div>
+</div>
+<!-- Permanent Record Reassurance Note -->
+<div class="flex items-start gap-space-sm p-space-sm rounded-lg bg-surface-container-high/60 text-on-surface">
+<span class="material-symbols-outlined text-primary text-xl flex-shrink-0 mt-0.5">verified</span>
+<p class="font-body-sm text-body-sm leading-relaxed">
+<strong>تأكيد توثيق:</strong> عند الحفظ، سيتم إضافة هذا السجل فوراً إلى التاريخ الرعوي الدائم للتلميذ دون مسح أو استبدال المتابعات السابقة، وسيتم تحديث مؤشرات الغياب تلقائيًا.
+            </p>
+</div>
+<!-- Action Buttons Bar -->
+<div class="flex flex-wrap items-center justify-end gap-space-md pt-space-sm">
+<button class="px-space-lg py-space-sm rounded-lg bg-surface-container-low text-on-surface hover:bg-surface-container-high transition-all font-label-lg text-label-lg" type="button">
+              إلغاء والعودة
+            </button>
+<button class="flex items-center gap-space-xs px-space-xl py-space-sm rounded-lg bg-primary-container text-on-primary hover:bg-primary transition-all transform active:scale-95 shadow-sm font-label-lg text-label-lg" id="saveButton" onclick="handleSaveAction()" type="submit">
+<span class="material-symbols-outlined text-lg">save</span>
+<span>حفظ المتابعة</span>
+</button>
+</div>
+</form>
+</section>
+<!-- Side Panel: Pastoral Log & Continuity Preview (Right in Desktop RTL) -->
+<aside class="lg:col-span-4 space-y-space-md">
+<!-- Header for History -->
+<div class="bg-surface-container-lowest p-space-md rounded-xl shadow-sm space-y-space-sm">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-primary text-xl">history_edu</span>
+<h2 class="font-headline-sm text-headline-sm text-on-surface">سجل المتابعات السابقة</h2>
+</div>
+<span class="px-space-xs py-0.5 rounded-full bg-surface-container-high font-label-sm text-label-sm text-on-surface">آخر حالتين</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">
+            سياق رعوي حي لمراجعة تعهدات الأسرة السابقة دون الحاجة للخروج من الشاشة
+          </p>
+</div>
+<!-- History Card 1 (Previous Week) -->
+<div class="bg-surface-container-lowest p-space-md rounded-xl shadow-sm space-y-space-sm">
+<div class="flex items-center justify-between pb-space-xs">
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-sm text-secondary">phone_in_talk</span>
+<span class="font-label-md text-label-md text-on-surface">مكالمة هاتفية</span>
+</div>
+<span class="font-label-sm text-label-sm text-outline">الجمعة 17 أكتوبر 2025</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="px-space-xs py-0.5 rounded bg-error-container text-on-error-container font-label-sm text-label-sm">لم يتم الرد</span>
+<span class="font-body-sm text-body-sm text-outline">بواسطة: أ. أندرو عادل</span>
+</div>
+<div class="bg-surface-container-low p-space-sm rounded-lg space-y-1">
+<p class="font-body-sm text-body-sm text-on-surface">
+<strong>ملاحظة الخادم:</strong> تم الاتصال برقم الأب ورقم الأم مرتين في تمام 5:30 مساءً، الهاتف يرن دون إجابة، وتم إرسال رسالة واتساب للاطمئنان والتذكير بصلاة العشية.
+            </p>
+</div>
+</div>
+<!-- History Card 2 (Two Weeks Ago) -->
+<div class="bg-surface-container-lowest p-space-md rounded-xl shadow-sm space-y-space-sm">
+<div class="flex items-center justify-between pb-space-xs">
+<div class="flex items-center gap-1">
+<span class="material-symbols-outlined text-sm text-tertiary">chat</span>
+<span class="font-label-md text-label-md text-on-surface">محادثة واتساب</span>
+</div>
+<span class="font-label-sm text-label-sm text-outline">الجمعة 10 أكتوبر 2025</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="px-space-xs py-0.5 rounded bg-surface-container-high text-tertiary font-label-sm text-label-sm">تم التواصل بنجاح</span>
+<span class="font-body-sm text-body-sm text-outline">بواسطة: أ. بيشوي كمال</span>
+</div>
+<div class="bg-surface-container-low p-space-sm rounded-lg space-y-1">
+<p class="font-body-sm text-body-sm text-on-surface">
+<strong>سبب الغياب:</strong> وعكة صحية ونزلة برد شديدة منعت أبانوب من الاستيقاظ لخدمة القداس.
+            </p>
+<p class="font-body-sm text-body-sm text-on-surface-variant">
+<strong>رد ولي الأمر:</strong> شكرت الخدام على السؤال ووعدت بحضوره فور تعافيه تماماً.
+            </p>
+</div>
+</div>
+<!-- Family Contact Quick Reference -->
+<div class="bg-surface-container-lowest p-space-md rounded-xl shadow-sm space-y-space-sm">
+<span class="font-label-md text-label-md text-on-surface block">بيانات الاتصال السريعة بالأسرة:</span>
+<div class="flex items-center justify-between p-space-xs rounded-lg hover:bg-surface-container-low transition-colors">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-primary text-base">call</span>
+<span class="font-body-sm text-body-sm text-on-surface">والدة التلميذ (تريزة)</span>
+</div>
+<span class="font-label-sm text-label-sm text-outline font-mono" dir="ltr">0122 345 6789</span>
+</div>
+<div class="flex items-center justify-between p-space-xs rounded-lg hover:bg-surface-container-low transition-colors">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-outline text-base">call</span>
+<span class="font-body-sm text-body-sm text-on-surface">والد التلميذ (وحيد رزق)</span>
+</div>
+<span class="font-label-sm text-label-sm text-outline font-mono" dir="ltr">0100 987 6543</span>
+</div>
+<div class="flex items-center justify-between p-space-xs rounded-lg hover:bg-surface-container-low transition-colors">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-outline text-base">home</span>
+<span class="font-body-sm text-body-sm text-on-surface">العنوان السكني</span>
+</div>
+<span class="font-body-sm text-body-sm text-on-surface truncate max-w-[150px]">شبرا - شارع عياد بك</span>
+</div>
+</div>
+<!-- Liturgical Encouragement Card -->
+<div class="bg-surface-container-low p-space-md rounded-xl space-y-1">
+<span class="font-label-sm text-label-sm text-secondary flex items-center gap-1">
+<span class="material-symbols-outlined text-sm">lightbulb</span>
+            وصية رعوية للخادم
+          </span>
+<p class="font-body-sm text-body-sm text-on-surface-variant leading-relaxed">
+            «أَنَا هُوَ الرَّاعِي الصَّالِحُ، وَالرَّاعِي الصَّالِحُ يَبْذِلُ نَفْسَهُ عَنِ الْخِرَافِ» — المتابعة ليست مجرد حصر غياب، بل افتقاد يربط قلب الصبي بالمذبح وكنيسته.
+          </p>
+</div>
+</aside>
+</div>
+</div>
+</div>
+<script>
+  function toggleContactMethodVisibility() {
+    const successRadio = document.getElementById('statusSuccess');
+    const methodSection = document.getElementById('contactMethodSection');
+    if (successRadio && methodSection) {
+      if (successRadio.checked) {
+        methodSection.classList.remove('opacity-40', 'pointer-events-none');
+      } else {
+        methodSection.classList.add('opacity-40', 'pointer-events-none');
+      }
+    }
+  }
+
+  function toggleNextDateField() {
+    const checkbox = document.getElementById('nextFollowUpToggle');
+    const container = document.getElementById('nextDateContainer');
+    if (checkbox && container) {
+      if (checkbox.checked) {
+        container.classList.remove('hidden');
+      } else {
+        container.classList.add('hidden');
+      }
+    }
+  }
+
+  function handleSaveAction() {
+    const btn = document.getElementById('saveButton');
+    if (!btn) return;
+    const originalHTML = btn.innerHTML;
+    btn.innerHTML = `<span class="material-symbols-outlined text-lg animate-spin">progress_activity</span><span>جارٍ الحفظ والمزامنة...</span>`;
+    btn.disabled = true;
+
+    setTimeout(() => {
+      btn.innerHTML = `<span class="material-symbols-outlined text-lg">check</span><span>تم الحفظ في السجل الرعوي</span>`;
+      btn.classList.remove('bg-primary-container');
+      btn.classList.add('bg-tertiary-container', 'text-on-tertiary-container');
+      
+      setTimeout(() => {
+        btn.innerHTML = originalHTML;
+        btn.disabled = false;
+        btn.classList.add('bg-primary-container');
+        btn.classList.remove('bg-tertiary-container', 'text-on-tertiary-container');
+      }, 2500);
+    }, 700);
+  }
+</script></main></div></body></html>

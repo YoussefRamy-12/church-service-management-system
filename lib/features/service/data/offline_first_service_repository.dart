@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:uuid/uuid.dart';
 
 import '../../../core/database/app_database.dart';
 import '../domain/entities/service.dart';
@@ -21,6 +22,7 @@ class OfflineFirstServiceRepository implements ServiceRepository {
   final SupabaseServiceRepository remote;
   final SyncQueueRepository queue;
 
+  @override
   Future<void> updateMeetingStartTime({
     required String serviceId,
     required String meetingStartTime,
@@ -42,6 +44,7 @@ class OfflineFirstServiceRepository implements ServiceRepository {
     );
   }
 
+  @override
   Future<void> updateMeetingSchedule({
     required String serviceId,
     required String meetingStartTime,
@@ -56,38 +59,45 @@ class OfflineFirstServiceRepository implements ServiceRepository {
       meetingWeekday: meetingWeekday,
       meetingMonthDay: meetingMonthDay,
     );
-    await queue.enqueue(SyncOperation(
-      operationId: 'service-settings-$serviceId',
-      entityType: 'service',
-      operationType: 'update',
-      payloadJson: jsonEncode({
-        'id': serviceId,
-        'meeting_start_time': meetingStartTime,
-        'meeting_frequency': meetingFrequency,
-        'meeting_weekday': meetingWeekday,
-        'meeting_month_day': meetingMonthDay,
-      }),
-    ));
-  }
-
-  Future<void> refreshReportingPeriods(String serviceId) async {
-    final rows = await remote.fetchReportingPeriods(serviceId);
-    await local.cacheReportingPeriods(
-      rows.map((row) => CachedReportingPeriodsCompanion.insert(
-        id: row['id'] as String,
-        serviceId: row['service_id'] as String,
-        name: row['name'] as String,
-        type: row['type'] as String,
-        startDate: row['start_date'] as String,
-        endDate: row['end_date'] as String,
-        cachedAt: DateTime.now(),
-      )).toList(),
+    await queue.enqueue(
+      SyncOperation(
+        operationId: 'service-settings-$serviceId',
+        entityType: 'service',
+        operationType: 'update',
+        payloadJson: jsonEncode({
+          'id': serviceId,
+          'meeting_start_time': meetingStartTime,
+          'meeting_frequency': meetingFrequency,
+          'meeting_weekday': meetingWeekday,
+          'meeting_month_day': meetingMonthDay,
+        }),
+      ),
     );
   }
 
-  Future<List<CachedReportingPeriod>> getReportingPeriods(
-    String serviceId,
-  ) => local.getReportingPeriods(serviceId);
+  @override
+  Future<void> refreshReportingPeriods(String serviceId) async {
+    final rows = await remote.fetchReportingPeriods(serviceId);
+    await local.cacheReportingPeriods(
+      rows
+          .map(
+            (row) => CachedReportingPeriodsCompanion.insert(
+              id: row['id'] as String,
+              serviceId: row['service_id'] as String,
+              name: row['name'] as String,
+              type: row['type'] as String,
+              startDate: row['start_date'] as String,
+              endDate: row['end_date'] as String,
+              cachedAt: DateTime.now(),
+            ),
+          )
+          .toList(),
+    );
+  }
+
+  @override
+  Future<List<CachedReportingPeriod>> getReportingPeriods(String serviceId) =>
+      local.getReportingPeriods(serviceId);
 
   @override
   Future<Service?> getService(String serviceId) async {
@@ -104,18 +114,72 @@ class OfflineFirstServiceRepository implements ServiceRepository {
   }
 
   @override
-  Stream<List<Stage>> watchStages(String serviceId) => local.watchStages(serviceId);
+  Stream<List<Stage>> watchStages(String serviceId) =>
+      local.watchStages(serviceId);
 
   @override
-  Stream<List<ServiceClass>> watchClasses(String stageId) => local.watchClasses(stageId);
+  Stream<List<ServiceClass>> watchClasses(String stageId) =>
+      local.watchClasses(stageId);
 
+  @override
   Future<void> refreshStages(String serviceId) async {
     final values = await remote.fetchStages(serviceId);
     await local.cacheStages(values);
   }
 
+  @override
   Future<void> refreshClasses(String stageId) async {
     final values = await remote.fetchClasses(stageId);
     await local.cacheClasses(values);
+  }
+
+  @override
+  Future<List<Stage>> getStages(String serviceId) => local.getStages(serviceId);
+
+  @override
+  Future<List<ServiceClass>> getClasses(String stageId) =>
+      local.getClasses(stageId);
+
+  @override
+  Future<void> deleteStage(String id) => local.deleteStage(id);
+
+  @override
+  Future<void> deleteClass(String id) => local.deleteClass(id);
+
+  @override
+  Future<void> addReportingPeriod({
+    required String serviceId,
+    required String name,
+    required String type,
+    required String startDate,
+    required String endDate,
+  }) async {
+    final id = const Uuid().v4();
+    await local.cacheReportingPeriods([
+      CachedReportingPeriodsCompanion.insert(
+        id: id,
+        serviceId: serviceId,
+        name: name,
+        type: type,
+        startDate: startDate,
+        endDate: endDate,
+        cachedAt: DateTime.now(),
+      ),
+    ]);
+    await queue.enqueue(
+      SyncOperation(
+        operationId: id,
+        entityType: 'reporting_period',
+        operationType: 'insert',
+        payloadJson: jsonEncode({
+          'id': id,
+          'service_id': serviceId,
+          'name': name,
+          'type': type,
+          'start_date': startDate,
+          'end_date': endDate,
+        }),
+      ),
+    );
   }
 }

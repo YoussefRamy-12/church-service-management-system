@@ -1,6 +1,1 @@
-enum SyncStatus {
-  idle,
-  syncing,
-  offline,
-  error,
-}
+enum SyncStatus { idle, syncing, offline, error }

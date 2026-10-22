@@ -28,7 +28,9 @@ class LocalServantRepository {
             name: profile.name,
             role: profile.role,
             phone: Value(profile.phone),
-            birthDate: Value(profile.birthDate?.toIso8601String().split('T').first),
+            birthDate: Value(
+              profile.birthDate?.toIso8601String().split('T').first,
+            ),
             workStudy: Value(profile.workStudy),
             accountStatus: profile.accountStatus,
             stageId: Value(profile.stageId),
@@ -53,9 +55,9 @@ class LocalServantRepository {
     String? classId,
     required String accountStatus,
   }) async {
-    final row = await (_db.select(_db.cachedProfiles)
-          ..where((t) => t.id.equals(servantId)))
-        .getSingle();
+    final row = await (_db.select(
+      _db.cachedProfiles,
+    )..where((t) => t.id.equals(servantId))).getSingle();
 
     final updated = ServantProfile(
       id: row.id,
@@ -72,7 +74,9 @@ class LocalServantRepository {
       mustChangePassword: row.mustChangePassword,
     );
 
-    await (_db.update(_db.cachedProfiles)..where((t) => t.id.equals(servantId))).write(
+    await (_db.update(
+      _db.cachedProfiles,
+    )..where((t) => t.id.equals(servantId))).write(
       CachedProfilesCompanion(
         name: Value(name),
         phone: Value(phone),
@@ -88,18 +92,24 @@ class LocalServantRepository {
     return updated;
   }
 
+  Future<void> deleteProfile(String servantId) async {
+    await (_db.delete(
+      _db.cachedProfiles,
+    )..where((t) => t.id.equals(servantId))).go();
+  }
+
   ServantProfile _map(CachedProfile row) => ServantProfile(
-        id: row.id,
-        authUserId: row.authUserId,
-        serviceId: row.serviceId,
-        name: row.name,
-        role: row.role,
-        accountStatus: row.accountStatus,
-        phone: row.phone,
-        birthDate: row.birthDate == null ? null : DateTime.parse(row.birthDate!),
-        workStudy: row.workStudy,
-        stageId: row.stageId,
-        classId: row.classId,
-        mustChangePassword: row.mustChangePassword,
-      );
+    id: row.id,
+    authUserId: row.authUserId,
+    serviceId: row.serviceId,
+    name: row.name,
+    role: row.role,
+    accountStatus: row.accountStatus,
+    phone: row.phone,
+    birthDate: row.birthDate == null ? null : DateTime.parse(row.birthDate!),
+    workStudy: row.workStudy,
+    stageId: row.stageId,
+    classId: row.classId,
+    mustChangePassword: row.mustChangePassword,
+  );
 }

@@ -1,0 +1,867 @@
+<!DOCTYPE html>
+
+<html dir="rtl" lang="ar"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_dashboard" name="shell-type"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&amp;family=IBM+Plex+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;font-family:'Cairo','IBM Plex Sans',sans-serif;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { "colors": { "secondary-container": "#fe932c", "inverse-on-surface": "#eaf1ff", "secondary-fixed": "#ffdcc3", "on-surface-variant": "#444651", "on-secondary-container": "#663500", "background": "#f8f9ff", "surface-container": "#e6eeff", "on-error-container": "#93000a", "on-secondary-fixed-variant": "#6e3900", "primary-fixed": "#dce1ff", "error": "#ba1a1a", "on-error": "#ffffff", "on-secondary": "#ffffff", "surface-container-lowest": "#ffffff", "surface-bright": "#f8f9ff", "secondary": "#904d00", "surface-tint": "#4059aa", "inverse-primary": "#b6c4ff", "surface-variant": "#d5e3fc", "outline-variant": "#c5c5d3", "error-container": "#ffdad6", "primary-fixed-dim": "#b6c4ff", "tertiary-container": "#004a32", "inverse-surface": "#233144", "surface": "#f8f9ff", "surface-container-highest": "#d5e3fc", "on-tertiary": "#ffffff", "on-tertiary-fixed": "#002114", "on-primary-fixed-variant": "#264191", "on-tertiary-fixed-variant": "#005137", "on-surface": "#0d1c2e", "on-primary-fixed": "#00164e", "on-background": "#0d1c2e", "outline": "#757682", "primary-container": "#1e3a8a", "primary": "#00236f", "on-primary-container": "#90a8ff", "on-primary": "#ffffff", "tertiary": "#003120", "tertiary-fixed-dim": "#68dba9", "tertiary-fixed": "#85f8c4", "surface-dim": "#ccdbf3", "on-secondary-fixed": "#2f1500", "surface-container-high": "#dce9ff", "secondary-fixed-dim": "#ffb77d", "surface-container-low": "#eff4ff", "on-tertiary-container": "#4ac08f" }, "borderRadius": { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" }, "spacing": { "space-md": "1rem", "margin": "2rem", "space-xl": "2.25rem", "gutter-mobile": "0.75rem", "space-sm": "0.5rem", "margin-mobile": "1rem", "space-lg": "1.5rem", "gutter": "1.25rem", "space-xs": "0.25rem" }, "fontFamily": { "headline-sm": ["IBM Plex Sans"], "label-lg": ["IBM Plex Sans"], "label-sm": ["IBM Plex Sans"], "body-lg": ["IBM Plex Sans"], "body-md": ["IBM Plex Sans"], "label-md": ["IBM Plex Sans"], "display-lg": ["IBM Plex Sans"], "headline-lg-mobile": ["IBM Plex Sans"], "headline-md": ["IBM Plex Sans"], "headline-lg": ["IBM Plex Sans"], "body-sm": ["IBM Plex Sans"] }, "fontSize": { "headline-sm": ["18px", { "lineHeight": "26px", "fontWeight": "600" }], "label-lg": ["14px", { "lineHeight": "20px", "fontWeight": "600" }], "label-sm": ["11px", { "lineHeight": "14px", "fontWeight": "500" }], "body-lg": ["16px", { "lineHeight": "26px", "fontWeight": "400" }], "body-md": ["14px", { "lineHeight": "22px", "fontWeight": "400" }], "label-md": ["12px", { "lineHeight": "16px", "fontWeight": "500" }], "display-lg": ["36px", { "lineHeight": "48px", "fontWeight": "700" }], "headline-lg-mobile": ["22px", { "lineHeight": "30px", "fontWeight": "600" }], "headline-md": ["20px", { "lineHeight": "28px", "fontWeight": "600" }], "headline-lg": ["28px", { "lineHeight": "38px", "fontWeight": "600" }], "body-sm": ["12px", { "lineHeight": "18px", "fontWeight": "400" }] } } } };</script></head><body class="bg-surface text-on-surface antialiased selection:bg-primary-fixed selection:text-on-primary-fixed"><header class="fixed top-0 right-0 left-0 h-16 z-40 bg-surface-container-lowest/90 backdrop-blur-md shadow-[0_1px_8px_rgba(0,0,0,0.04)]"><div class="h-16 w-full px-gutter flex items-center justify-between"><div class="flex items-center gap-space-md"><img alt="Profile" class="w-8 h-8 rounded-full object-cover" src="https://lh3.googleusercontent.com/aida/AEtjO1WwNTRBf6PAy5pTaO3Ndt7Bq7hqBF2NWj0c0i5tVUrZIAIkzx4d8JgonUjg0hJofx4dDESzQQJZ2JFp-qTr6mBDRTnAQgsyPMd9eTCA6LZKLs-pAL2HvFq7LqQwFwxJw7J_vX_pXCywSmrMIEQ4YIeZzR9n77x1-_jDdgKFRkkaiEFKwDlJNnJhHdwRBKkQgvelwnmt_IqjNhcQQA3EPXAOQJxzBSVVzTfdvfRGMehF-2oIOWkC7dUgHiY"/><div class="flex flex-col"><div class="flex items-center gap-space-xs"><span class="font-label-lg text-label-lg text-primary">أسرة تلاميذ المسيح</span><span class="px-space-xs py-0.5 rounded-full bg-surface-container-high text-on-surface text-label-sm font-label-sm">خدمة 5 و 6 ابتدائي بنين</span></div><span class="text-label-sm font-label-sm text-on-surface-variant">كنيسة السيدة العذراء مريم بعياد بك - شبرا</span></div></div><div class="flex items-center gap-space-md"><div class="hidden xl:flex items-center gap-space-xs px-space-sm py-1.5 rounded-lg bg-surface-container-low"><span class="flex h-2 w-2 relative"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-tertiary-fixed-dim opacity-75"></span><span class="relative inline-flex rounded-full h-2 w-2 bg-tertiary"></span></span><span class="font-label-md text-label-md text-tertiary">متصل وخادم سحابي</span><span class="font-body-sm text-body-sm text-on-surface-variant mr-1">• آخر مزامنة منذ دقيقتين</span></div><div class="hidden lg:flex items-center gap-space-xs px-space-sm py-1 rounded-lg bg-surface-container-high"><span class="material-symbols-outlined text-secondary text-base">event_upcoming</span><span class="font-label-sm text-label-sm text-on-surface">اجتماع الجمعة | 3:00 م</span><span class="px-space-xs py-0.5 rounded bg-secondary-fixed text-on-secondary-fixed font-label-sm text-label-sm">حضور مبكر ساري</span></div><button class="relative p-space-xs rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-colors" type="button"><span class="material-symbols-outlined text-xl">notifications</span><span class="absolute top-1 left-1 flex h-4 w-4 items-center justify-center rounded-full bg-error text-on-error text-label-sm font-label-sm">3</span></button><div class="flex items-center gap-space-sm pr-space-sm"><div class="hidden md:flex flex-col text-left"><span class="font-label-md text-label-md text-on-surface">شماس / مينا سمير</span><span class="font-label-sm text-label-sm text-primary">أمين الخدمة العام</span></div><div class="w-8 h-8 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center font-label-md text-label-md font-bold">م.س</div></div></div></div></header><aside class="fixed right-0 top-0 bottom-0 w-72 bg-surface-container-lowest shadow-[0_1px_8px_rgba(0,0,0,0.04)] z-50 flex flex-col justify-between pt-16"><div class="flex flex-col flex-1 overflow-y-auto px-space-sm py-space-md"><div class="px-space-sm pb-space-sm mb-space-sm"><span class="font-label-sm text-label-sm text-outline tracking-wider block">لوحة التحكم الإدارية والخدمية</span></div><nav class="flex flex-col gap-space-xs" data-active-classes="bg-primary-container text-on-primary-container font-bold"><a class="flex items-center justify-between px-space-sm py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all" data-path="dashboard" href="#"><div class="flex items-center gap-space-sm"><span class="material-symbols-outlined text-xl">grid_view</span><span class="font-label-lg text-label-lg">الرئيسية</span></div></a><a class="flex items-center justify-between px-space-sm py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all" data-path="students" href="#"><div class="flex items-center gap-space-sm"><span class="material-symbols-outlined text-xl">groups</span><span class="font-label-lg text-label-lg">التلاميذ</span></div><span class="px-space-xs py-0.5 rounded-full bg-surface-container-high text-on-surface font-label-sm text-label-sm">142</span></a><a class="flex items-center justify-between px-space-sm py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all" data-path="attendance" href="#"><div class="flex items-center gap-space-sm"><span class="material-symbols-outlined text-xl">how_to_reg</span><span class="font-label-lg text-label-lg">تسجيل الحضور</span></div><span class="flex h-2 w-2 rounded-full bg-error animate-pulse"></span></a><a class="flex items-center justify-between px-space-sm py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all" data-path="follow-up" href="#"><div class="flex items-center gap-space-sm"><span class="material-symbols-outlined text-xl">call_log</span><span class="font-label-lg text-label-lg">المتابعة والافتقاد</span></div><span class="px-space-xs py-0.5 rounded bg-error-container text-on-error-container font-label-sm text-label-sm">12 غياب</span></a><a class="flex items-center justify-between px-space-sm py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all" data-path="reports" href="#"><div class="flex items-center gap-space-sm"><span class="material-symbols-outlined text-xl">insights</span><span class="font-label-lg text-label-lg">التقارير والإحصائيات</span></div></a><a class="flex items-center justify-between px-space-sm py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all" data-path="servants" href="#"><div class="flex items-center gap-space-sm"><span class="material-symbols-outlined text-xl">supervised_user_circle</span><span class="font-label-lg text-label-lg">خدام الأسرة</span></div></a><a class="flex items-center justify-between px-space-sm py-space-sm rounded-lg text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface transition-all" data-path="approvals" href="#"><div class="flex items-center gap-space-sm"><span class="material-symbols-outlined text-xl">verified_user</span><span class="font-label-lg text-label-lg">الإدارة والاعتمادات</span></div><span class="px-space-xs py-0.5 rounded-full bg-secondary-fixed text-on-secondary-fixed font-label-sm text-label-sm">4 معلقة</span></a></nav></div><div class="p-space-sm flex flex-col gap-space-sm bg-surface-container-low"><div class="flex items-center gap-space-xs px-space-xs py-1 rounded bg-surface-container-lowest"><span class="material-symbols-outlined text-tertiary text-sm">cloud_done</span><span class="font-body-sm text-body-sm text-on-surface-variant">تم حفظ 142 تلميذ محلياً (جاهز دون إنترنت)</span></div><div class="flex items-center justify-between px-space-xs"><span class="font-label-sm text-label-sm text-outline">عرض دور الخادم:</span><span class="font-label-sm text-label-sm text-primary font-bold">أمين خدمة</span></div></div></aside><div class="pr-72"><main class="relative pt-16 bg-surface min-h-screen"><div class="flex flex-col w-full">
+<div class="p-margin space-y-space-xl">
+<!-- Top Bar & Metrics Overview -->
+<div class="flex flex-col gap-space-lg">
+<div class="flex flex-col lg:flex-row lg:items-center justify-between gap-space-md">
+<div class="space-y-1">
+<div class="flex items-center gap-space-xs text-outline">
+<span class="material-symbols-outlined text-sm">home_work</span>
+<span class="font-label-sm text-label-sm">المنظومة الإدارية والكنسية</span>
+<span class="text-xs">/</span>
+<span class="font-label-sm text-label-sm text-primary font-semibold">شؤون ورعاية الخدام</span>
+</div>
+<div class="flex items-center gap-space-sm">
+<h1 class="font-display-lg text-display-lg text-primary tracking-tight">إدارة الخدام والاعتمادات الرعوية</h1>
+<span class="inline-flex items-center px-space-xs py-0.5 rounded-full bg-secondary-fixed text-on-secondary-fixed font-label-sm text-label-sm font-bold">
+              العام الخدمي 2024 - 2025
+            </span>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant">متابعة شؤون الخدام، تعيين الفصول والمراحل، وتدقيق طلبات الانضمام لأسرة تلاميذ المسيح - كنيسة العذراء بعياد بك</p>
+</div>
+<div class="flex flex-wrap items-center gap-space-sm">
+<button class="inline-flex items-center gap-space-xs px-space-md py-2.5 rounded-lg bg-surface-container-lowest text-on-surface shadow-sm hover:bg-surface-container transition-colors cursor-pointer" type="button">
+<span class="material-symbols-outlined text-lg text-on-surface-variant">print</span>
+<span class="font-label-lg text-label-lg">طباعة دليل الخدام</span>
+</button>
+<button class="inline-flex items-center gap-space-xs px-space-md py-2.5 rounded-lg bg-surface-container-lowest text-on-surface shadow-sm hover:bg-surface-container transition-colors cursor-pointer" type="button">
+<span class="material-symbols-outlined text-lg text-secondary">download</span>
+<span class="font-label-lg text-label-lg">تصدير السجل الكنسي</span>
+</button>
+<button class="inline-flex items-center gap-space-xs px-space-lg py-2.5 rounded-lg bg-primary-container text-on-primary font-bold shadow-md hover:opacity-95 transition-all cursor-pointer transform active:scale-95" onclick="document.getElementById('invite-modal').classList.remove('hidden')" type="button">
+<span class="material-symbols-outlined text-xl">person_add</span>
+<span class="font-label-lg text-label-lg">دعوة / تسجيل خادم جديد +</span>
+</button>
+</div>
+</div>
+<!-- Quick Metrics Cards -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-space-md">
+<div class="p-space-md rounded-xl bg-surface-container-lowest shadow-sm flex items-center justify-between">
+<div class="space-y-1">
+<span class="font-label-md text-label-md text-on-surface-variant">إجمالي الخدام المقيدين</span>
+<div class="flex items-baseline gap-space-xs">
+<span class="font-display-lg text-display-lg text-primary font-bold">18</span>
+<span class="font-label-sm text-label-sm text-outline">خادماً معتمداً</span>
+</div>
+<div class="flex items-center gap-1 text-tertiary">
+<span class="material-symbols-outlined text-xs">verified</span>
+<span class="font-label-sm text-label-sm">جميعهم ببركة الآباء الكهنة</span>
+</div>
+</div>
+<div class="w-12 h-12 rounded-xl bg-surface-container-high flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-2xl">supervised_user_circle</span>
+</div>
+</div>
+<div class="p-space-md rounded-xl bg-surface-container-lowest shadow-sm flex items-center justify-between">
+<div class="space-y-1">
+<span class="font-label-md text-label-md text-on-surface-variant">الخدام النشطون حالياً</span>
+<div class="flex items-baseline gap-space-xs">
+<span class="font-display-lg text-display-lg text-tertiary font-bold">16</span>
+<span class="font-label-sm text-label-sm text-outline">مباشر للخدمة</span>
+</div>
+<div class="flex items-center gap-1 text-on-surface-variant">
+<span class="font-label-sm text-label-sm">2 في إجازة دراسية/عمل مؤقتة</span>
+</div>
+</div>
+<div class="w-12 h-12 rounded-xl bg-surface-container-high flex items-center justify-center text-tertiary">
+<span class="material-symbols-outlined text-2xl">how_to_reg</span>
+</div>
+</div>
+<div class="p-space-md rounded-xl bg-surface-container-lowest shadow-sm flex items-center justify-between">
+<div class="space-y-1">
+<div class="flex items-center gap-space-xs">
+<span class="font-label-md text-label-md text-on-surface-variant">بانتظار الاعتماد والمراجعة</span>
+<span class="flex h-2 w-2 relative">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-secondary opacity-75"></span>
+<span class="relative inline-flex rounded-full h-2 w-2 bg-secondary"></span>
+</span>
+</div>
+<div class="flex items-baseline gap-space-xs">
+<span class="font-display-lg text-display-lg text-secondary font-bold">2</span>
+<span class="font-label-sm text-label-sm text-on-secondary-container">طلبان جديدان</span>
+</div>
+<a class="font-label-sm text-label-sm text-secondary hover:underline flex items-center gap-0.5" href="#pending-approvals">
+<span>مطلوب اعتماد أمين الخدمة</span>
+<span class="material-symbols-outlined text-xs">arrow_left</span>
+</a>
+</div>
+<div class="w-12 h-12 rounded-xl bg-secondary-fixed flex items-center justify-center text-on-secondary-fixed">
+<span class="material-symbols-outlined text-2xl">pending_actions</span>
+</div>
+</div>
+<div class="p-space-md rounded-xl bg-surface-container-lowest shadow-sm flex items-center justify-between">
+<div class="space-y-1">
+<span class="font-label-md text-label-md text-on-surface-variant">فصول مكتملة الخدام</span>
+<div class="flex items-baseline gap-space-xs">
+<span class="font-display-lg text-display-lg text-primary font-bold">5 / 6</span>
+<span class="font-label-sm text-label-sm text-outline">فصول</span>
+</div>
+<div class="flex items-center gap-1 text-error">
+<span class="material-symbols-outlined text-xs">warning</span>
+<span class="font-label-sm text-label-sm">فصل 5/2 يحتاج خادم إضافي</span>
+</div>
+</div>
+<div class="w-12 h-12 rounded-xl bg-surface-container-high flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-2xl">school</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Navigation Tabs -->
+<div class="flex items-center gap-space-xs p-1.5 rounded-xl bg-surface-container-low max-w-fit">
+<button class="px-space-md py-2 rounded-lg bg-surface-container-lowest text-primary font-bold shadow-sm flex items-center gap-space-xs cursor-pointer" type="button">
+<span class="material-symbols-outlined text-lg">group</span>
+<span class="font-label-lg text-label-lg">قائمة الخدام النشطين (16)</span>
+</button>
+<button class="px-space-md py-2 rounded-lg text-on-surface-variant hover:bg-surface-container-lowest/60 hover:text-on-surface transition-all flex items-center gap-space-xs cursor-pointer" type="button">
+<span class="material-symbols-outlined text-lg text-secondary">mark_email_unread</span>
+<span class="font-label-lg text-label-lg">طلبات الاعتماد المعلقة</span>
+<span class="px-1.5 py-0.5 rounded-full bg-secondary-container text-on-secondary-container font-label-sm text-label-sm font-bold">2</span>
+</button>
+<button class="px-space-md py-2 rounded-lg text-on-surface-variant hover:bg-surface-container-lowest/60 hover:text-on-surface transition-all flex items-center gap-space-xs cursor-pointer" type="button">
+<span class="material-symbols-outlined text-lg">schema</span>
+<span class="font-label-lg text-label-lg">توزيع الفصول والمراحل (الهيكل الرعوي)</span>
+</button>
+</div>
+<!-- Section: Pending Approvals (Priority Action Box) -->
+<section class="space-y-space-md" id="pending-approvals">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-sm">
+<div class="w-3 h-6 bg-secondary-container rounded-full"></div>
+<div>
+<h2 class="font-headline-lg text-headline-lg text-on-surface">طلبات تسجيل الخدام المعلقة (تحتاج اعتماد أمين الخدمة)</h2>
+<p class="font-body-sm text-body-sm text-on-surface-variant">يرجى التحقق من المقابلة الشخصية وتزكية أب الاعتراف قبل الموافقة والتعيين الفعلي</p>
+</div>
+</div>
+<span class="px-space-sm py-1 rounded-full bg-secondary-fixed text-on-secondary-fixed font-label-sm text-label-sm font-bold flex items-center gap-1">
+<span class="material-symbols-outlined text-sm">schedule</span>
+          2 في انتظار القرار
+        </span>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-space-md">
+<!-- Approval Card 1 -->
+<div class="p-space-lg rounded-xl bg-surface-container-lowest shadow-sm flex flex-col justify-between space-y-space-md transition-shadow hover:shadow-md">
+<div class="space-y-space-md">
+<div class="flex items-start justify-between gap-space-md">
+<div class="flex items-center gap-space-md">
+<img class="w-14 h-14 rounded-xl object-cover shadow-sm" data-alt="Portrait photo of a friendly young Middle Eastern Christian Coptic man with a neat beard, in an ivory linen shirt, warm church fellowship lighting, sharp focus, serene dignifying expression." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCyEEkW01CS-z02pwOQtCxf_9GkT90U2pWMaMB6v2N2t9xCYCxiryNeApopRyBCYaahJfOUYGnSWj-OWOSpjxdVFW3L_fHLUZE-5MGkwtNALjfuUbomaZ3B30IEov8Qp5u7X8kVMNYSQuFSa5T9Y_btkrDTyaQASYdbITYugKg7T5FPucsz1SxWehTpL13RRtV4HslHxJ_BTfWDQZjumL1s0_DCZmKfWPGXoLQgsss75T7vVp8Wgr6n"/>
+<div>
+<div class="flex items-center gap-space-xs">
+<h3 class="font-headline-sm text-headline-sm text-on-surface">الشماس / أبانوب سامي رزق</h3>
+<span class="px-space-xs py-0.5 rounded bg-surface-container text-primary font-label-sm text-label-sm font-semibold">شماس قارئ</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant flex items-center gap-1">
+<span class="material-symbols-outlined text-xs">calendar_today</span>
+                    تاريخ التسجيل: 20 أكتوبر 2024 (منذ يومين)
+                  </p>
+</div>
+</div>
+<span class="px-space-sm py-1 rounded bg-secondary-fixed text-on-secondary-fixed font-label-sm text-label-sm font-bold">
+                طلب اعتماد خادم جديد
+              </span>
+</div>
+<!-- Details Mosaic -->
+<div class="grid grid-cols-2 gap-space-sm p-space-sm rounded-lg bg-surface-container-low">
+<div class="space-y-0.5">
+<span class="font-label-sm text-label-sm text-outline block">رقم الهاتف:</span>
+<span class="font-label-md text-label-md text-on-surface font-semibold dir-ltr inline-block text-right">0122 456 7890</span>
+</div>
+<div class="space-y-0.5">
+<span class="font-label-sm text-label-sm text-outline block">العمل / التخصص:</span>
+<span class="font-label-md text-label-md text-on-surface font-semibold">مهندس برمجيات (سينيور)</span>
+</div>
+<div class="space-y-0.5">
+<span class="font-label-sm text-label-sm text-outline block">الدور الرعوي المطلوب:</span>
+<span class="font-label-md text-label-md text-primary font-bold">خادم فصل روحي</span>
+</div>
+<div class="space-y-0.5">
+<span class="font-label-sm text-label-sm text-outline block">الفصل المقترح للتعيين:</span>
+<span class="font-label-md text-label-md text-tertiary font-bold">فصل 5/2 (الشهيد أبوسيفين)</span>
+</div>
+</div>
+<div class="flex items-center gap-space-xs text-on-surface-variant">
+<span class="material-symbols-outlined text-sm text-tertiary">check_circle</span>
+<span class="font-body-sm text-body-sm">تم إجراء المقابلة الشخصية بواسطة أمين الخدمة الشماس مينا سمير، ومزكى من القمص أنطونيوس.</span>
+</div>
+</div>
+<!-- Card Actions -->
+<div class="pt-space-sm flex items-center justify-between gap-space-sm">
+<div class="flex items-center gap-space-xs">
+<button class="px-space-md py-2 rounded-lg bg-primary-container text-on-primary font-bold shadow hover:opacity-95 transition-all flex items-center gap-1 cursor-pointer" type="button">
+<span class="material-symbols-outlined text-base">verified</span>
+<span class="font-label-md text-label-md">اعتماد وتعيين الفصل فوراً</span>
+</button>
+<button class="px-space-sm py-2 rounded-lg bg-surface-container text-primary font-semibold hover:bg-surface-container-high transition-colors flex items-center gap-1 cursor-pointer" type="button">
+<span class="material-symbols-outlined text-base">edit</span>
+<span class="font-label-md text-label-md">تعديل الدور</span>
+</button>
+</div>
+<button class="px-space-sm py-2 rounded-lg text-error hover:bg-error-container hover:text-on-error-container transition-colors font-label-md text-label-md font-semibold cursor-pointer" type="button">
+              رفض الطلب
+            </button>
+</div>
+</div>
+<!-- Approval Card 2 -->
+<div class="p-space-lg rounded-xl bg-surface-container-lowest shadow-sm flex flex-col justify-between space-y-space-md transition-shadow hover:shadow-md">
+<div class="space-y-space-md">
+<div class="flex items-start justify-between gap-space-md">
+<div class="flex items-center gap-space-md">
+<img class="w-14 h-14 rounded-xl object-cover shadow-sm" data-alt="Portrait photo of a young Egyptian Coptic university male student smiling gently, wearing clean dark polo shirt, natural warm golden ambient lighting, indoor parish educational hall background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBJK2cARHEe1sA3bnlsKAkhnuQr6ADFu4wpF_rI4XjoJXjPtHnmua1G8t6NvaBA-k-y6tEdUNvW6J8wyuIA0ijEkDEzAzjvl9EN7Mx_0CSX23UHiIFlqwZFU98A4k7-DMzDiTGh-kM2lt8b2QxY9wjBVAB-Sym2i59fAMz2j5Qi8fQsa86jBGYoOGcjyGRQP9BUfGKlcE5h3PU7AChNOGz0UN6YMAVMCodsl5g335kjUFS6NEqNiwdY"/>
+<div>
+<div class="flex items-center gap-space-xs">
+<h3 class="font-headline-sm text-headline-sm text-on-surface">الخادم / كيرلس نادر كمال</h3>
+<span class="px-space-xs py-0.5 rounded bg-surface-container text-secondary font-label-sm text-label-sm font-semibold">خادم متدرب</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant flex items-center gap-1">
+<span class="material-symbols-outlined text-xs">calendar_today</span>
+                    تاريخ التسجيل: 21 أكتوبر 2024 (أمس)
+                  </p>
+</div>
+</div>
+<span class="px-space-sm py-1 rounded bg-secondary-fixed text-on-secondary-fixed font-label-sm text-label-sm font-bold">
+                طلب اعتماد نشاط
+              </span>
+</div>
+<!-- Details Mosaic -->
+<div class="grid grid-cols-2 gap-space-sm p-space-sm rounded-lg bg-surface-container-low">
+<div class="space-y-0.5">
+<span class="font-label-sm text-label-sm text-outline block">رقم الهاتف:</span>
+<span class="font-label-md text-label-md text-on-surface font-semibold dir-ltr inline-block text-right">0109 876 5432</span>
+</div>
+<div class="space-y-0.5">
+<span class="font-label-sm text-label-sm text-outline block">العمل / الكلية:</span>
+<span class="font-label-md text-label-md text-on-surface font-semibold">طالب بكلية هندسة (الفرقة 3)</span>
+</div>
+<div class="space-y-0.5">
+<span class="font-label-sm text-label-sm text-outline block">الدور الرعوي المطلوب:</span>
+<span class="font-label-md text-label-md text-primary font-bold">مساعد خادم نشاط / وسائل إيضاح</span>
+</div>
+<div class="space-y-0.5">
+<span class="font-label-sm text-label-sm text-outline block">الفصل أو التكليف:</span>
+<span class="font-label-md text-label-md text-tertiary font-bold">لجنة الوسائل والمسرح الكنسي</span>
+</div>
+</div>
+<div class="flex items-center gap-space-xs text-on-surface-variant">
+<span class="material-symbols-outlined text-sm text-outline">info</span>
+<span class="font-body-sm text-body-sm">خريج مركز إعداد الخدام بكنائس شبرا الجنوبية دفعة 2024، بتقدير ممتاز.</span>
+</div>
+</div>
+<!-- Card Actions -->
+<div class="pt-space-sm flex items-center justify-between gap-space-sm">
+<div class="flex items-center gap-space-xs">
+<button class="px-space-md py-2 rounded-lg bg-primary-container text-on-primary font-bold shadow hover:opacity-95 transition-all flex items-center gap-1 cursor-pointer" type="button">
+<span class="material-symbols-outlined text-base">verified</span>
+<span class="font-label-md text-label-md">اعتماد وتعيين باللجنة</span>
+</button>
+<button class="px-space-sm py-2 rounded-lg bg-surface-container text-primary font-semibold hover:bg-surface-container-high transition-colors flex items-center gap-1 cursor-pointer" type="button">
+<span class="material-symbols-outlined text-base">edit</span>
+<span class="font-label-md text-label-md">تعديل الدور</span>
+</button>
+</div>
+<button class="px-space-sm py-2 rounded-lg text-error hover:bg-error-container hover:text-on-error-container transition-colors font-label-md text-label-md font-semibold cursor-pointer" type="button">
+              رفض الطلب
+            </button>
+</div>
+</div>
+</div>
+</section>
+<!-- Main Section: Servants Directory & Workspace -->
+<div class="grid grid-cols-1 xl:grid-cols-12 gap-space-lg items-start">
+<!-- Right/Main Column: Servant Table & Filters (8 Cols) -->
+<section class="xl:col-span-8 space-y-space-md">
+<!-- Filters Header -->
+<div class="p-space-md rounded-xl bg-surface-container-lowest shadow-sm space-y-space-md">
+<div class="flex flex-col md:flex-row items-center justify-between gap-space-sm">
+<!-- Search Field -->
+<div class="relative w-full md:w-80">
+<span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-outline">search</span>
+<input class="w-full pl-space-md pr-10 py-2 rounded-lg bg-surface-container-low text-on-surface placeholder:text-outline focus:outline-none focus:bg-surface-container font-body-md text-body-md transition-colors" placeholder="بحث باسم الخادم، الفصل، أو الهاتف..." type="text"/>
+</div>
+<!-- Action Pills -->
+<div class="flex items-center gap-space-xs w-full md:w-auto overflow-x-auto pb-1 md:pb-0">
+<span class="font-label-sm text-label-sm text-outline whitespace-nowrap">تصفية حسب:</span>
+<button class="px-space-sm py-1.5 rounded-lg bg-primary-container text-on-primary font-label-sm text-label-sm font-semibold whitespace-nowrap cursor-pointer">
+                الكل (16)
+              </button>
+<button class="px-space-sm py-1.5 rounded-lg bg-surface-container text-on-surface hover:bg-surface-container-high font-label-sm text-label-sm whitespace-nowrap cursor-pointer">
+                خامسة ابتدائي (8)
+              </button>
+<button class="px-space-sm py-1.5 rounded-lg bg-surface-container text-on-surface hover:bg-surface-container-high font-label-sm text-label-sm whitespace-nowrap cursor-pointer">
+                سادسة ابتدائي (6)
+              </button>
+<button class="px-space-sm py-1.5 rounded-lg bg-surface-container text-on-surface hover:bg-surface-container-high font-label-sm text-label-sm whitespace-nowrap cursor-pointer">
+                أنشطة عامة (2)
+              </button>
+</div>
+</div>
+<!-- Secondary Filters Row -->
+<div class="flex flex-wrap items-center gap-space-sm pt-space-xs text-on-surface-variant font-label-sm text-label-sm">
+<div class="flex items-center gap-1 bg-surface-container-low px-space-sm py-1 rounded">
+<span class="material-symbols-outlined text-xs">badge</span>
+<span>الدور: <strong>جميع الأدوار</strong></span>
+<span class="material-symbols-outlined text-xs">expand_more</span>
+</div>
+<div class="flex items-center gap-1 bg-surface-container-low px-space-sm py-1 rounded">
+<span class="material-symbols-outlined text-xs">check_circle</span>
+<span>الحالة: <strong>النشطون فقط</strong></span>
+<span class="material-symbols-outlined text-xs">expand_more</span>
+</div>
+<div class="flex items-center gap-1 bg-surface-container-low px-space-sm py-1 rounded">
+<span class="material-symbols-outlined text-xs">history</span>
+<span>أقدمية الخدمة: <strong>الكل</strong></span>
+<span class="material-symbols-outlined text-xs">expand_more</span>
+</div>
+<button class="text-primary hover:underline font-label-sm text-label-sm mr-auto cursor-pointer">إعادة تعيين الفلاتر</button>
+</div>
+</div>
+<!-- Servants Table -->
+<div class="rounded-xl bg-surface-container-lowest shadow-sm overflow-hidden">
+<div class="overflow-x-auto">
+<table class="w-full text-right border-collapse">
+<thead>
+<tr class="bg-surface-container-low text-on-surface-variant font-label-md text-label-md">
+<th class="py-space-sm px-space-md">الخادم واللقب الكنسي</th>
+<th class="py-space-sm px-space-md">التواصل المباشر</th>
+<th class="py-space-sm px-space-md">الدور والفصل المسؤول</th>
+<th class="py-space-sm px-space-md">المهنة / الدراسة</th>
+<th class="py-space-sm px-space-md">الحالة</th>
+<th class="py-space-sm px-space-md text-left">إجراءات</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-surface-container font-body-md text-body-md">
+<!-- Row 1: Selected / Highlighted -->
+<tr class="bg-primary/5 hover:bg-surface-container transition-colors cursor-pointer" onclick="updateDrawer('بيشوي كامل حنا', 'أمين أسرة 5 و 6 ابتدائي', 'فصل 6/1 - مارمرقس', 'طبيب بشري - باطنة', '2015 (9 سنوات)', '0122 345 6789')">
+<td class="py-space-md px-space-md">
+<div class="flex items-center gap-space-sm">
+<div class="relative">
+<img class="w-10 h-10 rounded-full object-cover" data-alt="Portrait photo of a mature Coptic Egyptian Christian servant man in early 30s with gentle demeanor, navy blue shirt, soft church library warm interior, high definition." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDzNbgcBH4TCsRfzvViIt-1y9oZO8NA1sN9ZN_Nbbwo_pKr48tdInNrtlNuFPST2-rUrNLP2y4WZMAkhGrfSM_lrAM3GrW8iGx9svy5TcE-K1RBvlhp2RbW9p7Vfx2YqoGAG6-Cy6P0aiPuwp8APgMk_t_U4iQJwag2zaflW2TdMTB--xJQxRTRuLXyMkB6jvBQdfMpbLczcLmhDQSij5_GpbcvE38a9kUlEBkaZBUjzjgk_jtGmoGy"/>
+<span class="absolute bottom-0 right-0 w-3 h-3 rounded-full bg-tertiary border-2 border-surface-container-lowest"></span>
+</div>
+<div>
+<div class="font-headline-sm text-headline-sm text-primary font-bold">أ. د. بيشوي كامل حنا</div>
+<span class="font-label-sm text-label-sm text-outline">شماس دياكون • بالخدمة منذ 2015</span>
+</div>
+</div>
+</td>
+<td class="py-space-md px-space-md">
+<div class="space-y-1">
+<span class="font-label-sm text-label-sm text-on-surface font-semibold dir-ltr inline-block">0122 345 6789</span>
+<div class="flex items-center gap-space-xs">
+<a class="p-1 rounded bg-surface-container-high text-tertiary hover:opacity-80 transition-opacity" href="https://wa.me/201223456789" title="مراسلة واتساب">
+<span class="material-symbols-outlined text-sm">chat</span>
+</a>
+<a class="p-1 rounded bg-surface-container-high text-primary hover:opacity-80 transition-opacity" href="tel:01223456789" title="اتصال هاتفي">
+<span class="material-symbols-outlined text-sm">call</span>
+</a>
+</div>
+</div>
+</td>
+<td class="py-space-md px-space-md">
+<span class="inline-block px-space-xs py-0.5 rounded bg-primary-fixed text-on-primary-fixed font-label-sm text-label-sm font-bold">
+                      أمين أسرة ومرحلة 6
+                    </span>
+<div class="font-body-sm text-body-sm text-on-surface-variant mt-0.5">فصل 6/1 (مارمرقس الرسول)</div>
+</td>
+<td class="py-space-md px-space-md">
+<div class="font-label-md text-label-md text-on-surface">طبيب بشري (مدرس باطنة)</div>
+<span class="font-body-sm text-body-sm text-outline">قصر العيني • دفعة 2014</span>
+</td>
+<td class="py-space-md px-space-md">
+<span class="inline-flex items-center gap-1 px-space-xs py-0.5 rounded-full bg-surface-container text-tertiary font-label-sm text-label-sm font-bold">
+<span class="w-1.5 h-1.5 rounded-full bg-tertiary"></span>
+                      نشط ومواظب
+                    </span>
+</td>
+<td class="py-space-md px-space-md text-left">
+<div class="flex items-center justify-end gap-1">
+<button class="p-1.5 rounded hover:bg-surface-container text-on-surface-variant hover:text-primary transition-colors cursor-pointer" title="تعديل الصلاحيات">
+<span class="material-symbols-outlined text-lg">admin_panel_settings</span>
+</button>
+<button class="p-1.5 rounded hover:bg-surface-container text-on-surface-variant hover:text-secondary transition-colors cursor-pointer" title="خيارات إضافية">
+<span class="material-symbols-outlined text-lg">more_vert</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Row 2 -->
+<tr class="hover:bg-surface-container/60 transition-colors cursor-pointer" onclick="updateDrawer('يوسف نبيل فهيم', 'خادم فصل أول', 'فصل 5/1 - الملاك ميخائيل', 'مهندس ميكانيكا', '2019 (5 سنوات)', '0111 223 3445')">
+<td class="py-space-md px-space-md">
+<div class="flex items-center gap-space-sm">
+<div class="relative">
+<img class="w-10 h-10 rounded-full object-cover" data-alt="Portrait of an energetic young adult Egyptian man with neat hair and glasses, wearing clean casual grey cardigan, welcoming gentle smile in church community youth club." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAKNTalDAcLaOD3Y_l5kL9_PWH216MEsJ21HNLig9ouQJ4jbz2L0wl_q-TECxoquh9O1LcF6iFSWODNTWqP66RiBcalzP5JqyFprd5nt9oa1n8l49734lAhG2xa4YrWo2-0RGR09CjmteOIgwYPa46JhuuhWZGlKaUVfXUf7WAOTumcQ6msONa9y5CR0ZrZwLQu1EyoTjBE6D3aevMm4IEieok33r1lHJdVhi3I8U5eaMnd5A5nHpEI"/>
+<span class="absolute bottom-0 right-0 w-3 h-3 rounded-full bg-tertiary border-2 border-surface-container-lowest"></span>
+</div>
+<div>
+<div class="font-headline-sm text-headline-sm text-on-surface font-semibold">أ. يوسف نبيل فهيم</div>
+<span class="font-label-sm text-label-sm text-outline">شماس إبوذياكون • بالخدمة منذ 2019</span>
+</div>
+</div>
+</td>
+<td class="py-space-md px-space-md">
+<div class="space-y-1">
+<span class="font-label-sm text-label-sm text-on-surface font-semibold dir-ltr inline-block">0111 223 3445</span>
+<div class="flex items-center gap-space-xs">
+<a class="p-1 rounded bg-surface-container text-tertiary hover:opacity-80 transition-opacity" href="https://wa.me/201112233445">
+<span class="material-symbols-outlined text-sm">chat</span>
+</a>
+<a class="p-1 rounded bg-surface-container text-primary hover:opacity-80 transition-opacity" href="tel:01112233445">
+<span class="material-symbols-outlined text-sm">call</span>
+</a>
+</div>
+</div>
+</td>
+<td class="py-space-md px-space-md">
+<span class="inline-block px-space-xs py-0.5 rounded bg-surface-container text-on-surface font-label-sm text-label-sm font-semibold">
+                      خادم فصل أول
+                    </span>
+<div class="font-body-sm text-body-sm text-on-surface-variant mt-0.5">فصل 5/1 (رئيس الملائكة ميخائيل)</div>
+</td>
+<td class="py-space-md px-space-md">
+<div class="font-label-md text-label-md text-on-surface">مهندس ميكانيكا سيارات</div>
+<span class="font-body-sm text-body-sm text-outline">عين شمس • دفعة 2018</span>
+</td>
+<td class="py-space-md px-space-md">
+<span class="inline-flex items-center gap-1 px-space-xs py-0.5 rounded-full bg-surface-container text-tertiary font-label-sm text-label-sm font-bold">
+<span class="w-1.5 h-1.5 rounded-full bg-tertiary"></span>
+                      نشط ومواظب
+                    </span>
+</td>
+<td class="py-space-md px-space-md text-left">
+<div class="flex items-center justify-end gap-1">
+<button class="p-1.5 rounded hover:bg-surface-container text-on-surface-variant hover:text-primary transition-colors cursor-pointer">
+<span class="material-symbols-outlined text-lg">admin_panel_settings</span>
+</button>
+<button class="p-1.5 rounded hover:bg-surface-container text-on-surface-variant hover:text-secondary transition-colors cursor-pointer">
+<span class="material-symbols-outlined text-lg">more_vert</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Row 3: On Leave -->
+<tr class="hover:bg-surface-container/60 transition-colors cursor-pointer" onclick="updateDrawer('أندرو عادل منير', 'خادم فصل', 'فصل 6/2 - الشهيد مارجرجس', 'محاسب مالي', '2021 (3 سنوات)', '0128 901 2345')">
+<td class="py-space-md px-space-md">
+<div class="flex items-center gap-space-sm">
+<div class="relative">
+<img class="w-10 h-10 rounded-full object-cover" data-alt="Portrait photo of a young Coptic man with warm cheerful smile, wearing navy sweater over collared shirt, professional pastoral register environment." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAwZSJbZaaeiplydJrF1gWhk_owzXaO1n_u8BR9GOsEMujTjjV977X7gfngXF9ymQM4bH0vNpWnEEQJsTRilhj3SPDIzeh7IjInSIZY9gvW8k4pQqjq1rf9kkyasyY4YKnIKH5vReGDbsWp6-z0idrxwrbUsWN04nQWLNweXNvLP-JtYo42dyRmWoxsl-QRC84tvQpuQx0WHr8H-7wd_mA_heXd39zt_TJFhfYhYx1LPA0iuPq0VMeL"/>
+<span class="absolute bottom-0 right-0 w-3 h-3 rounded-full bg-secondary-container border-2 border-surface-container-lowest"></span>
+</div>
+<div>
+<div class="font-headline-sm text-headline-sm text-on-surface font-semibold">أ. أندرو عادل منير</div>
+<span class="font-label-sm text-label-sm text-outline">شماس أغنسطس • بالخدمة منذ 2021</span>
+</div>
+</div>
+</td>
+<td class="py-space-md px-space-md">
+<div class="space-y-1">
+<span class="font-label-sm text-label-sm text-on-surface font-semibold dir-ltr inline-block">0128 901 2345</span>
+<div class="flex items-center gap-space-xs">
+<a class="p-1 rounded bg-surface-container text-tertiary hover:opacity-80 transition-opacity" href="https://wa.me/201289012345">
+<span class="material-symbols-outlined text-sm">chat</span>
+</a>
+<a class="p-1 rounded bg-surface-container text-primary hover:opacity-80 transition-opacity" href="tel:01289012345">
+<span class="material-symbols-outlined text-sm">call</span>
+</a>
+</div>
+</div>
+</td>
+<td class="py-space-md px-space-md">
+<span class="inline-block px-space-xs py-0.5 rounded bg-surface-container text-on-surface font-label-sm text-label-sm font-semibold">
+                      خادم فصل وافتقاد
+                    </span>
+<div class="font-body-sm text-body-sm text-on-surface-variant mt-0.5">فصل 6/2 (أمير الشهداء مارجرجس)</div>
+</td>
+<td class="py-space-md px-space-md">
+<div class="font-label-md text-label-md text-on-surface">محاسب قانوني (سفر عمل مؤقت)</div>
+<span class="font-body-sm text-body-sm text-outline">تجارة إنجليزي • دفعة 2020</span>
+</td>
+<td class="py-space-md px-space-md">
+<span class="inline-flex items-center gap-1 px-space-xs py-0.5 rounded-full bg-secondary-fixed text-on-secondary-fixed font-label-sm text-label-sm font-bold">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary"></span>
+                      إذن غياب مؤقت
+                    </span>
+</td>
+<td class="py-space-md px-space-md text-left">
+<div class="flex items-center justify-end gap-1">
+<button class="p-1.5 rounded hover:bg-surface-container text-on-surface-variant hover:text-primary transition-colors cursor-pointer">
+<span class="material-symbols-outlined text-lg">admin_panel_settings</span>
+</button>
+<button class="p-1.5 rounded hover:bg-surface-container text-on-surface-variant hover:text-secondary transition-colors cursor-pointer">
+<span class="material-symbols-outlined text-lg">more_vert</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Row 4 -->
+<tr class="hover:bg-surface-container/60 transition-colors cursor-pointer" onclick="updateDrawer('مينا فايز عطية', 'خادم وسائل وأنشطة', 'لجنة الكورال والموسيقى', 'مدرس تربية موسيقية', '2017 (7 سنوات)', '0120 112 2334')">
+<td class="py-space-md px-space-md">
+<div class="flex items-center gap-space-sm">
+<div class="relative">
+<img class="w-10 h-10 rounded-full object-cover" data-alt="Portrait photo of a focused Middle Eastern Christian man in white shirt holding choir sheet music, soft backlit ambient lighting, peaceful expression." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCgVd89aJG5c_N-zjPBav12qnAD2qdHk97zrM5xoH3SfVaIsOgx7t0QoIj4YeC_SUaacEbzWw2ZJBSvbNN4nENYILv2OB90H_dHQLbSsJCt-X70A7kZQSrfAbF2PWtGOpNANhWkdnNalb6LUDbsb1Twp1uuQw3vxvtxsCyM_fozBGLaO7pnNlmkilkbTwKw2Wr1NNTYKFcSrd4d7C5gqypkLowaxBBmNeUUBLJLBC0cHCbd0pxNTI_t"/>
+<span class="absolute bottom-0 right-0 w-3 h-3 rounded-full bg-tertiary border-2 border-surface-container-lowest"></span>
+</div>
+<div>
+<div class="font-headline-sm text-headline-sm text-on-surface font-semibold">أ. مينا فايز عطية</div>
+<span class="font-label-sm text-label-sm text-outline">شماس إبصالتيس • بالخدمة منذ 2017</span>
+</div>
+</div>
+</td>
+<td class="py-space-md px-space-md">
+<div class="space-y-1">
+<span class="font-label-sm text-label-sm text-on-surface font-semibold dir-ltr inline-block">0120 112 2334</span>
+<div class="flex items-center gap-space-xs">
+<a class="p-1 rounded bg-surface-container text-tertiary hover:opacity-80 transition-opacity" href="https://wa.me/201201122334">
+<span class="material-symbols-outlined text-sm">chat</span>
+</a>
+<a class="p-1 rounded bg-surface-container text-primary hover:opacity-80 transition-opacity" href="tel:01201122334">
+<span class="material-symbols-outlined text-sm">call</span>
+</a>
+</div>
+</div>
+</td>
+<td class="py-space-md px-space-md">
+<span class="inline-block px-space-xs py-0.5 rounded bg-surface-container text-on-surface font-label-sm text-label-sm font-semibold">
+                      مسؤول الكورال والألحان
+                    </span>
+<div class="font-body-sm text-body-sm text-on-surface-variant mt-0.5">أنشطة عامة ولجنة الألحان الكنسية</div>
+</td>
+<td class="py-space-md px-space-md">
+<div class="font-label-md text-label-md text-on-surface">معلم تربية موسيقية وترتيل</div>
+<span class="font-body-sm text-body-sm text-outline">تربية نوعية • دفعة 2016</span>
+</td>
+<td class="py-space-md px-space-md">
+<span class="inline-flex items-center gap-1 px-space-xs py-0.5 rounded-full bg-surface-container text-tertiary font-label-sm text-label-sm font-bold">
+<span class="w-1.5 h-1.5 rounded-full bg-tertiary"></span>
+                      نشط ومواظب
+                    </span>
+</td>
+<td class="py-space-md px-space-md text-left">
+<div class="flex items-center justify-end gap-1">
+<button class="p-1.5 rounded hover:bg-surface-container text-on-surface-variant hover:text-primary transition-colors cursor-pointer">
+<span class="material-symbols-outlined text-lg">admin_panel_settings</span>
+</button>
+<button class="p-1.5 rounded hover:bg-surface-container text-on-surface-variant hover:text-secondary transition-colors cursor-pointer">
+<span class="material-symbols-outlined text-lg">more_vert</span>
+</button>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Table Footer Pagination -->
+<div class="p-space-md bg-surface-container-low flex flex-col sm:flex-row items-center justify-between gap-space-sm">
+<span class="font-body-sm text-body-sm text-on-surface-variant">عرض 1 إلى 4 من إجمالي 16 خادم نشط</span>
+<div class="flex items-center gap-space-xs">
+<button class="px-3 py-1.5 rounded bg-surface-container-lowest text-outline hover:text-on-surface transition-colors cursor-pointer disabled:opacity-40" disabled="">السابق</button>
+<button class="px-3 py-1.5 rounded bg-primary-container text-on-primary font-bold">1</button>
+<button class="px-3 py-1.5 rounded bg-surface-container-lowest text-on-surface hover:bg-surface-container transition-colors cursor-pointer">2</button>
+<button class="px-3 py-1.5 rounded bg-surface-container-lowest text-on-surface hover:bg-surface-container transition-colors cursor-pointer">3</button>
+<button class="px-3 py-1.5 rounded bg-surface-container-lowest text-on-surface hover:bg-surface-container transition-colors cursor-pointer">التالي</button>
+</div>
+</div>
+</div>
+</section>
+<!-- Left Column: Quick Profile Drawer / Card Preview (4 Cols) -->
+<aside class="xl:col-span-4 space-y-space-md">
+<div class="p-space-lg rounded-xl bg-surface-container-lowest shadow-sm space-y-space-md sticky top-20">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-primary">person</span>
+<span class="font-headline-sm text-headline-sm text-on-surface">بطاقة الخادم السريعة</span>
+</div>
+<span class="px-space-xs py-0.5 rounded bg-surface-container text-primary font-label-sm text-label-sm font-semibold">معاينة مباشرة</span>
+</div>
+<!-- Header & Profile Info -->
+<div class="flex flex-col items-center text-center space-y-space-xs pb-space-sm">
+<div class="relative">
+<img class="w-20 h-20 rounded-2xl object-cover shadow" data-alt="Portrait of an esteemed Egyptian Coptic deacon and servant in church setting, professional high resolution profile shot, gentle and inspiring." id="drawer-avatar" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCeItEjU4L4eKJ1US7fLkJMuCQLgieKRJtNcM1nd_aIPq-bFLju-UR2pBeXsEdqJkc13vzSgVIcfmQ3gLu0_udh3SZ8UAphkrYYrJYN-mXOSQ9C3p-Dl77WF8ggAUWgZKbmKssuVTAAMWT6LYqoRFC7nHh-8qzOTA8fng63eimp5RTbUY55GC0DeMM1xerlaWyTD166zKlxMUSJ3mHJ72nolv_X6KPVbfc18oEu9ODsCfpk1h53LiN1"/>
+<span class="absolute -bottom-1 -right-1 p-1 rounded-full bg-tertiary text-on-tertiary flex items-center justify-center">
+<span class="material-symbols-outlined text-xs">verified</span>
+</span>
+</div>
+<h3 class="font-headline-md text-headline-md text-primary font-bold" id="drawer-name">أ. د. بيشوي كامل حنا</h3>
+<span class="px-space-sm py-0.5 rounded-full bg-primary-fixed text-on-primary-fixed font-label-sm text-label-sm font-bold" id="drawer-role">
+              أمين أسرة 5 و 6 ابتدائي
+            </span>
+<p class="font-body-sm text-body-sm text-on-surface-variant" id="drawer-class">فصل 6/1 - مارمرقس الرسول</p>
+</div>
+<!-- Visual Stat: Attendance Ring for Servants Meeting -->
+<div class="p-space-md rounded-xl bg-surface-container-low space-y-space-sm">
+<div class="flex items-center justify-between">
+<span class="font-label-md text-label-md text-on-surface font-semibold">المواظبة على اجتماع الخدام</span>
+<span class="font-label-sm text-label-sm text-tertiary font-bold">95% (ممتاز)</span>
+</div>
+<div class="flex items-center gap-space-md">
+<!-- Inline SVG Progress Ring -->
+<div class="relative w-16 h-16 shrink-0 flex items-center justify-center">
+<svg class="w-16 h-16 transform -rotate-90" viewbox="0 0 36 36">
+<path class="text-surface-container-highest" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" stroke-width="3.5"></path>
+<path class="text-primary-container" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="currentColor" stroke-dasharray="95, 100" stroke-linecap="round" stroke-width="3.5"></path>
+</svg>
+<span class="absolute font-label-md text-label-md font-bold text-primary">19/20</span>
+</div>
+<div class="space-y-1">
+<p class="font-body-sm text-body-sm text-on-surface-variant">حضر 19 اجتماع من أصل 20 اجتماعاً أسبوعياً في الفصل الأخير.</p>
+<div class="flex items-center gap-1 text-tertiary font-label-sm text-label-sm">
+<span class="material-symbols-outlined text-xs">stars</span>
+<span>خادم ملتزم بنظام القداس والاجتماع</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Historic Assignments & Responsibilities -->
+<div class="space-y-space-xs">
+<span class="font-label-sm text-label-sm text-outline uppercase tracking-wider block">سجل المسؤوليات والمهام الرعوية</span>
+<div class="p-space-sm rounded-lg bg-surface-container-lowest space-y-1">
+<div class="flex items-center justify-between">
+<span class="font-label-md text-label-md text-on-surface font-semibold">تلاميذ مسؤول عن افتقادهم</span>
+<span class="font-label-sm text-label-sm text-primary font-bold">14 تلميذ</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">تم إنجاز 12 زيارة منزلية هذا الشهر (نسبة 85%)</p>
+</div>
+<div class="p-space-sm rounded-lg bg-surface-container-lowest space-y-1">
+<div class="flex items-center justify-between">
+<span class="font-label-md text-label-md text-on-surface font-semibold">تاريخ الخدمة بالأسرة</span>
+<span class="font-label-sm text-label-sm text-outline font-semibold" id="drawer-experience">2015 (9 سنوات)</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">خدم سابقاً: فصول 4، 5 ابتدائي، وأمين مساعد للمرحلة</p>
+</div>
+<div class="p-space-sm rounded-lg bg-surface-container-lowest space-y-1">
+<div class="flex items-center justify-between">
+<span class="font-label-md text-label-md text-on-surface font-semibold">أب الاعتراف والتزكية</span>
+<span class="font-label-sm text-label-sm text-tertiary font-semibold">القمص أنطونيوس</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">كنيسة السيدة العذراء مريم - عياد بك</p>
+</div>
+</div>
+<!-- Quick Action Buttons for Servant -->
+<div class="pt-space-sm space-y-space-xs">
+<button class="w-full py-2.5 rounded-lg bg-primary-container text-on-primary font-bold shadow hover:opacity-95 transition-all flex items-center justify-center gap-space-xs cursor-pointer" type="button">
+<span class="material-symbols-outlined text-base">manage_accounts</span>
+<span class="font-label-md text-label-md">فتح الملف الرعوي الشامل للخادم</span>
+</button>
+<div class="grid grid-cols-2 gap-space-xs">
+<button class="py-2 rounded-lg bg-surface-container text-on-surface hover:bg-surface-container-high transition-colors font-label-sm text-label-sm font-semibold flex items-center justify-center gap-1 cursor-pointer" type="button">
+<span class="material-symbols-outlined text-sm">lock_reset</span>
+<span>إعادة ضبط كلمة المرور</span>
+</button>
+<button class="py-2 rounded-lg bg-surface-container text-error hover:bg-error-container hover:text-on-error-container transition-colors font-label-sm text-label-sm font-semibold flex items-center justify-center gap-1 cursor-pointer" type="button">
+<span class="material-symbols-outlined text-sm">pause_circle</span>
+<span>إيقاف مؤقت للخدمة</span>
+</button>
+</div>
+</div>
+</div>
+</aside>
+</div>
+<!-- Quick Classroom Distribution Section (Bottom Visual Mosaic) -->
+<section class="space-y-space-md">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-sm">
+<div class="w-3 h-6 bg-primary rounded-full"></div>
+<div>
+<h2 class="font-headline-lg text-headline-lg text-on-surface">نظرة سريعة على كفاية الخدام بالفصول</h2>
+<p class="font-body-sm text-body-sm text-on-surface-variant">معدل التغطية الرعوية: خادم لكل 8 إلى 10 تلاميذ لضمان جودة الافتقاد</p>
+</div>
+</div>
+<button class="text-primary hover:underline font-label-md text-label-md flex items-center gap-1 cursor-pointer">
+<span>تعديل تشكيل الفصول</span>
+<span class="material-symbols-outlined text-sm">arrow_left</span>
+</button>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-space-sm">
+<!-- Class 1 -->
+<div class="p-space-sm rounded-xl bg-surface-container-lowest shadow-sm space-y-space-xs">
+<div class="flex items-center justify-between">
+<span class="font-label-md text-label-md text-primary font-bold">فصل 5/1</span>
+<span class="material-symbols-outlined text-tertiary text-sm">check_circle</span>
+</div>
+<p class="font-label-sm text-label-sm text-outline">الملاك ميخائيل</p>
+<div class="flex items-center justify-between text-on-surface-variant pt-1 font-body-sm text-body-sm">
+<span>الخدام: <strong>3 خدام</strong></span>
+<span>24 تلميذ</span>
+</div>
+<div class="w-full bg-surface-container rounded-full h-1.5">
+<div class="bg-tertiary h-1.5 rounded-full" style="width: 100%"></div>
+</div>
+</div>
+<!-- Class 2: In need -->
+<div class="p-space-sm rounded-xl bg-surface-container-lowest shadow-sm space-y-space-xs bg-error-container/20">
+<div class="flex items-center justify-between">
+<span class="font-label-md text-label-md text-error font-bold">فصل 5/2</span>
+<span class="material-symbols-outlined text-error text-sm">error</span>
+</div>
+<p class="font-label-sm text-label-sm text-on-surface-variant">الشهيد أبوسيفين</p>
+<div class="flex items-center justify-between text-on-surface-variant pt-1 font-body-sm text-body-sm">
+<span>الخدام: <strong class="text-error">خادم واحد فقط</strong></span>
+<span>22 تلميذ</span>
+</div>
+<div class="w-full bg-surface-container rounded-full h-1.5">
+<div class="bg-error h-1.5 rounded-full" style="width: 50%"></div>
+</div>
+</div>
+<!-- Class 3 -->
+<div class="p-space-sm rounded-xl bg-surface-container-lowest shadow-sm space-y-space-xs">
+<div class="flex items-center justify-between">
+<span class="font-label-md text-label-md text-primary font-bold">فصل 5/3</span>
+<span class="material-symbols-outlined text-tertiary text-sm">check_circle</span>
+</div>
+<p class="font-label-sm text-label-sm text-outline">الأنبا أنطونيوس</p>
+<div class="flex items-center justify-between text-on-surface-variant pt-1 font-body-sm text-body-sm">
+<span>الخدام: <strong>3 خدام</strong></span>
+<span>25 تلميذ</span>
+</div>
+<div class="w-full bg-surface-container rounded-full h-1.5">
+<div class="bg-tertiary h-1.5 rounded-full" style="width: 100%"></div>
+</div>
+</div>
+<!-- Class 4 -->
+<div class="p-space-sm rounded-xl bg-surface-container-lowest shadow-sm space-y-space-xs">
+<div class="flex items-center justify-between">
+<span class="font-label-md text-label-md text-primary font-bold">فصل 6/1</span>
+<span class="material-symbols-outlined text-tertiary text-sm">check_circle</span>
+</div>
+<p class="font-label-sm text-label-sm text-outline">مارمرقس الرسول</p>
+<div class="flex items-center justify-between text-on-surface-variant pt-1 font-body-sm text-body-sm">
+<span>الخدام: <strong>3 خدام</strong></span>
+<span>26 تلميذ</span>
+</div>
+<div class="w-full bg-surface-container rounded-full h-1.5">
+<div class="bg-tertiary h-1.5 rounded-full" style="width: 100%"></div>
+</div>
+</div>
+<!-- Class 5 -->
+<div class="p-space-sm rounded-xl bg-surface-container-lowest shadow-sm space-y-space-xs">
+<div class="flex items-center justify-between">
+<span class="font-label-md text-label-md text-primary font-bold">فصل 6/2</span>
+<span class="material-symbols-outlined text-tertiary text-sm">check_circle</span>
+</div>
+<p class="font-label-sm text-label-sm text-outline">مارجرجس الروماني</p>
+<div class="flex items-center justify-between text-on-surface-variant pt-1 font-body-sm text-body-sm">
+<span>الخدام: <strong>2 خدام</strong></span>
+<span>21 تلميذ</span>
+</div>
+<div class="w-full bg-surface-container rounded-full h-1.5">
+<div class="bg-tertiary h-1.5 rounded-full" style="width: 80%"></div>
+</div>
+</div>
+<!-- Class 6 -->
+<div class="p-space-sm rounded-xl bg-surface-container-lowest shadow-sm space-y-space-xs">
+<div class="flex items-center justify-between">
+<span class="font-label-md text-label-md text-primary font-bold">فصل 6/3</span>
+<span class="material-symbols-outlined text-tertiary text-sm">check_circle</span>
+</div>
+<p class="font-label-sm text-label-sm text-outline">البابا كيرلس السادس</p>
+<div class="flex items-center justify-between text-on-surface-variant pt-1 font-body-sm text-body-sm">
+<span>الخدام: <strong>3 خدام</strong></span>
+<span>24 تلميذ</span>
+</div>
+<div class="w-full bg-surface-container rounded-full h-1.5">
+<div class="bg-tertiary h-1.5 rounded-full" style="width: 100%"></div>
+</div>
+</div>
+</div>
+</section>
+</div>
+<!-- Modal: Invite / Register New Servant (Hidden by default) -->
+<div class="fixed inset-0 z-50 bg-inverse-surface/40 backdrop-blur-sm flex items-center justify-center p-space-md hidden" id="invite-modal">
+<div class="bg-surface-container-lowest rounded-2xl shadow-xl w-full max-w-xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+<div class="p-space-lg bg-surface-container-low flex items-center justify-between">
+<div class="flex items-center gap-space-sm">
+<div class="w-10 h-10 rounded-xl bg-primary-container text-on-primary flex items-center justify-center">
+<span class="material-symbols-outlined text-xl">person_add</span>
+</div>
+<div>
+<h3 class="font-headline-sm text-headline-sm text-on-surface">إضافة أو دعوة خادم جديد للأسرة</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">كنيسة السيدة العذراء مريم بعياد بك - شبرا</p>
+</div>
+</div>
+<button class="p-1 rounded-lg text-outline hover:text-on-surface hover:bg-surface-container transition-colors cursor-pointer" onclick="document.getElementById('invite-modal').classList.add('hidden')" type="button">
+<span class="material-symbols-outlined text-xl">close</span>
+</button>
+</div>
+<form class="p-space-lg space-y-space-md" onsubmit="event.preventDefault(); document.getElementById('invite-modal').classList.add('hidden');">
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-space-md">
+<div class="space-y-1">
+<label class="font-label-md text-label-md text-on-surface font-semibold block">الاسم الثلاثي أو الرباعي *</label>
+<input class="w-full px-space-md py-2 rounded-lg bg-surface-container-low text-on-surface font-body-md text-body-md focus:outline-none focus:bg-surface-container" placeholder="مثال: يوحنا سمير غالي" required="" type="text"/>
+</div>
+<div class="space-y-1">
+<label class="font-label-md text-label-md text-on-surface font-semibold block">رقم الهاتف المحمول (واتساب) *</label>
+<input class="w-full px-space-md py-2 rounded-lg bg-surface-container-low text-on-surface font-body-md text-body-md text-right dir-ltr focus:outline-none focus:bg-surface-container" placeholder="01xxxxxxxxx" required="" type="tel"/>
+</div>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-space-md">
+<div class="space-y-1">
+<label class="font-label-md text-label-md text-on-surface font-semibold block">الرتبة الشماسية</label>
+<select class="w-full px-space-md py-2 rounded-lg bg-surface-container-low text-on-surface font-body-md text-body-md focus:outline-none focus:bg-surface-container">
+<option>شماس إبصالتيس (مرتل)</option>
+<option>شماس أغنسطس (قارئ)</option>
+<option>شماس إبوذياكون (مساعد شماس)</option>
+<option>شماس دياكون (شماس كامل)</option>
+<option>بدون رتبة شماسية بعد</option>
+</select>
+</div>
+<div class="space-y-1">
+<label class="font-label-md text-label-md text-on-surface font-semibold block">أب الاعتراف الكنسي *</label>
+<input class="w-full px-space-md py-2 rounded-lg bg-surface-container-low text-on-surface font-body-md text-body-md focus:outline-none focus:bg-surface-container" placeholder="اسم الأب الكاهن والكنيسة" required="" type="text"/>
+</div>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-space-md">
+<div class="space-y-1">
+<label class="font-label-md text-label-md text-on-surface font-semibold block">الدور الرعوي المقترح</label>
+<select class="w-full px-space-md py-2 rounded-lg bg-surface-container-low text-on-surface font-body-md text-body-md focus:outline-none focus:bg-surface-container">
+<option>خادم فصل روحي وافتقاد</option>
+<option>مساعد خادم فصل (متدرب)</option>
+<option>مسؤول أنشطة ووسائل إيضاح</option>
+<option>مسؤول ألحان وكورال</option>
+<option>مسؤول متابعة إدارية وغياب</option>
+</select>
+</div>
+<div class="space-y-1">
+<label class="font-label-md text-label-md text-on-surface font-semibold block">الفصل المقترح للتعيين</label>
+<select class="w-full px-space-md py-2 rounded-lg bg-surface-container-low text-on-surface font-body-md text-body-md focus:outline-none focus:bg-surface-container">
+<option>فصل 5/2 (أبوسيفين) - بحاجة عاجلة</option>
+<option>فصل 5/1 (الملاك ميخائيل)</option>
+<option>فصل 5/3 (الأنبا أنطونيوس)</option>
+<option>فصل 6/1 (مارمرقس)</option>
+<option>فصل 6/2 (مارجرجس)</option>
+<option>فصل 6/3 (البابا كيرلس)</option>
+<option>لجنة عامة مركزية</option>
+</select>
+</div>
+</div>
+<div class="p-space-sm rounded-lg bg-surface-container-low flex items-start gap-space-xs text-on-surface-variant">
+<span class="material-symbols-outlined text-secondary text-base mt-0.5">info</span>
+<p class="font-body-sm text-body-sm">
+            بإرسال هذا النموذج، سيتم إرسال رابط تأكيد وتعبئة البيانات الشخصية وشهادة إعداد الخدام للخادم عبر رسالة واتساب، ويظهر في قائمة الاعتمادات للموافقة النهائية.
+          </p>
+</div>
+<div class="pt-space-sm flex items-center justify-end gap-space-sm">
+<button class="px-space-md py-2 rounded-lg text-outline hover:bg-surface-container font-label-md text-label-md transition-colors cursor-pointer" onclick="document.getElementById('invite-modal').classList.add('hidden')" type="button">
+            إلغاء
+          </button>
+<button class="px-space-lg py-2 rounded-lg bg-primary-container text-on-primary font-bold shadow hover:opacity-95 transition-all cursor-pointer" type="submit">
+            إرسال الدعوة والاعتماد المبدئي
+          </button>
+</div>
+</form>
+</div>
+</div>
+</div>
+<script>
+  function updateDrawer(name, role, classroom, job, exp, phone) {
+    const drawerName = document.getElementById('drawer-name');
+    const drawerRole = document.getElementById('drawer-role');
+    const drawerClass = document.getElementById('drawer-class');
+    const drawerExp = document.getElementById('drawer-experience');
+    
+    if (drawerName) drawerName.textContent = name;
+    if (drawerRole) drawerRole.textContent = role;
+    if (drawerClass) drawerClass.textContent = classroom;
+    if (drawerExp) drawerExp.textContent = exp;
+  }
+</script></main></div></body></html>

@@ -6,7 +6,9 @@ import 'package:church_service_management_system/features/auth/presentation/auth
 import 'package:church_service_management_system/features/auth/presentation/session_gate.dart';
 
 void main() {
-  testWidgets('session gate rejects an account without an active identity', (tester) async {
+  testWidgets('session gate rejects an account without an active identity', (
+    tester,
+  ) async {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [

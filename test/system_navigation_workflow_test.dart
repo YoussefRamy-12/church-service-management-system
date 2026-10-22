@@ -49,63 +49,55 @@ void main() {
   );
 
   GoRouter buildRouter() => GoRouter(
-        initialLocation: '/service/service-1/dashboard',
+    initialLocation: '/service/service-1/dashboard',
+    routes: [
+      GoRoute(path: '/login', builder: (_, _) => const Text('LOGIN')),
+      ShellRoute(
+        builder: (context, state, child) =>
+            AppShell(serviceId: 'service-1', child: child),
         routes: [
-          GoRoute(path: '/login', builder: (_, _) => const Text('LOGIN')),
-          ShellRoute(
-            builder: (context, state, child) => AppShell(
-              serviceId: 'service-1',
-              child: child,
+          for (final segment in [
+            'dashboard',
+            'students',
+            'attendance',
+            'follow-up',
+            'reports',
+            'servants',
+            'export',
+            'settings',
+          ])
+            GoRoute(
+              path: '/service/service-1/$segment',
+              builder: (_, _) =>
+                  Scaffold(body: Center(child: Text('SCREEN:$segment'))),
             ),
-            routes: [
-              for (final segment in [
-                'dashboard',
-                'students',
-                'attendance',
-                'follow-up',
-                'reports',
-                'servants',
-                'export',
-                'settings',
-              ])
-                GoRoute(
-                  path: '/service/service-1/$segment',
-                  builder: (_, _) => Scaffold(
-                    body: Center(child: Text('SCREEN:$segment')),
-                  ),
-                ),
-            ],
-          ),
         ],
-      );
+      ),
+    ],
+  );
 
   Widget buildSubject(GoRouter router) => ProviderScope(
-        overrides: [
-          currentServantProfileProvider.overrideWith((ref) async => profile),
-          syncEngineProvider.overrideWithValue(engine),
-          syncQueueRepositoryProvider.overrideWithValue(
-            SyncQueueRepository(db),
-          ),
-        ],
-        child: MaterialApp.router(
-          locale: const Locale('ar'),
-          routerConfig: router,
-        ),
-      );
+    overrides: [
+      currentServantProfileProvider.overrideWith((ref) async => profile),
+      syncEngineProvider.overrideWithValue(engine),
+      syncQueueRepositoryProvider.overrideWithValue(SyncQueueRepository(db)),
+    ],
+    child: MaterialApp.router(locale: const Locale('ar'), routerConfig: router),
+  );
 
-  testWidgets(
-    'desktop shell navigates through every management workflow',
-    (tester) async {
-      tester.view.devicePixelRatio = 1.0;
-      tester.view.physicalSize = const Size(1280, 800);
-      final router = buildRouter();
+  testWidgets('desktop shell navigates through every management workflow', (
+    tester,
+  ) async {
+    tester.view.devicePixelRatio = 1.0;
+    tester.view.physicalSize = const Size(1280, 800);
+    final router = buildRouter();
 
-      try {
-        await tester.pumpWidget(buildSubject(router));
-        await tester.pumpAndSettle();
-        expect(find.byKey(const Key('nav_dashboard')), findsOneWidget);
+    try {
+      await tester.pumpWidget(buildSubject(router));
+      await tester.pumpAndSettle();
+      expect(find.byKey(const Key('nav_dashboard')), findsOneWidget);
 
-        const workflows = <String, String>{
+      const workflows = <String, String>{
         'nav_students': 'SCREEN:students',
         'nav_attendance': 'SCREEN:attendance',
         'nav_follow-up': 'SCREEN:follow-up',
@@ -116,38 +108,37 @@ void main() {
         'nav_dashboard': 'SCREEN:dashboard',
       };
 
-        for (final entry in workflows.entries) {
-          await tester.tap(find.byKey(Key(entry.key)));
+      for (final entry in workflows.entries) {
+        await tester.tap(find.byKey(Key(entry.key)));
         await tester.pumpAndSettle();
-          expect(find.text(entry.value), findsOneWidget);
-        }
-
-        await tester.tap(find.byKey(const Key('nav_logout')));
-        await tester.pumpAndSettle();
-        expect(router.state.uri.path, '/login');
-        expect(find.text('LOGIN'), findsOneWidget);
-      } finally {
-        router.dispose();
-        await tester.pumpWidget(const SizedBox.shrink());
-        await tester.pump();
-        await tester.pump(const Duration(milliseconds: 1));
-        tester.view.resetDevicePixelRatio();
-        tester.view.resetPhysicalSize();
+        expect(find.text(entry.value), findsOneWidget);
       }
-    },
-  );
 
-  testWidgets(
-    'mobile shell opens navigation and reaches attendance workflow',
-    (tester) async {
-      await tester.binding.setSurfaceSize(const Size(390, 844));
-      final router = buildRouter();
+      await tester.tap(find.byKey(const Key('nav_logout')));
+      await tester.pumpAndSettle();
+      expect(router.state.uri.path, '/login');
+      expect(find.text('LOGIN'), findsOneWidget);
+    } finally {
+      router.dispose();
+      await tester.pumpWidget(const SizedBox.shrink());
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 1));
+      tester.view.resetDevicePixelRatio();
+      tester.view.resetPhysicalSize();
+    }
+  });
 
-      try {
-        await tester.pumpWidget(buildSubject(router));
-        await tester.pumpAndSettle();
+  testWidgets('mobile shell opens navigation and reaches attendance workflow', (
+    tester,
+  ) async {
+    await tester.binding.setSurfaceSize(const Size(390, 844));
+    final router = buildRouter();
 
-        expect(find.byKey(const Key('nav_menu')), findsOneWidget);
+    try {
+      await tester.pumpWidget(buildSubject(router));
+      await tester.pumpAndSettle();
+
+      expect(find.byKey(const Key('nav_menu')), findsOneWidget);
       expect(find.byKey(const Key('nav_status')), findsNothing);
 
       await tester.tap(find.byKey(const Key('nav_menu')));
@@ -156,18 +147,17 @@ void main() {
       expect(find.text('التنقل'), findsOneWidget);
       expect(find.text('الحضور'), findsOneWidget);
 
-        await tester.tap(find.text('الحضور'));
-        await tester.pumpAndSettle();
+      await tester.tap(find.text('الحضور'));
+      await tester.pumpAndSettle();
 
-        expect(router.state.uri.path, '/service/service-1/attendance');
-        expect(find.text('SCREEN:attendance'), findsOneWidget);
-      } finally {
-        router.dispose();
-        await tester.pumpWidget(const SizedBox.shrink());
-        await tester.pump();
-        await tester.pump(const Duration(milliseconds: 1));
-        await tester.binding.setSurfaceSize(null);
-      }
-    },
-  );
+      expect(router.state.uri.path, '/service/service-1/attendance');
+      expect(find.text('SCREEN:attendance'), findsOneWidget);
+    } finally {
+      router.dispose();
+      await tester.pumpWidget(const SizedBox.shrink());
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 1));
+      await tester.binding.setSurfaceSize(null);
+    }
+  });
 }

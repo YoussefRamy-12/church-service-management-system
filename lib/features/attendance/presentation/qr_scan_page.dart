@@ -332,10 +332,10 @@ class _StudentReviewPanel extends StatelessWidget {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.fromLTRB(20, 18, 20, 22),
-      decoration: BoxDecoration(
-        color: const Color(0xFFF8FAFC),
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
-        boxShadow: const [
+      decoration: const BoxDecoration(
+        color: Color(0xFFF8FAFC),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+        boxShadow: [
           BoxShadow(
             color: Colors.black26,
             blurRadius: 24,

@@ -1,3 +1,6 @@
+import 'package:flutter/foundation.dart';
+
+@immutable
 class ServantProfile {
   const ServantProfile({
     required this.id,
@@ -30,4 +33,45 @@ class ServantProfile {
   bool get isActive => accountStatus == 'active';
   bool get isPending => accountStatus == 'pending';
   bool get isInactive => accountStatus == 'inactive';
+
+  ServantProfile copyWith({
+    String? id,
+    String? authUserId,
+    String? serviceId,
+    String? name,
+    String? role,
+    String? accountStatus,
+    String? phone,
+    DateTime? birthDate,
+    String? workStudy,
+    String? stageId,
+    String? classId,
+    bool? mustChangePassword,
+  }) {
+    return ServantProfile(
+      id: id ?? this.id,
+      authUserId: authUserId ?? this.authUserId,
+      serviceId: serviceId ?? this.serviceId,
+      name: name ?? this.name,
+      role: role ?? this.role,
+      accountStatus: accountStatus ?? this.accountStatus,
+      phone: phone ?? this.phone,
+      birthDate: birthDate ?? this.birthDate,
+      workStudy: workStudy ?? this.workStudy,
+      stageId: stageId ?? this.stageId,
+      classId: classId ?? this.classId,
+      mustChangePassword: mustChangePassword ?? this.mustChangePassword,
+    );
+  }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is ServantProfile &&
+          runtimeType == other.runtimeType &&
+          id == other.id &&
+          serviceId == other.serviceId;
+
+  @override
+  int get hashCode => id.hashCode ^ serviceId.hashCode;
 }

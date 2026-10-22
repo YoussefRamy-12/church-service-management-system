@@ -32,7 +32,9 @@ class SupabaseReportRepository {
         .lte('meeting_date', _date(end))
         .order('meeting_date');
 
-    final meetingIds = (meetings as List).map((row) => row['id'] as String).toList();
+    final meetingIds = (meetings as List)
+        .map((row) => row['id'] as String)
+        .toList();
     List<dynamic> attendance = [];
     if (meetingIds.isNotEmpty) {
       attendance = await _client
@@ -41,7 +43,9 @@ class SupabaseReportRepository {
           .inFilter('meeting_id', meetingIds);
     }
 
-    final studentIds = scopedStudents.map((row) => row['id'] as String).toList();
+    final studentIds = scopedStudents
+        .map((row) => row['id'] as String)
+        .toList();
     List<dynamic> followUps = [];
     if (studentIds.isNotEmpty) {
       followUps = await _client
@@ -52,13 +56,7 @@ class SupabaseReportRepository {
           .lte('follow_up_date', _date(end));
     }
 
-    return _build(
-      scopedStudents,
-      meetings,
-      attendance,
-      followUps,
-      classIds,
-    );
+    return _build(scopedStudents, meetings, attendance, followUps, classIds);
   }
 
   ServiceReport _build(
@@ -100,9 +98,7 @@ class SupabaseReportRepository {
       if (!counted.add(key)) continue;
       present++;
       final checkedIn = DateTime.parse(row['checked_in_at'] as String);
-      final meeting = meetingRows.firstWhere(
-        (item) => item['id'] == meetingId,
-      );
+      final meeting = meetingRows.firstWhere((item) => item['id'] == meetingId);
       final startParts = (meeting['start_time'] as String).split(':');
       final start = DateTime(
         checkedIn.year,
@@ -130,6 +126,5 @@ class SupabaseReportRepository {
     );
   }
 
-  String _date(DateTime value) =>
-      value.toIso8601String().split('T').first;
+  String _date(DateTime value) => value.toIso8601String().split('T').first;
 }

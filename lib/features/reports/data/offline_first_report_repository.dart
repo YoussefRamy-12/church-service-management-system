@@ -1,16 +1,15 @@
+import '../domain/report_repository.dart';
 import '../domain/service_report.dart';
 import 'local_report_repository.dart';
 import 'supabase_report_repository.dart';
 
-class OfflineFirstReportRepository {
-  OfflineFirstReportRepository({
-    required this.local,
-    required this.remote,
-  });
+class OfflineFirstReportRepository implements ReportRepository {
+  OfflineFirstReportRepository({required this.local, required this.remote});
 
   final LocalReportRepository local;
   final SupabaseReportRepository remote;
 
+  @override
   Future<ServiceReport> fetch({
     required String serviceId,
     required DateTime start,

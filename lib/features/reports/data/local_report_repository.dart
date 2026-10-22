@@ -14,41 +14,45 @@ class LocalReportRepository {
     required DateTime end,
     Set<String>? classIds,
   }) async {
-    final students = await (_db.select(_db.cachedStudents)
-          ..where((t) => t.serviceId.equals(serviceId)))
-        .get();
+    final students = await (_db.select(
+      _db.cachedStudents,
+    )..where((t) => t.serviceId.equals(serviceId))).get();
     final scopedStudents = students.where((row) {
       return row.currentClassId != null &&
           (classIds == null || classIds.contains(row.currentClassId));
     }).toList();
 
-    final meetings = await (_db.select(_db.cachedMeetings)
-          ..where((t) =>
-              t.serviceId.equals(serviceId) &
-              t.meetingDate.isBiggerOrEqualValue(
-                start.toIso8601String().split('T').first,
-              ) &
-              t.meetingDate.isSmallerOrEqualValue(
-                end.toIso8601String().split('T').first,
-              )))
-        .get();
+    final meetings =
+        await (_db.select(_db.cachedMeetings)..where(
+              (t) =>
+                  t.serviceId.equals(serviceId) &
+                  t.meetingDate.isBiggerOrEqualValue(
+                    start.toIso8601String().split('T').first,
+                  ) &
+                  t.meetingDate.isSmallerOrEqualValue(
+                    end.toIso8601String().split('T').first,
+                  ),
+            ))
+            .get();
 
     final meetingIds = meetings.map((row) => row.id).toSet();
-    final attendance = await (_db.select(_db.cachedAttendanceRecords)
-          ..where((t) => t.meetingId.isIn(meetingIds)))
-        .get();
+    final attendance = await (_db.select(
+      _db.cachedAttendanceRecords,
+    )..where((t) => t.meetingId.isIn(meetingIds))).get();
 
     final studentIds = scopedStudents.map((row) => row.id).toSet();
-    final followUps = await (_db.select(_db.cachedFollowUpRecords)
-          ..where((t) =>
-              t.studentId.isIn(studentIds) &
-              t.followUpDate.isBiggerOrEqualValue(
-                start.toIso8601String().split('T').first,
-              ) &
-              t.followUpDate.isSmallerOrEqualValue(
-                end.toIso8601String().split('T').first,
-              )))
-        .get();
+    final followUps =
+        await (_db.select(_db.cachedFollowUpRecords)..where(
+              (t) =>
+                  t.studentId.isIn(studentIds) &
+                  t.followUpDate.isBiggerOrEqualValue(
+                    start.toIso8601String().split('T').first,
+                  ) &
+                  t.followUpDate.isSmallerOrEqualValue(
+                    end.toIso8601String().split('T').first,
+                  ),
+            ))
+            .get();
 
     var expected = 0;
     for (final student in scopedStudents) {
@@ -83,7 +87,9 @@ class LocalReportRepository {
         int.parse(parts[1]),
         parts.length > 2 ? int.parse(parts[2]) : 0,
       );
-      if (row.checkedInAt.isBefore(startTime.add(const Duration(minutes: 15)))) {
+      if (row.checkedInAt.isBefore(
+        startTime.add(const Duration(minutes: 15)),
+      )) {
         early++;
       } else {
         normal++;

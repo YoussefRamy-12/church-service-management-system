@@ -52,34 +52,34 @@ void main() {
     expect(found.currentClassId, 'class-1');
   });
 
-  test('updateStudent trims name and normalizes blank optional fields', () async {
-    await repo.cacheStudents([_student()]);
+  test(
+    'updateStudent trims name and normalizes blank optional fields',
+    () async {
+      await repo.cacheStudents([_student()]);
 
-    final updated = await repo.updateStudent(
-      studentId: 'student-1',
-      name: '  Peter Updated  ',
-      phone: '   ',
-      school: '  ',
-      grade: '  6  ',
-      notes: '   ',
-    );
+      final updated = await repo.updateStudent(
+        studentId: 'student-1',
+        name: '  Peter Updated  ',
+        phone: '   ',
+        school: '  ',
+        grade: '  6  ',
+        notes: '   ',
+      );
 
-    expect(updated.name, 'Peter Updated');
-    expect(updated.phone, isNull);
-    expect(updated.school, isNull);
-    expect(updated.grade, '6');
-    expect(updated.notes, isNull);
+      expect(updated.name, 'Peter Updated');
+      expect(updated.phone, isNull);
+      expect(updated.school, isNull);
+      expect(updated.grade, '6');
+      expect(updated.notes, isNull);
 
-    final persisted = await repo.findById('student-1');
-    expect(persisted!.name, 'Peter Updated');
-  });
+      final persisted = await repo.findById('student-1');
+      expect(persisted!.name, 'Peter Updated');
+    },
+  );
 
   test('updateStudent rejects unknown students', () async {
     expect(
-      () => repo.updateStudent(
-        studentId: 'missing',
-        name: 'Peter',
-      ),
+      () => repo.updateStudent(studentId: 'missing', name: 'Peter'),
       throwsA(isA<StateError>()),
     );
   });
@@ -107,41 +107,59 @@ void main() {
   test('approvePending rejects a non-pending student', () async {
     await repo.cacheStudents([_student()]);
 
-    expect(
-      () => repo.approvePending('student-1'),
-      throwsA(isA<StateError>()),
-    );
+    expect(() => repo.approvePending('student-1'), throwsA(isA<StateError>()));
   });
 
-  test('approvePending rejects pending student without proposed class', () async {
-    await repo.cacheStudents([
-      _student(
-        approvalStatus: 'pending',
-        currentClassId: null,
-        proposedClassId: null,
-      ),
-    ]);
+  test(
+    'approvePending rejects pending student without proposed class',
+    () async {
+      await repo.cacheStudents([
+        _student(
+          approvalStatus: 'pending',
+          currentClassId: null,
+          proposedClassId: null,
+        ),
+      ]);
 
-    expect(
-      () => repo.approvePending('student-1'),
-      throwsA(isA<StateError>()),
-    );
-  });
+      expect(
+        () => repo.approvePending('student-1'),
+        throwsA(isA<StateError>()),
+      );
+    },
+  );
 
-  test('watchStudentsForClass includes current and proposed class students', () async {
-    final stream = repo.watchStudentsForClass('class-2');
+  test(
+    'watchStudentsForClass includes current and proposed class students',
+    () async {
+      final stream = repo.watchStudentsForClass('class-2');
 
-    await repo.cacheStudents([
-      _student(id: 'current', currentClassId: 'class-2', proposedClassId: null),
-      _student(id: 'proposed', currentClassId: null, proposedClassId: 'class-2'),
-      _student(id: 'other', currentClassId: 'class-1', proposedClassId: 'class-3'),
-    ]);
+      await repo.cacheStudents([
+        _student(
+          id: 'current',
+          currentClassId: 'class-2',
+          proposedClassId: null,
+        ),
+        _student(
+          id: 'proposed',
+          currentClassId: null,
+          proposedClassId: 'class-2',
+        ),
+        _student(
+          id: 'other',
+          currentClassId: 'class-1',
+          proposedClassId: 'class-3',
+        ),
+      ]);
 
-    final rows = await stream.firstWhere((items) => items.length == 2);
+      final rows = await stream.firstWhere((items) => items.length == 2);
 
-    expect(rows.map((s) => s.id), containsAll(<String>['current', 'proposed']));
-    expect(rows.map((s) => s.id), isNot(contains('other')));
-  });
+      expect(
+        rows.map((s) => s.id),
+        containsAll(<String>['current', 'proposed']),
+      );
+      expect(rows.map((s) => s.id), isNot(contains('other')));
+    },
+  );
 
   test('cacheStudents replaces an existing student by id', () async {
     final stream = repo.watchStudentsForClass('class-1');

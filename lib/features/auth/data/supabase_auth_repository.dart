@@ -10,11 +10,7 @@ class SupabaseAuthRepository implements AuthRepository {
 
   AuthUser? _map(supabase.User? user) {
     if (user == null) return null;
-    return AuthUser(
-      id: user.id,
-      email: user.email,
-      phone: user.phone,
-    );
+    return AuthUser(id: user.id, email: user.email, phone: user.phone);
   }
 
   @override
@@ -41,6 +37,38 @@ class SupabaseAuthRepository implements AuthRepository {
 
     return _map(user)!;
   }
+
+  @override
+  Future<AuthUser> signUpServant({
+    required String name,
+    required String email,
+    required String phone,
+    required DateTime birthDate,
+    required String workStudy,
+    required String password,
+  }) async {
+    final response = await _client.auth.signUp(
+      email: email.trim(),
+      password: password,
+      data: {
+        'signup_type': 'servant',
+        'full_name': name.trim(),
+        'phone': phone.trim(),
+        'birth_date': _formatDate(birthDate),
+        'work_study': workStudy.trim(),
+      },
+    );
+    final user = response.user;
+    if (user == null) {
+      throw const supabase.AuthException('تعذر إنشاء الحساب.');
+    }
+    return _map(user)!;
+  }
+
+  String _formatDate(DateTime date) =>
+      '${date.year.toString().padLeft(4, '0')}-'
+      '${date.month.toString().padLeft(2, '0')}-'
+      '${date.day.toString().padLeft(2, '0')}';
 
   @override
   Future<void> signOut() => _client.auth.signOut();

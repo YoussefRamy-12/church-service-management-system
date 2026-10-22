@@ -1,3 +1,6 @@
+import 'package:flutter/foundation.dart';
+
+@immutable
 class Service {
   const Service({
     required this.id,
@@ -16,4 +19,32 @@ class Service {
   final String meetingFrequency;
   final int meetingWeekday;
   final int meetingMonthDay;
+
+  Service copyWith({
+    String? id,
+    String? name,
+    String? churchName,
+    String? meetingStartTime,
+    String? meetingFrequency,
+    int? meetingWeekday,
+    int? meetingMonthDay,
+  }) {
+    return Service(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      churchName: churchName ?? this.churchName,
+      meetingStartTime: meetingStartTime ?? this.meetingStartTime,
+      meetingFrequency: meetingFrequency ?? this.meetingFrequency,
+      meetingWeekday: meetingWeekday ?? this.meetingWeekday,
+      meetingMonthDay: meetingMonthDay ?? this.meetingMonthDay,
+    );
+  }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is Service && runtimeType == other.runtimeType && id == other.id;
+
+  @override
+  int get hashCode => id.hashCode;
 }

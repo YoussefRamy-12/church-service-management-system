@@ -5,11 +5,13 @@ import 'meeting_providers.dart';
 import 'attendance_session_page.dart';
 import '../../../app/ui/app_ui.dart';
 import '../../../core/sync/sync_status_widget.dart';
-import '../../../core/sync/sync_engine_provider.dart';
-import '../../service/presentation/service_providers.dart';
 
 class MeetingPickerPage extends ConsumerStatefulWidget {
-  const MeetingPickerPage({super.key, required this.serviceId, required this.classId});
+  const MeetingPickerPage({
+    super.key,
+    required this.serviceId,
+    required this.classId,
+  });
   final String serviceId, classId;
 
   @override
@@ -20,20 +22,13 @@ class _MeetingPickerPageState extends ConsumerState<MeetingPickerPage> {
   @override
   void initState() {
     super.initState();
-    Future.microtask(_loadAndEnsureSchedule);
+    Future.microtask(_loadSharedMeetings);
   }
 
-  Future<void> _loadAndEnsureSchedule() async {
+  Future<void> _loadSharedMeetings() async {
     final meetings = ref.read(meetingRepositoryProvider);
     try {
       await meetings.refresh(widget.serviceId);
-    } catch (_) {}
-    try {
-      final service = await ref.read(serviceRepositoryProvider).getService(widget.serviceId);
-      if (service != null) {
-        await meetings.ensureConfiguredSchedule(service);
-        await ref.read(syncEngineProvider).syncNow();
-      }
     } catch (_) {}
   }
 
@@ -62,7 +57,8 @@ class _MeetingPickerPageState extends ConsumerState<MeetingPickerPage> {
               return const EmptyState(
                 icon: Icons.event_available_outlined,
                 title: 'لا توجد اجتماعات',
-                message: 'حدّث البيانات أو أنشئ اجتماعًا جديدًا من شاشة الاجتماعات.',
+                message:
+                    'حدّث البيانات أو أنشئ اجتماعًا جديدًا من شاشة الاجتماعات.',
               );
             }
             if (profile == null) {

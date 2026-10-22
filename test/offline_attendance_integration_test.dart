@@ -24,88 +24,99 @@ void main() {
     await db.close();
   });
 
-  test('offline check-in is immediately available locally and queued for sync', () async {
-    final checkedInAt = DateTime(2026, 10, 7, 10, 30);
+  test(
+    'offline check-in is immediately available locally and queued for sync',
+    () async {
+      final checkedInAt = DateTime(2026, 10, 7, 10, 30);
 
-    final record = await attendance.checkIn(
-      meetingId: 'meeting-1',
-      studentId: 'student-1',
-      classIdAtAttendance: 'class-1',
-      recordedBy: 'servant-1',
-      checkedInAt: checkedInAt,
-    );
+      final record = await attendance.checkIn(
+        meetingId: 'meeting-1',
+        studentId: 'student-1',
+        classIdAtAttendance: 'class-1',
+        recordedBy: 'servant-1',
+        checkedInAt: checkedInAt,
+      );
 
-    final localRows = await db.select(db.cachedAttendanceRecords).get();
-    final pending = await queue.pending();
+      final localRows = await db.select(db.cachedAttendanceRecords).get();
+      final pending = await queue.pending();
 
-    expect(localRows, hasLength(1));
-    expect(localRows.single.studentId, 'student-1');
-    expect(localRows.single.syncState, 'pending');
-    expect(localRows.single.clientOperationId, record.clientOperationId);
+      expect(localRows, hasLength(1));
+      expect(localRows.single.studentId, 'student-1');
+      expect(localRows.single.syncState, 'pending');
+      expect(localRows.single.clientOperationId, record.clientOperationId);
 
-    expect(pending, hasLength(1));
-    expect(pending.single.operationId, record.clientOperationId);
-    expect(pending.single.entityType, 'attendance');
-    expect(pending.single.operationType, 'upsert');
+      expect(pending, hasLength(1));
+      expect(pending.single.operationId, record.clientOperationId);
+      expect(pending.single.entityType, 'attendance');
+      expect(pending.single.operationType, 'upsert');
 
-    final payload = jsonDecode(pending.single.payloadJson) as Map<String, dynamic>;
-    expect(payload['meeting_id'], 'meeting-1');
-    expect(payload['student_id'], 'student-1');
-    expect(payload['class_id_at_attendance'], 'class-1');
-  });
+      final payload =
+          jsonDecode(pending.single.payloadJson) as Map<String, dynamic>;
+      expect(payload['meeting_id'], 'meeting-1');
+      expect(payload['student_id'], 'student-1');
+      expect(payload['class_id_at_attendance'], 'class-1');
+    },
+  );
 
-  test('duplicate check-in does not create a second attendance record or sync operation', () async {
-    final first = await attendance.checkIn(
-      meetingId: 'meeting-1',
-      studentId: 'student-1',
-      classIdAtAttendance: 'class-1',
-      recordedBy: 'servant-1',
-      checkedInAt: DateTime(2026, 10, 7, 10, 30),
-    );
+  test(
+    'duplicate check-in does not create a second attendance record or sync operation',
+    () async {
+      final first = await attendance.checkIn(
+        meetingId: 'meeting-1',
+        studentId: 'student-1',
+        classIdAtAttendance: 'class-1',
+        recordedBy: 'servant-1',
+        checkedInAt: DateTime(2026, 10, 7, 10, 30),
+      );
 
-    final second = await attendance.checkIn(
-      meetingId: 'meeting-1',
-      studentId: 'student-1',
-      classIdAtAttendance: 'class-1',
-      recordedBy: 'servant-1',
-      checkedInAt: DateTime(2026, 10, 7, 10, 31),
-    );
+      final second = await attendance.checkIn(
+        meetingId: 'meeting-1',
+        studentId: 'student-1',
+        classIdAtAttendance: 'class-1',
+        recordedBy: 'servant-1',
+        checkedInAt: DateTime(2026, 10, 7, 10, 31),
+      );
 
-    final localRows = await db.select(db.cachedAttendanceRecords).get();
-    final pending = await queue.pending();
+      final localRows = await db.select(db.cachedAttendanceRecords).get();
+      final pending = await queue.pending();
 
-    expect(second.id, first.id);
-    expect(second.clientOperationId, first.clientOperationId);
-    expect(localRows, hasLength(1));
-    expect(pending, hasLength(1));
-  });
+      expect(second.id, first.id);
+      expect(second.clientOperationId, first.clientOperationId);
+      expect(localRows, hasLength(1));
+      expect(pending, hasLength(1));
+    },
+  );
 
-  test('updating check-in time updates local state and replaces the queued payload', () async {
-    final original = await attendance.checkIn(
-      meetingId: 'meeting-1',
-      studentId: 'student-1',
-      classIdAtAttendance: 'class-1',
-      recordedBy: 'servant-1',
-      checkedInAt: DateTime(2026, 10, 7, 10, 30),
-    );
+  test(
+    'updating check-in time updates local state and replaces the queued payload',
+    () async {
+      final original = await attendance.checkIn(
+        meetingId: 'meeting-1',
+        studentId: 'student-1',
+        classIdAtAttendance: 'class-1',
+        recordedBy: 'servant-1',
+        checkedInAt: DateTime(2026, 10, 7, 10, 30),
+      );
 
-    final updatedAt = DateTime(2026, 10, 7, 10, 45);
-    final updated = await attendance.updateCheckedInAt(
-      attendanceId: original.id,
-      checkedInAt: updatedAt,
-    );
+      final updatedAt = DateTime(2026, 10, 7, 10, 45);
+      final updated = await attendance.updateCheckedInAt(
+        attendanceId: original.id,
+        checkedInAt: updatedAt,
+      );
 
-    final localRows = await db.select(db.cachedAttendanceRecords).get();
-    final pending = await queue.pending();
-    final payload = jsonDecode(pending.single.payloadJson) as Map<String, dynamic>;
+      final localRows = await db.select(db.cachedAttendanceRecords).get();
+      final pending = await queue.pending();
+      final payload =
+          jsonDecode(pending.single.payloadJson) as Map<String, dynamic>;
 
-    expect(updated.id, original.id);
-    expect(updated.checkedInAt, updatedAt);
-    expect(localRows.single.checkedInAt, updatedAt);
-    expect(pending, hasLength(1));
-    expect(pending.single.operationId, original.clientOperationId);
-    expect(payload['checked_in_at'], updatedAt.toIso8601String());
-  });
+      expect(updated.id, original.id);
+      expect(updated.checkedInAt, updatedAt);
+      expect(localRows.single.checkedInAt, updatedAt);
+      expect(pending, hasLength(1));
+      expect(pending.single.operationId, original.clientOperationId);
+      expect(payload['checked_in_at'], updatedAt.toIso8601String());
+    },
+  );
 
   test('attendance can be read through the local watch stream', () async {
     final stream = attendance.watchForMeeting('meeting-1');

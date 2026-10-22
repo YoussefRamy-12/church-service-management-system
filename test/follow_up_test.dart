@@ -10,7 +10,7 @@ void main() {
       'contact_status': 'contacted',
       'client_operation_id': 'operation-1',
     };
-    final decoded = jsonDecode(jsonEncode(payload)) as Map<String,dynamic>;
+    final decoded = jsonDecode(jsonEncode(payload)) as Map<String, dynamic>;
     expect(decoded['client_operation_id'], 'operation-1');
   });
 

@@ -22,36 +22,40 @@ void main() {
 
   tearDown(() async => db.close());
 
-  test('follow-up is immediately available locally and queued for sync', () async {
-    final record = await repo.create(
-      studentId: 'student-1',
-      createdBy: 'servant-1',
-      followUpDate: '2026-10-07',
-      contactStatus: 'contacted',
-      contactMethod: 'phone',
-      parentResponse: 'Will attend next week',
-      actionRequired: 'Monitor attendance',
-      anotherFollowUpNeeded: true,
-      nextFollowUpDate: '2026-10-14',
-    );
+  test(
+    'follow-up is immediately available locally and queued for sync',
+    () async {
+      final record = await repo.create(
+        studentId: 'student-1',
+        createdBy: 'servant-1',
+        followUpDate: '2026-10-07',
+        contactStatus: 'contacted',
+        contactMethod: 'phone',
+        parentResponse: 'Will attend next week',
+        actionRequired: 'Monitor attendance',
+        anotherFollowUpNeeded: true,
+        nextFollowUpDate: '2026-10-14',
+      );
 
-    final local = await repo.watchForStudent('student-1').firstWhere(
-      (items) => items.isNotEmpty,
-    );
-    final pending = await queue.pending();
-    final payload = jsonDecode(pending.single.payloadJson) as Map<String, dynamic>;
+      final local = await repo
+          .watchForStudent('student-1')
+          .firstWhere((items) => items.isNotEmpty);
+      final pending = await queue.pending();
+      final payload =
+          jsonDecode(pending.single.payloadJson) as Map<String, dynamic>;
 
-    expect(local.single.id, record.id);
-    expect(local.single.parentResponse, 'Will attend next week');
-    expect(local.single.anotherFollowUpNeeded, isTrue);
-    expect(local.single.nextFollowUpDate, '2026-10-14');
-    expect(pending, hasLength(1));
-    expect(pending.single.entityType, 'follow_up');
-    expect(pending.single.operationType, 'insert');
-    expect(payload['client_operation_id'], record.clientOperationId);
-    expect(payload['student_id'], 'student-1');
-    expect(payload['contact_method'], 'phone');
-  });
+      expect(local.single.id, record.id);
+      expect(local.single.parentResponse, 'Will attend next week');
+      expect(local.single.anotherFollowUpNeeded, isTrue);
+      expect(local.single.nextFollowUpDate, '2026-10-14');
+      expect(pending, hasLength(1));
+      expect(pending.single.entityType, 'follow_up');
+      expect(pending.single.operationType, 'insert');
+      expect(payload['client_operation_id'], record.clientOperationId);
+      expect(payload['student_id'], 'student-1');
+      expect(payload['contact_method'], 'phone');
+    },
+  );
 
   test('follow-up history is ordered newest first', () async {
     await repo.create(
@@ -67,9 +71,9 @@ void main() {
       contactStatus: 'contacted',
     );
 
-    final rows = await repo.watchForStudent('student-1').firstWhere(
-      (items) => items.length == 2,
-    );
+    final rows = await repo
+        .watchForStudent('student-1')
+        .firstWhere((items) => items.length == 2);
 
     expect(rows.map((item) => item.followUpDate), ['2026-10-07', '2026-10-01']);
   });
@@ -88,9 +92,9 @@ void main() {
       contactStatus: 'contacted',
     );
 
-    final rows = await repo.watchForStudent('student-1').firstWhere(
-      (items) => items.length == 1,
-    );
+    final rows = await repo
+        .watchForStudent('student-1')
+        .firstWhere((items) => items.length == 1);
 
     expect(rows.single.studentId, 'student-1');
   });

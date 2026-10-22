@@ -7,6 +7,29 @@ class SupabaseServantRepository {
 
   final SupabaseClient _client;
 
+  Future<void> createProfile({
+    required String id,
+    required String serviceId,
+    required String authUserId,
+    required String name,
+    required String phone,
+    required String role,
+    String? stageId,
+    String? classId,
+  }) async {
+    await _client.from('servant_profiles').insert({
+      'id': id,
+      'auth_user_id': authUserId,
+      'service_id': serviceId,
+      'name': name,
+      'phone': phone,
+      'role': role,
+      'account_status': 'active',
+      'stage_id': stageId,
+      'class_id': classId,
+    });
+  }
+
   Future<List<ServantProfile>> fetchForService(String serviceId) async {
     final rows = await _client
         .from('servant_profiles')
@@ -58,20 +81,24 @@ class SupabaseServantRepository {
     return _map(rows.first);
   }
 
+  Future<void> deleteProfile(String servantId) async {
+    await _client.from('servant_profiles').delete().eq('id', servantId);
+  }
+
   ServantProfile _map(Map<String, dynamic> row) => ServantProfile(
-        id: row['id'] as String,
-        authUserId: row['auth_user_id'] as String,
-        serviceId: row['service_id'] as String,
-        name: row['name'] as String,
-        phone: row['phone'] as String?,
-        birthDate: row['birth_date'] == null
-            ? null
-            : DateTime.parse(row['birth_date'] as String),
-        workStudy: row['work_study'] as String?,
-        role: row['role'] as String,
-        accountStatus: row['account_status'] as String,
-        stageId: row['stage_id'] as String?,
-        classId: row['class_id'] as String?,
-        mustChangePassword: row['must_change_password'] as bool? ?? false,
-      );
+    id: row['id'] as String,
+    authUserId: row['auth_user_id'] as String,
+    serviceId: row['service_id'] as String,
+    name: row['name'] as String,
+    phone: row['phone'] as String?,
+    birthDate: row['birth_date'] == null
+        ? null
+        : DateTime.parse(row['birth_date'] as String),
+    workStudy: row['work_study'] as String?,
+    role: row['role'] as String,
+    accountStatus: row['account_status'] as String,
+    stageId: row['stage_id'] as String?,
+    classId: row['class_id'] as String?,
+    mustChangePassword: row['must_change_password'] as bool? ?? false,
+  );
 }
