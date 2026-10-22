@@ -465,8 +465,9 @@ class _WeeklyPrepPageState extends ConsumerState<WeeklyPrepPage> {
         .toSet()
         .toList();
     final currentWeek = _monday(DateTime.now());
-    if (!weeks.any((week) => _sameDay(week, currentWeek)))
+    if (!weeks.any((week) => _sameDay(week, currentWeek))) {
       weeks.add(currentWeek);
+    }
     weeks.sort((a, b) => a.compareTo(b));
     return weeks;
   }
