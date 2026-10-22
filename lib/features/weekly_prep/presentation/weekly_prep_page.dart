@@ -353,15 +353,19 @@ class _WeeklyLessonFormState extends State<_WeeklyLessonForm> {
   late Stage? _stage = widget.initialStage;
   late DateTime _week = widget.lesson?.weekStart ?? widget.initialWeek;
   PlatformFile? _file;
+  Uint8List? _fileBytes;
   bool _saving = false;
   String? _error;
 
   Future<void> _selectFile() async {
-    final result = await FilePicker.platform.pickFiles(type: FileType.custom, allowedExtensions: const ['pdf'], withData: true);
-    if (result == null || result.files.isEmpty) return;
-    final file = result.files.single;
-    final bytes = file.bytes;
-    if (bytes == null || bytes.isEmpty || !_isPdf(bytes)) {
+    final files = await FilePickerPlatform.instance.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: const ['pdf'],
+    );
+    if (files.isEmpty) return;
+    final file = files.single;
+    final bytes = await file.readAsBytes();
+    if (bytes.isEmpty || !_isPdf(bytes)) {
       setState(() => _error = 'الملف المختار ليس ملف PDF صالحًا.');
       return;
     }
@@ -369,7 +373,7 @@ class _WeeklyLessonFormState extends State<_WeeklyLessonForm> {
       setState(() => _error = 'حجم الملف أكبر من الحد المسموح (25 ميجابايت).');
       return;
     }
-    setState(() { _file = file; _error = null; });
+    setState(() { _file = file; _fileBytes = bytes; _error = null; });
   }
 
   bool _isPdf(Uint8List bytes) => bytes.length >= 5 && String.fromCharCodes(bytes.take(5)) == '%PDF-';
@@ -377,10 +381,10 @@ class _WeeklyLessonFormState extends State<_WeeklyLessonForm> {
   Future<void> _save() async {
     final file = _file;
     if (_stage == null) { setState(() => _error = 'اختر المرحلة.'); return; }
-    if (file?.bytes == null) { setState(() => _error = 'اختر ملف PDF أولًا.'); return; }
+    if (file == null || _fileBytes == null) { setState(() => _error = 'اختر ملف PDF أولًا.'); return; }
     setState(() { _saving = true; _error = null; });
     try {
-      Navigator.of(context).pop(_FormResult(stage: _stage!, week: _week, fileName: file!.name, bytes: file.bytes!));
+      Navigator.of(context).pop(_FormResult(stage: _stage!, week: _week, fileName: file.name, bytes: _fileBytes!));
     } catch (error) {
       setState(() { _saving = false; _error = '$error'; });
     }
@@ -423,7 +427,7 @@ class _WeeklyBulkForm extends StatefulWidget {
 
 class _WeeklyBulkFormState extends State<_WeeklyBulkForm> {
   Stage? _stage;
-  final Map<String, PlatformFile> _files = {};
+  final Map<String, _PickedPdf> _files = {};
   bool _saving = false;
   String? _error;
 
@@ -431,15 +435,14 @@ class _WeeklyBulkFormState extends State<_WeeklyBulkForm> {
       '${week.year.toString().padLeft(4, '0')}-${week.month.toString().padLeft(2, '0')}-${week.day.toString().padLeft(2, '0')}';
 
   Future<void> _pick(DateTime week) async {
-    final result = await FilePicker.platform.pickFiles(
+    final files = await FilePickerPlatform.instance.pickFiles(
       type: FileType.custom,
       allowedExtensions: const ['pdf'],
-      withData: true,
     );
-    if (result == null || result.files.isEmpty) return;
-    final file = result.files.single;
-    final bytes = file.bytes;
-    if (bytes == null || bytes.isEmpty || String.fromCharCodes(bytes.take(5)) != '%PDF-') {
+    if (files.isEmpty) return;
+    final file = files.single;
+    final bytes = await file.readAsBytes();
+    if (bytes.isEmpty || String.fromCharCodes(bytes.take(5)) != '%PDF-') {
       setState(() => _error = 'الملف ${file.name} ليس ملف PDF صالحًا.');
       return;
     }
@@ -448,7 +451,7 @@ class _WeeklyBulkFormState extends State<_WeeklyBulkForm> {
       return;
     }
     setState(() {
-      _files[_key(week)] = file;
+      _files[_key(week)] = _PickedPdf(file: file, bytes: bytes);
       _error = null;
     });
   }
@@ -471,8 +474,8 @@ class _WeeklyBulkFormState extends State<_WeeklyBulkForm> {
           _FormResult(
             stage: _stage!,
             week: week,
-            fileName: file.name,
-            bytes: file.bytes!,
+            fileName: file.file.name,
+            bytes: file.bytes,
           ),
         );
       }
@@ -516,7 +519,7 @@ class _WeeklyBulkFormState extends State<_WeeklyBulkForm> {
                     dense: true,
                     leading: Icon(isCurrent ? Icons.calendar_today_rounded : Icons.date_range_rounded),
                     title: Text(_label(week)),
-                    subtitle: Text(file?.name ?? 'لم يتم اختيار ملف'),
+                    subtitle: Text(file?.file.name ?? 'لم يتم اختيار ملف'),
                     trailing: IconButton(
                       tooltip: 'اختيار ملف PDF',
                       onPressed: _saving ? null : () => _pick(week),
@@ -548,6 +551,12 @@ class _BulkFormResult {
   const _BulkFormResult({required this.stage, required this.files});
   final Stage stage;
   final List<_FormResult> files;
+}
+
+class _PickedPdf {
+  const _PickedPdf({required this.file, required this.bytes});
+  final PlatformFile file;
+  final Uint8List bytes;
 }
 
 class _FormResult {
