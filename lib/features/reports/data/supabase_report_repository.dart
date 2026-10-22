@@ -151,7 +151,10 @@ class SupabaseReportRepository {
           final began = DateTime(checkedIn.year, checkedIn.month, checkedIn.day, int.tryParse(parts[0]) ?? 15, int.tryParse(parts[1]) ?? 0);
           return !checkedIn.isBefore(began.add(Duration(minutes: earlyMinutes)));
         }).map((row) => '${row['checked_in_at']} • ${studentNames[row['student_id']]}').toList(),
-        'attendance': ['حضور $present من أصل $expected', 'الحضور المبكر: $early', 'الحضور العادي: $normal'],
+        'attendance': attendance
+            .where((row) => studentIds.contains(row['student_id']))
+            .map((row) => '${row['checked_in_at']} • ${studentNames[row['student_id']] ?? row['student_id']}')
+            .toList(),
       },
     );
   }

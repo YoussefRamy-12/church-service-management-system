@@ -225,22 +225,14 @@ class _ReportsPageState extends ConsumerState<ReportsPage> {
 
   Future<void> _showDetails(String key, String title) async {
     final items = report?.details[key] ?? const <String>[];
-    await showDialog<void>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(title),
-        content: SizedBox(
-          width: 440,
-          height: 420,
-          child: items.isEmpty
-              ? const Text('لا توجد تفاصيل مسجلة لهذا المؤشر في الفترة المحددة.')
-                  : ListView.separated(
-                  itemCount: items.length,
-                  separatorBuilder: (_, _) => const Divider(height: 12),
-                  itemBuilder: (context, index) => Text(items[index]),
-                ),
+    await Navigator.of(context).push<void>(
+      MaterialPageRoute(
+        builder: (_) => _ReportMetricDetailPage(
+          title: title,
+          items: items,
+          start: start,
+          end: end,
         ),
-        actions: [TextButton(onPressed: () => Navigator.pop(context), child: const Text('إغلاق'))],
       ),
     );
   }
@@ -483,10 +475,8 @@ class _ReportSummary extends StatelessWidget {
     Color color,
     String key,
   ) {
-    return InkWell(
-      borderRadius: BorderRadius.circular(20),
+    return GlassCard(
       onTap: () => onMetricTap(key, title),
-      child: GlassCard(
       borderRadius: 20,
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       child: Row(
@@ -537,6 +527,64 @@ class _ReportSummary extends StatelessWidget {
           ),
         ],
       ),
+    );
+  }
+}
+
+class _ReportMetricDetailPage extends StatelessWidget {
+  const _ReportMetricDetailPage({
+    required this.title,
+    required this.items,
+    required this.start,
+    required this.end,
+  });
+
+  final String title;
+  final List<String> items;
+  final DateTime start;
+  final DateTime end;
+
+  @override
+  Widget build(BuildContext context) {
+    final formatter = DateFormat('yyyy/MM/dd');
+    return Scaffold(
+      appBar: AppBar(title: Text(title)),
+      body: AmbientBackground(
+        intensity: 0.35,
+        child: AppContent(
+          maxWidth: 820,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(20, 18, 20, 12),
+                child: Text(
+                  'الفترة: ${formatter.format(start)} – ${formatter.format(end)}   •   ${items.length} سجل',
+                  style: Theme.of(context).textTheme.bodyMedium,
+                ),
+              ),
+              Expanded(
+                child: items.isEmpty
+                    ? const EmptyState(
+                        icon: Icons.inbox_outlined,
+                        title: 'لا توجد تفاصيل مسجلة',
+                        message: 'لا توجد سجلات لهذا المؤشر في الفترة المحددة.',
+                      )
+                    : ListView.separated(
+                        padding: const EdgeInsets.fromLTRB(20, 4, 20, 28),
+                        itemCount: items.length,
+                        separatorBuilder: (_, _) => const SizedBox(height: 8),
+                        itemBuilder: (context, index) => GlassCard(
+                          borderRadius: 16,
+                          padding: const EdgeInsets.all(16),
+                          hoverElevation: false,
+                          child: Text(items[index]),
+                        ),
+                      ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

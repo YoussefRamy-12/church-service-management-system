@@ -3,6 +3,7 @@ import 'package:uuid/uuid.dart';
 
 import '../domain/entities/attendance_record.dart';
 import '../domain/repositories/attendance_repository.dart';
+import 'attendance_profile_resolver.dart';
 
 /// Online-only implementation of [AttendanceRepository].
 ///
@@ -42,6 +43,13 @@ class OnlineAttendanceRepository implements AttendanceRepository {
   }) async {
     final id = _uuid.v4();
     final clientOpId = _uuid.v4();
+    // The FK and insert policy both require the active profile for this
+    // meeting's service, rather than an auth user id or stale profile id.
+    final effectiveRecordedBy = await resolveAttendanceRecorderProfileId(
+      _client,
+      meetingId: meetingId,
+      preferredProfileId: recordedBy,
+    );
 
     await _client.from('attendance_records').upsert({
       'id': id,
@@ -49,7 +57,7 @@ class OnlineAttendanceRepository implements AttendanceRepository {
       'student_id': studentId,
       'class_id_at_attendance': classIdAtAttendance,
       'checked_in_at': checkedInAt.toIso8601String(),
-      'recorded_by': recordedBy,
+      'recorded_by': effectiveRecordedBy,
       'client_operation_id': clientOpId,
     }, onConflict: 'meeting_id,student_id');
 
@@ -59,7 +67,7 @@ class OnlineAttendanceRepository implements AttendanceRepository {
       studentId: studentId,
       classIdAtAttendance: classIdAtAttendance,
       checkedInAt: checkedInAt,
-      recordedBy: recordedBy,
+      recordedBy: effectiveRecordedBy,
       clientOperationId: clientOpId,
       syncState: 'synced',
     );

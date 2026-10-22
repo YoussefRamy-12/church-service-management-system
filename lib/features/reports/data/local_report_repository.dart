@@ -129,7 +129,10 @@ class LocalReportRepository {
           final began = DateTime(row.checkedInAt.year, row.checkedInAt.month, row.checkedInAt.day, int.tryParse(parts[0]) ?? 15, int.tryParse(parts[1]) ?? 0);
           return !row.checkedInAt.isBefore(began.add(Duration(minutes: earlyMinutes)));
         }).map((row) => '${row.checkedInAt} • ${studentNames[row.studentId] ?? row.studentId}').toList(),
-        'attendance': ['حضور $present من أصل $expected', 'الحضور المبكر: $early', 'الحضور العادي: $normal'],
+        'attendance': attendance
+            .where((row) => studentIds.contains(row.studentId))
+            .map((row) => '${row.checkedInAt} • ${studentNames[row.studentId] ?? row.studentId}')
+            .toList(),
       },
     );
   }

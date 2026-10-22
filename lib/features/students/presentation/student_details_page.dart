@@ -29,6 +29,8 @@ class StudentDetailsPage extends ConsumerStatefulWidget {
 class _StudentDetailsPageState extends ConsumerState<StudentDetailsPage> {
   late Student student;
   SensitiveStudentData? _sensitiveData;
+  String? _studentClassName;
+  String? _studentStageName;
   bool _downloadingPdf = false;
   bool _isDeleting = false;
 
@@ -37,6 +39,28 @@ class _StudentDetailsPageState extends ConsumerState<StudentDetailsPage> {
     super.initState();
     student = widget.student;
     _loadSensitiveData();
+    _loadClassDetails();
+  }
+
+  Future<void> _loadClassDetails() async {
+    final classId = student.currentClassId ?? student.proposedClassId;
+    if (classId == null) return;
+    try {
+      final serviceRepository = ref.read(serviceRepositoryProvider);
+      final stages = await serviceRepository.getStages(student.serviceId);
+      for (final stage in stages) {
+        final classes = await serviceRepository.getClasses(stage.id);
+        for (final item in classes) {
+          if (item.id == classId && mounted) {
+            setState(() {
+              _studentStageName = stage.name;
+              _studentClassName = item.name;
+            });
+            return;
+          }
+        }
+      }
+    } catch (_) {}
   }
 
   Future<void> _loadSensitiveData() async {
@@ -114,6 +138,7 @@ class _StudentDetailsPageState extends ConsumerState<StudentDetailsPage> {
           .approvePending(student.id);
       if (!mounted) return;
       setState(() => student = updated);
+      _loadClassDetails();
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
@@ -290,6 +315,7 @@ class _StudentDetailsPageState extends ConsumerState<StudentDetailsPage> {
           .assignClass(student.id, selected.$1);
       if (!mounted) return;
       setState(() => student = updated);
+      _loadClassDetails();
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
@@ -500,6 +526,23 @@ class _StudentDetailsPageState extends ConsumerState<StudentDetailsPage> {
                           : 'معتمد',
                     ),
                     _row('تاريخ الميلاد', _date(student.birthDate)),
+                    _row(
+                      'المرحلة',
+                      _studentStageName ??
+                          (student.currentClassId == null &&
+                                  student.proposedClassId != null
+                              ? 'مرحلة الفصل المقترح'
+                              : 'غير محددة'),
+                    ),
+                    _row(
+                      'الفصل',
+                      _studentClassName ??
+                          (student.currentClassId == null &&
+                                  student.proposedClassId != null
+                              ? 'فصل مقترح'
+                              : 'غير محدد'),
+                    ),
+                    _row('الصف الدراسي', student.grade ?? 'غير محدد'),
                     _row('تليفون الطالب', student.phone ?? 'غير محدد'),
                     _row('المدرسة', student.school ?? 'غير محددة'),
                     _row('شماس', student.isDeacon ? 'شماس' : 'غير مرسوم'),
