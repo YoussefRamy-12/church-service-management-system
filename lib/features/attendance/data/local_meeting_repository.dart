@@ -9,7 +9,7 @@ class LocalMeetingRepository {
   Stream<List<Meeting>> watchMeetings(String serviceId) =>
       (_db.select(_db.cachedMeetings)
             ..where((t) => t.serviceId.equals(serviceId))
-            ..orderBy([(t) => OrderingTerm.desc(t.meetingDate)]))
+            ..orderBy([(t) => OrderingTerm.asc(t.meetingDate)]))
           .watch()
           .map(
             (rows) => rows

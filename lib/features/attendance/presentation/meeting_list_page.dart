@@ -207,8 +207,8 @@ class _MeetingListPageState extends ConsumerState<MeetingListPage> {
 
             final meetings = List.of(rawMeetings)
               ..sort(
-                (a, b) => b.meetingDate.compareTo(a.meetingDate),
-              ); // Most recent first for better UX
+                (a, b) => a.meetingDate.compareTo(b.meetingDate),
+              ); // Oldest to newest, with future meetings at the bottom.
 
             return AppContent(
               maxWidth: 900,

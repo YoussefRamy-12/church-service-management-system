@@ -15,7 +15,7 @@ class WeeklyLessonRepository {
         .from('weekly_lessons')
         .select()
         .eq('service_id', serviceId)
-        .order('week_start', ascending: false);
+        .order('week_start', ascending: true);
     return (rows as List)
         .map((row) => WeeklyLesson.fromJson(row as Map<String, dynamic>))
         .toList();

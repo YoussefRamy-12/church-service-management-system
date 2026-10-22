@@ -20,7 +20,8 @@ class OnlineAttendanceRepository implements AttendanceRepository {
     final rows = await _client
         .from('attendance_records')
         .select()
-        .eq('meeting_id', meetingId);
+        .eq('meeting_id', meetingId)
+        .order('checked_in_at', ascending: true);
     yield rows.map(_fromRow).toList();
   }
 
@@ -29,7 +30,8 @@ class OnlineAttendanceRepository implements AttendanceRepository {
     final rows = await _client
         .from('attendance_records')
         .select()
-        .eq('student_id', studentId);
+        .eq('student_id', studentId)
+        .order('checked_in_at', ascending: true);
     yield rows.map(_fromRow).toList();
   }
 
