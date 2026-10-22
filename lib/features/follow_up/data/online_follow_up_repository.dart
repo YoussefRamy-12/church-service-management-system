@@ -20,7 +20,7 @@ class OnlineFollowUpRepository implements FollowUpRepository {
         .from('follow_up_records')
         .select()
         .eq('student_id', id)
-        .order('follow_up_date', ascending: false);
+        .order('follow_up_date', ascending: true);
 
     yield rows
         .map(

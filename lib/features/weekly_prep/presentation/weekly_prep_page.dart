@@ -313,7 +313,7 @@ class _WeeklyPrepPageState extends ConsumerState<WeeklyPrepPage> {
     final weeks = meetings.map((meeting) => _monday(meeting.meetingDate)).toSet().toList();
     final currentWeek = _monday(DateTime.now());
     if (!weeks.any((week) => _sameDay(week, currentWeek))) weeks.add(currentWeek);
-    weeks.sort((a, b) => b.compareTo(a));
+    weeks.sort((a, b) => a.compareTo(b));
     return weeks;
   }
 

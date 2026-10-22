@@ -21,7 +21,7 @@ class LocalAttendanceRepository implements AttendanceRepository {
   Stream<List<AttendanceRecord>> watchForStudent(String studentId) =>
       (_db.select(_db.cachedAttendanceRecords)
             ..where((t) => t.studentId.equals(studentId))
-            ..orderBy([(t) => OrderingTerm.desc(t.checkedInAt)]))
+            ..orderBy([(t) => OrderingTerm.asc(t.checkedInAt)]))
           .watch()
           .map((rows) => rows.map(_map).toList());
 

@@ -14,7 +14,7 @@ class LocalFollowUpRepository {
             ..orderBy([
               (t) => OrderingTerm(
                 expression: t.followUpDate,
-                mode: OrderingMode.desc,
+                mode: OrderingMode.asc,
               ),
             ]))
           .watch()

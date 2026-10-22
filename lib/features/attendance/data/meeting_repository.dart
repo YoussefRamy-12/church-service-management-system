@@ -33,7 +33,7 @@ class OfflineFirstMeetingRepository implements MeetingRepository {
         .from('meetings')
         .select('id, service_id, meeting_date, start_time')
         .eq('service_id', serviceId)
-        .order('meeting_date', ascending: false);
+        .order('meeting_date', ascending: true);
     await local.clearMeetings(serviceId);
     await local.cacheMeetings(
       rows
