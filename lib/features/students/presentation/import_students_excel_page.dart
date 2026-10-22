@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use
+
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -173,8 +175,9 @@ class _ImportStudentsExcelPageState
 
       final allStages = _stages;
       final allClasses = _stageClasses.values.expand((c) => c).toList();
-      final selectedStage =
-          _stages.where((s) => s.id == _selectedStageId).firstOrNull;
+      final selectedStage = _stages
+          .where((s) => s.id == _selectedStageId)
+          .firstOrNull;
 
       final importService = ref.read(excelStudentImportServiceProvider);
       final parseResult = importService.parseExcelBytes(
@@ -264,8 +267,9 @@ class _ImportStudentsExcelPageState
     setState(() => _importing = true);
 
     try {
-      final selectedStage =
-          _stages.where((s) => s.id == _selectedStageId).firstOrNull;
+      final selectedStage = _stages
+          .where((s) => s.id == _selectedStageId)
+          .firstOrNull;
       final inputs = rowsToImport
           .map(
             (r) => r.toRegistrationInput(
@@ -511,6 +515,8 @@ class _ImportStudentsExcelPageState
                             RadioListTile<bool>(
                               contentPadding: EdgeInsets.zero,
                               value: false,
+                              // ignore: duplicate_ignore
+                              // ignore: deprecated_member_use
                               groupValue: _replaceClassStudents,
                               title: const Text('الإضافة إلى الطلاب الحاليين'),
                               subtitle: const Text(
@@ -939,10 +945,7 @@ class _ImportStudentsExcelPageState
                                   : (r.duplicateReason ?? 'مكرر'),
                               maxLines: 2,
                               overflow: TextOverflow.ellipsis,
-                              style: TextStyle(
-                                fontSize: 11,
-                                color: badgeColor,
-                              ),
+                              style: TextStyle(fontSize: 11, color: badgeColor),
                             ),
                         ],
                       ),

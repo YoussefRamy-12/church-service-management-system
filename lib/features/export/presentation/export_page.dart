@@ -36,7 +36,9 @@ class _ExportPageState extends ConsumerState<ExportPage> {
   List<dynamic> classes = [];
   List<dynamic> students = [];
   String role = '';
-  Set<String> selectedColumns = CsvExportRepository.columns.map((c) => c.id).toSet();
+  Set<String> selectedColumns = CsvExportRepository.columns
+      .map((c) => c.id)
+      .toSet();
 
   @override
   void initState() {
@@ -159,16 +161,35 @@ class _ExportPageState extends ConsumerState<ExportPage> {
       }
 
       final exportCandidates = students.where((student) {
-        if (scope == 'students' && !selectedStudentIds.contains(student.id)) return false;
-        if ((scope == 'class' || scope == 'students') && effectiveClass != null &&
-            student.currentClassId != effectiveClass) return false;
-        if (scope == 'stage' && effectiveStage != null &&
-            !classes.any((item) => item.id == student.currentClassId && item.stageId == effectiveStage)) return false;
+        if (scope == 'students' && !selectedStudentIds.contains(student.id)) {
+          return false;
+        }
+        if ((scope == 'class' || scope == 'students') &&
+            effectiveClass != null &&
+            student.currentClassId != effectiveClass) {
+          return false;
+        }
+        if (scope == 'stage' &&
+            effectiveStage != null &&
+            !classes.any(
+              (item) =>
+                  item.id == student.currentClassId &&
+                  item.stageId == effectiveStage,
+            )) {
+          return false;
+        }
         return true;
       }).toList();
-      final sensitiveEntries = await Future.wait(exportCandidates.map((student) async =>
-          MapEntry(student.id as String,
-              await ref.read(studentRepositoryProvider).getSensitiveData(student.id as String))));
+      final sensitiveEntries = await Future.wait(
+        exportCandidates.map(
+          (student) async => MapEntry(
+            student.id as String,
+            await ref
+                .read(studentRepositoryProvider)
+                .getSensitiveData(student.id as String),
+          ),
+        ),
+      );
       final sensitiveData = <String, SensitiveStudentData?>{
         for (final entry in sensitiveEntries) entry.key: entry.value,
       };
@@ -203,14 +224,12 @@ class _ExportPageState extends ConsumerState<ExportPage> {
         );
       }
       if (!mounted) return;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('تم إنشاء ملف Excel بنجاح.')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('تم إنشاء ملف Excel بنجاح.')),
+      );
     } catch (error) {
       if (!mounted) return;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(
+      ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
             'تعذر إنشاء الملف: ${NetworkErrorFormatter.format(error)}',
@@ -321,28 +340,40 @@ class _ExportPageState extends ConsumerState<ExportPage> {
               onChanged: (value) => setState(() {
                 graduationOnly = value;
                 if (value) {
-                  selectedColumns = CsvExportRepository.graduationColumns.toSet();
+                  selectedColumns = CsvExportRepository.graduationColumns
+                      .toSet();
                 } else {
-                  selectedColumns = CsvExportRepository.columns.map((c) => c.id).toSet();
+                  selectedColumns = CsvExportRepository.columns
+                      .map((c) => c.id)
+                      .toSet();
                 }
               }),
             ),
           const SizedBox(height: 12),
-          Text('الأعمدة المصدّرة', style: Theme.of(context).textTheme.titleMedium),
+          Text(
+            'الأعمدة المصدّرة',
+            style: Theme.of(context).textTheme.titleMedium,
+          ),
           ...CsvExportRepository.columns
-              .where((column) => !graduationOnly || CsvExportRepository.graduationColumns.contains(column.id))
-              .map((column) => CheckboxListTile(
-                    contentPadding: EdgeInsets.zero,
-                    title: Text(column.label),
-                    value: selectedColumns.contains(column.id),
-                    onChanged: (value) => setState(() {
-                      if (value == true) {
-                        selectedColumns.add(column.id);
-                      } else {
-                        selectedColumns.remove(column.id);
-                      }
-                    }),
-                  )),
+              .where(
+                (column) =>
+                    !graduationOnly ||
+                    CsvExportRepository.graduationColumns.contains(column.id),
+              )
+              .map(
+                (column) => CheckboxListTile(
+                  contentPadding: EdgeInsets.zero,
+                  title: Text(column.label),
+                  value: selectedColumns.contains(column.id),
+                  onChanged: (value) => setState(() {
+                    if (value == true) {
+                      selectedColumns.add(column.id);
+                    } else {
+                      selectedColumns.remove(column.id);
+                    }
+                  }),
+                ),
+              ),
           const SizedBox(height: 16),
           FilledButton.icon(
             onPressed: exporting ? null : _export,
