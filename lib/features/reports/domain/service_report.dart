@@ -7,6 +7,7 @@ class ServiceReport {
     required this.early,
     required this.normal,
     required this.followUps,
+    this.details = const {},
   });
 
   final int students;
@@ -16,6 +17,7 @@ class ServiceReport {
   final int early;
   final int normal;
   final int followUps;
+  final Map<String, List<String>> details;
 
   double get attendancePercentage =>
       expectedAttendance == 0 ? 0 : present * 100 / expectedAttendance;

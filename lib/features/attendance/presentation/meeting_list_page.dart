@@ -63,16 +63,9 @@ class _MeetingListPageState extends ConsumerState<MeetingListPage> {
     );
     if (date == null || !mounted) return;
 
-    final time = await showTimePicker(
-      context: context,
-      initialTime: const TimeOfDay(hour: 15, minute: 0),
-      helpText: 'اختر وقت بداية الاجتماع',
-    );
-    if (time == null || !mounted) return;
-
-    final startTime =
-        '${time.hour.toString().padLeft(2, '0')}:'
-        '${time.minute.toString().padLeft(2, '0')}:00';
+    final service = await ref.read(serviceRepositoryProvider).getService(widget.serviceId);
+    if (service == null || !mounted) return;
+    final startTime = service.meetingStartTime;
 
     try {
       await ref
@@ -86,7 +79,7 @@ class _MeetingListPageState extends ConsumerState<MeetingListPage> {
           content: Text(
             isOffline
                 ? 'تم إنشاء الاجتماع محليًا وسيتم مزامنته.'
-                : 'تم إنشاء الاجتماع بنجاح.',
+                : 'تم إنشاء الاجتماع بنجاح في ${startTime.substring(0, 5)}.',
           ),
         ),
       );

@@ -21,6 +21,7 @@ abstract interface class ServiceRepository {
     required String meetingFrequency,
     required int meetingWeekday,
     required int meetingMonthDay,
+    required int earlyAttendanceMinutes,
   });
   Future<void> refreshStages(String serviceId);
   Future<void> refreshClasses(String stageId);

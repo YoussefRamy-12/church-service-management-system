@@ -14,6 +14,13 @@ class LocalReportRepository {
     required DateTime end,
     Set<String>? classIds,
   }) async {
+    var earlyMinutes = 15;
+    final cachedService = await (_db.select(_db.cachedServices)
+      ..where((t) => t.id.equals(serviceId))).getSingleOrNull();
+    if (cachedService != null) {
+      final parts = cachedService.meetingStartTime.split('|');
+      if (parts.length > 4) earlyMinutes = int.tryParse(parts[4]) ?? 15;
+    }
     final students = await (_db.select(
       _db.cachedStudents,
     )..where((t) => t.serviceId.equals(serviceId))).get();
@@ -41,6 +48,7 @@ class LocalReportRepository {
     )..where((t) => t.meetingId.isIn(meetingIds))).get();
 
     final studentIds = scopedStudents.map((row) => row.id).toSet();
+    final studentNames = {for (final row in scopedStudents) row.id: row.name};
     final followUps =
         await (_db.select(_db.cachedFollowUpRecords)..where(
               (t) =>
@@ -88,7 +96,7 @@ class LocalReportRepository {
         parts.length > 2 ? int.parse(parts[2]) : 0,
       );
       if (row.checkedInAt.isBefore(
-        startTime.add(const Duration(minutes: 15)),
+        startTime.add(Duration(minutes: earlyMinutes)),
       )) {
         early++;
       } else {
@@ -104,6 +112,25 @@ class LocalReportRepository {
       early: early,
       normal: normal,
       followUps: followUps.length,
+      details: {
+        'students': scopedStudents.map((row) => row.name).toList(),
+        'meetings': meetings.map((row) => '${row.meetingDate} • ${row.startTime}').toList(),
+        'early': attendance.where((row) => counted.contains('${row.meetingId}:${row.studentId}')).where((row) {
+          final meeting = meetings.firstWhere((item) => item.id == row.meetingId);
+          final parts = meeting.startTime.split(':');
+          final began = DateTime(row.checkedInAt.year, row.checkedInAt.month, row.checkedInAt.day, int.tryParse(parts[0]) ?? 15, int.tryParse(parts[1]) ?? 0);
+          return row.checkedInAt.isBefore(began.add(Duration(minutes: earlyMinutes)));
+        }).map((row) => '${row.checkedInAt} • ${studentNames[row.studentId] ?? row.studentId}').toList(),
+        'followUps': followUps.map((row) => '${row.followUpDate} • ${studentNames[row.studentId] ?? row.studentId}').toList(),
+        'normal': attendance.where((row) {
+          if (!studentIds.contains(row.studentId)) return false;
+          final meeting = meetings.firstWhere((item) => item.id == row.meetingId);
+          final parts = meeting.startTime.split(':');
+          final began = DateTime(row.checkedInAt.year, row.checkedInAt.month, row.checkedInAt.day, int.tryParse(parts[0]) ?? 15, int.tryParse(parts[1]) ?? 0);
+          return !row.checkedInAt.isBefore(began.add(Duration(minutes: earlyMinutes)));
+        }).map((row) => '${row.checkedInAt} • ${studentNames[row.studentId] ?? row.studentId}').toList(),
+        'attendance': ['حضور $present من أصل $expected', 'الحضور المبكر: $early', 'الحضور العادي: $normal'],
+      },
     );
   }
 }

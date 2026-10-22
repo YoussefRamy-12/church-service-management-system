@@ -26,6 +26,8 @@ class ServiceSyncHandler implements EntitySyncHandler {
             'meeting_frequency': payload['meeting_frequency'] ?? 'weekly',
             'meeting_weekday': payload['meeting_weekday'] ?? 5,
             'meeting_month_day': payload['meeting_month_day'] ?? 1,
+            'early_attendance_minutes':
+                payload['early_attendance_minutes'] ?? 15,
           })
           .eq('id', payload['id'] as String)
           .select('id');

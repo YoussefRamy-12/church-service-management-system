@@ -31,6 +31,7 @@ class _AttendanceSessionPageState extends ConsumerState<AttendanceSessionPage> {
   String query = '';
   String? busyStudentId;
   TimeOfDay meetingTime = const TimeOfDay(hour: 15, minute: 0);
+  int earlyAttendanceMinutes = 15;
   bool openingQrScanner = false;
   _AttendanceFilter _filter = _AttendanceFilter.all;
 
@@ -51,6 +52,7 @@ class _AttendanceSessionPageState extends ConsumerState<AttendanceSessionPage> {
             hour: int.tryParse(parts.first) ?? 15,
             minute: parts.length > 1 ? int.tryParse(parts[1]) ?? 0 : 0,
           );
+          earlyAttendanceMinutes = service.earlyAttendanceMinutes;
         });
       } catch (_) {}
     });
@@ -392,7 +394,7 @@ class _AttendanceSessionPageState extends ConsumerState<AttendanceSessionPage> {
       meetingTime.hour,
       meetingTime.minute,
     );
-    final earlyEnd = start.add(const Duration(minutes: 15));
+    final earlyEnd = start.add(Duration(minutes: earlyAttendanceMinutes));
     if (checkedInAt.isBefore(start)) return 'قبل بدء الاجتماع';
     if (checkedInAt.isBefore(earlyEnd)) return 'مبكر';
     return 'عادي';
@@ -545,7 +547,7 @@ class _AttendanceSessionPageState extends ConsumerState<AttendanceSessionPage> {
                                     ),
                                     const SizedBox(height: 2),
                                     Text(
-                                      'بداية الاجتماع: ${meetingTime.format(context)} • الحضور المبكر حتى ${TimeOfDay(hour: meetingTime.hour, minute: meetingTime.minute + 15).format(context)}',
+                                      'بداية الاجتماع: ${meetingTime.format(context)} • الحضور المبكر حتى ${TimeOfDay.fromDateTime(DateTime(2020, 1, 1, meetingTime.hour, meetingTime.minute).add(Duration(minutes: earlyAttendanceMinutes))).format(context)}',
                                       style: TextStyle(
                                         fontSize: 12,
                                         color: isDark

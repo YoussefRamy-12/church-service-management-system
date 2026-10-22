@@ -13,9 +13,14 @@ class SupabaseReportRepository {
     required DateTime end,
     Set<String>? classIds,
   }) async {
+    var earlyMinutes = 15;
+    try {
+      final service = await _client.from('services').select('early_attendance_minutes').eq('id', serviceId).maybeSingle();
+      earlyMinutes = service?['early_attendance_minutes'] as int? ?? 15;
+    } catch (_) {}
     final students = await _client
         .from('students')
-        .select('id, current_class_id, proposed_class_id, enrollment_at')
+        .select('id, name, current_class_id, proposed_class_id, enrollment_at')
         .eq('service_id', serviceId);
 
     final scopedStudents = (students as List).where((row) {
@@ -56,7 +61,7 @@ class SupabaseReportRepository {
           .lte('follow_up_date', _date(end));
     }
 
-    return _build(scopedStudents, meetings, attendance, followUps, classIds);
+    return _build(scopedStudents, meetings, attendance, followUps, earlyMinutes);
   }
 
   ServiceReport _build(
@@ -64,9 +69,12 @@ class SupabaseReportRepository {
     List<dynamic> meetings,
     List<dynamic> attendance,
     List<dynamic> followUps,
-    Set<String>? classIds,
+    int earlyMinutes,
   ) {
     final studentIds = students.map((row) => row['id'] as String).toSet();
+    final studentNames = {
+      for (final row in students) row['id'] as String: row['name'] as String? ?? row['id'] as String,
+    };
     final enrollment = <String, DateTime?>{
       for (final row in students)
         row['id'] as String: row['enrollment_at'] == null
@@ -108,7 +116,7 @@ class SupabaseReportRepository {
         int.parse(startParts[1]),
         startParts.length > 2 ? int.parse(startParts[2]) : 0,
       );
-      if (checkedIn.isBefore(start.add(const Duration(minutes: 15)))) {
+      if (checkedIn.isBefore(start.add(Duration(minutes: earlyMinutes)))) {
         early++;
       } else {
         normal++;
@@ -123,6 +131,28 @@ class SupabaseReportRepository {
       early: early,
       normal: normal,
       followUps: followUps.length,
+      details: {
+        'students': students.map((row) => row['name'] as String? ?? row['id'] as String).toList(),
+        'meetings': meetingRows.map((row) => '${row['meeting_date']} • ${row['start_time']}').toList(),
+        'early': attendance.where((row) {
+          if (!studentIds.contains(row['student_id'])) return false;
+          final checkedIn = DateTime.parse(row['checked_in_at'] as String);
+          final meeting = meetingRows.firstWhere((item) => item['id'] == row['meeting_id']);
+          final parts = (meeting['start_time'] as String).split(':');
+          final began = DateTime(checkedIn.year, checkedIn.month, checkedIn.day, int.tryParse(parts[0]) ?? 15, int.tryParse(parts[1]) ?? 0);
+          return checkedIn.isBefore(began.add(Duration(minutes: earlyMinutes)));
+        }).map((row) => '${row['checked_in_at']} • ${studentNames[row['student_id']] ?? row['student_id']}').toList(),
+        'followUps': followUps.map((row) => '${row['follow_up_date']} • ${studentNames[row['student_id']] ?? row['student_id']}').toList(),
+        'normal': attendance.where((row) {
+          if (!studentIds.contains(row['student_id'])) return false;
+          final checkedIn = DateTime.parse(row['checked_in_at'] as String);
+          final meeting = meetingRows.firstWhere((item) => item['id'] == row['meeting_id']);
+          final parts = (meeting['start_time'] as String).split(':');
+          final began = DateTime(checkedIn.year, checkedIn.month, checkedIn.day, int.tryParse(parts[0]) ?? 15, int.tryParse(parts[1]) ?? 0);
+          return !checkedIn.isBefore(began.add(Duration(minutes: earlyMinutes)));
+        }).map((row) => '${row['checked_in_at']} • ${studentNames[row['student_id']]}').toList(),
+        'attendance': ['حضور $present من أصل $expected', 'الحضور المبكر: $early', 'الحضور العادي: $normal'],
+      },
     );
   }
 

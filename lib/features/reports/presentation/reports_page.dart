@@ -190,7 +190,10 @@ class _ReportsPageState extends ConsumerState<ReportsPage> {
                   ),
                 )
               else
-                _ReportSummary(report: report!),
+                _ReportSummary(
+                  report: report!,
+                  onMetricTap: _showDetails,
+                ),
             ],
           ),
         ),
@@ -216,6 +219,28 @@ class _ReportsPageState extends ConsumerState<ReportsPage> {
             color: Theme.of(context).colorScheme.primary,
           ),
         ),
+      ),
+    );
+  }
+
+  Future<void> _showDetails(String key, String title) async {
+    final items = report?.details[key] ?? const <String>[];
+    await showDialog<void>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(title),
+        content: SizedBox(
+          width: 440,
+          height: 420,
+          child: items.isEmpty
+              ? const Text('لا توجد تفاصيل مسجلة لهذا المؤشر في الفترة المحددة.')
+                  : ListView.separated(
+                  itemCount: items.length,
+                  separatorBuilder: (_, _) => const Divider(height: 12),
+                  itemBuilder: (context, index) => Text(items[index]),
+                ),
+        ),
+        actions: [TextButton(onPressed: () => Navigator.pop(context), child: const Text('إغلاق'))],
       ),
     );
   }
@@ -287,8 +312,9 @@ class _ReportsPageState extends ConsumerState<ReportsPage> {
 }
 
 class _ReportSummary extends StatelessWidget {
-  const _ReportSummary({required this.report});
+  const _ReportSummary({required this.report, required this.onMetricTap});
   final ServiceReport report;
+  final void Function(String key, String title) onMetricTap;
 
   @override
   Widget build(BuildContext context) {
@@ -401,6 +427,7 @@ class _ReportSummary extends StatelessWidget {
               report.students.toString(),
               Icons.school_rounded,
               const Color(0xFF4F46E5),
+              'students',
             ),
             _metric(
               context,
@@ -408,6 +435,7 @@ class _ReportSummary extends StatelessWidget {
               report.meetings.toString(),
               Icons.event_available_rounded,
               const Color(0xFF7C3AED),
+              'meetings',
             ),
             _metric(
               context,
@@ -415,6 +443,7 @@ class _ReportSummary extends StatelessWidget {
               report.early.toString(),
               Icons.timer_rounded,
               const Color(0xFF06B6D4),
+              'early',
             ),
             _metric(
               context,
@@ -422,6 +451,7 @@ class _ReportSummary extends StatelessWidget {
               report.normal.toString(),
               Icons.schedule_rounded,
               const Color(0xFF3B82F6),
+              'normal',
             ),
             _metric(
               context,
@@ -429,6 +459,7 @@ class _ReportSummary extends StatelessWidget {
               report.followUps.toString(),
               Icons.volunteer_activism_rounded,
               const Color(0xFFEC4899),
+              'followUps',
             ),
             _metric(
               context,
@@ -436,6 +467,7 @@ class _ReportSummary extends StatelessWidget {
               '${report.present}/${report.expectedAttendance}',
               Icons.fact_check_rounded,
               const Color(0xFF10B981),
+              'attendance',
             ),
           ],
         ),
@@ -449,8 +481,12 @@ class _ReportSummary extends StatelessWidget {
     String value,
     IconData icon,
     Color color,
+    String key,
   ) {
-    return GlassCard(
+    return InkWell(
+      borderRadius: BorderRadius.circular(20),
+      onTap: () => onMetricTap(key, title),
+      child: GlassCard(
       borderRadius: 20,
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       child: Row(
@@ -500,6 +536,7 @@ class _ReportSummary extends StatelessWidget {
             ),
           ),
         ],
+      ),
       ),
     );
   }

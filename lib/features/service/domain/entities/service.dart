@@ -10,6 +10,7 @@ class Service {
     this.meetingFrequency = 'weekly',
     this.meetingWeekday = 5,
     this.meetingMonthDay = 1,
+    this.earlyAttendanceMinutes = 15,
   });
 
   final String id;
@@ -19,6 +20,7 @@ class Service {
   final String meetingFrequency;
   final int meetingWeekday;
   final int meetingMonthDay;
+  final int earlyAttendanceMinutes;
 
   Service copyWith({
     String? id,
@@ -28,6 +30,7 @@ class Service {
     String? meetingFrequency,
     int? meetingWeekday,
     int? meetingMonthDay,
+    int? earlyAttendanceMinutes,
   }) {
     return Service(
       id: id ?? this.id,
@@ -37,6 +40,8 @@ class Service {
       meetingFrequency: meetingFrequency ?? this.meetingFrequency,
       meetingWeekday: meetingWeekday ?? this.meetingWeekday,
       meetingMonthDay: meetingMonthDay ?? this.meetingMonthDay,
+      earlyAttendanceMinutes:
+          earlyAttendanceMinutes ?? this.earlyAttendanceMinutes,
     );
   }
 

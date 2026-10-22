@@ -72,12 +72,14 @@ class OnlineServiceRepository implements ServiceRepository {
     required String meetingFrequency,
     required int meetingWeekday,
     required int meetingMonthDay,
+    required int earlyAttendanceMinutes,
   }) => _remote.updateMeetingSchedule(
     serviceId: serviceId,
     meetingStartTime: meetingStartTime,
     meetingFrequency: meetingFrequency,
     meetingWeekday: meetingWeekday,
     meetingMonthDay: meetingMonthDay,
+    earlyAttendanceMinutes: earlyAttendanceMinutes,
   );
 
   @override

@@ -26,6 +26,8 @@ class LocalServiceRepository {
       meetingFrequency: schedule.length > 1 ? schedule[1] : 'weekly',
       meetingWeekday: schedule.length > 2 ? int.tryParse(schedule[2]) ?? 5 : 5,
       meetingMonthDay: schedule.length > 3 ? int.tryParse(schedule[3]) ?? 1 : 1,
+      earlyAttendanceMinutes:
+          schedule.length > 4 ? int.tryParse(schedule[4]) ?? 15 : 15,
     );
   }
 
@@ -98,6 +100,7 @@ class LocalServiceRepository {
         meetingFrequency: current.meetingFrequency,
         meetingWeekday: current.meetingWeekday,
         meetingMonthDay: current.meetingMonthDay,
+        earlyAttendanceMinutes: current.earlyAttendanceMinutes,
       ),
     );
   }
@@ -108,6 +111,7 @@ class LocalServiceRepository {
     required String meetingFrequency,
     required int meetingWeekday,
     required int meetingMonthDay,
+    required int earlyAttendanceMinutes,
   }) async {
     final current = await getService(serviceId);
     if (current == null) return;
@@ -120,6 +124,7 @@ class LocalServiceRepository {
         meetingFrequency: meetingFrequency,
         meetingWeekday: meetingWeekday,
         meetingMonthDay: meetingMonthDay,
+        earlyAttendanceMinutes: earlyAttendanceMinutes,
       ),
     );
   }
@@ -155,7 +160,7 @@ class LocalServiceRepository {
             // Reuse the existing cached text column so schedule settings are
             // available offline without a local database schema change.
             meetingStartTime:
-                '${service.meetingStartTime}|${service.meetingFrequency}|${service.meetingWeekday}|${service.meetingMonthDay}',
+                '${service.meetingStartTime}|${service.meetingFrequency}|${service.meetingWeekday}|${service.meetingMonthDay}|${service.earlyAttendanceMinutes}',
             cachedAt: DateTime.now(),
           ),
         );

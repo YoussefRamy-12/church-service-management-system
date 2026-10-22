@@ -27,6 +27,7 @@ class _ServiceSettingsPageState extends ConsumerState<ServiceSettingsPage> {
   String meetingFrequency = 'weekly';
   int meetingWeekday = 5;
   int meetingMonthDay = 1;
+  int earlyAttendanceMinutes = 15;
   bool loading = true;
   bool saving = false;
   bool denied = false;
@@ -51,8 +52,7 @@ class _ServiceSettingsPageState extends ConsumerState<ServiceSettingsPage> {
         .getService(widget.serviceId);
     if (!mounted) return;
     if (!ref.read(isSuperAdminProvider) &&
-        profile?.role != 'overall_leader' &&
-        profile?.role != 'overall_helper') {
+        profile?.role != 'overall_leader') {
       setState(() {
         loading = false;
         denied = true;
@@ -70,6 +70,7 @@ class _ServiceSettingsPageState extends ConsumerState<ServiceSettingsPage> {
       meetingFrequency = service.meetingFrequency;
       meetingWeekday = service.meetingWeekday;
       meetingMonthDay = service.meetingMonthDay;
+      earlyAttendanceMinutes = service.earlyAttendanceMinutes;
     }
     try {
       await ref
@@ -91,6 +92,7 @@ class _ServiceSettingsPageState extends ConsumerState<ServiceSettingsPage> {
             meetingFrequency: meetingFrequency,
             meetingWeekday: meetingWeekday,
             meetingMonthDay: meetingMonthDay,
+            earlyAttendanceMinutes: earlyAttendanceMinutes,
           );
       final service = await ref
           .read(serviceRepositoryProvider)
@@ -342,6 +344,26 @@ class _ServiceSettingsPageState extends ConsumerState<ServiceSettingsPage> {
                           },
                           child: const Text('تغيير الوقت'),
                         ),
+                      ),
+                      const SizedBox(height: 12),
+                      DropdownButtonFormField<int>(
+                        initialValue: earlyAttendanceMinutes,
+                        decoration: const InputDecoration(
+                          labelText: 'مدة الحضور المبكر',
+                          helperText: 'تُحسب من وقت بدء الاجتماع المحدد أعلاه.',
+                        ),
+                        items: [
+                          for (var minutes = 0; minutes <= 60; minutes += 5)
+                            DropdownMenuItem(
+                              value: minutes,
+                              child: Text('$minutes دقيقة'),
+                            ),
+                        ],
+                        onChanged: (value) {
+                          if (value != null) {
+                            setState(() => earlyAttendanceMinutes = value);
+                          }
+                        },
                       ),
                       const SizedBox(height: 12),
                       DropdownButtonFormField<String>(

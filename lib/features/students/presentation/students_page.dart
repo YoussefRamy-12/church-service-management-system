@@ -217,7 +217,8 @@ class _StudentsPageState extends ConsumerState<StudentsPage> {
         return matchesStatus && matchesQuery;
       }).toList();
 
-      return Column(
+      return ListView(
+        padding: const EdgeInsets.only(bottom: 24),
         children: [
           Padding(
             padding: const EdgeInsets.fromLTRB(20, 4, 20, 12),
@@ -324,21 +325,19 @@ class _StudentsPageState extends ConsumerState<StudentsPage> {
               ],
             ),
           ),
-          Expanded(
-            child: filtered.isEmpty
-                ? _empty(
+          if (filtered.isEmpty)
+            _empty(
                     Icons.search_off_rounded,
                     'لا توجد نتائج مطابقة',
                     'غيّر كلمات البحث أو حالة الاعتماد.',
                   )
-                : ListView.separated(
-                    padding: const EdgeInsets.fromLTRB(20, 0, 20, 24),
-                    itemCount: filtered.length,
-                    separatorBuilder: (_, _) => const SizedBox(height: 10),
-                    itemBuilder: (context, index) =>
-                        _studentRow(filtered[index]),
-                  ),
-          ),
+          else
+            ...filtered.map(
+              (student) => Padding(
+                padding: const EdgeInsetsDirectional.fromSTEB(20, 0, 20, 10),
+                child: _studentRow(student),
+              ),
+            ),
         ],
       );
     },

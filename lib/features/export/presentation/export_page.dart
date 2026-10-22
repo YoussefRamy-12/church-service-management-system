@@ -7,6 +7,7 @@ import '../../../core/network/network_error_formatter.dart';
 import '../../auth/presentation/auth_providers.dart';
 import '../../service/presentation/service_providers.dart';
 import '../../students/presentation/student_providers.dart';
+import '../../students/domain/entities/sensitive_student_data.dart';
 import '../data/csv_export_repository.dart';
 
 class ExportPage extends ConsumerStatefulWidget {
@@ -35,6 +36,7 @@ class _ExportPageState extends ConsumerState<ExportPage> {
   List<dynamic> classes = [];
   List<dynamic> students = [];
   String role = '';
+  Set<String> selectedColumns = CsvExportRepository.columns.map((c) => c.id).toSet();
 
   @override
   void initState() {
@@ -126,7 +128,7 @@ class _ExportPageState extends ConsumerState<ExportPage> {
               ? 'مرحلة'
               : scope == 'class'
               ? 'فصل'
-              : 'تلاميذ محددون'}\n${graduationOnly ? 'سيحتوي الملف على بيانات التخرج الأساسية فقط.' : 'سيتم تجهيز ملف CSV للنطاق المحدد.'}',
+              : 'تلاميذ محددون'}\nسيتم إنشاء ملف Excel بالأعمدة المحددة.',
         ),
         actions: [
           TextButton(
@@ -156,6 +158,21 @@ class _ExportPageState extends ConsumerState<ExportPage> {
             : null;
       }
 
+      final exportCandidates = students.where((student) {
+        if (scope == 'students' && !selectedStudentIds.contains(student.id)) return false;
+        if ((scope == 'class' || scope == 'students') && effectiveClass != null &&
+            student.currentClassId != effectiveClass) return false;
+        if (scope == 'stage' && effectiveStage != null &&
+            !classes.any((item) => item.id == student.currentClassId && item.stageId == effectiveStage)) return false;
+        return true;
+      }).toList();
+      final sensitiveEntries = await Future.wait(exportCandidates.map((student) async =>
+          MapEntry(student.id as String,
+              await ref.read(studentRepositoryProvider).getSensitiveData(student.id as String))));
+      final sensitiveData = <String, SensitiveStudentData?>{
+        for (final entry in sensitiveEntries) entry.key: entry.value,
+      };
+
       if (offlineEnabled) {
         final repository = CsvExportRepository(ref.read(appDatabaseProvider));
         await repository.exportStudents(
@@ -166,6 +183,8 @@ class _ExportPageState extends ConsumerState<ExportPage> {
               : null,
           studentIds: scope == 'students' ? selectedStudentIds : null,
           graduationOnly: graduationOnly,
+          selectedColumns: selectedColumns,
+          sensitiveData: sensitiveData,
         );
       } else {
         final repository = CsvExportRepository();
@@ -179,12 +198,14 @@ class _ExportPageState extends ConsumerState<ExportPage> {
               : null,
           studentIds: scope == 'students' ? selectedStudentIds : null,
           graduationOnly: graduationOnly,
+          selectedColumns: selectedColumns,
+          sensitiveData: sensitiveData,
         );
       }
       if (!mounted) return;
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(const SnackBar(content: Text('تم إنشاء ملف CSV بنجاح.')));
+      ).showSnackBar(const SnackBar(content: Text('تم إنشاء ملف Excel بنجاح.')));
     } catch (error) {
       if (!mounted) return;
       ScaffoldMessenger.of(
@@ -297,13 +318,36 @@ class _ExportPageState extends ConsumerState<ExportPage> {
                 'بدون الحضور أو المتابعة أو البيانات الحساسة.',
               ),
               value: graduationOnly,
-              onChanged: (value) => setState(() => graduationOnly = value),
+              onChanged: (value) => setState(() {
+                graduationOnly = value;
+                if (value) {
+                  selectedColumns = CsvExportRepository.graduationColumns.toSet();
+                } else {
+                  selectedColumns = CsvExportRepository.columns.map((c) => c.id).toSet();
+                }
+              }),
             ),
+          const SizedBox(height: 12),
+          Text('الأعمدة المصدّرة', style: Theme.of(context).textTheme.titleMedium),
+          ...CsvExportRepository.columns
+              .where((column) => !graduationOnly || CsvExportRepository.graduationColumns.contains(column.id))
+              .map((column) => CheckboxListTile(
+                    contentPadding: EdgeInsets.zero,
+                    title: Text(column.label),
+                    value: selectedColumns.contains(column.id),
+                    onChanged: (value) => setState(() {
+                      if (value == true) {
+                        selectedColumns.add(column.id);
+                      } else {
+                        selectedColumns.remove(column.id);
+                      }
+                    }),
+                  )),
           const SizedBox(height: 16),
           FilledButton.icon(
             onPressed: exporting ? null : _export,
             icon: const Icon(Icons.download),
-            label: Text(exporting ? 'جاري التصدير...' : 'تصدير CSV'),
+            label: Text(exporting ? 'جاري التصدير...' : 'تصدير Excel'),
           ),
         ],
       ),

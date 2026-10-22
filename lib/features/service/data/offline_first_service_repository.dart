@@ -51,6 +51,7 @@ class OfflineFirstServiceRepository implements ServiceRepository {
     required String meetingFrequency,
     required int meetingWeekday,
     required int meetingMonthDay,
+    required int earlyAttendanceMinutes,
   }) async {
     await local.updateMeetingSchedule(
       serviceId: serviceId,
@@ -58,6 +59,7 @@ class OfflineFirstServiceRepository implements ServiceRepository {
       meetingFrequency: meetingFrequency,
       meetingWeekday: meetingWeekday,
       meetingMonthDay: meetingMonthDay,
+      earlyAttendanceMinutes: earlyAttendanceMinutes,
     );
     await queue.enqueue(
       SyncOperation(
@@ -70,6 +72,7 @@ class OfflineFirstServiceRepository implements ServiceRepository {
           'meeting_frequency': meetingFrequency,
           'meeting_weekday': meetingWeekday,
           'meeting_month_day': meetingMonthDay,
+          'early_attendance_minutes': earlyAttendanceMinutes,
         }),
       ),
     );

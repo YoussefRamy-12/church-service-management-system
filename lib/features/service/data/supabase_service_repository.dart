@@ -29,6 +29,7 @@ class SupabaseServiceRepository {
     required String meetingFrequency,
     required int meetingWeekday,
     required int meetingMonthDay,
+    required int earlyAttendanceMinutes,
   }) async {
     final rows = await _client
         .from('services')
@@ -37,6 +38,7 @@ class SupabaseServiceRepository {
           'meeting_frequency': meetingFrequency,
           'meeting_weekday': meetingWeekday,
           'meeting_month_day': meetingMonthDay,
+          'early_attendance_minutes': earlyAttendanceMinutes,
         })
         .eq('id', serviceId)
         .select('id');
@@ -57,7 +59,7 @@ class SupabaseServiceRepository {
     final row = await _client
         .from('services')
         .select(
-          'id, name, church_name, meeting_start_time, meeting_frequency, meeting_weekday, meeting_month_day',
+          'id, name, church_name, meeting_start_time, meeting_frequency, meeting_weekday, meeting_month_day, early_attendance_minutes',
         )
         .eq('id', serviceId)
         .maybeSingle();
@@ -72,6 +74,8 @@ class SupabaseServiceRepository {
       meetingFrequency: row['meeting_frequency'] as String? ?? 'weekly',
       meetingWeekday: row['meeting_weekday'] as int? ?? 5,
       meetingMonthDay: row['meeting_month_day'] as int? ?? 1,
+      earlyAttendanceMinutes:
+          row['early_attendance_minutes'] as int? ?? 15,
     );
   }
 

@@ -68,6 +68,7 @@ class _FakeServiceRepo implements ServiceRepository {
     required String meetingFrequency,
     required int meetingWeekday,
     required int meetingMonthDay,
+    required int earlyAttendanceMinutes,
   }) async {}
 
   @override
