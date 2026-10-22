@@ -152,22 +152,13 @@ class OnlineStudentRepository implements StudentRepository {
 
   @override
   Future<void> deleteStudent(String studentId) async {
-    try {
-      final rows = await _client
-          .from('students')
-          .delete()
-          .eq('id', studentId)
-          .select('id');
-      if (rows.isEmpty) {
-        throw StateError('Student deletion was rejected or student not found.');
-      }
-    } on PostgrestException catch (e) {
-      if (e.code == '23503') {
-        throw StateError(
-          'تعذر حذف التلميذ لوجود سجلات مرتبطة به (مثل الحضور أو الافتقاد).',
-        );
-      }
-      rethrow;
+    final rows = await _client
+        .from('students')
+        .delete()
+        .eq('id', studentId)
+        .select('id');
+    if (rows.isEmpty) {
+      throw StateError('Student deletion was rejected or student not found.');
     }
   }
 

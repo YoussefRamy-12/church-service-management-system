@@ -8,6 +8,7 @@ import '../../auth/presentation/auth_providers.dart';
 import '../../service/domain/entities/service_class.dart';
 import '../../service/domain/entities/stage.dart';
 import '../../service/presentation/service_providers.dart';
+import '../domain/entities/student.dart';
 import '../services/excel_student_import_service.dart';
 import 'student_providers.dart';
 
@@ -40,6 +41,7 @@ class _ImportStudentsExcelPageState
   String? _selectedClassId;
   bool _isClassLocked = false;
   String? _lockedClassLabel;
+  bool _replaceClassStudents = false;
 
   // File & Parsing State
   PlatformFile? _pickedFile;
@@ -47,8 +49,6 @@ class _ImportStudentsExcelPageState
   int _fileSizeBytes = 0;
   bool _parsingFile = false;
   ExcelParseResult? _parseResult;
-  bool _importOnlyValid = true;
-
   // Import Execution State
   bool _importing = false;
   int? _successCount;
@@ -158,13 +158,18 @@ class _ImportStudentsExcelPageState
         _fileName = file.name;
         _fileSizeBytes = bytes.length;
         _parsingFile = true;
+        _successCount = null;
+        _failedCount = null;
       });
 
-      // Fetch existing students in the service to detect duplicates
-      final localRepo = ref.read(localStudentRepositoryProvider);
-      final existing = await localRepo
-          .watchStudentsForService(widget.serviceId)
-          .first;
+      // Duplicate detection is scoped to the destination class. Replacement
+      // intentionally ignores the old roster because it will be removed.
+      final existing = _replaceClassStudents || _selectedClassId == null
+          ? <Student>[]
+          : await ref
+                .read(studentRepositoryProvider)
+                .watchStudentsForClass(_selectedClassId!)
+                .first;
 
       final allStages = _stages;
       final allClasses = _stageClasses.values.expand((c) => c).toList();
@@ -217,9 +222,7 @@ class _ImportStudentsExcelPageState
   Future<void> _executeImport() async {
     if (_parseResult == null || _selectedClassId == null) return;
 
-    final rowsToImport = _importOnlyValid
-        ? _parseResult!.validRows
-        : _parseResult!.rows.where((r) => r.errors.isEmpty).toList();
+    final rowsToImport = _parseResult!.validRows;
 
     if (rowsToImport.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -236,7 +239,9 @@ class _ImportStudentsExcelPageState
       builder: (dialogCtx) => AlertDialog(
         title: const Text('تأكيد استيراد الطلاب'),
         content: Text(
-          'سيتم استيراد ${rowsToImport.length} طالب وإضافتهم للفصل مباشرة في قاعدة البيانات.',
+          _replaceClassStudents
+              ? 'سيتم حذف طلاب الفصل الحاليين وسجلات حضورهم وافتقادهم نهائيًا، ثم استيراد ${rowsToImport.length} طالب من الملف.'
+              : 'سيتم إضافة ${rowsToImport.length} طالب إلى الفصل. سيتم تخطي الطلاب الموجودين بالفعل وأي صف به مشكلة.',
         ),
         actions: [
           TextButton(
@@ -266,22 +271,45 @@ class _ImportStudentsExcelPageState
             (r) => r.toRegistrationInput(
               fallbackClassId: _selectedClassId,
               fallbackGrade: selectedStage?.name,
+              forceClassId: _selectedClassId,
             ),
           )
           .toList();
       final registration = ref.read(studentRegistrationProvider);
 
-      final created = await registration.registerBatch(
-        serviceId: widget.serviceId,
-        currentClassId: _selectedClassId,
-        inputs: inputs,
-      );
+      final studentRepository = ref.read(studentRepositoryProvider);
+      if (_replaceClassStudents) {
+        final currentStudents = await studentRepository
+            .watchStudentsForClass(_selectedClassId!)
+            .first;
+        for (final student in currentStudents) {
+          await studentRepository.deleteStudent(student.id);
+        }
+      }
+
+      var successCount = 0;
+      for (var index = 0; index < inputs.length; index++) {
+        final row = rowsToImport[index];
+        try {
+          final created = await registration.registerBatch(
+            serviceId: widget.serviceId,
+            currentClassId: _selectedClassId,
+            inputs: [inputs[index]],
+          );
+          if (created.isEmpty) {
+            throw StateError('لم تُرجع عملية الحفظ سجلًا.');
+          }
+          successCount++;
+        } catch (error) {
+          row.errors.add('تعذر استيراد هذا الصف (${row.name}): $error');
+        }
+      }
 
       if (mounted) {
         setState(() {
           _importing = false;
-          _successCount = created.length;
-          _failedCount = _parseResult!.totalRows - created.length;
+          _successCount = successCount;
+          _failedCount = _parseResult!.totalRows - successCount;
         });
       }
     } catch (error) {
@@ -475,6 +503,45 @@ class _ImportStudentsExcelPageState
                                     : const Color(0xFF64748B),
                               ),
                             ),
+                            const SizedBox(height: 12),
+                            const Text(
+                              'طريقة التعامل مع طلاب الفصل الحاليين:',
+                              style: TextStyle(fontWeight: FontWeight.w700),
+                            ),
+                            RadioListTile<bool>(
+                              contentPadding: EdgeInsets.zero,
+                              value: false,
+                              groupValue: _replaceClassStudents,
+                              title: const Text('الإضافة إلى الطلاب الحاليين'),
+                              subtitle: const Text(
+                                'يتخطى الطلاب الموجودين بالفعل في هذا الفصل.',
+                              ),
+                              onChanged: _importing
+                                  ? null
+                                  : (_) => setState(() {
+                                      _replaceClassStudents = false;
+                                      _parseResult = null;
+                                      _pickedFile = null;
+                                      _fileName = '';
+                                    }),
+                            ),
+                            RadioListTile<bool>(
+                              contentPadding: EdgeInsets.zero,
+                              value: true,
+                              groupValue: _replaceClassStudents,
+                              title: const Text('استبدال جميع طلاب الفصل'),
+                              subtitle: const Text(
+                                'يحذف القائمة الحالية وسجلاتها المرتبطة قبل استيراد القائمة الجديدة.',
+                              ),
+                              onChanged: _importing
+                                  ? null
+                                  : (_) => setState(() {
+                                      _replaceClassStudents = true;
+                                      _parseResult = null;
+                                      _pickedFile = null;
+                                      _fileName = '';
+                                    }),
+                            ),
                           ],
                         ),
                       ),
@@ -646,24 +713,9 @@ class _ImportStudentsExcelPageState
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Row(
-                                children: [
-                                  Checkbox(
-                                    value: _importOnlyValid,
-                                    onChanged: (val) => setState(
-                                      () => _importOnlyValid = val ?? true,
-                                    ),
-                                  ),
-                                  const Expanded(
-                                    child: Text(
-                                      'استيراد الصفوف الصالحة فقط وتخطي الصفوف المكررة أو التي بها أخطاء',
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.w600,
-                                        fontSize: 13,
-                                      ),
-                                    ),
-                                  ),
-                                ],
+                              const Text(
+                                'سيتم تخطي الصفوف التي بها أخطاء أو تكرار مع توضيح اسم الطالب ورقم الصف، ثم متابعة استيراد بقية الملف.',
+                                style: TextStyle(fontWeight: FontWeight.w600),
                               ),
                               const SizedBox(height: 16),
                               Row(
@@ -703,7 +755,7 @@ class _ImportStudentsExcelPageState
                                     label: Text(
                                       _importing
                                           ? 'جاري الاستيراد...'
-                                          : 'تأكيد استيراد ${_importOnlyValid ? _parseResult!.validRows.length : _parseResult!.totalRows} طالب',
+                                          : 'تأكيد استيراد ${_parseResult!.validRows.length} طالب',
                                       style: const TextStyle(
                                         fontWeight: FontWeight.w800,
                                         fontSize: 15,
@@ -880,6 +932,18 @@ class _ImportStudentsExcelPageState
                                 color: Color(0xFF64748B),
                               ),
                             ),
+                          if (hasErr || isDup)
+                            Text(
+                              hasErr
+                                  ? r.errors.join(' • ')
+                                  : (r.duplicateReason ?? 'مكرر'),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                fontSize: 11,
+                                color: badgeColor,
+                              ),
+                            ),
                         ],
                       ),
                     ),
@@ -957,7 +1021,7 @@ class _ImportStudentsExcelPageState
               ),
               SizedBox(width: 10),
               Text(
-                'اكتملت عملية الاستيراد بنجاح!',
+                'اكتملت عملية الاستيراد',
                 style: TextStyle(
                   fontWeight: FontWeight.w800,
                   fontSize: 16,
@@ -968,7 +1032,7 @@ class _ImportStudentsExcelPageState
           ),
           const SizedBox(height: 10),
           Text(
-            'تم تسجيل $_successCount طالب في قاعدة البيانات المحلية وأُدرجوا في قائمة المزامنة كـ «بانتظار الاعتماد».',
+            'تم استيراد $_successCount طالب إلى الفصل المحدد. راجع الصفوف التي ظهرت عليها أخطاء قبل إعادة المحاولة.',
             style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
           ),
           if (_failedCount != null && _failedCount! > 0)

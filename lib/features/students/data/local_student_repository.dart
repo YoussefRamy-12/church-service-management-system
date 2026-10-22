@@ -65,25 +65,20 @@ class LocalStudentRepository {
   }
 
   Future<void> deleteStudent(String studentId) async {
-    final hasAttendance = await (_db.select(_db.cachedAttendanceRecords)
-          ..where((t) => t.studentId.equals(studentId)))
-        .get();
-    final hasFollowUp = await (_db.select(_db.cachedFollowUpRecords)
-          ..where((t) => t.studentId.equals(studentId)))
-        .get();
-
-    if (hasAttendance.isNotEmpty || hasFollowUp.isNotEmpty) {
-      throw StateError(
-        'تعذر حذف التلميذ لوجود سجلات مرتبطة به (مثل الحضور أو الافتقاد).',
-      );
-    }
-
-    await (_db.delete(
-      _db.cachedStudents,
-    )..where((t) => t.id.equals(studentId))).go();
-    await (_db.delete(
-      _db.cachedStudentSensitiveData,
-    )..where((t) => t.studentId.equals(studentId))).go();
+    await _db.transaction(() async {
+      await (_db.delete(_db.cachedAttendanceRecords)
+            ..where((t) => t.studentId.equals(studentId)))
+          .go();
+      await (_db.delete(_db.cachedFollowUpRecords)
+            ..where((t) => t.studentId.equals(studentId)))
+          .go();
+      await (_db.delete(_db.cachedStudentSensitiveData)
+            ..where((t) => t.studentId.equals(studentId)))
+          .go();
+      await (_db.delete(
+        _db.cachedStudents,
+      )..where((t) => t.id.equals(studentId))).go();
+    });
   }
 
   Future<Student> assignClass(String studentId, String classId) async {

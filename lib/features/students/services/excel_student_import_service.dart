@@ -51,9 +51,10 @@ class ParsedStudentRow {
   StudentRegistrationInput toRegistrationInput({
     String? fallbackClassId,
     String? fallbackGrade,
+    String? forceClassId,
     bool isTransfer = false,
   }) {
-    final effectiveClassId = classId ?? fallbackClassId;
+    final effectiveClassId = forceClassId ?? classId ?? fallbackClassId;
     final effectiveGrade = grade ?? fallbackGrade;
     return StudentRegistrationInput(
       name: name,
@@ -558,12 +559,12 @@ class ExcelStudentImportService {
       if (!isDuplicate) {
         if (existingNames.contains(normalizedName)) {
           isDuplicate = true;
-          duplicateReason = 'يوجد تلميذ مسجل بالفعل بنفس الاسم في الخدمة';
+          duplicateReason = 'يوجد تلميذ مسجل بالفعل بنفس الاسم في الفصل';
         } else if (studentPhone.isNotEmpty &&
             existingPhones.contains(studentPhone)) {
           isDuplicate = true;
           duplicateReason =
-              'يوجد تلميذ مسجل بالفعل بنفس رقم الهاتف ($studentPhone)';
+              'يوجد تلميذ مسجل بالفعل بنفس رقم الهاتف ($studentPhone) في الفصل';
         }
       }
 
