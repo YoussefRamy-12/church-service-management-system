@@ -5,6 +5,7 @@ class ServiceReport {
     required this.expectedAttendance,
     required this.present,
     required this.early,
+    this.before = 0,
     required this.normal,
     required this.followUps,
     this.details = const {},
@@ -15,6 +16,7 @@ class ServiceReport {
   final int expectedAttendance;
   final int present;
   final int early;
+  final int before;
   final int normal;
   final int followUps;
   final Map<String, List<String>> details;

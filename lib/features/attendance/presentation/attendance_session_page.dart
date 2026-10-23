@@ -12,6 +12,7 @@ import '../domain/entities/attendance_record.dart';
 import 'attendance_providers.dart';
 import 'qr_scan_page.dart';
 import '../../service/presentation/service_providers.dart';
+import 'meeting_providers.dart';
 
 class AttendanceSessionPage extends ConsumerStatefulWidget {
   const AttendanceSessionPage({
@@ -33,6 +34,7 @@ class _AttendanceSessionPageState extends ConsumerState<AttendanceSessionPage> {
   TimeOfDay meetingTime = const TimeOfDay(hour: 15, minute: 0);
   int earlyAttendanceMinutes = 15;
   bool openingQrScanner = false;
+  bool _readOnly = true;
   _AttendanceFilter _filter = _AttendanceFilter.all;
 
   bool get _allStudentsMode => widget.classId == 'all';
@@ -40,6 +42,18 @@ class _AttendanceSessionPageState extends ConsumerState<AttendanceSessionPage> {
   @override
   void initState() {
     super.initState();
+    Future.microtask(() async {
+      try {
+        final meetings = await ref.read(meetingRepositoryProvider).watchMeetings(widget.serviceId).first;
+        final now = DateTime.now();
+        final today = DateTime(now.year, now.month, now.day);
+        final active = meetings.where((meeting) {
+          final date = meeting.meetingDate;
+          return !DateTime(date.year, date.month, date.day).isAfter(today);
+        }).toList()..sort((a, b) => b.meetingDate.compareTo(a.meetingDate));
+        if (mounted) setState(() => _readOnly = active.isEmpty || active.first.id != widget.meetingId);
+      } catch (_) {}
+    });
     Future.microtask(() async {
       try {
         final service = await ref
@@ -77,6 +91,7 @@ class _AttendanceSessionPageState extends ConsumerState<AttendanceSessionPage> {
   }
 
   Future<void> _checkIn(Student student) async {
+    if (_readOnly) return;
     if (busyStudentId != null) return;
     final classId =
         student.currentClassId ??
@@ -121,6 +136,7 @@ class _AttendanceSessionPageState extends ConsumerState<AttendanceSessionPage> {
   }
 
   Future<void> _register() async {
+    if (_readOnly) return;
     if (_allStudentsMode) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -171,6 +187,7 @@ class _AttendanceSessionPageState extends ConsumerState<AttendanceSessionPage> {
     String attendanceId,
     DateTime currentTime,
   ) async {
+    if (_readOnly) return;
     final time = await showTimePicker(
       context: context,
       initialTime: TimeOfDay.fromDateTime(currentTime),
@@ -190,6 +207,7 @@ class _AttendanceSessionPageState extends ConsumerState<AttendanceSessionPage> {
   }
 
   Future<void> _openQrScanner(Stream<List<Student>> studentsStream) async {
+    if (_readOnly) return;
     if (openingQrScanner) return;
     setState(() => openingQrScanner = true);
     try {
@@ -375,7 +393,7 @@ class _AttendanceSessionPageState extends ConsumerState<AttendanceSessionPage> {
                   width: double.infinity,
                   child: FilledButton(
                     onPressed: () => Navigator.pop(context),
-                    child: const Text('متابعة تسجيل الحضور'),
+                    child: Text(_readOnly ? 'إغلاق' : 'متابعة تسجيل الحضور'),
                   ),
                 ),
               ),
@@ -395,7 +413,7 @@ class _AttendanceSessionPageState extends ConsumerState<AttendanceSessionPage> {
       meetingTime.minute,
     );
     final earlyEnd = start.add(Duration(minutes: earlyAttendanceMinutes));
-    if (checkedInAt.isBefore(start)) return 'قبل بدء الاجتماع';
+    if (checkedInAt.isBefore(start)) return 'قبل الاجتماع';
     if (checkedInAt.isBefore(earlyEnd)) return 'مبكر';
     return 'عادي';
   }
@@ -404,7 +422,8 @@ class _AttendanceSessionPageState extends ConsumerState<AttendanceSessionPage> {
     final label = _attendanceLabel(checkedInAt);
     if (label == 'مبكر') return const Color(0xFFD97706); // Amber
     if (label == 'عادي') return const Color(0xFF059669); // Green
-    return const Color(0xFF4F46E5); // Indigo
+    if (label == 'قبل الاجتماع') return const Color(0xFF4F46E5);
+    return const Color(0xFF64748B);
   }
 
   @override
@@ -431,7 +450,7 @@ class _AttendanceSessionPageState extends ConsumerState<AttendanceSessionPage> {
             onPressed: () => _review(studentsStream),
           ),
           const SyncStatusWidget(),
-          IconButton(
+          if (!_readOnly) IconButton(
             icon: const Icon(Icons.person_add_rounded),
             tooltip: 'تلميذ جديد',
             onPressed: _register,
@@ -504,6 +523,20 @@ class _AttendanceSessionPageState extends ConsumerState<AttendanceSessionPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
+                    if (_readOnly)
+                      Container(
+                        margin: const EdgeInsets.only(bottom: 12),
+                        padding: const EdgeInsets.all(14),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF64748B).withValues(alpha: .10),
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                        child: const Row(children: [
+                          Icon(Icons.lock_outline_rounded),
+                          SizedBox(width: 10),
+                          Expanded(child: Text('اجتماع سابق — العرض فقط، تم إيقاف تعديل وتسجيل الحضور.')),
+                        ]),
+                      ),
                     // Top Overview Banner & KPI Cards
                     GlassContainer(
                       padding: const EdgeInsets.all(16),
@@ -560,7 +593,7 @@ class _AttendanceSessionPageState extends ConsumerState<AttendanceSessionPage> {
                                 ),
                               ),
                               // Fast QR Scan Hero CTA
-                              FilledButton.icon(
+                              if (!_readOnly) FilledButton.icon(
                                 onPressed: openingQrScanner
                                     ? null
                                     : () => _openQrScanner(studentsStream),
@@ -608,6 +641,12 @@ class _AttendanceSessionPageState extends ConsumerState<AttendanceSessionPage> {
                                 value: '$earlyCount',
                                 icon: Icons.star_rounded,
                                 color: const Color(0xFFD97706),
+                              ),
+                              _KpiPill(
+                                label: 'قبل الاجتماع',
+                                value: '${records.where((r) => _attendanceLabel(r.checkedInAt) == 'قبل الاجتماع').length}',
+                                icon: Icons.access_time_filled_rounded,
+                                color: const Color(0xFF4F46E5),
                               ),
                               _KpiPill(
                                 label: 'عادي',
@@ -873,7 +912,7 @@ class _AttendanceSessionPageState extends ConsumerState<AttendanceSessionPage> {
                                   // Action Button
                                   if (isPresent)
                                     OutlinedButton.icon(
-                                      onPressed: () => _editAttendance(
+                                      onPressed: _readOnly ? null : () => _editAttendance(
                                         record.id,
                                         record.checkedInAt,
                                       ),
@@ -891,7 +930,7 @@ class _AttendanceSessionPageState extends ConsumerState<AttendanceSessionPage> {
                                     )
                                   else
                                     FilledButton.icon(
-                                      onPressed: isBusy
+                                      onPressed: _readOnly || isBusy
                                           ? null
                                           : () => _checkIn(student),
                                       icon: isBusy

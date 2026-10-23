@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'auth_providers.dart';
 import '../../../core/network/supabase_client_provider.dart';
@@ -23,7 +24,27 @@ class _LoginPageState extends ConsumerState<LoginPage> {
   bool _loading = false;
   bool _emailConfirmationRequired = false;
   bool _resendingConfirmation = false;
+  bool _rememberMe = false;
+  bool _showPassword = false;
   String? _error;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadRememberedEmail();
+  }
+
+  Future<void> _loadRememberedEmail() async {
+    try {
+      final preferences = await SharedPreferences.getInstance();
+      final email = preferences.getString('remembered_login_email');
+      if (!mounted || email == null) return;
+      setState(() {
+        _emailController.text = email;
+        _rememberMe = true;
+      });
+    } catch (_) {}
+  }
 
   @override
   void dispose() {
@@ -48,6 +69,15 @@ class _LoginPageState extends ConsumerState<LoginPage> {
             email: _emailController.text,
             password: _passwordController.text,
           );
+
+      try {
+        final preferences = await SharedPreferences.getInstance();
+        if (_rememberMe) {
+          await preferences.setString('remembered_login_email', _emailController.text.trim());
+        } else {
+          await preferences.remove('remembered_login_email');
+        }
+      } catch (_) {}
 
       ref.invalidate(currentServantProfileProvider);
       ref.invalidate(currentSessionIdentityProvider);
@@ -293,15 +323,28 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                               TextFormField(
                                 key: const Key('login_password'),
                                 controller: _passwordController,
-                                obscureText: true,
-                                decoration: const InputDecoration(
+                                obscureText: !_showPassword,
+                                decoration: InputDecoration(
                                   labelText: 'كلمة المرور',
                                   prefixIcon: Icon(Icons.lock_outline),
+                                  suffixIcon: IconButton(
+                                    tooltip: _showPassword ? 'إخفاء كلمة المرور' : 'إظهار كلمة المرور',
+                                    onPressed: () => setState(() => _showPassword = !_showPassword),
+                                    icon: Icon(_showPassword ? Icons.visibility_off_outlined : Icons.visibility_outlined),
+                                  ),
                                 ),
                                 validator: (value) =>
                                     value == null || value.isEmpty
                                     ? 'أدخل كلمة المرور'
                                     : null,
+                              ),
+                              CheckboxListTile(
+                                key: const Key('login_remember_me'),
+                                contentPadding: EdgeInsets.zero,
+                                controlAffinity: ListTileControlAffinity.leading,
+                                title: const Text('تذكرني'),
+                                value: _rememberMe,
+                                onChanged: _loading ? null : (value) => setState(() => _rememberMe = value ?? false),
                               ),
                               Align(
                                 alignment: AlignmentDirectional.centerEnd,

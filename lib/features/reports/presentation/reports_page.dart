@@ -228,6 +228,7 @@ class _ReportsPageState extends ConsumerState<ReportsPage> {
     await Navigator.of(context).push<void>(
       MaterialPageRoute(
         builder: (_) => _ReportMetricDetailPage(
+          metricKey: key,
           title: title,
           items: items,
           start: start,
@@ -439,6 +440,14 @@ class _ReportSummary extends StatelessWidget {
             ),
             _metric(
               context,
+              'قبل بداية الاجتماع',
+              report.before.toString(),
+              Icons.access_time_filled_rounded,
+              const Color(0xFF4F46E5),
+              'before',
+            ),
+            _metric(
+              context,
               'حضور عادي',
               report.normal.toString(),
               Icons.schedule_rounded,
@@ -533,6 +542,7 @@ class _ReportSummary extends StatelessWidget {
 
 class _ReportMetricDetailPage extends StatelessWidget {
   const _ReportMetricDetailPage({
+    required this.metricKey,
     required this.title,
     required this.items,
     required this.start,
@@ -540,6 +550,7 @@ class _ReportMetricDetailPage extends StatelessWidget {
   });
 
   final String title;
+  final String metricKey;
   final List<String> items;
   final DateTime start;
   final DateTime end;
@@ -547,6 +558,16 @@ class _ReportMetricDetailPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final formatter = DateFormat('yyyy/MM/dd');
+    final description = switch (metricKey) {
+      'students' => 'التلاميذ المشمولون في نطاق التقرير.',
+      'meetings' => 'الاجتماعات التي عُقدت خلال الفترة المحددة.',
+      'early' => 'تسجيلات الحضور من بداية الاجتماع وحتى نهاية فترة الحضور المبكر.',
+      'before' => 'تسجيلات الحضور التي تمت قبل وقت بداية الاجتماع.',
+      'normal' => 'تسجيلات الحضور بعد انتهاء فترة الحضور المبكر.',
+      'followUps' => 'متابعات التلاميذ المسجلة خلال الفترة.',
+      'attendance' => 'كل تسجيلات الحضور مع اسم التلميذ ووقت التسجيل.',
+      _ => 'تفاصيل المؤشر خلال الفترة المحددة.',
+    };
     return Scaffold(
       appBar: AppBar(title: Text(title)),
       body: AmbientBackground(
@@ -558,9 +579,15 @@ class _ReportMetricDetailPage extends StatelessWidget {
             children: [
               Padding(
                 padding: const EdgeInsets.fromLTRB(20, 18, 20, 12),
-                child: Text(
-                  'الفترة: ${formatter.format(start)} – ${formatter.format(end)}   •   ${items.length} سجل',
-                  style: Theme.of(context).textTheme.bodyMedium,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('الفترة: ${formatter.format(start)} – ${formatter.format(end)}', style: Theme.of(context).textTheme.bodyMedium),
+                    const SizedBox(height: 5),
+                    Text(description, style: Theme.of(context).textTheme.bodySmall),
+                    const SizedBox(height: 8),
+                    Text('الإجمالي: ${items.length} ${metricKey == 'students' ? 'تلميذ' : metricKey == 'meetings' ? 'اجتماع' : 'سجل'}', style: TextStyle(color: Theme.of(context).colorScheme.primary, fontWeight: FontWeight.w800)),
+                  ],
                 ),
               ),
               Expanded(
@@ -574,12 +601,29 @@ class _ReportMetricDetailPage extends StatelessWidget {
                         padding: const EdgeInsets.fromLTRB(20, 4, 20, 28),
                         itemCount: items.length,
                         separatorBuilder: (_, _) => const SizedBox(height: 8),
-                        itemBuilder: (context, index) => GlassCard(
-                          borderRadius: 16,
-                          padding: const EdgeInsets.all(16),
-                          hoverElevation: false,
-                          child: Text(items[index]),
-                        ),
+                        itemBuilder: (context, index) {
+                          final parts = items[index].split(' • ');
+                          final titleText = metricKey == 'students'
+                              ? items[index]
+                              : metricKey == 'meetings'
+                              ? 'اجتماع ${parts.first}'
+                              : parts.last;
+                          final detailText = metricKey == 'meetings'
+                              ? 'وقت بداية الاجتماع: ${parts.length > 1 ? parts[1] : 'غير محدد'}'
+                              : parts.length > 1 ? '${parts.first} • ${parts.sublist(1, parts.length - 1).join(' • ')}' : description;
+                          return GlassCard(
+                            borderRadius: 16,
+                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                            hoverElevation: false,
+                            child: ListTile(
+                              contentPadding: EdgeInsets.zero,
+                              leading: CircleAvatar(child: Icon(metricKey == 'meetings' ? Icons.event_available_rounded : metricKey == 'students' ? Icons.person_rounded : Icons.check_circle_outline_rounded)),
+                              title: Text(titleText, style: const TextStyle(fontWeight: FontWeight.w800)),
+                              subtitle: Text(detailText),
+                              isThreeLine: false,
+                            ),
+                          );
+                        },
                       ),
               ),
             ],

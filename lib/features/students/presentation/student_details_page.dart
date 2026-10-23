@@ -15,6 +15,7 @@ import '../../../app/ui/app_ui.dart';
 import '../../../core/config/config_provider.dart';
 import '../../../core/network/network_error_formatter.dart';
 import '../../attendance/presentation/attendance_providers.dart';
+import '../../attendance/presentation/meeting_providers.dart';
 import '../../follow_up/presentation/follow_up_providers.dart';
 
 class StudentDetailsPage extends ConsumerStatefulWidget {
@@ -684,29 +685,60 @@ class _StudentDetailsPageState extends ConsumerState<StudentDetailsPage> {
   }
 }
 
-class _StudentAttendanceTab extends ConsumerWidget {
+class _StudentAttendanceTab extends ConsumerStatefulWidget {
   const _StudentAttendanceTab({required this.student});
   final Student student;
+
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final stream = ref
+  ConsumerState<_StudentAttendanceTab> createState() =>
+      _StudentAttendanceTabState();
+}
+
+class _StudentAttendanceTabState extends ConsumerState<_StudentAttendanceTab> {
+  @override
+  void initState() {
+    super.initState();
+    Future.microtask(() async {
+      try {
+        await ref.read(meetingRepositoryProvider).refresh(widget.student.serviceId);
+      } catch (_) {}
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final student = widget.student;
+    final attendanceStream = ref
         .watch(attendanceRepositoryProvider)
         .watchForStudent(student.id);
+    final meetingsStream = ref
+        .watch(meetingRepositoryProvider)
+        .watchMeetings(student.serviceId);
     return AppContent(
       maxWidth: 900,
       child: StreamBuilder(
-        stream: stream,
-        builder: (context, snapshot) {
-          if (snapshot.hasError) {
+        stream: meetingsStream,
+        builder: (context, meetingSnapshot) => StreamBuilder(
+          stream: attendanceStream,
+          builder: (context, snapshot) {
+          if (snapshot.hasError || meetingSnapshot.hasError) {
             return const EmptyState(
               icon: Icons.error_outline,
               title: 'تعذر تحميل سجل الحضور',
             );
           }
-          if (!snapshot.hasData) {
+          if (!snapshot.hasData || !meetingSnapshot.hasData) {
             return const LoadingView(message: 'جاري تحميل سجل الحضور...');
           }
-          final rows = snapshot.data!;
+          final meetingsById = {
+            for (final meeting in meetingSnapshot.data!) meeting.id: meeting,
+          };
+          final rows = [...snapshot.data!]
+            ..sort((a, b) {
+              final aDate = meetingsById[a.meetingId]?.meetingDate ?? a.checkedInAt;
+              final bDate = meetingsById[b.meetingId]?.meetingDate ?? b.checkedInAt;
+              return bDate.compareTo(aDate);
+            });
           if (rows.isEmpty) {
             return const EmptyState(
               icon: Icons.fact_check_outlined,
@@ -732,12 +764,14 @@ class _StudentAttendanceTab extends ConsumerWidget {
                       child: Icon(Icons.check_rounded),
                     ),
                     title: Text(
-                      DateFormat(
-                        'yyyy-MM-dd • HH:mm',
-                      ).format(record.checkedInAt.toLocal()),
+                      meetingsById[record.meetingId] == null
+                          ? 'موعد الاجتماع غير متاح'
+                          : 'اجتماع ${DateFormat('yyyy/MM/dd').format(meetingsById[record.meetingId]!.meetingDate)}',
                     ),
                     subtitle: Text(
-                      'اجتماع ${record.meetingId.substring(0, record.meetingId.length > 8 ? 8 : record.meetingId.length)}',
+                      meetingsById[record.meetingId] == null
+                          ? 'تاريخ تسجيل الحضور: ${DateFormat('yyyy/MM/dd HH:mm').format(record.checkedInAt.toLocal())}'
+                          : 'وقت تسجيل الحضور: ${DateFormat('HH:mm').format(record.checkedInAt.toLocal())}',
                     ),
                     trailing: Icon(
                       record.syncState == 'synced'
@@ -752,6 +786,7 @@ class _StudentAttendanceTab extends ConsumerWidget {
             ],
           );
         },
+        ),
       ),
     );
   }

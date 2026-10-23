@@ -1,4 +1,5 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:intl/intl.dart';
 
 import '../domain/service_report.dart';
 
@@ -96,8 +97,13 @@ class SupabaseReportRepository {
 
     var present = 0;
     var early = 0;
+    var before = 0;
     var normal = 0;
     final counted = <String>{};
+    final earlyItems = <String>[];
+    final beforeItems = <String>[];
+    final normalItems = <String>[];
+    final attendanceItems = <String>[];
     for (final row in attendance) {
       final studentId = row['student_id'] as String;
       final meetingId = row['meeting_id'] as String;
@@ -105,21 +111,34 @@ class SupabaseReportRepository {
       final key = '$meetingId:$studentId';
       if (!counted.add(key)) continue;
       present++;
-      final checkedIn = DateTime.parse(row['checked_in_at'] as String);
+      final checkedIn = DateTime.parse(row['checked_in_at'] as String).toLocal();
       final meeting = meetingRows.firstWhere((item) => item['id'] == meetingId);
       final startParts = (meeting['start_time'] as String).split(':');
+      final dateParts = (meeting['meeting_date'] as String).split('-');
       final start = DateTime(
-        checkedIn.year,
-        checkedIn.month,
-        checkedIn.day,
+        int.parse(dateParts[0]),
+        int.parse(dateParts[1]),
+        int.parse(dateParts[2]),
         int.parse(startParts[0]),
         int.parse(startParts[1]),
         startParts.length > 2 ? int.parse(startParts[2]) : 0,
       );
-      if (checkedIn.isBefore(start.add(Duration(minutes: earlyMinutes)))) {
+      final label = checkedIn.isBefore(start)
+          ? 'قبل الاجتماع'
+          : checkedIn.isBefore(start.add(Duration(minutes: earlyMinutes)))
+          ? 'مبكر'
+          : 'عادي';
+      final item = '${meeting['meeting_date']} • ${DateFormat('hh:mm a').format(checkedIn)} • ${studentNames[studentId] ?? studentId}';
+      attendanceItems.add(item);
+      if (label == 'قبل الاجتماع') {
+        before++;
+        beforeItems.add(item);
+      } else if (label == 'مبكر') {
         early++;
+        earlyItems.add(item);
       } else {
         normal++;
+        normalItems.add(item);
       }
     }
 
@@ -129,32 +148,17 @@ class SupabaseReportRepository {
       expectedAttendance: expected,
       present: present,
       early: early,
+      before: before,
       normal: normal,
       followUps: followUps.length,
       details: {
         'students': students.map((row) => row['name'] as String? ?? row['id'] as String).toList(),
         'meetings': meetingRows.map((row) => '${row['meeting_date']} • ${row['start_time']}').toList(),
-        'early': attendance.where((row) {
-          if (!studentIds.contains(row['student_id'])) return false;
-          final checkedIn = DateTime.parse(row['checked_in_at'] as String);
-          final meeting = meetingRows.firstWhere((item) => item['id'] == row['meeting_id']);
-          final parts = (meeting['start_time'] as String).split(':');
-          final began = DateTime(checkedIn.year, checkedIn.month, checkedIn.day, int.tryParse(parts[0]) ?? 15, int.tryParse(parts[1]) ?? 0);
-          return checkedIn.isBefore(began.add(Duration(minutes: earlyMinutes)));
-        }).map((row) => '${row['checked_in_at']} • ${studentNames[row['student_id']] ?? row['student_id']}').toList(),
+        'early': earlyItems,
+        'before': beforeItems,
         'followUps': followUps.map((row) => '${row['follow_up_date']} • ${studentNames[row['student_id']] ?? row['student_id']}').toList(),
-        'normal': attendance.where((row) {
-          if (!studentIds.contains(row['student_id'])) return false;
-          final checkedIn = DateTime.parse(row['checked_in_at'] as String);
-          final meeting = meetingRows.firstWhere((item) => item['id'] == row['meeting_id']);
-          final parts = (meeting['start_time'] as String).split(':');
-          final began = DateTime(checkedIn.year, checkedIn.month, checkedIn.day, int.tryParse(parts[0]) ?? 15, int.tryParse(parts[1]) ?? 0);
-          return !checkedIn.isBefore(began.add(Duration(minutes: earlyMinutes)));
-        }).map((row) => '${row['checked_in_at']} • ${studentNames[row['student_id']]}').toList(),
-        'attendance': attendance
-            .where((row) => studentIds.contains(row['student_id']))
-            .map((row) => '${row['checked_in_at']} • ${studentNames[row['student_id']] ?? row['student_id']}')
-            .toList(),
+        'normal': normalItems,
+        'attendance': attendanceItems,
       },
     );
   }

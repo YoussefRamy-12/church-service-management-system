@@ -209,6 +209,13 @@ class _MeetingListPageState extends ConsumerState<MeetingListPage> {
               ..sort(
                 (a, b) => a.meetingDate.compareTo(b.meetingDate),
               ); // Oldest to newest, with future meetings at the bottom.
+            final now = DateTime.now();
+            final today = DateTime(now.year, now.month, now.day);
+            final eligible = meetings.where((meeting) {
+              final date = meeting.meetingDate;
+              return !DateTime(date.year, date.month, date.day).isAfter(today);
+            }).toList();
+            final currentMeetingId = eligible.isEmpty ? null : eligible.last.id;
 
             return AppContent(
               maxWidth: 900,
@@ -218,9 +225,9 @@ class _MeetingListPageState extends ConsumerState<MeetingListPage> {
                 separatorBuilder: (_, _) => const SizedBox(height: 12),
                 itemBuilder: (_, index) {
                   final meeting = meetings[index];
-                  final isPastOrToday = meeting.meetingDate.isBefore(
-                    DateTime.now(),
-                  );
+                  final isCurrent = meeting.id == currentMeetingId;
+                  final meetingDay = DateTime(meeting.meetingDate.year, meeting.meetingDate.month, meeting.meetingDate.day);
+                  final isFuture = meetingDay.isAfter(today);
                   final dateParts = meeting.meetingDate
                       .toLocal()
                       .toString()
@@ -248,7 +255,7 @@ class _MeetingListPageState extends ConsumerState<MeetingListPage> {
                           height: 54,
                           decoration: BoxDecoration(
                             gradient: LinearGradient(
-                              colors: isPastOrToday
+                              colors: isCurrent
                                   ? [
                                       const Color(0xFF4F46E5),
                                       const Color(0xFF7C3AED),
@@ -264,7 +271,7 @@ class _MeetingListPageState extends ConsumerState<MeetingListPage> {
                             boxShadow: [
                               BoxShadow(
                                 color:
-                                    (isPastOrToday
+                                    (isCurrent
                                             ? const Color(0xFF4F46E5)
                                             : const Color(0xFF64748B))
                                         .withValues(alpha: 0.25),
@@ -314,15 +321,20 @@ class _MeetingListPageState extends ConsumerState<MeetingListPage> {
                                     ),
                                   ),
                                   const SizedBox(width: 8),
-                                  if (isPastOrToday)
+                                  if (isCurrent)
                                     const GlassBadge(
-                                      label: 'متاح للتسجيل',
+                                      label: 'الاجتماع الحالي',
                                       color: Color(0xFF10B981),
                                     )
-                                  else
+                                  else if (isFuture)
                                     const GlassBadge(
                                       label: 'قادم',
                                       color: Color(0xFFF59E0B),
+                                    )
+                                  else
+                                    const GlassBadge(
+                                      label: 'للقراءة فقط',
+                                      color: Color(0xFF64748B),
                                     ),
                                 ],
                               ),
