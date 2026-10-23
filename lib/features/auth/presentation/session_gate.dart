@@ -166,9 +166,7 @@ class _ServiceChooserState extends ConsumerState<_ServiceChooser> {
         IconButton(
           tooltip: 'تسجيل الخروج',
           onPressed: () async {
-            final auth = ref.read(authRepositoryProvider);
-            await auth.signOut();
-            if (context.mounted) context.go('/login');
+            await signOutAndGoToLogin(ref, context);
           },
           icon: const Icon(Icons.logout_rounded),
         ),
@@ -600,9 +598,7 @@ class _PendingRegistrationState extends ConsumerState<_PendingRegistration> {
                     width: double.infinity,
                     child: TextButton.icon(
                       onPressed: () async {
-                        final auth = ref.read(authRepositoryProvider);
-                        await auth.signOut();
-                        if (context.mounted) context.go('/login');
+                        await signOutAndGoToLogin(ref, context);
                       },
                       icon: const Icon(Icons.logout_rounded, size: 18),
                       label: const Text('تسجيل الخروج'),

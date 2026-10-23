@@ -51,9 +51,7 @@ class _SystemAdminHomePageState extends ConsumerState<SystemAdminHomePage> {
   }
 
   Future<void> _signOut() async {
-    final auth = ref.read(authRepositoryProvider);
-    await auth.signOut();
-    if (mounted) context.go('/login');
+    await signOutAndGoToLogin(ref, context);
   }
 
   Future<void> _createService() async {

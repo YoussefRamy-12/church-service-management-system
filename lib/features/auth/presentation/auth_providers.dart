@@ -1,5 +1,7 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/legacy.dart' show StateProvider;
+import 'package:go_router/go_router.dart';
 
 import '../../../core/network/supabase_client_provider.dart';
 import '../data/servant_profile_repository.dart';
@@ -68,3 +70,20 @@ final isSuperAdminProvider = Provider<bool>((ref) {
   final identity = ref.watch(currentSessionIdentityProvider);
   return identity.hasValue && identity.value is SuperAdminIdentity;
 });
+
+Future<void> signOutAndGoToLogin(WidgetRef ref, BuildContext context) async {
+  try {
+    await ref.read(authRepositoryProvider).signOut();
+  } catch (error) {
+    if (context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('تعذر تسجيل الخروج: $error')),
+      );
+    }
+    return;
+  }
+  ref.read(selectedServantProfileProvider.notifier).state = null;
+  ref.invalidate(currentSessionIdentityProvider);
+  ref.invalidate(currentServantProfileProvider);
+  if (context.mounted) context.go('/login');
+}

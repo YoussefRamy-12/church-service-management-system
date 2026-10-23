@@ -53,11 +53,7 @@ class AppShell extends ConsumerWidget {
     final displayName = profile?.name ?? (isSuperAdmin ? 'مسؤول النظام' : null);
     final pageTitle = _pageTitle(location);
     Future<void> logout() async {
-      try {
-        final auth = ref.read(authRepositoryProvider);
-        await auth.signOut();
-      } catch (_) {}
-      if (context.mounted) context.go('/login');
+      await signOutAndGoToLogin(ref, context);
     }
 
     final visibleItems = _items.where((item) {

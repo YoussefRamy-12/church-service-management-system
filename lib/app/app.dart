@@ -11,6 +11,7 @@ import '../features/attendance/presentation/attendance_session_page.dart';
 import '../features/attendance/presentation/attendance_class_picker_page.dart';
 import '../features/attendance/presentation/meeting_list_page.dart';
 import '../features/auth/presentation/login_page.dart';
+import '../features/auth/presentation/auth_providers.dart';
 import '../features/auth/presentation/session_gate.dart';
 import '../features/export/presentation/export_page.dart';
 import '../features/follow_up/presentation/follow_up_hub_page.dart';
@@ -54,6 +55,7 @@ class _ChurchServiceAppState extends ConsumerState<ChurchServiceApp> {
   @override
   Widget build(BuildContext context) {
     final themeMode = ref.watch(themeModeProvider);
+    ref.listen(authUserProvider, (previous, next) => _router.refresh());
     return MaterialApp.router(
       title: 'أسرة تلاميذ المسيح',
       debugShowCheckedModeBanner: false,
@@ -77,6 +79,21 @@ class _ChurchServiceAppState extends ConsumerState<ChurchServiceApp> {
 
   GoRouter _createRouter() => GoRouter(
     initialLocation: '/login',
+    redirect: (context, state) {
+      const publicPaths = {
+        '/login',
+        '/signup',
+        '/forgot-password',
+        '/reset-password',
+        '/auth/callback',
+      };
+      final isAuthenticated =
+          ref.read(authRepositoryProvider).currentUser != null;
+      final path = state.uri.path;
+      if (!isAuthenticated && !publicPaths.contains(path)) return '/login';
+      if (isAuthenticated && path == '/login') return '/session';
+      return null;
+    },
     routes: [
       GoRoute(path: '/app', redirect: (context, state) => '/session'),
       GoRoute(

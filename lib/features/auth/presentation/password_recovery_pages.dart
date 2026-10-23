@@ -91,12 +91,11 @@ class _ResetPasswordPageState extends ConsumerState<ResetPasswordPage> {
     setState(() { _loading = true; _error = null; });
     try {
       await ref.read(authRepositoryProvider).updatePassword(_password.text);
-      await ref.read(supabaseClientProvider).auth.signOut();
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('تم تغيير كلمة المرور. سجّل الدخول بكلمتك الجديدة.')),
         );
-        context.go('/login');
+        await signOutAndGoToLogin(ref, context);
       }
     } catch (_) {
       if (mounted) setState(() => _error = 'تعذر تغيير كلمة المرور. قد يكون الرابط منتهي الصلاحية؛ اطلب رابطًا جديدًا.');
