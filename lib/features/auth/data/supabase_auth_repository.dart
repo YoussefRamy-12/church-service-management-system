@@ -57,12 +57,36 @@ class SupabaseAuthRepository implements AuthRepository {
         'birth_date': _formatDate(birthDate),
         'work_study': workStudy.trim(),
       },
+      emailRedirectTo: _redirectUri('/auth/callback'),
     );
     final user = response.user;
     if (user == null) {
       throw const supabase.AuthException('تعذر إنشاء الحساب.');
     }
     return _map(user)!;
+  }
+
+  @override
+  Future<void> sendPasswordReset(String email) async {
+    await _client.auth.resetPasswordForEmail(
+      email.trim(),
+      redirectTo: _redirectUri('/reset-password'),
+    );
+  }
+
+  @override
+  Future<void> updatePassword(String password) async {
+    await _client.auth.updateUser(supabase.UserAttributes(password: password));
+  }
+
+  String _redirectUri(String path) {
+    final origin = Uri.base.origin;
+    if (origin == 'null') {
+      throw const supabase.AuthException(
+        'تعذر تحديد عنوان التطبيق لإرسال رابط آمن.',
+      );
+    }
+    return '$origin$path';
   }
 
   String _formatDate(DateTime date) =>

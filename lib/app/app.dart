@@ -24,6 +24,7 @@ import '../features/service/presentation/system_settings_page.dart';
 import '../features/auth/presentation/system_admin_home_page.dart';
 import '../features/auth/presentation/servant_sign_up_page.dart';
 import '../features/auth/presentation/servant_registration_requests_page.dart';
+import '../features/auth/presentation/password_recovery_pages.dart';
 import '../features/service/presentation/service_settings_page.dart';
 import '../features/students/presentation/students_page.dart';
 import 'app_shell.dart';
@@ -87,6 +88,18 @@ class _ChurchServiceAppState extends ConsumerState<ChurchServiceApp> {
         builder: (context, state) => const ServantRegistrationRequestsPage(),
       ),
       GoRoute(path: '/login', builder: (context, state) => const LoginPage()),
+      GoRoute(
+        path: '/forgot-password',
+        builder: (context, state) => const ForgotPasswordPage(),
+      ),
+      GoRoute(
+        path: '/reset-password',
+        builder: (context, state) => const ResetPasswordPage(),
+      ),
+      GoRoute(
+        path: '/auth/callback',
+        builder: (context, state) => const AuthCallbackPage(),
+      ),
       GoRoute(
         path: '/signup',
         builder: (context, state) => const ServantSignUpPage(),

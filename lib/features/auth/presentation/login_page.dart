@@ -303,6 +303,16 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                                     ? 'أدخل كلمة المرور'
                                     : null,
                               ),
+                              Align(
+                                alignment: AlignmentDirectional.centerEnd,
+                                child: TextButton(
+                                  key: const Key('forgot_password'),
+                                  onPressed: _loading
+                                      ? null
+                                      : () => context.go('/forgot-password'),
+                                  child: const Text('نسيت كلمة المرور؟'),
+                                ),
+                              ),
                               if (_error != null) ...[
                                 const SizedBox(height: 16),
                                 Container(
