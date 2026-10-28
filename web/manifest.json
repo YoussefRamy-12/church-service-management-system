@@ -1,0 +1,19 @@
+{
+  "name": "نظام إدارة خدمة أسرة تلاميذ المسيح",
+  "short_name": "إدارة الخدمة",
+  "description": "نظام إدارة خدمة أسرة تلاميذ المسيح",
+  "lang": "ar",
+  "dir": "rtl",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#f7f7fb",
+  "theme_color": "#4f46e5",
+  "icons": [
+    {
+      "src": "icons/app-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

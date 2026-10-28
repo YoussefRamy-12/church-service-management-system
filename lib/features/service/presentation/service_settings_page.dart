@@ -1,5 +1,6 @@
 import 'package:church_service_management_system/app/ui/app_ui.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -8,6 +9,7 @@ import '../../../core/config/config_provider.dart';
 import '../../../core/database/app_database.dart';
 import '../../../core/network/network_error_formatter.dart';
 import '../../../core/sync/sync_engine_provider.dart';
+import '../../../core/utils/web_app_install.dart';
 import '../../attendance/presentation/meeting_providers.dart';
 import '../../auth/presentation/auth_providers.dart';
 import 'service_providers.dart';
@@ -177,6 +179,38 @@ class _ServiceSettingsPageState extends ConsumerState<ServiceSettingsPage> {
     if (mounted) setState(() {});
   }
 
+  Future<void> _installApp() async {
+    if (canPromptToInstall) {
+      final installed = await promptToInstall();
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            installed ? 'تم تثبيت التطبيق.' : 'يمكنك تثبيت التطبيق من قائمة المتصفح.',
+          ),
+        ),
+      );
+      return;
+    }
+    if (!mounted) return;
+    await showDialog<void>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('إضافة التطبيق إلى الهاتف'),
+        content: const Text(
+          'على iPhone أو iPad: افتح الصفحة في Safari، واضغط «مشاركة» ثم «إضافة إلى الشاشة الرئيسية»\n\n'
+          'على Android: افتح قائمة المتصفح (⋮) ثم اختر «تثبيت التطبيق» أو «إضافة إلى الشاشة الرئيسية».',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('حسنًا'),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     if (loading) {
@@ -206,6 +240,37 @@ class _ServiceSettingsPageState extends ConsumerState<ServiceSettingsPage> {
             child: ListView(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
               children: [
+                if (kIsWeb && !isRunningAsInstalledApp)
+                  SolidCard(
+                    padding: const EdgeInsets.all(16),
+                    margin: const EdgeInsets.only(bottom: 18),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Row(
+                          children: [
+                            Icon(Icons.install_mobile_rounded,
+                                color: Color(0xFF4F46E5), size: 22),
+                            SizedBox(width: 10),
+                            Text('استخدام التطبيق على الهاتف',
+                                style: TextStyle(
+                                    fontWeight: FontWeight.w800, fontSize: 16)),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          'أضف النظام إلى الشاشة الرئيسية لفتحه كتطبيق مستقل.',
+                          style: Theme.of(context).textTheme.bodySmall,
+                        ),
+                        const SizedBox(height: 12),
+                        FilledButton.icon(
+                          onPressed: _installApp,
+                          icon: const Icon(Icons.add_to_home_screen_rounded),
+                          label: const Text('تثبيت التطبيق'),
+                        ),
+                      ],
+                    ),
+                  ),
                 // Theme Appearance Card
                 SolidCard(
                   padding: const EdgeInsets.all(16),
