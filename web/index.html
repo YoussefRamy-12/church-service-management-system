@@ -16,10 +16,26 @@
 </head>
 <body>
   <script>
-    window.addEventListener('beforeinstallprompt', (event) => {
-      event.preventDefault();
-      window.__deferredInstallPrompt = event;
-    });
+    (() => {
+      let deferredInstallPrompt;
+      window.addEventListener('beforeinstallprompt', (event) => {
+        event.preventDefault();
+        deferredInstallPrompt = event;
+      });
+
+      window.canPromptToInstall = () => deferredInstallPrompt != null;
+      window.isRunningAsInstalledApp = () =>
+        window.matchMedia('(display-mode: standalone)').matches ||
+        navigator.standalone === true;
+      window.promptToInstall = async () => {
+        if (!deferredInstallPrompt) return false;
+        const event = deferredInstallPrompt;
+        deferredInstallPrompt = null;
+        await event.prompt();
+        const choice = await event.userChoice;
+        return choice.outcome === 'accepted';
+      };
+    })();
   </script>
   <script src="flutter_bootstrap.js" async></script>
 </body>

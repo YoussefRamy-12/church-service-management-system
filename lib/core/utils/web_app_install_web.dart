@@ -1,23 +1,17 @@
-// ignore: deprecated_member_use
-import 'dart:html' as html;
-import 'dart:js_util' as js_util;
+import 'dart:js_interop';
 
-html.Event? get _installEvent =>
-    js_util.getProperty<html.Event?>(html.window, '__deferredInstallPrompt');
+@JS('canPromptToInstall')
+external JSBoolean _canPromptToInstall();
 
-bool get canPromptToInstall => _installEvent != null;
+@JS('isRunningAsInstalledApp')
+external JSBoolean _isRunningAsInstalledApp();
 
-bool get isRunningAsInstalledApp =>
-    html.window.matchMedia('(display-mode: standalone)').matches ||
-    js_util.getProperty(html.window.navigator, 'standalone') == true;
+@JS('promptToInstall')
+external JSPromise<JSBoolean> _promptToInstall();
 
-Future<bool> promptToInstall() async {
-  final event = _installEvent;
-  if (event == null) return false;
-  js_util.setProperty(html.window, '__deferredInstallPrompt', null);
-  await js_util.promiseToFuture<Object?>(js_util.callMethod(event, 'prompt', []));
-  final choice = await js_util.promiseToFuture<Object?>(
-    js_util.getProperty(event, 'userChoice'),
-  );
-  return js_util.getProperty(choice, 'outcome') == 'accepted';
-}
+bool get canPromptToInstall => _canPromptToInstall().toDart;
+
+bool get isRunningAsInstalledApp => _isRunningAsInstalledApp().toDart;
+
+Future<bool> promptToInstall() async =>
+    (await _promptToInstall().toDart).toDart;
