@@ -5,6 +5,7 @@ import 'package:church_service_management_system/core/database/app_database.dart
 import 'package:church_service_management_system/core/sync/sync_queue_repository.dart';
 import 'package:church_service_management_system/features/follow_up/data/local_follow_up_repository.dart';
 import 'package:church_service_management_system/features/follow_up/data/offline_first_follow_up_repository.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 void main() {
   late AppDatabase db;
@@ -17,6 +18,7 @@ void main() {
     repo = OfflineFirstFollowUpRepository(
       local: LocalFollowUpRepository(db),
       queue: queue,
+      client: SupabaseClient('https://example.supabase.co', 'test-key'),
     );
   });
 
