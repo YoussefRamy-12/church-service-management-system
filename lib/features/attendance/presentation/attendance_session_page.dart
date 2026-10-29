@@ -50,12 +50,16 @@ class _AttendanceSessionPageState extends ConsumerState<AttendanceSessionPage> {
         final meetings = await ref.read(meetingRepositoryProvider).watchMeetings(widget.serviceId).first;
         final now = DateTime.now();
         final today = DateTime(now.year, now.month, now.day);
-        final active = meetings.where((meeting) {
-          final date = meeting.meetingDate;
-          return !DateTime(date.year, date.month, date.day).isAfter(today);
-        }).toList()..sort((a, b) => b.meetingDate.compareTo(a.meetingDate));
         final selected = meetings.where((meeting) => meeting.id == widget.meetingId);
         final selectedMeeting = selected.isEmpty ? null : selected.first;
+        final active = meetings.where((meeting) {
+          final date = meeting.meetingDate;
+          final isNotFuture = !DateTime(date.year, date.month, date.day).isAfter(today);
+          if (!isNotFuture || selectedMeeting == null) return isNotFuture;
+          return selectedMeeting.scheduleId != null
+              ? meeting.scheduleId == selectedMeeting.scheduleId
+              : meeting.scheduleId == null && meeting.name == selectedMeeting.name;
+        }).toList()..sort((a, b) => b.meetingDate.compareTo(a.meetingDate));
         final latestDay = active.isEmpty
             ? null
             : DateTime(active.first.meetingDate.year, active.first.meetingDate.month, active.first.meetingDate.day);
