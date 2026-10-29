@@ -520,8 +520,10 @@ class _AttendanceSessionPageState extends ConsumerState<AttendanceSessionPage> {
               return AppContent(
                 maxWidth: 1000,
                 padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
-                child: Column(
+                child: SingleChildScrollView(
+                  child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
+                  mainAxisSize: MainAxisSize.min,
                   children: [
                     if (_readOnly)
                       Container(
@@ -748,18 +750,17 @@ class _AttendanceSessionPageState extends ConsumerState<AttendanceSessionPage> {
 
                     // Student Roster
                     if (filtered.isEmpty)
-                      Expanded(
-                        child: EmptyState(
+                      EmptyState(
                           icon: Icons.search_off_rounded,
                           title: 'لم يتم العثور على نتائج',
                           message: query.isNotEmpty
                               ? 'لا يوجد تلميذ يطابق "$query"'
                               : 'لا يوجد تلاميذ في هذا الفلتر',
-                        ),
-                      )
+                        )
                     else
-                      Expanded(
-                        child: ListView.separated(
+                      ListView.separated(
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
                           itemCount: filtered.length,
                           separatorBuilder: (_, _) => const SizedBox(height: 8),
                           itemBuilder: (context, i) {
@@ -962,8 +963,8 @@ class _AttendanceSessionPageState extends ConsumerState<AttendanceSessionPage> {
                             );
                           },
                         ),
-                      ),
                   ],
+                  ),
                 ),
               );
             },
