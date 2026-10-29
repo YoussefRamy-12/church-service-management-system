@@ -833,7 +833,7 @@ class _AttendanceSessionPageState extends ConsumerState<AttendanceSessionPage> {
                                         Container(
                                           padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 3),
                                           decoration: BoxDecoration(color: classColor.withValues(alpha: .10), borderRadius: BorderRadius.circular(999)),
-                                          child: Text(filtered.where((item) => _classIdFor(item) == classId).length.toString() + ' تلميذ', style: TextStyle(color: classColor, fontSize: 11, fontWeight: FontWeight.w700)),
+                                          child: Text('${filtered.where((item) => _classIdFor(item) == classId).length} تلميذ', style: TextStyle(color: classColor, fontSize: 11, fontWeight: FontWeight.w700)),
                                         ),
                                       ],
                                     ),
