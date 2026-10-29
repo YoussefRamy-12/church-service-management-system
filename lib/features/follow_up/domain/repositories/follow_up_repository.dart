@@ -4,6 +4,7 @@ import '../entities/follow_up_record.dart';
 abstract interface class FollowUpRepository {
   Stream<List<FollowUpRecord>> watchForStudent(String studentId);
   Stream<List<FollowUpRecord>> watchAssignedTo(String servantProfileId);
+  Future<void> refreshAssignedTo(String servantProfileId);
   Future<FollowUpRecord> createRequest({
     required String studentId,
     required String createdBy,
