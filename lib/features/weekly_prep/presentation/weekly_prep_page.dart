@@ -395,26 +395,43 @@ class _WeeklyPrepPageState extends ConsumerState<WeeklyPrepPage> {
                           lesson?.fileName ??
                               (isCurrent
                                   ? 'لا يوجد ملف مرفوع لهذا الأسبوع'
-                                  : 'غير متاح للفتح الآن'),
+                                  : 'لا يوجد ملف لهذا الأسبوع'),
                         ),
+                        onTap: lesson == null
+                            ? null
+                            : () => Navigator.of(context).push(
+                                  MaterialPageRoute<void>(
+                                    builder: (_) => _WeeklyLessonDetailPage(
+                                      lesson: lesson,
+                                      profileId: profile?.id,
+                                      weekLabel: _weekLabel(week),
+                                      isCurrentWeek: isCurrent,
+                                    ),
+                                  ),
+                                ),
                         trailing: Wrap(
                           spacing: 0,
                           children: [
                             if (lesson != null)
                               IconButton(
-                                tooltip: isCurrent
-                                    ? 'فتح الملف الحالي'
-                                    : 'الأسبوع الحالي فقط متاح للفتح',
-                                onPressed: isCurrent
-                                    ? () => _open(lesson, download: false)
-                                    : null,
+                                tooltip: 'فتح تفاصيل الدرس',
+                                onPressed: () => Navigator.of(context).push(
+                                  MaterialPageRoute<void>(
+                                    builder: (_) => _WeeklyLessonDetailPage(
+                                      lesson: lesson,
+                                      profileId: profile?.id,
+                                      weekLabel: _weekLabel(week),
+                                      isCurrentWeek: isCurrent,
+                                    ),
+                                  ),
+                                ),
                                 icon: const Icon(Icons.open_in_new_rounded),
                               ),
                             if (lesson != null)
                               IconButton(
                                 tooltip: isCurrent
                                     ? 'تنزيل الملف الحالي'
-                                    : 'الأسبوع الحالي فقط متاح للتنزيل',
+                                    : 'الأسابيع السابقة للقراءة فقط — التنزيل غير متاح',
                                 onPressed: isCurrent
                                     ? () => _open(lesson, download: true)
                                     : null,
@@ -831,4 +848,185 @@ class _FormResult {
   final DateTime week;
   final String fileName;
   final Uint8List bytes;
+}
+
+
+class _WeeklyLessonDetailPage extends ConsumerStatefulWidget {
+  const _WeeklyLessonDetailPage({
+    required this.lesson,
+    required this.profileId,
+    required this.weekLabel,
+    required this.isCurrentWeek,
+  });
+
+  final WeeklyLesson lesson;
+  final String? profileId;
+  final String weekLabel;
+  final bool isCurrentWeek;
+
+  @override
+  ConsumerState<_WeeklyLessonDetailPage> createState() =>
+      _WeeklyLessonDetailPageState();
+}
+
+class _WeeklyLessonDetailPageState
+    extends ConsumerState<_WeeklyLessonDetailPage> {
+  bool _loadingPreparation = true;
+  bool _savingPreparation = false;
+  bool _prepared = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadPreparation();
+  }
+
+  Future<void> _loadPreparation() async {
+    final profileId = widget.profileId;
+    if (profileId == null) {
+      if (mounted) setState(() => _loadingPreparation = false);
+      return;
+    }
+    try {
+      final value = await ref.read(weeklyLessonRepositoryProvider).isPrepared(
+        lessonId: widget.lesson.id,
+        servantProfileId: profileId,
+      );
+      if (mounted) setState(() {
+        _prepared = value;
+        _loadingPreparation = false;
+      });
+    } catch (_) {
+      if (mounted) setState(() => _loadingPreparation = false);
+    }
+  }
+
+  Future<void> _setPrepared(bool value) async {
+    final profileId = widget.profileId;
+    if (profileId == null || !widget.isCurrentWeek || _savingPreparation) return;
+    setState(() => _savingPreparation = true);
+    try {
+      await ref.read(weeklyLessonRepositoryProvider).setPrepared(
+        lessonId: widget.lesson.id,
+        servantProfileId: profileId,
+        prepared: value,
+      );
+      if (mounted) {
+        setState(() {
+          _prepared = value;
+          _savingPreparation = false;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(value ? 'تم تسجيل الدرس كمُحضّر.' : 'تم إلغاء علامة التحضير.')),
+        );
+      }
+    } catch (error) {
+      if (mounted) {
+        setState(() => _savingPreparation = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('تعذر حفظ حالة التحضير: $error')),
+        );
+      }
+    }
+  }
+
+  Future<void> _open({required bool download}) async {
+    try {
+      final url = await ref.read(weeklyLessonRepositoryProvider)
+          .signedUrl(widget.lesson, download: download);
+      if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
+        throw Exception('تعذر فتح الرابط');
+      }
+    } catch (error) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('تعذر ${download ? 'تنزيل' : 'فتح'} الملف: $error')),
+        );
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final isHistorical = !widget.isCurrentWeek;
+    return Scaffold(
+      appBar: AppBar(title: const Text('تفاصيل درس الأسبوع')),
+      body: AppContent(
+        maxWidth: 760,
+        child: ListView(
+          padding: const EdgeInsets.symmetric(vertical: 20),
+          children: [
+            Card(
+              child: Padding(
+                padding: const EdgeInsets.all(20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Icon(Icons.menu_book_rounded, size: 36),
+                    const SizedBox(height: 14),
+                    Text(widget.lesson.fileName, style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800)),
+                    const SizedBox(height: 8),
+                    Text(widget.weekLabel),
+                    const SizedBox(height: 12),
+                    Chip(
+                      avatar: Icon(isHistorical ? Icons.lock_outline_rounded : Icons.edit_note_rounded, size: 18),
+                      label: Text(isHistorical ? 'أسبوع سابق — للقراءة فقط' : 'الأسبوع الحالي'),
+                    ),
+                    if (isHistorical)
+                      const Padding(
+                        padding: EdgeInsets.only(top: 8),
+                        child: Text('يمكن فتح الملف للاطلاع عليه، لكن التنزيل وتغيير حالة التحضير غير متاحين للأسابيع السابقة.'),
+                      ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 12),
+            FilledButton.icon(
+              onPressed: () => _open(download: false),
+              icon: const Icon(Icons.open_in_new_rounded),
+              label: const Text('فتح الدرس'),
+            ),
+            const SizedBox(height: 8),
+            OutlinedButton.icon(
+              onPressed: widget.isCurrentWeek ? () => _open(download: true) : null,
+              icon: const Icon(Icons.download_rounded),
+              label: const Text('تنزيل الدرس'),
+            ),
+            const SizedBox(height: 18),
+            Card(
+              child: Padding(
+                padding: const EdgeInsets.all(12),
+                child: SwitchListTile(
+                  key: const Key('weekly_lesson_prepared_switch'),
+                  value: _prepared,
+                  onChanged: widget.isCurrentWeek &&
+                          widget.profileId != null &&
+                          !_loadingPreparation &&
+                          !_savingPreparation
+                      ? _setPrepared
+                      : null,
+                  title: const Text('حضّرت الدرس'),
+                  subtitle: Text(
+                    widget.profileId == null
+                        ? 'تعذر تحديد حساب الخادم الحالي.'
+                        : isHistorical
+                            ? 'الأسابيع السابقة للقراءة فقط.'
+                            : _loadingPreparation
+                                ? 'جاري تحميل حالة التحضير...'
+                                : _prepared
+                                    ? 'تم تسجيل الدرس كمُحضّر بواسطة حسابك.'
+                                    : 'فعّل الخيار بعد الانتهاء من التحضير.',
+                  ),
+                  secondary: _savingPreparation
+                      ? const SizedBox(width: 24, height: 24, child: CircularProgressIndicator(strokeWidth: 2))
+                      : Icon(_prepared ? Icons.check_circle_rounded : Icons.radio_button_unchecked_rounded),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }
