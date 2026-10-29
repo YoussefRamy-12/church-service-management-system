@@ -10,7 +10,7 @@ class LocalFollowUpRepository {
 
   Stream<List<FollowUpRecord>> watchForStudent(String studentId) =>
       (db.select(db.cachedFollowUpRecords)
-            ..where((t) => t.studentId.equals(studentId))
+            ..where((t) => t.studentId.equals(studentId) & t.isRequest.equals(false))
             ..orderBy([
               (t) => OrderingTerm(
                 expression: t.followUpDate,
@@ -19,6 +19,95 @@ class LocalFollowUpRepository {
             ]))
           .watch()
           .map((r) => r.map(_map).toList());
+
+  Stream<List<FollowUpRecord>> watchAssignedTo(String servantProfileId) =>
+      (db.select(db.cachedFollowUpRecords)
+            ..where((t) => t.isRequest.equals(true) & t.assignedTo.equals(servantProfileId))
+            ..orderBy([(t) => OrderingTerm(expression: t.followUpDate)]))
+          .watch()
+          .map((rows) => rows.map(_map).toList());
+
+  Future<FollowUpRecord> createRequest({
+    required String studentId,
+    required String createdBy,
+    required String assignedTo,
+    required String dueDate,
+    required String actionRequired,
+    String? notes,
+  }) async {
+    final id = _uuid.v4(), clientOperationId = _uuid.v4();
+    await db.into(db.cachedFollowUpRecords).insert(
+      CachedFollowUpRecordsCompanion.insert(
+        id: id,
+        studentId: studentId,
+        createdBy: createdBy,
+        followUpDate: dueDate,
+        contactStatus: 'not_contacted',
+        actionRequired: Value(actionRequired),
+        notes: Value(notes),
+        assignedTo: Value(assignedTo),
+        isRequest: const Value(true),
+        requestStatus: const Value('open'),
+        clientOperationId: clientOperationId,
+        cachedAt: DateTime.now(),
+      ),
+    );
+    return FollowUpRecord(
+      id: id,
+      studentId: studentId,
+      createdBy: createdBy,
+      followUpDate: dueDate,
+      contactStatus: 'not_contacted',
+      actionRequired: actionRequired,
+      notes: notes,
+      assignedTo: assignedTo,
+      isRequest: true,
+      requestStatus: 'open',
+      clientOperationId: clientOperationId,
+    );
+  }
+
+  Future<void> cacheRequests(List<FollowUpRecord> requests) async {
+    await db.batch((batch) {
+      for (final r in requests) {
+        batch.insert(
+          db.cachedFollowUpRecords,
+          CachedFollowUpRecordsCompanion.insert(
+            id: r.id,
+            studentId: r.studentId,
+            createdBy: r.createdBy,
+            followUpDate: r.followUpDate,
+            contactStatus: r.contactStatus,
+            contactMethod: Value(r.contactMethod),
+            absenceReason: Value(r.absenceReason),
+            studentResponse: Value(r.studentResponse),
+            parentResponse: Value(r.parentResponse),
+            actionRequired: Value(r.actionRequired),
+            notes: Value(r.notes),
+            anotherFollowUpNeeded: Value(r.anotherFollowUpNeeded),
+            nextFollowUpDate: Value(r.nextFollowUpDate),
+            assignedTo: Value(r.assignedTo),
+            isRequest: Value(r.isRequest),
+            requestStatus: Value(r.requestStatus),
+            clientOperationId: r.clientOperationId,
+            cachedAt: DateTime.now(),
+          ),
+          mode: InsertMode.insertOrReplace,
+        );
+      }
+    });
+  }
+
+  Future<void> updateRequestStatus({
+    required String requestId,
+    required String status,
+  }) async {
+    await (db.update(db.cachedFollowUpRecords)..where((t) => t.id.equals(requestId) & t.isRequest.equals(true)))
+        .write(CachedFollowUpRecordsCompanion(
+          requestStatus: Value(status),
+          cachedAt: Value(DateTime.now()),
+        ));
+  }
 
   Future<FollowUpRecord> create({
     required String studentId,
@@ -52,6 +141,9 @@ class LocalFollowUpRepository {
             notes: Value(notes),
             anotherFollowUpNeeded: Value(anotherFollowUpNeeded),
             nextFollowUpDate: Value(nextFollowUpDate),
+            assignedTo: Value(createdBy),
+            isRequest: const Value(false),
+            requestStatus: const Value('open'),
             clientOperationId: clientOperationId,
             cachedAt: DateTime.now(),
           ),
@@ -70,6 +162,9 @@ class LocalFollowUpRepository {
       notes: notes,
       anotherFollowUpNeeded: anotherFollowUpNeeded,
       nextFollowUpDate: nextFollowUpDate,
+      assignedTo: createdBy,
+      isRequest: false,
+      requestStatus: 'open',
       clientOperationId: clientOperationId,
     );
   }
@@ -88,6 +183,9 @@ class LocalFollowUpRepository {
     notes: r.notes,
     anotherFollowUpNeeded: r.anotherFollowUpNeeded,
     nextFollowUpDate: r.nextFollowUpDate,
+    assignedTo: r.assignedTo,
+    isRequest: r.isRequest,
+    requestStatus: r.requestStatus,
     clientOperationId: r.clientOperationId,
   );
 }
