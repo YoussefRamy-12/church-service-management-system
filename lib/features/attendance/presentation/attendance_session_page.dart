@@ -122,7 +122,8 @@ class _AttendanceSessionPageState extends ConsumerState<AttendanceSessionPage> {
       Color(0xFF4F46E5), Color(0xFF0D9488), Color(0xFFB45309),
       Color(0xFF7C3AED), Color(0xFF0369A1), Color(0xFFBE123C),
     ];
-    return palette[id.hashCode.abs() % palette.length];
+    final stableHash = id.codeUnits.fold<int>(0, (value, unit) => value + unit);
+    return palette[stableHash % palette.length];
   }
   Future<void> _checkIn(Student student) async {
     if (_readOnly) return;
@@ -522,13 +523,15 @@ class _AttendanceSessionPageState extends ConsumerState<AttendanceSessionPage> {
               };
 
               final totalCount = allStudents.length;
-              final presentCount = checkedMap.length;
+              final studentIds = allStudents.map((student) => student.id).toSet();
+              final relevantRecords = records.where((record) => studentIds.contains(record.studentId)).toList();
+              final presentCount = allStudents.where((student) => checkedMap.containsKey(student.id)).length;
               final absentCount = totalCount > presentCount
                   ? totalCount - presentCount
                   : 0;
               int earlyCount = 0;
               int normalCount = 0;
-              for (final rec in records) {
+              for (final rec in relevantRecords) {
                 final label = _attendanceLabel(rec.checkedInAt);
                 if (label == 'مبكر') earlyCount++;
                 if (label == 'عادي') normalCount++;
@@ -536,7 +539,7 @@ class _AttendanceSessionPageState extends ConsumerState<AttendanceSessionPage> {
 
               // Filter students
               final filtered = allStudents.where((s) {
-                final matchesQuery = s.name.contains(query);
+                final matchesQuery = s.name.toLowerCase().contains(query.trim().toLowerCase());
                 if (!matchesQuery) return false;
                 final isChecked = checkedMap.containsKey(s.id);
                 switch (_filter) {
@@ -693,7 +696,7 @@ class _AttendanceSessionPageState extends ConsumerState<AttendanceSessionPage> {
                               ),
                               _KpiPill(
                                 label: 'قبل الاجتماع',
-                                value: '${records.where((r) => _attendanceLabel(r.checkedInAt) == 'قبل الاجتماع').length}',
+                                value: '${relevantRecords.where((r) => _attendanceLabel(r.checkedInAt) == 'قبل الاجتماع').length}',
                                 icon: Icons.access_time_filled_rounded,
                                 color: const Color(0xFF4F46E5),
                               ),
