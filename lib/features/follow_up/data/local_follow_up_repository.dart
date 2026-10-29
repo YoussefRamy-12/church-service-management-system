@@ -141,6 +141,9 @@ class LocalFollowUpRepository {
             notes: Value(notes),
             anotherFollowUpNeeded: Value(anotherFollowUpNeeded),
             nextFollowUpDate: Value(nextFollowUpDate),
+            assignedTo: Value(createdBy),
+            isRequest: const Value(false),
+            requestStatus: const Value('open'),
             clientOperationId: clientOperationId,
             cachedAt: DateTime.now(),
           ),
@@ -159,6 +162,9 @@ class LocalFollowUpRepository {
       notes: notes,
       anotherFollowUpNeeded: anotherFollowUpNeeded,
       nextFollowUpDate: nextFollowUpDate,
+      assignedTo: createdBy,
+      isRequest: false,
+      requestStatus: 'open',
       clientOperationId: clientOperationId,
     );
   }
