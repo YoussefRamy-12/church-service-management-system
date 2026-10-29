@@ -81,6 +81,33 @@ class WeeklyLessonRepository {
     }
   }
 
+
+  Future<bool> isPrepared({
+    required String lessonId,
+    required String servantProfileId,
+  }) async {
+    final row = await _client
+        .from('weekly_lesson_preparations')
+        .select('prepared')
+        .eq('weekly_lesson_id', lessonId)
+        .eq('servant_profile_id', servantProfileId)
+        .maybeSingle();
+    return row?['prepared'] as bool? ?? false;
+  }
+
+  Future<void> setPrepared({
+    required String lessonId,
+    required String servantProfileId,
+    required bool prepared,
+  }) async {
+    await _client.from('weekly_lesson_preparations').upsert({
+      'weekly_lesson_id': lessonId,
+      'servant_profile_id': servantProfileId,
+      'prepared': prepared,
+      'updated_at': DateTime.now().toUtc().toIso8601String(),
+    }, onConflict: 'weekly_lesson_id,servant_profile_id');
+  }
+
   Future<void> delete(WeeklyLesson lesson) async {
     await _client.from('weekly_lessons').delete().eq('id', lesson.id);
     await _client.storage.from(bucket).remove([lesson.storagePath]);
