@@ -23,5 +23,6 @@ final followUpRepositoryProvider = Provider<FollowUpRepository>((ref) {
   return OfflineFirstFollowUpRepository(
     local: ref.watch(localFollowUpRepositoryProvider),
     queue: ref.watch(syncQueueRepositoryProvider),
+    client: ref.watch(supabaseClientProvider),
   );
 });
