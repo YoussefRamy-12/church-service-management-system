@@ -221,10 +221,6 @@ class _MeetingListPageState extends ConsumerState<MeetingListPage> {
               final date = meeting.meetingDate;
               return !DateTime(date.year, date.month, date.day).isAfter(today);
             }).toList();
-            final latestEligibleDay = eligible.isEmpty
-                ? null
-                : DateTime(eligible.last.meetingDate.year, eligible.last.meetingDate.month, eligible.last.meetingDate.day);
-
             return AppContent(
               maxWidth: 900,
               child: ListView.separated(
@@ -234,7 +230,15 @@ class _MeetingListPageState extends ConsumerState<MeetingListPage> {
                 itemBuilder: (_, index) {
                   final meeting = meetings[index];
                   final meetingDay = DateTime(meeting.meetingDate.year, meeting.meetingDate.month, meeting.meetingDate.day);
-                  final isCurrent = latestEligibleDay != null && meetingDay == latestEligibleDay;
+                  final sameScheduleEligible = eligible.where((candidate) =>
+                    meeting.scheduleId != null
+                        ? candidate.scheduleId == meeting.scheduleId
+                        : candidate.scheduleId == null && candidate.name == meeting.name
+                  ).toList();
+                  final latestScheduleDay = sameScheduleEligible.isEmpty
+                      ? null
+                      : DateTime(sameScheduleEligible.last.meetingDate.year, sameScheduleEligible.last.meetingDate.month, sameScheduleEligible.last.meetingDate.day);
+                  final isCurrent = latestScheduleDay != null && meetingDay == latestScheduleDay;
                   final isFuture = meetingDay.isAfter(today);
                   final dateParts = meeting.meetingDate
                       .toLocal()
