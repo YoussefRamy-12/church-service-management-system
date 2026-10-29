@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:uuid/uuid.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../../core/sync/sync_operation.dart';
 import '../../../core/sync/sync_queue_repository.dart';
@@ -8,10 +9,11 @@ import '../domain/repositories/follow_up_repository.dart';
 import 'local_follow_up_repository.dart';
 
 class OfflineFirstFollowUpRepository implements FollowUpRepository {
-  OfflineFirstFollowUpRepository({required this.local, required this.queue});
+  OfflineFirstFollowUpRepository({required this.local, required this.queue, required this.client});
 
   final LocalFollowUpRepository local;
   final SyncQueueRepository queue;
+  final SupabaseClient client;
 
   @override
   Stream<List<FollowUpRecord>> watchForStudent(String id) =>
@@ -19,6 +21,36 @@ class OfflineFirstFollowUpRepository implements FollowUpRepository {
 
   @override
   Stream<List<FollowUpRecord>> watchAssignedTo(String id) => local.watchAssignedTo(id);
+
+  @override
+  Future<void> refreshAssignedTo(String servantProfileId) async {
+    final rows = await client.from('follow_up_records').select()
+        .eq('is_request', true).eq('assigned_to', servantProfileId)
+        .order('follow_up_date', ascending: true);
+    final requests = rows.map((raw) {
+      final r = Map<String, dynamic>.from(raw as Map);
+      return FollowUpRecord(
+        id: r['id'] as String,
+        studentId: r['student_id'] as String,
+        createdBy: r['created_by'] as String,
+        followUpDate: r['follow_up_date'] as String,
+        contactStatus: r['contact_status'] as String,
+        contactMethod: r['contact_method'] as String?,
+        absenceReason: r['absence_reason'] as String?,
+        studentResponse: r['student_response'] as String?,
+        parentResponse: r['parent_response'] as String?,
+        actionRequired: r['action_required'] as String?,
+        notes: r['notes'] as String?,
+        anotherFollowUpNeeded: (r['another_follow_up_needed'] as bool?) ?? false,
+        nextFollowUpDate: r['next_follow_up_date'] as String?,
+        clientOperationId: (r['client_operation_id'] as String?) ?? '',
+        assignedTo: r['assigned_to'] as String?,
+        isRequest: (r['is_request'] as bool?) ?? false,
+        requestStatus: (r['request_status'] as String?) ?? 'open',
+      );
+    }).toList();
+    await local.cacheRequests(requests);
+  }
 
   @override
   Future<FollowUpRecord> createRequest({
