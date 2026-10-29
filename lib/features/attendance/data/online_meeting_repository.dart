@@ -125,6 +125,20 @@ class OnlineMeetingRepository implements MeetingRepository {
       }).select('id, name, frequency, weekday, month_day, start_time').single();
     }
 
+    await _client.from('meeting_schedules').update({
+      'frequency': service.meetingFrequency,
+      'weekday': service.meetingWeekday,
+      'month_day': service.meetingMonthDay,
+      'start_time': service.meetingStartTime,
+      'updated_at': DateTime.now().toUtc().toIso8601String(),
+    }).eq('id', schedule['id'] as String);
+    schedule = {
+      ...schedule,
+      'frequency': service.meetingFrequency,
+      'weekday': service.meetingWeekday,
+      'month_day': service.meetingMonthDay,
+      'start_time': service.meetingStartTime,
+    };
     final scheduleId = schedule['id'] as String;
     final rows = await _client
         .from('meetings')
