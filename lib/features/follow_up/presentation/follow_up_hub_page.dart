@@ -96,7 +96,7 @@ class _FollowUpHubPageState extends ConsumerState<FollowUpHubPage> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 DropdownButtonFormField<String>(
-                  value: assignedTo,
+                  initialValue: assignedTo,
                   decoration: const InputDecoration(labelText: 'الخادم المسؤول'),
                   items: eligible.map((servant) => DropdownMenuItem<String>(
                     value: servant.id,
