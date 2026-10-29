@@ -7,7 +7,7 @@ create table if not exists public.meeting_schedules (
   month_day smallint not null default 1 check (month_day between 1 and 31),
   start_time text not null default '15:00',
   is_active boolean not null default true,
-  created_by uuid not null default auth.uid() references auth.users(id),
+  created_by uuid default auth.uid() references auth.users(id),
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
