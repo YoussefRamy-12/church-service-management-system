@@ -561,11 +561,17 @@ class _AttendanceSessionPageState extends ConsumerState<AttendanceSessionPage> {
               return AppContent(
                 maxWidth: 1000,
                 padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
-                child: SingleChildScrollView(
-                  child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
+                child: LayoutBuilder(
+                  builder: (context, constraints) {
+                    final isWide = constraints.maxWidth >= 900;
+                    if (isWide) {
+                      return SingleChildScrollView(
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            SizedBox(
+                              width: 340,
+                              child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
                     if (_readOnly)
                       Container(
                         margin: const EdgeInsets.only(bottom: 12),
@@ -702,7 +708,11 @@ class _AttendanceSessionPageState extends ConsumerState<AttendanceSessionPage> {
                         ],
                       ),
                     ),
-
+                              ]),
+                            ),
+                            const SizedBox(width: 16),
+                            Expanded(
+                              child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
                     // Search and Filter Bar
                     SolidCard(
                       padding: const EdgeInsets.symmetric(
@@ -1044,8 +1054,498 @@ class _AttendanceSessionPageState extends ConsumerState<AttendanceSessionPage> {
                             );
                           },
                         ),
-                  ],
-                  ),
+                              ]),
+                            ),
+                          ],
+                        ),
+                      );
+                    }
+                    return SingleChildScrollView(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                    if (_readOnly)
+                      Container(
+                        margin: const EdgeInsets.only(bottom: 12),
+                        padding: const EdgeInsets.all(14),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF64748B).withValues(alpha: .10),
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                        child: const Row(children: [
+                          Icon(Icons.lock_outline_rounded),
+                          SizedBox(width: 10),
+                          Expanded(child: Text('اجتماع سابق — العرض فقط، تم إيقاف تعديل وتسجيل الحضور.')),
+                        ]),
+                      ),
+                    // Top Overview Banner & KPI Cards
+                    GlassContainer(
+                      padding: const EdgeInsets.all(16),
+                      margin: const EdgeInsets.only(bottom: 14),
+                      borderRadius: 20,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Row(
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.all(10),
+                                decoration: BoxDecoration(
+                                  gradient: const LinearGradient(
+                                    colors: [
+                                      Color(0xFF4338CA),
+                                      Color(0xFF6366F1),
+                                    ],
+                                  ),
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: const Icon(
+                                  Icons.event_note_rounded,
+                                  color: Colors.white,
+                                  size: 20,
+                                ),
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      _allStudentsMode
+                                          ? 'جلسة حضور الخدمة العامة'
+                                          : 'جلسة الحضور الميداني',
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.w800,
+                                        fontSize: 16,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 2),
+                                    Text(
+                                      'بداية الاجتماع: ${meetingTime.format(context)} • الحضور المبكر حتى ${TimeOfDay.fromDateTime(DateTime(2020, 1, 1, meetingTime.hour, meetingTime.minute).add(Duration(minutes: earlyAttendanceMinutes))).format(context)}',
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        color: isDark
+                                            ? const Color(0xFF94A3B8)
+                                            : const Color(0xFF64748B),
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              // Fast QR Scan Hero CTA
+                              if (!_readOnly) FilledButton.icon(
+                                onPressed: openingQrScanner
+                                    ? null
+                                    : () => _openQrScanner(studentsStream),
+                                icon: const Icon(
+                                  Icons.qr_code_scanner_rounded,
+                                  size: 20,
+                                ),
+                                label: const Text('مسح QR'),
+                                style: FilledButton.styleFrom(
+                                  backgroundColor: const Color(0xFF4F46E5),
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 16,
+                                    vertical: 12,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 16),
+                          // KPI Mini Tiles
+                          Wrap(
+                            spacing: 10,
+                            runSpacing: 10,
+                            children: [
+                              _KpiPill(
+                                label: 'إجمالي المقيدين',
+                                value: '$totalCount',
+                                icon: Icons.groups_rounded,
+                                color: const Color(0xFF4F46E5),
+                              ),
+                              _KpiPill(
+                                label: 'حاضر',
+                                value: '$presentCount',
+                                icon: Icons.check_circle_rounded,
+                                color: const Color(0xFF059669),
+                              ),
+                              _KpiPill(
+                                label: 'غائب',
+                                value: '$absentCount',
+                                icon: Icons.cancel_outlined,
+                                color: const Color(0xFFDC2626),
+                              ),
+                              _KpiPill(
+                                label: 'مبكر',
+                                value: '$earlyCount',
+                                icon: Icons.star_rounded,
+                                color: const Color(0xFFD97706),
+                              ),
+                              _KpiPill(
+                                label: 'قبل الاجتماع',
+                                value: '${records.where((r) => _attendanceLabel(r.checkedInAt) == 'قبل الاجتماع').length}',
+                                icon: Icons.access_time_filled_rounded,
+                                color: const Color(0xFF4F46E5),
+                              ),
+                              _KpiPill(
+                                label: 'عادي',
+                                value: '$normalCount',
+                                icon: Icons.schedule_rounded,
+                                color: const Color(0xFF0D9488),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                    // Search and Filter Bar
+                    SolidCard(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 14,
+                        vertical: 10,
+                      ),
+                      margin: const EdgeInsets.only(bottom: 12),
+                      borderRadius: 16,
+                      child: Column(
+                        children: [
+                          TextField(
+                            onChanged: (v) => setState(() => query = v),
+                            decoration: InputDecoration(
+                              isDense: true,
+                              prefixIcon: const Icon(
+                                Icons.search_rounded,
+                                size: 22,
+                              ),
+                              hintText: 'ابحث باسم التلميذ...',
+                              suffixIcon: query.isNotEmpty
+                                  ? IconButton(
+                                      icon: const Icon(
+                                        Icons.clear_rounded,
+                                        size: 18,
+                                      ),
+                                      onPressed: () =>
+                                          setState(() => query = ''),
+                                    )
+                                  : null,
+                              contentPadding: const EdgeInsets.symmetric(
+                                horizontal: 14,
+                                vertical: 12,
+                              ),
+                              border: InputBorder.none,
+                              enabledBorder: InputBorder.none,
+                              focusedBorder: InputBorder.none,
+                            ),
+                          ),
+                          const Divider(height: 12),
+                          SingleChildScrollView(
+                            scrollDirection: Axis.horizontal,
+                            child: Row(
+                              children: [
+                                _FilterChipButton(
+                                  label: 'الكل ($totalCount)',
+                                  selected: _filter == _AttendanceFilter.all,
+                                  onTap: () => setState(
+                                    () => _filter = _AttendanceFilter.all,
+                                  ),
+                                ),
+                                const SizedBox(width: 6),
+                                _FilterChipButton(
+                                  label: 'حاضر ($presentCount)',
+                                  selected:
+                                      _filter == _AttendanceFilter.present,
+                                  color: const Color(0xFF059669),
+                                  onTap: () => setState(
+                                    () => _filter = _AttendanceFilter.present,
+                                  ),
+                                ),
+                                const SizedBox(width: 6),
+                                _FilterChipButton(
+                                  label: 'غائب ($absentCount)',
+                                  selected: _filter == _AttendanceFilter.absent,
+                                  color: const Color(0xFFDC2626),
+                                  onTap: () => setState(
+                                    () => _filter = _AttendanceFilter.absent,
+                                  ),
+                                ),
+                                const SizedBox(width: 6),
+                                _FilterChipButton(
+                                  label: 'بانتظار الاعتماد',
+                                  selected:
+                                      _filter == _AttendanceFilter.pending,
+                                  color: const Color(0xFFD97706),
+                                  onTap: () => setState(
+                                    () => _filter = _AttendanceFilter.pending,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    // Student Roster
+                    if (filtered.isEmpty)
+                      EmptyState(
+                          icon: Icons.search_off_rounded,
+                          title: 'لم يتم العثور على نتائج',
+                          message: query.isNotEmpty
+                              ? 'لا يوجد تلميذ يطابق "$query"'
+                              : 'لا يوجد تلاميذ في هذا الفلتر',
+                        )
+                    else
+                      ListView.separated(
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          itemCount: filtered.length,
+                          separatorBuilder: (_, _) => const SizedBox(height: 8),
+                          itemBuilder: (context, i) {
+                            final student = filtered[i];
+                            final record = checkedMap[student.id];
+                            final isPresent = record != null;
+                            final isBusy = busyStudentId == student.id;
+                            final classId = _classIdFor(student);
+                            final classColor = _classColorFor(classId);
+                            final previousClassId = i == 0 ? null : _classIdFor(filtered[i - 1]);
+                            final showClassHeader = _allStudentsMode && classId != previousClassId;
+
+                            return Column(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                if (showClassHeader)
+                                  Padding(
+                                    padding: const EdgeInsets.fromLTRB(2, 12, 2, 4),
+                                    child: Row(
+                                      children: [
+                                        Container(
+                                          width: 4,
+                                          height: 24,
+                                          decoration: BoxDecoration(color: classColor, borderRadius: BorderRadius.circular(4)),
+                                        ),
+                                        const SizedBox(width: 8),
+                                        Expanded(
+                                          child: Text(_classLabelFor(student), style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w800)),
+                                        ),
+                                        Container(
+                                          padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 3),
+                                          decoration: BoxDecoration(color: classColor.withValues(alpha: .10), borderRadius: BorderRadius.circular(999)),
+                                          child: Text(filtered.where((item) => _classIdFor(item) == classId).length.toString() + ' تلميذ', style: TextStyle(color: classColor, fontSize: 11, fontWeight: FontWeight.w700)),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                SolidCard(
+                              key: ValueKey(student.id),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 12,
+                                vertical: 10,
+                              ),
+                              borderRadius: 16,
+                              child: Row(
+                                children: [
+                                  // Avatar
+                                  Container(
+                                    width: 44,
+                                    height: 44,
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      gradient: isPresent
+                                          ? const LinearGradient(
+                                              colors: [
+                                                Color(0xFF059669),
+                                                Color(0xFF10B981),
+                                              ],
+                                            )
+                                          : (student.isPending
+                                                ? const LinearGradient(
+                                                    colors: [
+                                                      Color(0xFFD97706),
+                                                      Color(0xFFF59E0B),
+                                                    ],
+                                                  )
+                                                : (isDark
+                                                      ? const LinearGradient(
+                                                          colors: [
+                                                            Color(0xFF1E293B),
+                                                            Color(0xFF334155),
+                                                          ],
+                                                        )
+                                                      : const LinearGradient(
+                                                          colors: [
+                                                            Color(0xFFE2E8F0),
+                                                            Color(0xFFCBD5E1),
+                                                          ],
+                                                        ))),
+                                      boxShadow: isPresent
+                                          ? [
+                                              BoxShadow(
+                                                color: const Color(
+                                                  0xFF059669,
+                                                ).withValues(alpha: 0.35),
+                                                blurRadius: 10,
+                                              ),
+                                            ]
+                                          : null,
+                                    ),
+                                    alignment: Alignment.center,
+                                    child: isPresent
+                                        ? const Icon(
+                                            Icons.check_rounded,
+                                            color: Colors.white,
+                                            size: 22,
+                                          )
+                                        : Text(
+                                            student.name.isNotEmpty
+                                                ? student.name.characters.first
+                                                : 'ت',
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.w800,
+                                              fontSize: 16,
+                                              color: isDark
+                                                  ? Colors.white
+                                                  : const Color(0xFF1E293B),
+                                            ),
+                                          ),
+                                  ),
+                                  const SizedBox(width: 14),
+
+                                  // Student Details
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          student.name,
+                                          style: const TextStyle(
+                                            fontWeight: FontWeight.w800,
+                                            fontSize: 15,
+                                          ),
+                                        ),
+                                        const SizedBox(height: 4),
+                                        Wrap(
+                                          spacing: 6,
+                                          runSpacing: 4,
+                                          crossAxisAlignment:
+                                              WrapCrossAlignment.center,
+                                          children: [
+                                            Container(
+                                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                                              decoration: BoxDecoration(
+                                                color: classColor.withValues(alpha: .10),
+                                                borderRadius: BorderRadius.circular(999),
+                                                border: Border.all(color: classColor.withValues(alpha: .30)),
+                                              ),
+                                              child: Text(_classLabelFor(student), maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(color: classColor, fontSize: 10, fontWeight: FontWeight.w700)),
+                                            ),
+                                            if (student.isPending)
+                                              const GlassBadge(
+                                                label: 'بانتظار الاعتماد',
+                                                color: Color(0xFFD97706),
+                                                showDot: true,
+                                              ),
+                                            if (isPresent) ...[
+                                              GlassBadge(
+                                                label: _attendanceLabel(
+                                                  record.checkedInAt,
+                                                ),
+                                                color: _attendanceColor(
+                                                  record.checkedInAt,
+                                                ),
+                                                showDot: false,
+                                              ),
+                                              Text(
+                                                TimeOfDay.fromDateTime(
+                                                  record.checkedInAt,
+                                                ).format(context),
+                                                style: TextStyle(
+                                                  fontSize: 11,
+                                                  fontWeight: FontWeight.w600,
+                                                  color: isDark
+                                                      ? const Color(0xFF94A3B8)
+                                                      : const Color(0xFF64748B),
+                                                ),
+                                              ),
+                                            ] else ...[
+                                              Text(
+                                                'غير مسجل',
+                                                style: TextStyle(
+                                                  fontSize: 12,
+                                                  color: isDark
+                                                      ? const Color(0xFF64748B)
+                                                      : const Color(0xFF94A3B8),
+                                                  fontWeight: FontWeight.w500,
+                                                ),
+                                              ),
+                                            ],
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+
+                                  // Action Button
+                                  if (isPresent)
+                                    OutlinedButton.icon(
+                                      onPressed: _readOnly ? null : () => _editAttendance(
+                                        record.id,
+                                        record.checkedInAt,
+                                      ),
+                                      icon: const Icon(
+                                        Icons.access_time_rounded,
+                                        size: 16,
+                                      ),
+                                      label: const Text('تعديل'),
+                                      style: OutlinedButton.styleFrom(
+                                        minimumSize: const Size(80, 40),
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 10,
+                                        ),
+                                      ),
+                                    )
+                                  else
+                                    FilledButton.icon(
+                                      onPressed: _readOnly || isBusy
+                                          ? null
+                                          : () => _checkIn(student),
+                                      icon: isBusy
+                                          ? const SizedBox(
+                                              width: 14,
+                                              height: 14,
+                                              child: CircularProgressIndicator(
+                                                strokeWidth: 2,
+                                                color: Colors.white,
+                                              ),
+                                            )
+                                          : const Icon(
+                                              Icons.how_to_reg_rounded,
+                                              size: 18,
+                                            ),
+                                      label: const Text('تسجيل'),
+                                      style: FilledButton.styleFrom(
+                                        backgroundColor: const Color(
+                                          0xFF059669,
+                                        ),
+                                        minimumSize: const Size(88, 42),
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 14,
+                                        ),
+                                      ),
+                                    ),
+                                ],
+                              ),
+                                ),
+                              ],
+                            );
+                          },
+                        ),
+                        ],
+                      ),
+                    );
+                  },
                 ),
               );
             },
