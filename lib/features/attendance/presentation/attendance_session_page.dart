@@ -557,6 +557,8 @@ class _AttendanceSessionPageState extends ConsumerState<AttendanceSessionPage> {
                   if (_allStudentsMode) {
                     final classCompare = _classLabelFor(a).compareTo(_classLabelFor(b));
                     if (classCompare != 0) return classCompare;
+                    final classIdCompare = _classIdFor(a).compareTo(_classIdFor(b));
+                    if (classIdCompare != 0) return classIdCompare;
                   }
                   return a.name.toLowerCase().compareTo(b.name.toLowerCase());
                 });
