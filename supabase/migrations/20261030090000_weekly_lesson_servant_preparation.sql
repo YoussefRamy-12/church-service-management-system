@@ -26,7 +26,10 @@ create policy weekly_lessons_storage_read on storage.objects
       select 1
       from public.weekly_lessons wl
       where wl.storage_path = storage.objects.name
-        and (select private.can_read_weekly_stage(wl.stage_id))
+        and (
+          (select private.can_manage_weekly_stage(wl.stage_id))
+          or (select private.can_read_weekly_stage(wl.stage_id))
+        )
     )
   );
 
