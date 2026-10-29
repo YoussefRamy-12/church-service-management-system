@@ -36,12 +36,14 @@ class _AttendanceSessionPageState extends ConsumerState<AttendanceSessionPage> {
   bool openingQrScanner = false;
   bool _readOnly = true;
   _AttendanceFilter _filter = _AttendanceFilter.all;
+  Map<String, String> _classNames = {};
 
   bool get _allStudentsMode => widget.classId == 'all';
 
   @override
   void initState() {
     super.initState();
+    Future.microtask(_loadClassNames);
     Future.microtask(() async {
       try {
         final meetings = await ref.read(meetingRepositoryProvider).watchMeetings(widget.serviceId).first;
@@ -90,6 +92,38 @@ class _AttendanceSessionPageState extends ConsumerState<AttendanceSessionPage> {
     }
   }
 
+  Future<void> _loadClassNames() async {
+    try {
+      final repository = ref.read(serviceRepositoryProvider);
+      final stages = await repository.getStages(widget.serviceId);
+      final names = <String, String>{};
+      for (final stage in stages) {
+        for (final item in await repository.getClasses(stage.id)) {
+          names[item.id] = item.name;
+        }
+      }
+      if (mounted) setState(() => _classNames = names);
+    } catch (_) {
+      // Class names may not be cached yet; attendance must remain usable offline.
+    }
+  }
+
+  String _classIdFor(Student student) => student.currentClassId ??
+      student.proposedClassId ?? (_allStudentsMode ? 'unassigned' : widget.classId);
+
+  String _classLabelFor(Student student) {
+    final id = _classIdFor(student);
+    if (id == 'unassigned') return 'بدون فصل محدد';
+    return _classNames[id] ?? (_allStudentsMode ? 'فصل غير محدد' : 'الفصل المحدد');
+  }
+
+  Color _classColorFor(String id) {
+    const palette = <Color>[
+      Color(0xFF4F46E5), Color(0xFF0D9488), Color(0xFFB45309),
+      Color(0xFF7C3AED), Color(0xFF0369A1), Color(0xFFBE123C),
+    ];
+    return palette[id.hashCode.abs() % palette.length];
+  }
   Future<void> _checkIn(Student student) async {
     if (_readOnly) return;
     if (busyStudentId != null) return;
@@ -515,7 +549,14 @@ class _AttendanceSessionPageState extends ConsumerState<AttendanceSessionPage> {
                   case _AttendanceFilter.pending:
                     return s.isPending;
                 }
-              }).toList();
+              }).toList()
+                ..sort((a, b) {
+                  if (_allStudentsMode) {
+                    final classCompare = _classLabelFor(a).compareTo(_classLabelFor(b));
+                    if (classCompare != 0) return classCompare;
+                  }
+                  return a.name.toLowerCase().compareTo(b.name.toLowerCase());
+                });
 
               return AppContent(
                 maxWidth: 1000,
@@ -768,12 +809,41 @@ class _AttendanceSessionPageState extends ConsumerState<AttendanceSessionPage> {
                             final record = checkedMap[student.id];
                             final isPresent = record != null;
                             final isBusy = busyStudentId == student.id;
+                            final classId = _classIdFor(student);
+                            final classColor = _classColorFor(classId);
+                            final previousClassId = i == 0 ? null : _classIdFor(filtered[i - 1]);
+                            final showClassHeader = _allStudentsMode && classId != previousClassId;
 
-                            return SolidCard(
+                            return Column(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                if (showClassHeader)
+                                  Padding(
+                                    padding: const EdgeInsets.fromLTRB(2, 12, 2, 4),
+                                    child: Row(
+                                      children: [
+                                        Container(
+                                          width: 4,
+                                          height: 24,
+                                          decoration: BoxDecoration(color: classColor, borderRadius: BorderRadius.circular(4)),
+                                        ),
+                                        const SizedBox(width: 8),
+                                        Expanded(
+                                          child: Text(_classLabelFor(student), style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w800)),
+                                        ),
+                                        Container(
+                                          padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 3),
+                                          decoration: BoxDecoration(color: classColor.withValues(alpha: .10), borderRadius: BorderRadius.circular(999)),
+                                          child: Text(filtered.where((item) => _classIdFor(item) == classId).length.toString() + ' تلميذ', style: TextStyle(color: classColor, fontSize: 11, fontWeight: FontWeight.w700)),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                SolidCard(
                               key: ValueKey(student.id),
                               padding: const EdgeInsets.symmetric(
-                                horizontal: 16,
-                                vertical: 12,
+                                horizontal: 12,
+                                vertical: 10,
                               ),
                               borderRadius: 16,
                               child: Row(
@@ -864,6 +934,15 @@ class _AttendanceSessionPageState extends ConsumerState<AttendanceSessionPage> {
                                           crossAxisAlignment:
                                               WrapCrossAlignment.center,
                                           children: [
+                                            Container(
+                                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                                              decoration: BoxDecoration(
+                                                color: classColor.withValues(alpha: .10),
+                                                borderRadius: BorderRadius.circular(999),
+                                                border: Border.all(color: classColor.withValues(alpha: .30)),
+                                              ),
+                                              child: Text(_classLabelFor(student), maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(color: classColor, fontSize: 10, fontWeight: FontWeight.w700)),
+                                            ),
                                             if (student.isPending)
                                               const GlassBadge(
                                                 label: 'بانتظار الاعتماد',
@@ -960,6 +1039,8 @@ class _AttendanceSessionPageState extends ConsumerState<AttendanceSessionPage> {
                                     ),
                                 ],
                               ),
+                                ),
+                              ],
                             );
                           },
                         ),
