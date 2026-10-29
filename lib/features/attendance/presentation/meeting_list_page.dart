@@ -314,7 +314,7 @@ class _MeetingListPageState extends ConsumerState<MeetingListPage> {
                               Row(
                                 children: [
                                   Text(
-                                    'اجتماع $dateParts',
+                                    '${meeting.name} — $dateParts',
                                     style: const TextStyle(
                                       fontWeight: FontWeight.w800,
                                       fontSize: 15,
