@@ -125,12 +125,27 @@ class _ClassStudentsPageState extends ConsumerState<ClassStudentsPage> {
             onPressed: _downloadingClassCards
                 ? null
                 : () async {
-                    final currentStudents = await ref
-                        .read(localStudentRepositoryProvider)
-                        .watchStudentsForClass(widget.classId)
-                        .first;
-                    if (!context.mounted) return;
-                    _downloadClassCards(currentStudents);
+                    try {
+                      // Use the same repository as the visible class list.
+                      // In online mode, the local cache may be empty even when
+                      // Supabase has students; in offline-first mode this reads
+                      // the local stream that powers the page.
+                      final currentStudents = await ref
+                          .read(studentRepositoryProvider)
+                          .watchStudentsForClass(widget.classId)
+                          .first;
+                      if (!context.mounted) return;
+                      await _downloadClassCards(currentStudents);
+                    } catch (error) {
+                      if (!context.mounted) return;
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                            'تعذر تحميل بيانات التلاميذ لإنشاء البطاقات: $error',
+                          ),
+                        ),
+                      );
+                    }
                   },
           ),
           IconButton(
