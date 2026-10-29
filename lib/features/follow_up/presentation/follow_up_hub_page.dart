@@ -1,12 +1,20 @@
 // ignore_for_file: prefer_interpolation_to_compose_strings
 
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../service/presentation/service_providers.dart';
 import '../../students/presentation/student_providers.dart';
+import '../../students/domain/entities/student.dart';
+import '../../auth/domain/entities/servant_profile.dart';
+import '../../servants/presentation/servant_providers.dart';
 import 'follow_up_page.dart';
 import 'absence_prioritization_page.dart';
 import 'weekly_follow_up_page.dart';
+import 'follow_up_requests_page.dart';
+import 'follow_up_providers.dart';
+import '../../../core/config/config_provider.dart';
+import '../../../core/sync/sync_engine_provider.dart';
 import '../../../app/ui/app_ui.dart';
 import '../../auth/presentation/auth_providers.dart';
 import 'follow_up_scope.dart';
@@ -41,13 +49,152 @@ class _FollowUpHubPageState extends ConsumerState<FollowUpHubPage> {
     );
   }
 
+
+  Future<void> _createRequest(Student student) async {
+    final profile = await ref.read(currentServantProfileProvider.future);
+    const allowedRoles = {'overall_leader', 'overall_helper', 'stage_leader', 'class_leader'};
+    if (profile == null || !profile.isActive || !allowedRoles.contains(profile.role)) return;
+    final classId = student.currentClassId;
+    if (classId == null || student.isPending) {
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('لا يمكن إسناد متابعة قبل اعتماد الطالب وتحديد فصله.')),
+      );
+      return;
+    }
+
+    final servantsRepo = ref.read(servantRepositoryProvider);
+    List<ServantProfile> eligible;
+    try {
+      await servantsRepo.refresh(widget.serviceId);
+      eligible = (await servantsRepo.watchForService(widget.serviceId).first)
+          .where((servant) => servant.isActive && servant.role == 'class_servant' && servant.classId == classId)
+          .toList();
+    } catch (error) {
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('تعذر تحميل خدام الفصل: $error')),
+      );
+      return;
+    }
+    if (eligible.isEmpty) {
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('لا يوجد خادم نشط مُعيّن لهذا الفصل.')),
+      );
+      return;
+    }
+
+    final action = TextEditingController();
+    final notes = TextEditingController();
+    String? assignedTo = eligible.length == 1 ? eligible.first.id : null;
+    DateTime dueDate = DateTime.now();
+    final result = await showDialog<Map<String, dynamic>>(
+      context: context,
+      builder: (dialogContext) => StatefulBuilder(
+        builder: (context, setDialogState) => AlertDialog(
+          title: Text('إسناد متابعة — ${student.name}'),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                DropdownButtonFormField<String>(
+                  value: assignedTo,
+                  decoration: const InputDecoration(labelText: 'الخادم المسؤول'),
+                  items: eligible.map((servant) => DropdownMenuItem<String>(
+                    value: servant.id,
+                    child: Text(servant.name),
+                  )).toList(),
+                  onChanged: (value) => setDialogState(() => assignedTo = value),
+                ),
+                TextField(
+                  autofocus: true,
+                  controller: action,
+                  maxLines: 2,
+                  decoration: const InputDecoration(labelText: 'المطلوب متابعته', hintText: 'مثال: التواصل مع ولي الأمر بخصوص الغياب'),
+                ),
+                TextField(
+                  controller: notes,
+                  maxLines: 2,
+                  decoration: const InputDecoration(labelText: 'ملاحظات إضافية (اختياري)'),
+                ),
+                ListTile(
+                  contentPadding: EdgeInsets.zero,
+                  title: const Text('الموعد المطلوب'),
+                  subtitle: Text(DateFormat('yyyy-MM-dd').format(dueDate)),
+                  trailing: const Icon(Icons.calendar_month_rounded),
+                  onTap: () async {
+                    final picked = await showDatePicker(
+                      context: context,
+                      initialDate: dueDate,
+                      firstDate: DateTime.now().subtract(const Duration(days: 365)),
+                      lastDate: DateTime.now().add(const Duration(days: 365)),
+                    );
+                    if (picked != null) setDialogState(() => dueDate = picked);
+                  },
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(onPressed: () => Navigator.pop(dialogContext), child: const Text('إلغاء')),
+            FilledButton(
+              onPressed: assignedTo == null || action.text.trim().isEmpty
+                  ? null
+                  : () => Navigator.pop(dialogContext, {
+                      'assignedTo': assignedTo,
+                      'action': action.text.trim(),
+                      'notes': notes.text.trim(),
+                      'dueDate': DateFormat('yyyy-MM-dd').format(dueDate),
+                    }),
+              child: const Text('إسناد الطلب'),
+            ),
+          ],
+        ),
+      ),
+    );
+    action.dispose();
+    notes.dispose();
+    if (result == null || !mounted) return;
+    try {
+      await ref.read(followUpRepositoryProvider).createRequest(
+        studentId: student.id,
+        createdBy: profile.id,
+        assignedTo: result['assignedTo'] as String,
+        dueDate: result['dueDate'] as String,
+        actionRequired: result['action'] as String,
+        notes: (result['notes'] as String).isEmpty ? null : result['notes'] as String,
+      );
+      if (ref.read(offlineSyncEnabledProvider)) {
+        await ref.read(syncEngineProvider).syncNow();
+      }
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('تم إسناد طلب المتابعة إلى خادم الفصل.')),
+      );
+    } catch (error) {
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('تعذر إسناد المتابعة: $error')),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final services = ref.watch(serviceRepositoryProvider);
+    final profileState = ref.watch(currentServantProfileProvider);
+    final profile = profileState.hasValue ? profileState.value : null;
+    const assignRoles = {'overall_leader', 'overall_helper', 'stage_leader', 'class_leader'};
+    final canAssignRequests = profile != null && profile.isActive && assignRoles.contains(profile.role);
     return Scaffold(
       appBar: AppBar(
         title: const Text('المتابعة'),
         actions: [
+          IconButton(
+            key: const Key('follow_up_requests'),
+            tooltip: 'طلبات المتابعة المسندة إليّ',
+            icon: const Icon(Icons.assignment_outlined),
+            onPressed: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => FollowUpRequestsPage(serviceId: widget.serviceId)),
+            ),
+          ),
           IconButton(
             key: const Key('follow_up_weekly'),
             tooltip: 'متابعات هذا الأسبوع',
@@ -475,9 +622,17 @@ class _FollowUpHubPageState extends ConsumerState<FollowUpHubPage> {
                                                                           .w600,
                                                                 ),
                                                               ),
-                                                              trailing: const Icon(
-                                                                Icons
-                                                                    .chevron_left_rounded,
+                                                              trailing: Row(
+                                                                mainAxisSize: MainAxisSize.min,
+                                                                children: [
+                                                                  if (canAssignRequests && !student.isPending)
+                                                                    IconButton(
+                                                                      tooltip: 'إسناد طلب متابعة',
+                                                                      icon: const Icon(Icons.assignment_add, color: Color(0xFF4F46E5)),
+                                                                      onPressed: () => _createRequest(student),
+                                                                    ),
+                                                                  const Icon(Icons.chevron_left_rounded),
+                                                                ],
                                                               ),
                                                               onTap: () =>
                                                                   Navigator.of(
