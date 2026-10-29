@@ -31,7 +31,7 @@ class OfflineFirstMeetingRepository implements MeetingRepository {
   Future<void> refresh(String serviceId) async {
     final rows = await client
         .from('meetings')
-        .select('id, service_id, meeting_date, start_time')
+        .select('id, service_id, meeting_date, start_time, name, schedule_id')
         .eq('service_id', serviceId)
         .order('meeting_date', ascending: true);
     await local.clearMeetings(serviceId);
@@ -43,6 +43,8 @@ class OfflineFirstMeetingRepository implements MeetingRepository {
               serviceId: r['service_id'] as String,
               meetingDate: DateTime.parse(r['meeting_date'].toString()),
               startTime: r['start_time'] as String,
+              name: (r['name'] as String?) ?? 'اجتماع الخدمة',
+              scheduleId: r['schedule_id'] as String?,
             ),
           )
           .toList(),
@@ -54,6 +56,8 @@ class OfflineFirstMeetingRepository implements MeetingRepository {
     required String serviceId,
     required DateTime date,
     required String startTime,
+    String name = 'اجتماع الخدمة',
+    String? scheduleId,
     String? id,
   }) async {
     id ??= const Uuid().v4();
@@ -62,25 +66,38 @@ class OfflineFirstMeetingRepository implements MeetingRepository {
       serviceId: serviceId,
       meetingDate: date,
       startTime: startTime,
+      name: name,
+      scheduleId: scheduleId,
     );
 
-    // Meetings are shared by the whole service. When online, publish the
-    // record immediately instead of adding it to the offline queue.
     final isOnline = await _connectivity.isOnline;
     if (isOnline) {
       final existing = await client
           .from('meetings')
-          .select('id, service_id, meeting_date, start_time')
+          .select('id, service_id, meeting_date, start_time, name, schedule_id')
           .eq('service_id', serviceId)
-          .eq('meeting_date', _dateKey(date))
-          .limit(1);
-      if (existing.isNotEmpty) {
-        final row = existing.first;
+          .eq('meeting_date', _dateKey(date));
+      Map<String, dynamic>? matched;
+      for (final raw in existing) {
+        final row = Map<String, dynamic>.from(raw as Map);
+        final sameSchedule = scheduleId != null
+            ? row['schedule_id'] == scheduleId
+            : row['schedule_id'] == null &&
+                ((row['name'] as String?) ?? 'اجتماع الخدمة') == name;
+        if (sameSchedule) {
+          matched = row;
+          break;
+        }
+      }
+      if (matched != null) {
+        final row = matched;
         final shared = Meeting(
           id: row['id'] as String,
           serviceId: row['service_id'] as String,
           meetingDate: DateTime.parse(row['meeting_date'].toString()),
           startTime: row['start_time'] as String,
+          name: (row['name'] as String?) ?? 'اجتماع الخدمة',
+          scheduleId: row['schedule_id'] as String?,
         );
         await local.cacheMeetings([shared]);
         return shared;
@@ -90,6 +107,8 @@ class OfflineFirstMeetingRepository implements MeetingRepository {
         'service_id': serviceId,
         'meeting_date': _dateKey(date),
         'start_time': startTime,
+        'name': name,
+        'schedule_id': scheduleId,
       }, onConflict: 'id');
       await local.cacheMeetings([item]);
       return item;
@@ -104,8 +123,10 @@ class OfflineFirstMeetingRepository implements MeetingRepository {
         payloadJson: jsonEncode({
           'id': id,
           'service_id': serviceId,
-          'meeting_date': date.toIso8601String().substring(0, 10),
+          'meeting_date': _dateKey(date),
           'start_time': startTime,
+          'name': name,
+          'schedule_id': scheduleId,
         }),
       ),
     );
