@@ -326,7 +326,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                                 obscureText: !_showPassword,
                                 decoration: InputDecoration(
                                   labelText: 'كلمة المرور',
-                                  prefixIcon: Icon(Icons.lock_outline),
+                                  prefixIcon: const Icon(Icons.lock_outline),
                                   suffixIcon: IconButton(
                                     tooltip: _showPassword ? 'إخفاء كلمة المرور' : 'إظهار كلمة المرور',
                                     onPressed: () => setState(() => _showPassword = !_showPassword),
