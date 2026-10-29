@@ -628,7 +628,7 @@ class _FollowUpHubPageState extends ConsumerState<FollowUpHubPage> {
                                                                   if (canAssignRequests && !student.isPending)
                                                                     IconButton(
                                                                       tooltip: 'إسناد طلب متابعة',
-                                                                      icon: const Icon(Icons.assignment_add, color: Color(0xFF4F46E5)),
+                                                                      icon: const Icon(Icons.assignment_outlined, color: Color(0xFF4F46E5)),
                                                                       onPressed: () => _createRequest(student),
                                                                     ),
                                                                   const Icon(Icons.chevron_left_rounded),
