@@ -142,16 +142,14 @@ class OfflineFirstMeetingRepository implements MeetingRepository {
         .eq('name', 'اجتماع الخدمة')
         .maybeSingle();
 
-    if (schedule == null) {
-      schedule = await client.from('meeting_schedules').insert({
-        'service_id': service.id,
-        'name': 'اجتماع الخدمة',
-        'frequency': service.meetingFrequency,
-        'weekday': service.meetingWeekday,
-        'month_day': service.meetingMonthDay,
-        'start_time': service.meetingStartTime,
-      }).select('id, name, frequency, weekday, month_day, start_time').single();
-    }
+    schedule ??= await client.from('meeting_schedules').insert({
+      'service_id': service.id,
+      'name': 'اجتماع الخدمة',
+      'frequency': service.meetingFrequency,
+      'weekday': service.meetingWeekday,
+      'month_day': service.meetingMonthDay,
+      'start_time': service.meetingStartTime,
+    }).select('id, name, frequency, weekday, month_day, start_time').single();
 
     await client.from('meeting_schedules').update({
       'frequency': service.meetingFrequency,
@@ -194,7 +192,7 @@ class OfflineFirstMeetingRepository implements MeetingRepository {
           : date.weekday == schedule['weekday'];
       final dateKey = _dateKey(date);
       if (!scheduled || existingDates.contains(dateKey)) continue;
-      final id = const Uuid().v5(Namespace.url.value, '${scheduleId}:$dateKey');
+      final id = const Uuid().v5(Namespace.url.value, '$scheduleId:$dateKey');
       await create(
         serviceId: service.id,
         date: date,
