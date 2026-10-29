@@ -140,9 +140,6 @@ class OfflineFirstFollowUpRepository implements FollowUpRepository {
           'is_request': record.isRequest,
           'request_status': record.requestStatus,
           'client_operation_id': record.clientOperationId,
-          'assigned_to': record.assignedTo,
-          'is_request': record.isRequest,
-          'request_status': record.requestStatus,
         }),
       ),
     );
