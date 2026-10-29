@@ -389,6 +389,17 @@ class _ServiceSettingsPageState extends ConsumerState<ServiceSettingsPage> {
                         ],
                       ),
                       const SizedBox(height: 14),
+                      const Text('لإضافة أكثر من اجتماع بأسماء وأوقات مستقلة، افتح إعدادات الاجتماعات المتعددة.'),
+                      const SizedBox(height: 8),
+                      SizedBox(
+                        width: double.infinity,
+                        child: OutlinedButton.icon(
+                          onPressed: () => context.go('/service/${widget.serviceId}/settings/meetings'),
+                          icon: const Icon(Icons.event_repeat_rounded),
+                          label: const Text('إدارة الاجتماعات المتعددة'),
+                        ),
+                      ),
+                      const Divider(height: 24),
                       ListTile(
                         contentPadding: EdgeInsets.zero,
                         leading: const Icon(Icons.access_time_rounded),

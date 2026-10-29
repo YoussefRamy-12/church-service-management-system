@@ -780,7 +780,7 @@ class _StudentAttendanceTabState extends ConsumerState<_StudentAttendanceTab> {
                     title: Text(
                       meetingsById[record.meetingId] == null
                           ? 'موعد الاجتماع غير متاح'
-                          : 'اجتماع ${DateFormat('yyyy/MM/dd').format(meetingsById[record.meetingId]!.meetingDate)}',
+                          : '${meetingsById[record.meetingId]!.name} — ${DateFormat('yyyy/MM/dd').format(meetingsById[record.meetingId]!.meetingDate)}',
                     ),
                     subtitle: Text(
                       meetingsById[record.meetingId] == null
