@@ -4,7 +4,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../app/ui/app_ui.dart';
 import '../../../core/network/supabase_client_provider.dart';
 import '../../auth/presentation/auth_providers.dart';
-import '../domain/entities/meeting.dart';
 import 'meeting_providers.dart';
 
 class MeetingSchedulesPage extends ConsumerStatefulWidget {
@@ -189,18 +188,6 @@ class _MeetingSchedulesPageState extends ConsumerState<MeetingSchedulesPage> {
     }
   }
 
-  Future<void> _toggleSchedule(Map<String, dynamic> schedule) async {
-    try {
-      await ref.read(supabaseClientProvider).from('meeting_schedules')
-          .update({'is_active': !(schedule['is_active'] as bool)})
-          .eq('id', schedule['id'] as String);
-      await _load();
-    } catch (error) {
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('تعذر تحديث حالة الجدول: $error')),
-      );
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -236,11 +223,7 @@ class _MeetingSchedulesPageState extends ConsumerState<MeetingSchedulesPage> {
                             subtitle: Text(
                               '${schedule['frequency'] == 'weekly' ? 'أسبوعي — ${_weekdays[(schedule['weekday'] as int) - 1]}' : 'شهري — يوم ${schedule['month_day']}'} • ${(schedule['start_time'] as String).substring(0, 5)}${(schedule['is_active'] as bool) ? '' : ' • متوقف'}',
                             ),
-                            trailing: canManage ? IconButton(
-                              tooltip: (schedule['is_active'] as bool) ? 'إيقاف إنشاء المواعيد الجديدة' : 'تفعيل الجدول',
-                              onPressed: () => _toggleSchedule(schedule),
-                              icon: Icon((schedule['is_active'] as bool) ? Icons.pause_circle_outline_rounded : Icons.play_circle_outline_rounded),
-                            ) : null,
+                            trailing: const Icon(Icons.event_repeat_rounded),
                           ),
                         ),
                     ],
