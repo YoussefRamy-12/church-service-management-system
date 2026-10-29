@@ -308,12 +308,24 @@ class _ClassStudentsPageState extends ConsumerState<ClassStudentsPage> {
                                       label: Text('معلق'),
                                     )
                                   : const Icon(Icons.chevron_left),
-                              onTap: () => Navigator.of(context).push(
-                                MaterialPageRoute(
-                                  builder: (_) =>
-                                      StudentDetailsPage(student: student),
-                                ),
-                              ),
+                              onTap: () async {
+                                await Navigator.of(context).push<void>(
+                                  MaterialPageRoute(
+                                    builder: (_) =>
+                                        StudentDetailsPage(student: student),
+                                  ),
+                                );
+                                // Reconcile the class cache after edits/deletion.
+                                // The Supabase stream also keeps online lists live.
+                                if (!mounted) return;
+                                try {
+                                  await ref
+                                      .read(studentRepositoryProvider)
+                                      .refreshStudents(widget.classId);
+                                } catch (_) {
+                                  // Keep the current cached list if offline.
+                                }
+                              },
                             );
                           },
                         ),
