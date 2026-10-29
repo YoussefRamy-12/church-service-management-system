@@ -178,12 +178,21 @@ class _FollowUpHubPageState extends ConsumerState<FollowUpHubPage> {
         actionRequired: result['action'] as String,
         notes: (result['notes'] as String).isEmpty ? null : result['notes'] as String,
       );
-      if (ref.read(offlineSyncEnabledProvider)) {
-        await ref.read(syncEngineProvider).syncNow();
+      final offlineFirst = ref.read(offlineSyncEnabledProvider);
+      if (offlineFirst) {
+        try {
+          await ref.read(syncEngineProvider).syncNow();
+        } catch (_) {
+          // The request is already stored locally and remains queued for sync.
+        }
       }
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('تم إسناد طلب المتابعة إلى خادم الفصل.')),
+          SnackBar(content: Text(
+            offlineFirst
+                ? 'تم حفظ طلب المتابعة محليًا وسيتم مزامنته عند الاتصال.'
+                : 'تم إسناد طلب المتابعة إلى خادم الفصل.',
+          )),
         );
       }
     } catch (error) {
