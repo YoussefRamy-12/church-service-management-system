@@ -884,7 +884,9 @@ class _WeeklyLessonDetailPageState
   Future<void> _loadPreparation() async {
     final profileId = widget.profileId;
     if (profileId == null) {
-      if (mounted) setState(() => _loadingPreparation = false);
+      if (mounted) {
+        setState(() => _loadingPreparation = false);
+      }
       return;
     }
     try {
@@ -892,10 +894,12 @@ class _WeeklyLessonDetailPageState
         lessonId: widget.lesson.id,
         servantProfileId: profileId,
       );
-      if (mounted) setState(() {
-        _prepared = value;
-        _loadingPreparation = false;
-      });
+      if (mounted) {
+        setState(() {
+          _prepared = value;
+          _loadingPreparation = false;
+        });
+      }
     } catch (_) {
       if (mounted) setState(() => _loadingPreparation = false);
     }
