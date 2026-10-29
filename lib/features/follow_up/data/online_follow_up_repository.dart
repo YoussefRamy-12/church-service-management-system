@@ -50,6 +50,12 @@ class OnlineFollowUpRepository implements FollowUpRepository {
   }
 
   @override
+  Future<void> refreshAssignedTo(String servantProfileId) async {
+    await _client.from('follow_up_records').select('id')
+        .eq('is_request', true).eq('assigned_to', servantProfileId).limit(1);
+  }
+
+  @override
   Stream<List<FollowUpRecord>> watchAssignedTo(String servantProfileId) async* {
     final rows = await _client.from('follow_up_records').select()
         .eq('is_request', true).eq('assigned_to', servantProfileId)
