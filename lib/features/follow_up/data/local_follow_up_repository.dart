@@ -67,6 +67,37 @@ class LocalFollowUpRepository {
     );
   }
 
+  Future<void> cacheRequests(List<FollowUpRecord> requests) async {
+    await db.batch((batch) {
+      for (final r in requests) {
+        batch.insert(
+          db.cachedFollowUpRecords,
+          CachedFollowUpRecordsCompanion.insert(
+            id: r.id,
+            studentId: r.studentId,
+            createdBy: r.createdBy,
+            followUpDate: r.followUpDate,
+            contactStatus: r.contactStatus,
+            contactMethod: Value(r.contactMethod),
+            absenceReason: Value(r.absenceReason),
+            studentResponse: Value(r.studentResponse),
+            parentResponse: Value(r.parentResponse),
+            actionRequired: Value(r.actionRequired),
+            notes: Value(r.notes),
+            anotherFollowUpNeeded: Value(r.anotherFollowUpNeeded),
+            nextFollowUpDate: Value(r.nextFollowUpDate),
+            assignedTo: Value(r.assignedTo),
+            isRequest: Value(r.isRequest),
+            requestStatus: Value(r.requestStatus),
+            clientOperationId: r.clientOperationId,
+            cachedAt: DateTime.now(),
+          ),
+          mode: InsertMode.insertOrReplace,
+        );
+      }
+    });
+  }
+
   Future<void> updateRequestStatus({
     required String requestId,
     required String status,
