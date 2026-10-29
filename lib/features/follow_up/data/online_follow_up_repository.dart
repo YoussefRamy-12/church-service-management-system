@@ -149,6 +149,9 @@ class OnlineFollowUpRepository implements FollowUpRepository {
       'notes': notes,
       'another_follow_up_needed': anotherFollowUpNeeded,
       'next_follow_up_date': nextFollowUpDate,
+      'assigned_to': createdBy,
+      'is_request': false,
+      'request_status': 'open',
       'client_operation_id': clientOpId,
     };
 
@@ -168,6 +171,9 @@ class OnlineFollowUpRepository implements FollowUpRepository {
       notes: notes,
       anotherFollowUpNeeded: anotherFollowUpNeeded,
       nextFollowUpDate: nextFollowUpDate,
+      assignedTo: createdBy,
+      isRequest: false,
+      requestStatus: 'open',
       clientOperationId: clientOpId,
     );
   }
