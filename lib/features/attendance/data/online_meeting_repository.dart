@@ -17,7 +17,7 @@ class OnlineMeetingRepository implements MeetingRepository {
   Stream<List<Meeting>> watchMeetings(String serviceId) async* {
     final rows = await _client
         .from('meetings')
-        .select('id, service_id, meeting_date, start_time')
+        .select('id, service_id, meeting_date, start_time, name, schedule_id')
         .eq('service_id', serviceId)
         .order('meeting_date', ascending: true);
 
@@ -28,6 +28,8 @@ class OnlineMeetingRepository implements MeetingRepository {
             serviceId: r['service_id'] as String,
             meetingDate: DateTime.parse(r['meeting_date'].toString()),
             startTime: r['start_time'] as String,
+            name: (r['name'] as String?) ?? 'اجتماع الخدمة',
+            scheduleId: r['schedule_id'] as String?,
           ),
         )
         .toList();
@@ -47,6 +49,8 @@ class OnlineMeetingRepository implements MeetingRepository {
     required String serviceId,
     required DateTime date,
     required String startTime,
+    String name = 'اجتماع الخدمة',
+    String? scheduleId,
     String? id,
   }) async {
     id ??= const Uuid().v4();
@@ -55,22 +59,30 @@ class OnlineMeetingRepository implements MeetingRepository {
       serviceId: serviceId,
       meetingDate: date,
       startTime: startTime,
+      name: name,
+      scheduleId: scheduleId,
     );
 
     final existing = await _client
         .from('meetings')
-        .select('id, service_id, meeting_date, start_time')
+        .select('id, service_id, meeting_date, start_time, name, schedule_id')
         .eq('service_id', serviceId)
-        .eq('meeting_date', _dateKey(date))
-        .limit(1);
+        .eq('meeting_date', _dateKey(date));
+    final matched = existing.cast<Map<String, dynamic>>().where((row) =>
+      scheduleId != null
+          ? row['schedule_id'] == scheduleId
+          : (row['schedule_id'] == null && ((row['name'] as String?) ?? 'اجتماع الخدمة') == name),
+    ).firstOrNull;
 
-    if (existing.isNotEmpty) {
-      final row = existing.first;
+    if (matched != null) {
+      final row = matched;
       return Meeting(
         id: row['id'] as String,
         serviceId: row['service_id'] as String,
         meetingDate: DateTime.parse(row['meeting_date'].toString()),
         startTime: row['start_time'] as String,
+        name: (row['name'] as String?) ?? 'اجتماع الخدمة',
+        scheduleId: row['schedule_id'] as String?,
       );
     }
 
@@ -79,6 +91,8 @@ class OnlineMeetingRepository implements MeetingRepository {
       'service_id': serviceId,
       'meeting_date': _dateKey(date),
       'start_time': startTime,
+      'name': name,
+      'schedule_id': scheduleId,
     }, onConflict: 'id');
 
     return item;
