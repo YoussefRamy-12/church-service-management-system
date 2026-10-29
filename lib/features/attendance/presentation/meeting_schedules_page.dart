@@ -38,17 +38,22 @@ class _MeetingSchedulesPageState extends ConsumerState<MeetingSchedulesPage> {
           .select('id, name, frequency, weekday, month_day, start_time, is_active')
           .eq('service_id', widget.serviceId)
           .order('created_at', ascending: true);
-      if (mounted) setState(() {
-        _schedules = rows.map((row) => Map<String, dynamic>.from(row as Map)).toList();
-        _loading = false;
-      });
+      if (mounted) {
+        setState(() {
+          _schedules = rows.map((row) => Map<String, dynamic>.from(row as Map)).toList();
+          _loading = false;
+        });
+      }
     } catch (error) {
-      if (mounted) setState(() { _error = error.toString(); _loading = false; });
+      if (mounted) {
+        setState(() { _error = error.toString(); _loading = false; });
+      }
     }
   }
 
   bool _canManage() {
-    final profile = ref.read(currentServantProfileProvider).valueOrNull;
+    final profileState = ref.read(currentServantProfileProvider);
+    final profile = profileState.hasValue ? profileState.value : null;
     return ref.read(isSuperAdminProvider) ||
         profile?.role == 'overall_leader' ||
         profile?.role == 'overall_helper';
@@ -77,7 +82,7 @@ class _MeetingSchedulesPageState extends ConsumerState<MeetingSchedulesPage> {
                 ),
                 const SizedBox(height: 8),
                 DropdownButtonFormField<String>(
-                  value: frequency,
+                  initialValue: frequency,
                   decoration: const InputDecoration(labelText: 'التكرار'),
                   items: const [
                     DropdownMenuItem(value: 'weekly', child: Text('أسبوعي')),
@@ -87,14 +92,14 @@ class _MeetingSchedulesPageState extends ConsumerState<MeetingSchedulesPage> {
                 ),
                 if (frequency == 'weekly')
                   DropdownButtonFormField<int>(
-                    value: weekday,
+                    initialValue: weekday,
                     decoration: const InputDecoration(labelText: 'يوم الاجتماع'),
                     items: List.generate(7, (index) => DropdownMenuItem(value: index + 1, child: Text(_weekdays[index]))),
                     onChanged: (value) => setDialogState(() => weekday = value ?? 5),
                   ),
                 if (frequency == 'monthly')
                   DropdownButtonFormField<int>(
-                    value: monthDay,
+                    initialValue: monthDay,
                     decoration: const InputDecoration(labelText: 'يوم الشهر'),
                     items: List.generate(31, (index) => DropdownMenuItem(value: index + 1, child: Text('${index + 1}'))),
                     onChanged: (value) => setDialogState(() => monthDay = value ?? 1),
@@ -145,7 +150,7 @@ class _MeetingSchedulesPageState extends ConsumerState<MeetingSchedulesPage> {
       await _load();
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('تم إنشاء الاجتماع وجدولة مواعيده القادمة.')),
+          const SnackBar(content: Text('تم إنشاء الاجتماع وجدولة مواعيده القادمة.')),
         );
       }
     } catch (error) {
