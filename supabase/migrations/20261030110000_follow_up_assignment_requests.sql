@@ -62,7 +62,10 @@ create policy follow_up_insert on public.follow_up_records
         (
           follow_up_records.is_request
           and creator.role::text in ('overall_leader', 'overall_helper', 'stage_leader', 'class_leader')
-          and (select private.can_access_class(s.current_class_id))
+          and (
+            (select private.is_overall_admin_for_service(s.service_id))
+            or (select private.can_access_class(s.current_class_id))
+          )
           and exists (
             select 1 from public.servant_profiles assignee
             where assignee.id = follow_up_records.assigned_to
