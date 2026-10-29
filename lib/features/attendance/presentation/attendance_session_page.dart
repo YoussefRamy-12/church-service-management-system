@@ -53,7 +53,24 @@ class _AttendanceSessionPageState extends ConsumerState<AttendanceSessionPage> {
           final date = meeting.meetingDate;
           return !DateTime(date.year, date.month, date.day).isAfter(today);
         }).toList()..sort((a, b) => b.meetingDate.compareTo(a.meetingDate));
-        if (mounted) setState(() => _readOnly = active.isEmpty || active.first.id != widget.meetingId);
+        final selected = meetings.where((meeting) => meeting.id == widget.meetingId);
+        final selectedMeeting = selected.isEmpty ? null : selected.first;
+        final latestDay = active.isEmpty
+            ? null
+            : DateTime(active.first.meetingDate.year, active.first.meetingDate.month, active.first.meetingDate.day);
+        final selectedDay = selectedMeeting == null
+            ? null
+            : DateTime(selectedMeeting.meetingDate.year, selectedMeeting.meetingDate.month, selectedMeeting.meetingDate.day);
+        if (mounted) setState(() {
+          _readOnly = latestDay == null || selectedDay == null || selectedDay != latestDay;
+          if (selectedMeeting != null) {
+            final parts = selectedMeeting.startTime.split(':');
+            meetingTime = TimeOfDay(
+              hour: int.tryParse(parts.first) ?? 15,
+              minute: parts.length > 1 ? int.tryParse(parts[1]) ?? 0 : 0,
+            );
+          }
+        });
       } catch (_) {}
     });
     Future.microtask(() async {
@@ -62,12 +79,7 @@ class _AttendanceSessionPageState extends ConsumerState<AttendanceSessionPage> {
             .read(serviceRepositoryProvider)
             .getService(widget.serviceId);
         if (!mounted || service == null) return;
-        final parts = service.meetingStartTime.split(':');
         setState(() {
-          meetingTime = TimeOfDay(
-            hour: int.tryParse(parts.first) ?? 15,
-            minute: parts.length > 1 ? int.tryParse(parts[1]) ?? 0 : 0,
-          );
           earlyAttendanceMinutes = service.earlyAttendanceMinutes;
         });
       } catch (_) {}
