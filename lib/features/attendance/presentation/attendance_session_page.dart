@@ -66,17 +66,19 @@ class _AttendanceSessionPageState extends ConsumerState<AttendanceSessionPage> {
         final selectedDay = selectedMeeting == null
             ? null
             : DateTime(selectedMeeting.meetingDate.year, selectedMeeting.meetingDate.month, selectedMeeting.meetingDate.day);
-        if (mounted) setState(() {
-          _readOnly = latestDay == null || selectedDay == null || selectedDay != latestDay;
-          if (selectedMeeting != null) {
-            _meetingName = selectedMeeting.name;
-            final parts = selectedMeeting.startTime.split(':');
-            meetingTime = TimeOfDay(
-              hour: int.tryParse(parts.first) ?? 15,
-              minute: parts.length > 1 ? int.tryParse(parts[1]) ?? 0 : 0,
-            );
-          }
-        });
+        if (mounted) {
+          setState(() {
+            _readOnly = latestDay == null || selectedDay == null || selectedDay != latestDay;
+            if (selectedMeeting != null) {
+              _meetingName = selectedMeeting.name;
+              final parts = selectedMeeting.startTime.split(':');
+              meetingTime = TimeOfDay(
+                hour: int.tryParse(parts.first) ?? 15,
+                minute: parts.length > 1 ? int.tryParse(parts[1]) ?? 0 : 0,
+              );
+            }
+          });
+        }
       } catch (_) {}
     });
     Future.microtask(() async {
