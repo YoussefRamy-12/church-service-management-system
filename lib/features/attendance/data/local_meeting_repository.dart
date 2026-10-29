@@ -36,7 +36,7 @@ class LocalMeetingRepository {
             serviceId: item.serviceId,
             meetingDate: item.meetingDate.toIso8601String(),
             startTime: item.startTime,
-            name: item.name,
+            name: Value(item.name),
             scheduleId: Value(item.scheduleId),
             cachedAt: DateTime.now(),
           ),
