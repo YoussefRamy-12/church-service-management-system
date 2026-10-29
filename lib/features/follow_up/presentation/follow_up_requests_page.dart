@@ -51,12 +51,21 @@ class _FollowUpRequestsPageState extends ConsumerState<FollowUpRequestsPage> {
         requestId: request.id,
         status: status,
       );
-      if (ref.read(offlineSyncEnabledProvider)) {
-        await ref.read(syncEngineProvider).syncNow();
+      final offlineFirst = ref.read(offlineSyncEnabledProvider);
+      if (offlineFirst) {
+        try {
+          await ref.read(syncEngineProvider).syncNow();
+        } catch (_) {
+          // Keep the local status and queued update when offline.
+        }
       }
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(status == 'completed' ? 'تم إكمال طلب المتابعة.' : 'تم بدء المتابعة.')),
+          SnackBar(content: Text(
+            offlineFirst
+                ? 'تم حفظ حالة الطلب محليًا وستتم مزامنتها عند الاتصال.'
+                : status == 'completed' ? 'تم إكمال طلب المتابعة.' : 'تم بدء المتابعة.',
+          )),
         );
       }
     } catch (error) {
