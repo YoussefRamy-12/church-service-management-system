@@ -81,6 +81,9 @@ class _FollowUpHubPageState extends ConsumerState<FollowUpHubPage> {
       }
       return;
     }
+    if (!mounted) {
+      return;
+    }
     if (eligible.isEmpty) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
