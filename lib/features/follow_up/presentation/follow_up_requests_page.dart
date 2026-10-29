@@ -29,7 +29,9 @@ class _FollowUpRequestsPageState extends ConsumerState<FollowUpRequestsPage> {
 
   Future<void> _refresh() async {
     final profile = await ref.read(currentServantProfileProvider.future);
-    if (profile == null) return;
+    if (profile == null) {
+      return;
+    }
     setState(() => _refreshing = true);
     try {
       await ref.read(followUpRepositoryProvider).refreshAssignedTo(profile.id);
@@ -37,7 +39,9 @@ class _FollowUpRequestsPageState extends ConsumerState<FollowUpRequestsPage> {
     } catch (_) {
       // Cached assignments and student records remain visible offline.
     } finally {
-      if (mounted) setState(() => _refreshing = false);
+      if (mounted) {
+        setState(() => _refreshing = false);
+      }
     }
   }
 
@@ -50,13 +54,17 @@ class _FollowUpRequestsPageState extends ConsumerState<FollowUpRequestsPage> {
       if (ref.read(offlineSyncEnabledProvider)) {
         await ref.read(syncEngineProvider).syncNow();
       }
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(status == 'completed' ? 'تم إكمال طلب المتابعة.' : 'تم بدء المتابعة.')),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(status == 'completed' ? 'تم إكمال طلب المتابعة.' : 'تم بدء المتابعة.')),
+        );
+      }
     } catch (error) {
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('تعذر تحديث الطلب: $error')),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('تعذر تحديث الطلب: $error')),
+        );
+      }
     }
   }
 
