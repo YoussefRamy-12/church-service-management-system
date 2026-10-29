@@ -32,6 +32,7 @@ class _AttendanceSessionPageState extends ConsumerState<AttendanceSessionPage> {
   String query = '';
   String? busyStudentId;
   TimeOfDay meetingTime = const TimeOfDay(hour: 15, minute: 0);
+  String _meetingName = 'اجتماع الخدمة';
   int earlyAttendanceMinutes = 15;
   bool openingQrScanner = false;
   bool _readOnly = true;
@@ -64,6 +65,7 @@ class _AttendanceSessionPageState extends ConsumerState<AttendanceSessionPage> {
         if (mounted) setState(() {
           _readOnly = latestDay == null || selectedDay == null || selectedDay != latestDay;
           if (selectedMeeting != null) {
+            _meetingName = selectedMeeting.name;
             final parts = selectedMeeting.startTime.split(':');
             meetingTime = TimeOfDay(
               hour: int.tryParse(parts.first) ?? 15,
@@ -486,7 +488,7 @@ class _AttendanceSessionPageState extends ConsumerState<AttendanceSessionPage> {
       key: const Key('attendance_session'),
       appBar: AppBar(
         title: Text(
-          _allStudentsMode ? 'حضور جميع طلاب الخدمة' : 'تسجيل الحضور',
+          _allStudentsMode ? '$_meetingName — حضور جميع طلاب الخدمة' : '$_meetingName — تسجيل الحضور',
           style: const TextStyle(fontWeight: FontWeight.w800),
         ),
         actions: [
