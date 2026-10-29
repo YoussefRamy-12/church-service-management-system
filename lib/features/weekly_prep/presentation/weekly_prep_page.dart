@@ -873,6 +873,7 @@ class _WeeklyLessonDetailPageState
     extends ConsumerState<_WeeklyLessonDetailPage> {
   bool _loadingPreparation = true;
   bool _savingPreparation = false;
+  bool _preparationLoadFailed = false;
   bool _prepared = false;
 
   @override
@@ -1007,6 +1008,7 @@ class _WeeklyLessonDetailPageState
                   onChanged: widget.isCurrentWeek &&
                           widget.profileId != null &&
                           !_loadingPreparation &&
+                          !_preparationLoadFailed &&
                           !_savingPreparation
                       ? _setPrepared
                       : null,
@@ -1016,7 +1018,9 @@ class _WeeklyLessonDetailPageState
                         ? 'تعذر تحديد حساب الخادم الحالي.'
                         : isHistorical
                             ? 'الأسابيع السابقة للقراءة فقط.'
-                            : _loadingPreparation
+                            : _preparationLoadFailed
+                                ? 'تعذر تحميل حالة التحضير؛ تحقق من الاتصال وتحديث قاعدة البيانات.'
+                                : _loadingPreparation
                                 ? 'جاري تحميل حالة التحضير...'
                                 : _prepared
                                     ? 'تم تسجيل الدرس كمُحضّر بواسطة حسابك.'
