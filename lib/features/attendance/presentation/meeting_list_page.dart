@@ -105,6 +105,12 @@ class _MeetingListPageState extends ConsumerState<MeetingListPage> {
       appBar: AppBar(
         title: const Text('الاجتماعات'),
         actions: [
+          if (canCreate)
+            IconButton(
+              tooltip: 'إعدادات اجتماعات الخدمة',
+              icon: const Icon(Icons.settings_outlined),
+              onPressed: () => context.go('/service/${widget.serviceId}/settings/meetings'),
+            ),
           const SyncStatusWidget(),
           IconButton(
             icon: const Icon(Icons.sync),
