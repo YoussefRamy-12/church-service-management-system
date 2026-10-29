@@ -107,6 +107,7 @@ class _FollowUpHubPageState extends ConsumerState<FollowUpHubPage> {
                 TextField(
                   autofocus: true,
                   controller: action,
+                  onChanged: (_) => setDialogState(() {}),
                   maxLines: 2,
                   decoration: const InputDecoration(labelText: 'المطلوب متابعته', hintText: 'مثال: التواصل مع ولي الأمر بخصوص الغياب'),
                 ),
