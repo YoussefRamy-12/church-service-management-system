@@ -53,12 +53,16 @@ class _FollowUpHubPageState extends ConsumerState<FollowUpHubPage> {
   Future<void> _createRequest(Student student) async {
     final profile = await ref.read(currentServantProfileProvider.future);
     const allowedRoles = {'overall_leader', 'overall_helper', 'stage_leader', 'class_leader'};
-    if (profile == null || !profile.isActive || !allowedRoles.contains(profile.role)) return;
+    if (profile == null || !profile.isActive || !allowedRoles.contains(profile.role)) {
+      return;
+    }
     final classId = student.currentClassId;
     if (classId == null || student.isPending) {
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('لا يمكن إسناد متابعة قبل اعتماد الطالب وتحديد فصله.')),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('لا يمكن إسناد متابعة قبل اعتماد الطالب وتحديد فصله.')),
+        );
+      }
       return;
     }
 
@@ -70,15 +74,19 @@ class _FollowUpHubPageState extends ConsumerState<FollowUpHubPage> {
           .where((servant) => servant.isActive && servant.role == 'class_servant' && servant.classId == classId)
           .toList();
     } catch (error) {
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('تعذر تحميل خدام الفصل: $error')),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('تعذر تحميل خدام الفصل: $error')),
+        );
+      }
       return;
     }
     if (eligible.isEmpty) {
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('لا يوجد خادم نشط مُعيّن لهذا الفصل.')),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('لا يوجد خادم نشط مُعيّن لهذا الفصل.')),
+        );
+      }
       return;
     }
 
@@ -128,7 +136,9 @@ class _FollowUpHubPageState extends ConsumerState<FollowUpHubPage> {
                       firstDate: DateTime.now().subtract(const Duration(days: 365)),
                       lastDate: DateTime.now().add(const Duration(days: 365)),
                     );
-                    if (picked != null) setDialogState(() => dueDate = picked);
+                    if (picked != null) {
+                      setDialogState(() => dueDate = picked);
+                    }
                   },
                 ),
               ],
@@ -153,7 +163,9 @@ class _FollowUpHubPageState extends ConsumerState<FollowUpHubPage> {
     );
     action.dispose();
     notes.dispose();
-    if (result == null || !mounted) return;
+    if (result == null || !mounted) {
+      return;
+    }
     try {
       await ref.read(followUpRepositoryProvider).createRequest(
         studentId: student.id,
@@ -166,13 +178,17 @@ class _FollowUpHubPageState extends ConsumerState<FollowUpHubPage> {
       if (ref.read(offlineSyncEnabledProvider)) {
         await ref.read(syncEngineProvider).syncNow();
       }
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('تم إسناد طلب المتابعة إلى خادم الفصل.')),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('تم إسناد طلب المتابعة إلى خادم الفصل.')),
+        );
+      }
     } catch (error) {
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('تعذر إسناد المتابعة: $error')),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('تعذر إسناد المتابعة: $error')),
+        );
+      }
     }
   }
 
