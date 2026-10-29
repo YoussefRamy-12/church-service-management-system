@@ -47,6 +47,7 @@ class _FollowUpPageState extends ConsumerState<FollowUpPage> {
   @override
   Widget build(BuildContext context) {
     final profile = ref.watch(currentServantProfileProvider);
+    final canRecordFollowUp = profile.hasValue && profile.value?.role == 'class_servant';
     final identity = ref.watch(currentSessionIdentityProvider);
     final servantId = profile.hasValue ? profile.value?.id : null;
     final actorId =
@@ -103,6 +104,7 @@ class _FollowUpPageState extends ConsumerState<FollowUpPage> {
                 );
               },
             ),
+            if (canRecordFollowUp) ...[
             const Divider(height: 32),
             Text('إضافة متابعة', style: Theme.of(context).textTheme.titleLarge),
             const SizedBox(height: 12),
@@ -248,6 +250,12 @@ class _FollowUpPageState extends ConsumerState<FollowUpPage> {
                     )
                   : const Text('حفظ المتابعة'),
             ),
+            ],
+            if (!canRecordFollowUp)
+              const Padding(
+                padding: EdgeInsets.symmetric(vertical: 18),
+                child: Text('تسجيل نتيجة المتابعة متاح لخادم الفصل المسند إليه العمل. يمكن للقادة إنشاء طلب متابعة من قائمة التلاميذ.'),
+              ),
           ],
         ),
       ),
