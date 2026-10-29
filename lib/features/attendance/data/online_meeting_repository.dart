@@ -68,11 +68,18 @@ class OnlineMeetingRepository implements MeetingRepository {
         .select('id, service_id, meeting_date, start_time, name, schedule_id')
         .eq('service_id', serviceId)
         .eq('meeting_date', _dateKey(date));
-    final matched = existing.cast<Map<String, dynamic>>().where((row) =>
-      scheduleId != null
+    Map<String, dynamic>? matched;
+    for (final raw in existing) {
+      final row = Map<String, dynamic>.from(raw as Map);
+      final sameSchedule = scheduleId != null
           ? row['schedule_id'] == scheduleId
-          : (row['schedule_id'] == null && ((row['name'] as String?) ?? 'اجتماع الخدمة') == name),
-    ).firstOrNull;
+          : row['schedule_id'] == null &&
+              ((row['name'] as String?) ?? 'اجتماع الخدمة') == name;
+      if (sameSchedule) {
+        matched = row;
+        break;
+      }
+    }
 
     if (matched != null) {
       final row = matched;
