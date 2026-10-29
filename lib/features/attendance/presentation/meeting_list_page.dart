@@ -221,7 +221,9 @@ class _MeetingListPageState extends ConsumerState<MeetingListPage> {
               final date = meeting.meetingDate;
               return !DateTime(date.year, date.month, date.day).isAfter(today);
             }).toList();
-            final currentMeetingId = eligible.isEmpty ? null : eligible.last.id;
+            final latestEligibleDay = eligible.isEmpty
+                ? null
+                : DateTime(eligible.last.meetingDate.year, eligible.last.meetingDate.month, eligible.last.meetingDate.day);
 
             return AppContent(
               maxWidth: 900,
@@ -231,8 +233,8 @@ class _MeetingListPageState extends ConsumerState<MeetingListPage> {
                 separatorBuilder: (_, _) => const SizedBox(height: 12),
                 itemBuilder: (_, index) {
                   final meeting = meetings[index];
-                  final isCurrent = meeting.id == currentMeetingId;
                   final meetingDay = DateTime(meeting.meetingDate.year, meeting.meetingDate.month, meeting.meetingDate.day);
+                  final isCurrent = latestEligibleDay != null && meetingDay == latestEligibleDay;
                   final isFuture = meetingDay.isAfter(today);
                   final dateParts = meeting.meetingDate
                       .toLocal()
