@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../app/ui/app_ui.dart';
-import '../../../core/config/config_provider.dart';
-import '../../../core/sync/sync_engine_provider.dart';
 import '../../auth/presentation/auth_providers.dart';
 import '../../students/presentation/student_providers.dart';
 import '../domain/entities/follow_up_record.dart';
@@ -51,20 +49,10 @@ class _FollowUpRequestsPageState extends ConsumerState<FollowUpRequestsPage> {
         requestId: request.id,
         status: status,
       );
-      final offlineFirst = ref.read(offlineSyncEnabledProvider);
-      if (offlineFirst) {
-        try {
-          await ref.read(syncEngineProvider).syncNow();
-        } catch (_) {
-          // Keep the local status and queued update when offline.
-        }
-      }
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(
-            offlineFirst
-                ? 'تم حفظ حالة الطلب محليًا وستتم مزامنتها عند الاتصال.'
-                : status == 'completed' ? 'تم إكمال طلب المتابعة.' : 'تم بدء المتابعة.',
+            status == 'completed' ? 'تم إكمال طلب المتابعة.' : 'تم بدء المتابعة.',
           )),
         );
       }
