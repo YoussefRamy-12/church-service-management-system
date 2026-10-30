@@ -57,11 +57,13 @@ class _ServantManagementPageState extends ConsumerState<ServantManagementPage> {
                 name: row['name'] as String,
               ))
           .toList();
-      final classRows = await client
-          .from('classes')
-          .select('id,stage_id,name')
-          .inFilter('stage_id', loadedStages.map((stage) => stage.id).toList())
-          .order('name');
+      final classRows = loadedStages.isEmpty
+          ? <dynamic>[]
+          : await client
+              .from('classes')
+              .select('id,stage_id,name')
+              .inFilter('stage_id', loadedStages.map((stage) => stage.id).toList())
+              .order('name');
       final loadedClasses = (classRows as List)
           .map((row) => ServiceClass(
                 id: row['id'] as String,
