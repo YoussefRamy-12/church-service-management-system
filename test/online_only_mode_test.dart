@@ -14,19 +14,15 @@ import 'package:church_service_management_system/core/sync/sync_engine.dart';
 import 'package:church_service_management_system/core/sync/sync_engine_provider.dart';
 import 'package:church_service_management_system/core/sync/sync_operation.dart';
 import 'package:church_service_management_system/core/sync/sync_queue_repository.dart';
-import 'package:church_service_management_system/features/attendance/data/meeting_repository.dart';
-import 'package:church_service_management_system/features/attendance/data/offline_first_attendance_repository.dart';
 import 'package:church_service_management_system/features/attendance/data/online_attendance_repository.dart';
 import 'package:church_service_management_system/features/attendance/data/online_meeting_repository.dart';
 import 'package:church_service_management_system/features/attendance/presentation/attendance_providers.dart';
 import 'package:church_service_management_system/features/attendance/presentation/meeting_providers.dart';
-import 'package:church_service_management_system/features/follow_up/data/offline_first_follow_up_repository.dart';
 import 'package:church_service_management_system/features/follow_up/data/online_follow_up_repository.dart';
 import 'package:church_service_management_system/features/follow_up/presentation/follow_up_providers.dart';
 import 'package:church_service_management_system/features/reports/data/offline_first_report_repository.dart';
 import 'package:church_service_management_system/features/reports/data/online_report_repository.dart';
 import 'package:church_service_management_system/features/reports/presentation/report_providers.dart';
-import 'package:church_service_management_system/features/servants/data/offline_first_servant_repository.dart';
 import 'package:church_service_management_system/features/servants/data/online_servant_repository.dart';
 import 'package:church_service_management_system/features/servants/presentation/servant_providers.dart';
 import 'package:church_service_management_system/features/service/data/offline_first_service_repository.dart';
@@ -88,7 +84,7 @@ void main() {
       expect(container.read(syncEngineProvider).isEnabled, isFalse);
     });
 
-    test('When offlineSyncEnabled is true, providers seamlessly switch to Offline-First repositories', () {
+    test('When sync is enabled, online-only feature repositories remain on Supabase', () {
       final container = ProviderContainer(
         overrides: [
           appDatabaseProvider.overrideWithValue(db),
