@@ -9,6 +9,7 @@ import '../../service/domain/entities/stage.dart';
 import '../../service/presentation/service_providers.dart';
 import 'servant_providers.dart';
 import '../../../app/ui/app_ui.dart';
+import '../../../core/ui/phone_contact_actions.dart';
 
 class ServantManagementPage extends ConsumerStatefulWidget {
   const ServantManagementPage({
@@ -453,15 +454,16 @@ class _ServantManagementPageState extends ConsumerState<ServantManagementPage> {
                                           ).colorScheme.onSurfaceVariant,
                                         ),
                                         const SizedBox(width: 4),
-                                        Text(
-                                          servant.phone!,
-                                          style: TextStyle(
-                                            fontSize: 12,
-                                            color: Theme.of(
-                                              context,
-                                            ).colorScheme.onSurfaceVariant,
+                                        Expanded(
+                                          child: SelectableText(
+                                            servant.phone!,
+                                            style: TextStyle(
+                                              fontSize: 12,
+                                              color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                            ),
                                           ),
                                         ),
+                                        PhoneContactActions(phone: servant.phone!, compact: true),
                                       ],
                                     ),
                                   ],
