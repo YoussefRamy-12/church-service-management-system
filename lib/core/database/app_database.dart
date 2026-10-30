@@ -106,8 +106,6 @@ class CachedMeetings extends Table {
   TextColumn get serviceId => text()();
   TextColumn get meetingDate => text()();
   TextColumn get startTime => text()();
-  TextColumn get name => text().withDefault(const Constant('اجتماع الخدمة'))();
-  TextColumn get scheduleId => text().nullable()();
   DateTimeColumn get cachedAt => dateTime()();
   @override
   Set<Column<Object>> get primaryKey => {id};
@@ -141,9 +139,6 @@ class CachedFollowUpRecords extends Table {
   BoolColumn get anotherFollowUpNeeded =>
       boolean().withDefault(const Constant(false))();
   TextColumn get nextFollowUpDate => text().nullable()();
-  TextColumn get assignedTo => text().nullable()();
-  BoolColumn get isRequest => boolean().withDefault(const Constant(false))();
-  TextColumn get requestStatus => text().withDefault(const Constant('open'))();
   TextColumn get clientOperationId => text()();
   DateTimeColumn get cachedAt => dateTime()();
   @override
@@ -206,7 +201,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.forTesting() : super(testingDatabaseConnection());
 
   @override
-  int get schemaVersion => 9;
+  int get schemaVersion => 7;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -237,15 +232,6 @@ class AppDatabase extends _$AppDatabase {
       if (from < 7) {
         await m.addColumn(cachedStudents, cachedStudents.isDeacon);
         await m.createTable(cachedStudentSensitiveData);
-      }
-      if (from < 8) {
-        await m.addColumn(cachedMeetings, cachedMeetings.name);
-        await m.addColumn(cachedMeetings, cachedMeetings.scheduleId);
-      }
-      if (from < 9) {
-        await m.addColumn(cachedFollowUpRecords, cachedFollowUpRecords.assignedTo);
-        await m.addColumn(cachedFollowUpRecords, cachedFollowUpRecords.isRequest);
-        await m.addColumn(cachedFollowUpRecords, cachedFollowUpRecords.requestStatus);
       }
     },
   );
