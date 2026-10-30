@@ -50,7 +50,7 @@ class _ServantManagementPageState extends ConsumerState<ServantManagementPage> {
           .select('id,service_id,name')
           .eq('service_id', widget.serviceId)
           .order('name');
-      final loadedStages = (stageRows as List)
+      final loadedStages = stageRows
           .map((row) => Stage(
                 id: row['id'] as String,
                 serviceId: row['service_id'] as String,
@@ -64,7 +64,7 @@ class _ServantManagementPageState extends ConsumerState<ServantManagementPage> {
               .select('id,stage_id,name')
               .inFilter('stage_id', loadedStages.map((stage) => stage.id).toList())
               .order('name');
-      final loadedClasses = (classRows as List)
+      final loadedClasses = classRows
           .map((row) => ServiceClass(
                 id: row['id'] as String,
                 stageId: row['stage_id'] as String,
