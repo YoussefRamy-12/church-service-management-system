@@ -54,6 +54,8 @@ class OfflineFirstMeetingRepository implements MeetingRepository {
     required String serviceId,
     required DateTime date,
     required String startTime,
+    String name = 'اجتماع الخدمة',
+    String? scheduleId,
     String? id,
   }) async {
     id ??= const Uuid().v4();
@@ -62,6 +64,8 @@ class OfflineFirstMeetingRepository implements MeetingRepository {
       serviceId: serviceId,
       meetingDate: date,
       startTime: startTime,
+      name: name,
+      scheduleId: scheduleId,
     );
 
     // Meetings are shared by the whole service. When online, publish the
