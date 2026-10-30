@@ -7,11 +7,11 @@ import 'package:church_service_management_system/features/students/domain/entiti
 void main() {
   group('Drift Student Migration & Compatibility Tests', () {
     test(
-      'Fresh installation initializes schema version 8 with CachedStudentSensitiveData and isDeacon',
+      'Fresh installation initializes schema version 9 with named meetings and follow-up assignment fields',
       () async {
         final db = AppDatabase.forTesting();
         try {
-          expect(db.schemaVersion, 8);
+          expect(db.schemaVersion, 9);
 
           final local = LocalStudentRepository(db);
 
@@ -73,11 +73,11 @@ void main() {
     );
 
     test(
-      'Drift migration strategy registers upgrade steps for version 8',
+      'Drift migration strategy registers upgrade steps through version 9',
       () async {
         final db = AppDatabase.forTesting();
         try {
-          expect(db.schemaVersion, 7);
+          expect(db.schemaVersion, 9);
           expect(db.migration.onUpgrade, isNotNull);
 
           final students = await db.select(db.cachedStudents).get();
