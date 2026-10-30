@@ -40,8 +40,22 @@ create policy servant_attendance_read_self_or_overall_leader
        and target.service_id = actor.service_id
       where actor.auth_user_id = (select auth.uid())
         and actor.account_status = 'active'
-        and actor.role = 'overall_leader'::public.servant_role
         and m.id = servant_attendance_records.meeting_id
+        and (
+          actor.role in (
+            'overall_leader'::public.servant_role,
+            'overall_helper'::public.servant_role
+          )
+          or (
+            actor.role = 'stage_leader'::public.servant_role
+            and actor.stage_id = target.stage_id
+          )
+          or (
+            actor.role = 'class_leader'::public.servant_role
+            and actor.class_id is not null
+            and actor.class_id = target.class_id
+          )
+        )
     )
   );
 
