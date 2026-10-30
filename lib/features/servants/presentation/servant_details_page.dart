@@ -7,7 +7,6 @@ import '../../attendance/domain/entities/meeting.dart';
 import '../../attendance/presentation/meeting_providers.dart';
 import '../../auth/domain/entities/servant_profile.dart';
 import '../../auth/presentation/auth_providers.dart';
-import '../../weekly_prep/data/weekly_lesson_repository.dart';
 import '../../weekly_prep/domain/weekly_lesson.dart';
 import '../../weekly_prep/presentation/weekly_prep_providers.dart';
 import '../data/servant_attendance_repository.dart';
