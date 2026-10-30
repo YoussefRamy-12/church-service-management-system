@@ -96,6 +96,11 @@ class _ServantDetailsPageState extends ConsumerState<ServantDetailsPage> {
       _message('لا يوجد اجتماع محدد لتسجيل الحضور.');
       return;
     }
+    final existing = await _attendance;
+    if (existing.any((record) => record.meetingId == meeting.id)) {
+      _message('تم تسجيل حضور هذا الخادم في هذا الاجتماع بالفعل.');
+      return;
+    }
     setState(() => _recordingAttendance = true);
     try {
       await ref.read(servantAttendanceRepositoryProvider).checkIn(
@@ -203,7 +208,8 @@ class _ServantDetailsPageState extends ConsumerState<ServantDetailsPage> {
             FutureBuilder<List<Meeting>>(
               future: _meetings,
               builder: (context, meetingSnapshot) {
-                final meetings = meetingSnapshot.data ?? const <Meeting>[];
+                final meetings = [...?meetingSnapshot.data]
+                  ..sort((a, b) => b.meetingDate.compareTo(a.meetingDate));
                 if (meetingSnapshot.connectionState == ConnectionState.waiting) {
                   return const GlassCard(child: LinearProgressIndicator());
                 }
