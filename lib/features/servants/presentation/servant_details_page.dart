@@ -25,6 +25,7 @@ class ServantDetailsPage extends ConsumerStatefulWidget {
 class _ServantDetailsPageState extends ConsumerState<ServantDetailsPage> {
   late Future<_PreparationOverview> _preparation;
   late Future<List<ServantAttendanceRecord>> _attendance;
+  late Future<List<Meeting>> _meetings;
   String? _selectedMeetingId;
   bool _recordingAttendance = false;
 
@@ -33,6 +34,7 @@ class _ServantDetailsPageState extends ConsumerState<ServantDetailsPage> {
     super.initState();
     _preparation = _loadPreparation();
     _attendance = _loadAttendance();
+    _meetings = ref.read(meetingRepositoryProvider).watchMeetings(widget.servant.serviceId).first;
   }
 
   DateTime _currentWeekStart() {
@@ -87,7 +89,8 @@ class _ServantDetailsPageState extends ConsumerState<ServantDetailsPage> {
 
   Future<void> _recordAttendance(List<Meeting> meetings, ServantProfile actor) async {
     if (_recordingAttendance || !_isOverallLeader(actor)) return;
-    final selected = meetings.where((m) => m.id == _selectedMeetingId);
+    final selectedId = _selectedMeetingId ?? (meetings.isEmpty ? null : meetings.first.id);
+    final selected = meetings.where((m) => m.id == selectedId);
     final meeting = selected.isEmpty ? null : selected.first;
     if (meeting == null) {
       _message('لا يوجد اجتماع محدد لتسجيل الحضور.');
@@ -198,7 +201,7 @@ class _ServantDetailsPageState extends ConsumerState<ServantDetailsPage> {
             ),
             const SizedBox(height: 8),
             FutureBuilder<List<Meeting>>(
-              future: ref.read(meetingRepositoryProvider).watchMeetings(widget.servant.serviceId).first,
+              future: _meetings,
               builder: (context, meetingSnapshot) {
                 final meetings = meetingSnapshot.data ?? const <Meeting>[];
                 if (meetingSnapshot.connectionState == ConnectionState.waiting) {
@@ -213,7 +216,6 @@ class _ServantDetailsPageState extends ConsumerState<ServantDetailsPage> {
                 final selectedId = meetings.any((m) => m.id == _selectedMeetingId)
                     ? _selectedMeetingId
                     : meetings.first.id;
-                if (_selectedMeetingId == null) _selectedMeetingId = selectedId;
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
