@@ -156,7 +156,10 @@ create policy weekly_lesson_preparations_read_hierarchy
        and actor.account_status = 'active'
       where wl.id = weekly_lesson_preparations.weekly_lesson_id
         and (
-          actor.role = 'overall_leader'::public.servant_role
+          actor.role in (
+            'overall_leader'::public.servant_role,
+            'overall_helper'::public.servant_role
+          )
           or (
             actor.role = 'stage_leader'::public.servant_role
             and actor.stage_id = st.id
