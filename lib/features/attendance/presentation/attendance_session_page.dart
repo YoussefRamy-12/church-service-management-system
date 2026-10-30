@@ -4,10 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../students/domain/entities/student.dart';
 import 'widgets/register_student_dialog.dart';
 import '../../students/presentation/student_providers.dart';
-import '../../../core/config/config_provider.dart';
 import '../../../core/network/network_error_formatter.dart';
-import '../../../core/sync/sync_engine_provider.dart';
-import '../../../core/sync/sync_status_widget.dart';
 import '../domain/entities/attendance_record.dart';
 import 'attendance_providers.dart';
 import 'qr_scan_page.dart';
@@ -207,7 +204,6 @@ class _AttendanceSessionPageState extends ConsumerState<AttendanceSessionPage> {
       builder: (_) => const RegisterStudentDialog(),
     );
     if (details == null) return;
-    final isOffline = ref.read(offlineSyncEnabledProvider);
     try {
       await ref
           .read(studentRegistrationProvider)
@@ -224,9 +220,7 @@ class _AttendanceSessionPageState extends ConsumerState<AttendanceSessionPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            isOffline
-                ? 'تم حفظ التلميذ محليًا كـ Pending وسيتم مزامنته.'
-                : 'تم تسجيل التلميذ بنجاح وبانتظار الاعتماد.',
+            'تم تسجيل التلميذ بنجاح وبانتظار الاعتماد.',
           ),
         ),
       );
@@ -504,18 +498,11 @@ class _AttendanceSessionPageState extends ConsumerState<AttendanceSessionPage> {
             icon: const Icon(Icons.fact_check_outlined),
             onPressed: () => _review(studentsStream),
           ),
-          const SyncStatusWidget(),
           if (!_readOnly) IconButton(
             icon: const Icon(Icons.person_add_rounded),
             tooltip: 'تلميذ جديد',
             onPressed: _register,
           ),
-          if (ref.watch(offlineSyncEnabledProvider))
-            IconButton(
-              icon: const Icon(Icons.sync_rounded),
-              tooltip: 'مزامنة الآن',
-              onPressed: () => ref.read(syncEngineProvider).syncNow(),
-            ),
         ],
       ),
       body: StreamBuilder<List<Student>>(
