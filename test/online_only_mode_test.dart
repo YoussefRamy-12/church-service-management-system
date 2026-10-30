@@ -101,10 +101,10 @@ void main() {
       expect(container.read(offlineSyncEnabledProvider), isTrue);
       expect(container.read(studentRepositoryProvider), isA<OfflineFirstStudentRepository>());
       expect(container.read(studentRegistrationProvider), isA<OfflineFirstStudentRegistration>());
-      expect(container.read(attendanceRepositoryProvider), isA<OfflineFirstAttendanceRepository>());
-      expect(container.read(meetingRepositoryProvider), isA<OfflineFirstMeetingRepository>());
-      expect(container.read(followUpRepositoryProvider), isA<OfflineFirstFollowUpRepository>());
-      expect(container.read(servantRepositoryProvider), isA<OfflineFirstServantRepository>());
+      expect(container.read(attendanceRepositoryProvider), isA<OnlineAttendanceRepository>());
+      expect(container.read(meetingRepositoryProvider), isA<OnlineMeetingRepository>());
+      expect(container.read(followUpRepositoryProvider), isA<OnlineFollowUpRepository>());
+      expect(container.read(servantRepositoryProvider), isA<OnlineServantRepository>());
       expect(container.read(serviceRepositoryProvider), isA<OfflineFirstServiceRepository>());
       expect(container.read(reportRepositoryProvider), isA<OfflineFirstReportRepository>());
       expect(container.read(syncQueueRepositoryProvider).isEnabled, isTrue);
