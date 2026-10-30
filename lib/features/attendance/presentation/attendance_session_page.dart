@@ -218,10 +218,8 @@ class _AttendanceSessionPageState extends ConsumerState<AttendanceSessionPage> {
           );
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            'تم تسجيل التلميذ بنجاح وبانتظار الاعتماد.',
-          ),
+        const SnackBar(
+          content: Text('تم تسجيل التلميذ بنجاح وبانتظار الاعتماد.'),
         ),
       );
     } catch (e) {
