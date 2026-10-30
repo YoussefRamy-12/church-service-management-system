@@ -19,8 +19,6 @@ class LocalMeetingRepository {
                     serviceId: r.serviceId,
                     meetingDate: DateTime.parse(r.meetingDate),
                     startTime: r.startTime,
-                    name: r.name,
-                    scheduleId: r.scheduleId,
                   ),
                 )
                 .toList(),
@@ -36,8 +34,6 @@ class LocalMeetingRepository {
             serviceId: item.serviceId,
             meetingDate: item.meetingDate.toIso8601String(),
             startTime: item.startTime,
-            name: Value(item.name),
-            scheduleId: Value(item.scheduleId),
             cachedAt: DateTime.now(),
           ),
           mode: InsertMode.insertOrReplace,

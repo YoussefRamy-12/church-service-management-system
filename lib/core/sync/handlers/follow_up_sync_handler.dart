@@ -17,6 +17,15 @@ class FollowUpSyncHandler implements EntitySyncHandler {
     SyncOperation operation,
     Map<String, dynamic> payload,
   ) async {
+    if (operation.operationType == 'update') {
+      final id = payload['id'] as String?;
+      if (id == null) {
+        throw const FormatException('Follow-up update requires an id.');
+      }
+      final changes = Map<String, dynamic>.from(payload)..remove('id');
+      await client.from('follow_up_records').update(changes).eq('id', id);
+      return;
+    }
     await client.from('follow_up_records').insert(payload);
   }
 }

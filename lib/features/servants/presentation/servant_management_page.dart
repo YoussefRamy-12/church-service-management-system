@@ -6,8 +6,9 @@ import '../../auth/presentation/auth_providers.dart';
 import '../../auth/domain/entities/servant_profile.dart';
 import '../../service/domain/entities/service_class.dart';
 import '../../service/domain/entities/stage.dart';
-import '../../service/presentation/service_providers.dart';
+import '../../../core/network/supabase_client_provider.dart';
 import 'servant_providers.dart';
+import 'servant_details_page.dart';
 import '../../../app/ui/app_ui.dart';
 import '../../../core/ui/phone_contact_actions.dart';
 
@@ -42,33 +43,45 @@ class _ServantManagementPageState extends ConsumerState<ServantManagementPage> {
   }
 
   Future<void> _loadHierarchy() async {
-    final service = ref.read(serviceRepositoryProvider);
+    final client = ref.read(supabaseClientProvider);
     try {
-      await service.refreshStages(widget.serviceId);
-      final localStages = await service.getStages(widget.serviceId);
-      for (final stage in localStages) {
-        await service.refreshClasses(stage.id);
-      }
-      final localClasses = <ServiceClass>[];
-      for (final stage in localStages) {
-        localClasses.addAll(await service.getClasses(stage.id));
-      }
+      final stageRows = await client
+          .from('stages')
+          .select('id,service_id,name')
+          .eq('service_id', widget.serviceId)
+          .order('name');
+      final loadedStages = stageRows
+          .map((row) => Stage(
+                id: row['id'] as String,
+                serviceId: row['service_id'] as String,
+                name: row['name'] as String,
+              ))
+          .toList();
+      final classRows = loadedStages.isEmpty
+          ? <dynamic>[]
+          : await client
+              .from('classes')
+              .select('id,stage_id,name')
+              .inFilter('stage_id', loadedStages.map((stage) => stage.id).toList())
+              .order('name');
+      final loadedClasses = classRows
+          .map((row) => ServiceClass(
+                id: row['id'] as String,
+                stageId: row['stage_id'] as String,
+                name: row['name'] as String,
+              ))
+          .toList();
       if (!mounted) return;
       setState(() {
-        stages = localStages;
-        classes = localClasses;
+        stages = loadedStages;
+        classes = loadedClasses;
       });
-    } catch (_) {
-      final localStages = await service.getStages(widget.serviceId);
-      final localClasses = <ServiceClass>[];
-      for (final stage in localStages) {
-        localClasses.addAll(await service.getClasses(stage.id));
+    } catch (error) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('تعذر تحميل المراحل والفصول: $error')),
+        );
       }
-      if (!mounted) return;
-      setState(() {
-        stages = localStages;
-        classes = localClasses;
-      });
     }
   }
 
@@ -366,7 +379,11 @@ class _ServantManagementPageState extends ConsumerState<ServantManagementPage> {
                           horizontal: 16,
                           vertical: 12,
                         ),
-                        onTap: () => _openEditor(servant),
+                        onTap: () => Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (_) => ServantDetailsPage(servant: servant),
+                          ),
+                        ),
                         child: Row(
                           children: [
                             // Initial Avatar
@@ -471,6 +488,11 @@ class _ServantManagementPageState extends ConsumerState<ServantManagementPage> {
                               ),
                             ),
                             // Actions
+                            IconButton(
+                              tooltip: 'تعديل بيانات الخادم',
+                              onPressed: () => _openEditor(servant),
+                              icon: const Icon(Icons.edit_outlined),
+                            ),
                             if (isSuperAdmin)
                               IconButton(
                                 key: Key('servant_delete_${servant.id}'),
@@ -529,7 +551,7 @@ class _ServantManagementPageState extends ConsumerState<ServantManagementPage> {
           );
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('تم حفظ التعديل محليًا وسيتم مزامنته.')),
+        const SnackBar(content: Text('تم حفظ بيانات الخادم بنجاح.')),
       );
     } catch (error) {
       if (!mounted) return;

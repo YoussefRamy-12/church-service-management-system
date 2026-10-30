@@ -17,6 +17,9 @@ class FollowUpRecord {
     this.notes,
     this.anotherFollowUpNeeded = false,
     this.nextFollowUpDate,
+    this.assignedTo,
+    this.isRequest = false,
+    this.requestStatus = 'open',
   });
 
   final String id;
@@ -33,6 +36,9 @@ class FollowUpRecord {
   final String? notes;
   final bool anotherFollowUpNeeded;
   final String? nextFollowUpDate;
+  final String? assignedTo;
+  final bool isRequest;
+  final String requestStatus;
 
   FollowUpRecord copyWith({
     String? id,
@@ -49,6 +55,9 @@ class FollowUpRecord {
     String? notes,
     bool? anotherFollowUpNeeded,
     String? nextFollowUpDate,
+    String? assignedTo,
+    bool? isRequest,
+    String? requestStatus,
   }) {
     return FollowUpRecord(
       id: id ?? this.id,
@@ -66,6 +75,9 @@ class FollowUpRecord {
       anotherFollowUpNeeded:
           anotherFollowUpNeeded ?? this.anotherFollowUpNeeded,
       nextFollowUpDate: nextFollowUpDate ?? this.nextFollowUpDate,
+      assignedTo: assignedTo ?? this.assignedTo,
+      isRequest: isRequest ?? this.isRequest,
+      requestStatus: requestStatus ?? this.requestStatus,
     );
   }
 

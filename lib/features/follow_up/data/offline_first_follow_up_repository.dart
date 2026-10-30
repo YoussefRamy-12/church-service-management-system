@@ -17,6 +17,33 @@ class OfflineFirstFollowUpRepository implements FollowUpRepository {
       local.watchForStudent(id);
 
   @override
+  Stream<List<FollowUpRecord>> watchAssignedTo(String servantProfileId) =>
+      const Stream.empty();
+
+  @override
+  Future<void> refreshAssignedTo(String servantProfileId) async {}
+
+  @override
+  Future<FollowUpRecord> createRequest({
+    required String studentId,
+    required String createdBy,
+    required String assignedTo,
+    required String dueDate,
+    required String actionRequired,
+    String? notes,
+  }) {
+    throw UnsupportedError('Follow-up assignment requests require Supabase.');
+  }
+
+  @override
+  Future<void> updateRequestStatus({
+    required String requestId,
+    required String status,
+  }) {
+    throw UnsupportedError('Follow-up assignment requests require Supabase.');
+  }
+
+  @override
   Future<FollowUpRecord> create({
     required String studentId,
     required String createdBy,
