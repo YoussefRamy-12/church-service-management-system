@@ -62,7 +62,6 @@ void main() {
     followUp = OfflineFirstFollowUpRepository(
       local: LocalFollowUpRepository(db),
       queue: queue,
-      client: SupabaseClient('https://example.supabase.co', 'test-key'),
     );
   });
 
