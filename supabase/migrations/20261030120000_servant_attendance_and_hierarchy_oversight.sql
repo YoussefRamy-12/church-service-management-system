@@ -173,3 +173,19 @@ create policy weekly_lesson_preparations_read_hierarchy
         )
     )
   );
+
+-- The overall helper shares oversight visibility with the overall leader.
+drop policy if exists weekly_lessons_read_overall_helper on public.weekly_lessons;
+create policy weekly_lessons_read_overall_helper
+  on public.weekly_lessons for select to authenticated
+  using (
+    exists (
+      select 1
+      from public.servant_profiles actor
+      join public.stages st on st.service_id = actor.service_id
+      where actor.auth_user_id = (select auth.uid())
+        and actor.account_status = 'active'
+        and actor.role = 'overall_helper'::public.servant_role
+        and st.id = weekly_lessons.stage_id
+    )
+  );
