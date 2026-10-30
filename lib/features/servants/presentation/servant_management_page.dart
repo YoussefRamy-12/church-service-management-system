@@ -8,6 +8,7 @@ import '../../service/domain/entities/service_class.dart';
 import '../../service/domain/entities/stage.dart';
 import '../../service/presentation/service_providers.dart';
 import 'servant_providers.dart';
+import 'servant_details_page.dart';
 import '../../../app/ui/app_ui.dart';
 import '../../../core/ui/phone_contact_actions.dart';
 
@@ -366,7 +367,11 @@ class _ServantManagementPageState extends ConsumerState<ServantManagementPage> {
                           horizontal: 16,
                           vertical: 12,
                         ),
-                        onTap: () => _openEditor(servant),
+                        onTap: () => Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (_) => ServantDetailsPage(servant: servant),
+                          ),
+                        ),
                         child: Row(
                           children: [
                             // Initial Avatar
@@ -471,6 +476,11 @@ class _ServantManagementPageState extends ConsumerState<ServantManagementPage> {
                               ),
                             ),
                             // Actions
+                            IconButton(
+                              tooltip: 'تعديل بيانات الخادم',
+                              onPressed: () => _openEditor(servant),
+                              icon: const Icon(Icons.edit_outlined),
+                            ),
                             if (isSuperAdmin)
                               IconButton(
                                 key: Key('servant_delete_${servant.id}'),
@@ -529,7 +539,7 @@ class _ServantManagementPageState extends ConsumerState<ServantManagementPage> {
           );
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('تم حفظ التعديل محليًا وسيتم مزامنته.')),
+        const SnackBar(content: Text('تم حفظ بيانات الخادم بنجاح.')),
       );
     } catch (error) {
       if (!mounted) return;
