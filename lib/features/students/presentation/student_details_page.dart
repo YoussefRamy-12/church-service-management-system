@@ -14,6 +14,7 @@ import '../../follow_up/presentation/follow_up_page.dart';
 import '../../../app/ui/app_ui.dart';
 import '../../../core/config/config_provider.dart';
 import '../../../core/network/network_error_formatter.dart';
+import '../../../core/ui/phone_contact_actions.dart';
 import '../../attendance/presentation/attendance_providers.dart';
 import '../../attendance/presentation/meeting_providers.dart';
 import '../../follow_up/presentation/follow_up_providers.dart';
@@ -544,7 +545,7 @@ class _StudentDetailsPageState extends ConsumerState<StudentDetailsPage> {
                               : 'غير محدد'),
                     ),
                     _row('الصف الدراسي', student.grade ?? 'غير محدد'),
-                    _row('تليفون الطالب', student.phone ?? 'غير محدد'),
+                    _phoneRow('تليفون الطالب', student.phone),
                     _row('المدرسة', student.school ?? 'غير محددة'),
                     _row('شماس', student.isDeacon ? 'شماس' : 'غير مرسوم'),
                   ]),
@@ -573,19 +574,13 @@ class _StudentDetailsPageState extends ConsumerState<StudentDetailsPage> {
                       'وظيفة الأب',
                       _sensitiveData?.fatherJob ?? 'غير محددة',
                     ),
-                    _row(
-                      'تليفون الأب',
-                      _sensitiveData?.effectiveFatherPhone ?? 'غير محدد',
-                    ),
+                    _phoneRow('تليفون الأب', _sensitiveData?.effectiveFatherPhone),
                     _row('اسم الأم', _sensitiveData?.motherName ?? 'غير محدد'),
                     _row(
                       'وظيفة الأم',
                       _sensitiveData?.motherJob ?? 'غير محددة',
                     ),
-                    _row(
-                      'تليفون الأم',
-                      _sensitiveData?.effectiveMotherPhone ?? 'غير محدد',
-                    ),
+                    _phoneRow('تليفون الأم', _sensitiveData?.effectiveMotherPhone),
                     _row(
                       'عدد أفراد الأسرة',
                       _sensitiveData?.familySize != null
@@ -658,6 +653,25 @@ class _StudentDetailsPageState extends ConsumerState<StudentDetailsPage> {
             ...children,
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _phoneRow(String label, String? phone) {
+    final value = phone?.trim() ?? '';
+    if (value.isEmpty) return _row(label, 'غير محدد');
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          SizedBox(
+            width: 140,
+            child: Text(label, style: const TextStyle(fontWeight: FontWeight.w700, color: Color(0xFF475569))),
+          ),
+          Expanded(child: SelectableText(value)),
+          PhoneContactActions(phone: value, compact: true),
+        ],
       ),
     );
   }
