@@ -37,6 +37,8 @@ void main() {
     (tester) async {
       await tester.pumpWidget(buildSubject());
 
+      await tester.ensureVisible(find.text('تسجيل الدخول'));
+      await tester.pumpAndSettle();
       await tester.tap(find.text('تسجيل الدخول'));
       await tester.pump();
 
