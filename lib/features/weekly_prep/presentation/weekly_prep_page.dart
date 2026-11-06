@@ -902,7 +902,12 @@ class _WeeklyLessonDetailPageState
         });
       }
     } catch (_) {
-      if (mounted) setState(() => _loadingPreparation = false);
+      if (mounted) {
+        setState(() {
+          _preparationLoadFailed = true;
+          _loadingPreparation = false;
+        });
+      }
     }
   }
 

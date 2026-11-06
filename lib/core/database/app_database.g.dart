@@ -3812,6 +3812,27 @@ class $CachedMeetingsTable extends CachedMeetings
     type: DriftSqlType.string,
     requiredDuringInsert: true,
   );
+  static const VerificationMeta _nameMeta = const VerificationMeta('name');
+  @override
+  late final GeneratedColumn<String> name = GeneratedColumn<String>(
+    'name',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant('اجتماع الخدمة'),
+  );
+  static const VerificationMeta _scheduleIdMeta = const VerificationMeta(
+    'scheduleId',
+  );
+  @override
+  late final GeneratedColumn<String> scheduleId = GeneratedColumn<String>(
+    'schedule_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _cachedAtMeta = const VerificationMeta(
     'cachedAt',
   );
@@ -3829,6 +3850,8 @@ class $CachedMeetingsTable extends CachedMeetings
     serviceId,
     meetingDate,
     startTime,
+    name,
+    scheduleId,
     cachedAt,
   ];
   @override
@@ -3875,6 +3898,18 @@ class $CachedMeetingsTable extends CachedMeetings
     } else if (isInserting) {
       context.missing(_startTimeMeta);
     }
+    if (data.containsKey('name')) {
+      context.handle(
+        _nameMeta,
+        name.isAcceptableOrUnknown(data['name']!, _nameMeta),
+      );
+    }
+    if (data.containsKey('schedule_id')) {
+      context.handle(
+        _scheduleIdMeta,
+        scheduleId.isAcceptableOrUnknown(data['schedule_id']!, _scheduleIdMeta),
+      );
+    }
     if (data.containsKey('cached_at')) {
       context.handle(
         _cachedAtMeta,
@@ -3908,6 +3943,14 @@ class $CachedMeetingsTable extends CachedMeetings
         DriftSqlType.string,
         data['${effectivePrefix}start_time'],
       )!,
+      name: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}name'],
+      )!,
+      scheduleId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}schedule_id'],
+      ),
       cachedAt: attachedDatabase.typeMapping.read(
         DriftSqlType.dateTime,
         data['${effectivePrefix}cached_at'],
@@ -3926,12 +3969,16 @@ class CachedMeeting extends DataClass implements Insertable<CachedMeeting> {
   final String serviceId;
   final String meetingDate;
   final String startTime;
+  final String name;
+  final String? scheduleId;
   final DateTime cachedAt;
   const CachedMeeting({
     required this.id,
     required this.serviceId,
     required this.meetingDate,
     required this.startTime,
+    required this.name,
+    this.scheduleId,
     required this.cachedAt,
   });
   @override
@@ -3941,6 +3988,10 @@ class CachedMeeting extends DataClass implements Insertable<CachedMeeting> {
     map['service_id'] = Variable<String>(serviceId);
     map['meeting_date'] = Variable<String>(meetingDate);
     map['start_time'] = Variable<String>(startTime);
+    map['name'] = Variable<String>(name);
+    if (!nullToAbsent || scheduleId != null) {
+      map['schedule_id'] = Variable<String>(scheduleId);
+    }
     map['cached_at'] = Variable<DateTime>(cachedAt);
     return map;
   }
@@ -3951,6 +4002,10 @@ class CachedMeeting extends DataClass implements Insertable<CachedMeeting> {
       serviceId: Value(serviceId),
       meetingDate: Value(meetingDate),
       startTime: Value(startTime),
+      name: Value(name),
+      scheduleId: scheduleId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(scheduleId),
       cachedAt: Value(cachedAt),
     );
   }
@@ -3965,6 +4020,8 @@ class CachedMeeting extends DataClass implements Insertable<CachedMeeting> {
       serviceId: serializer.fromJson<String>(json['serviceId']),
       meetingDate: serializer.fromJson<String>(json['meetingDate']),
       startTime: serializer.fromJson<String>(json['startTime']),
+      name: serializer.fromJson<String>(json['name']),
+      scheduleId: serializer.fromJson<String?>(json['scheduleId']),
       cachedAt: serializer.fromJson<DateTime>(json['cachedAt']),
     );
   }
@@ -3976,6 +4033,8 @@ class CachedMeeting extends DataClass implements Insertable<CachedMeeting> {
       'serviceId': serializer.toJson<String>(serviceId),
       'meetingDate': serializer.toJson<String>(meetingDate),
       'startTime': serializer.toJson<String>(startTime),
+      'name': serializer.toJson<String>(name),
+      'scheduleId': serializer.toJson<String?>(scheduleId),
       'cachedAt': serializer.toJson<DateTime>(cachedAt),
     };
   }
@@ -3985,12 +4044,16 @@ class CachedMeeting extends DataClass implements Insertable<CachedMeeting> {
     String? serviceId,
     String? meetingDate,
     String? startTime,
+    String? name,
+    Value<String?> scheduleId = const Value.absent(),
     DateTime? cachedAt,
   }) => CachedMeeting(
     id: id ?? this.id,
     serviceId: serviceId ?? this.serviceId,
     meetingDate: meetingDate ?? this.meetingDate,
     startTime: startTime ?? this.startTime,
+    name: name ?? this.name,
+    scheduleId: scheduleId.present ? scheduleId.value : this.scheduleId,
     cachedAt: cachedAt ?? this.cachedAt,
   );
   CachedMeeting copyWithCompanion(CachedMeetingsCompanion data) {
@@ -4001,6 +4064,10 @@ class CachedMeeting extends DataClass implements Insertable<CachedMeeting> {
           ? data.meetingDate.value
           : this.meetingDate,
       startTime: data.startTime.present ? data.startTime.value : this.startTime,
+      name: data.name.present ? data.name.value : this.name,
+      scheduleId: data.scheduleId.present
+          ? data.scheduleId.value
+          : this.scheduleId,
       cachedAt: data.cachedAt.present ? data.cachedAt.value : this.cachedAt,
     );
   }
@@ -4012,14 +4079,23 @@ class CachedMeeting extends DataClass implements Insertable<CachedMeeting> {
           ..write('serviceId: $serviceId, ')
           ..write('meetingDate: $meetingDate, ')
           ..write('startTime: $startTime, ')
+          ..write('name: $name, ')
+          ..write('scheduleId: $scheduleId, ')
           ..write('cachedAt: $cachedAt')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode =>
-      Object.hash(id, serviceId, meetingDate, startTime, cachedAt);
+  int get hashCode => Object.hash(
+    id,
+    serviceId,
+    meetingDate,
+    startTime,
+    name,
+    scheduleId,
+    cachedAt,
+  );
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -4028,6 +4104,8 @@ class CachedMeeting extends DataClass implements Insertable<CachedMeeting> {
           other.serviceId == this.serviceId &&
           other.meetingDate == this.meetingDate &&
           other.startTime == this.startTime &&
+          other.name == this.name &&
+          other.scheduleId == this.scheduleId &&
           other.cachedAt == this.cachedAt);
 }
 
@@ -4036,6 +4114,8 @@ class CachedMeetingsCompanion extends UpdateCompanion<CachedMeeting> {
   final Value<String> serviceId;
   final Value<String> meetingDate;
   final Value<String> startTime;
+  final Value<String> name;
+  final Value<String?> scheduleId;
   final Value<DateTime> cachedAt;
   final Value<int> rowid;
   const CachedMeetingsCompanion({
@@ -4043,6 +4123,8 @@ class CachedMeetingsCompanion extends UpdateCompanion<CachedMeeting> {
     this.serviceId = const Value.absent(),
     this.meetingDate = const Value.absent(),
     this.startTime = const Value.absent(),
+    this.name = const Value.absent(),
+    this.scheduleId = const Value.absent(),
     this.cachedAt = const Value.absent(),
     this.rowid = const Value.absent(),
   });
@@ -4051,6 +4133,8 @@ class CachedMeetingsCompanion extends UpdateCompanion<CachedMeeting> {
     required String serviceId,
     required String meetingDate,
     required String startTime,
+    this.name = const Value.absent(),
+    this.scheduleId = const Value.absent(),
     required DateTime cachedAt,
     this.rowid = const Value.absent(),
   }) : id = Value(id),
@@ -4063,6 +4147,8 @@ class CachedMeetingsCompanion extends UpdateCompanion<CachedMeeting> {
     Expression<String>? serviceId,
     Expression<String>? meetingDate,
     Expression<String>? startTime,
+    Expression<String>? name,
+    Expression<String>? scheduleId,
     Expression<DateTime>? cachedAt,
     Expression<int>? rowid,
   }) {
@@ -4071,6 +4157,8 @@ class CachedMeetingsCompanion extends UpdateCompanion<CachedMeeting> {
       if (serviceId != null) 'service_id': serviceId,
       if (meetingDate != null) 'meeting_date': meetingDate,
       if (startTime != null) 'start_time': startTime,
+      if (name != null) 'name': name,
+      if (scheduleId != null) 'schedule_id': scheduleId,
       if (cachedAt != null) 'cached_at': cachedAt,
       if (rowid != null) 'rowid': rowid,
     });
@@ -4081,6 +4169,8 @@ class CachedMeetingsCompanion extends UpdateCompanion<CachedMeeting> {
     Value<String>? serviceId,
     Value<String>? meetingDate,
     Value<String>? startTime,
+    Value<String>? name,
+    Value<String?>? scheduleId,
     Value<DateTime>? cachedAt,
     Value<int>? rowid,
   }) {
@@ -4089,6 +4179,8 @@ class CachedMeetingsCompanion extends UpdateCompanion<CachedMeeting> {
       serviceId: serviceId ?? this.serviceId,
       meetingDate: meetingDate ?? this.meetingDate,
       startTime: startTime ?? this.startTime,
+      name: name ?? this.name,
+      scheduleId: scheduleId ?? this.scheduleId,
       cachedAt: cachedAt ?? this.cachedAt,
       rowid: rowid ?? this.rowid,
     );
@@ -4109,6 +4201,12 @@ class CachedMeetingsCompanion extends UpdateCompanion<CachedMeeting> {
     if (startTime.present) {
       map['start_time'] = Variable<String>(startTime.value);
     }
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
+    }
+    if (scheduleId.present) {
+      map['schedule_id'] = Variable<String>(scheduleId.value);
+    }
     if (cachedAt.present) {
       map['cached_at'] = Variable<DateTime>(cachedAt.value);
     }
@@ -4125,6 +4223,8 @@ class CachedMeetingsCompanion extends UpdateCompanion<CachedMeeting> {
           ..write('serviceId: $serviceId, ')
           ..write('meetingDate: $meetingDate, ')
           ..write('startTime: $startTime, ')
+          ..write('name: $name, ')
+          ..write('scheduleId: $scheduleId, ')
           ..write('cachedAt: $cachedAt, ')
           ..write('rowid: $rowid')
           ..write(')'))
@@ -8531,6 +8631,8 @@ typedef $$CachedMeetingsTableCreateCompanionBuilder =
       required String serviceId,
       required String meetingDate,
       required String startTime,
+      Value<String> name,
+      Value<String?> scheduleId,
       required DateTime cachedAt,
       Value<int> rowid,
     });
@@ -8540,6 +8642,8 @@ typedef $$CachedMeetingsTableUpdateCompanionBuilder =
       Value<String> serviceId,
       Value<String> meetingDate,
       Value<String> startTime,
+      Value<String> name,
+      Value<String?> scheduleId,
       Value<DateTime> cachedAt,
       Value<int> rowid,
     });
@@ -8570,6 +8674,16 @@ class $$CachedMeetingsTableFilterComposer
 
   ColumnFilters<String> get startTime => $composableBuilder(
     column: $table.startTime,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get scheduleId => $composableBuilder(
+    column: $table.scheduleId,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -8608,6 +8722,16 @@ class $$CachedMeetingsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get scheduleId => $composableBuilder(
+    column: $table.scheduleId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<DateTime> get cachedAt => $composableBuilder(
     column: $table.cachedAt,
     builder: (column) => ColumnOrderings(column),
@@ -8636,6 +8760,14 @@ class $$CachedMeetingsTableAnnotationComposer
 
   GeneratedColumn<String> get startTime =>
       $composableBuilder(column: $table.startTime, builder: (column) => column);
+
+  GeneratedColumn<String> get name =>
+      $composableBuilder(column: $table.name, builder: (column) => column);
+
+  GeneratedColumn<String> get scheduleId => $composableBuilder(
+    column: $table.scheduleId,
+    builder: (column) => column,
+  );
 
   GeneratedColumn<DateTime> get cachedAt =>
       $composableBuilder(column: $table.cachedAt, builder: (column) => column);
@@ -8678,6 +8810,8 @@ class $$CachedMeetingsTableTableManager
                 Value<String> serviceId = const Value.absent(),
                 Value<String> meetingDate = const Value.absent(),
                 Value<String> startTime = const Value.absent(),
+                Value<String> name = const Value.absent(),
+                Value<String?> scheduleId = const Value.absent(),
                 Value<DateTime> cachedAt = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => CachedMeetingsCompanion(
@@ -8685,6 +8819,8 @@ class $$CachedMeetingsTableTableManager
                 serviceId: serviceId,
                 meetingDate: meetingDate,
                 startTime: startTime,
+                name: name,
+                scheduleId: scheduleId,
                 cachedAt: cachedAt,
                 rowid: rowid,
               ),
@@ -8694,6 +8830,8 @@ class $$CachedMeetingsTableTableManager
                 required String serviceId,
                 required String meetingDate,
                 required String startTime,
+                Value<String> name = const Value.absent(),
+                Value<String?> scheduleId = const Value.absent(),
                 required DateTime cachedAt,
                 Value<int> rowid = const Value.absent(),
               }) => CachedMeetingsCompanion.insert(
@@ -8701,6 +8839,8 @@ class $$CachedMeetingsTableTableManager
                 serviceId: serviceId,
                 meetingDate: meetingDate,
                 startTime: startTime,
+                name: name,
+                scheduleId: scheduleId,
                 cachedAt: cachedAt,
                 rowid: rowid,
               ),
