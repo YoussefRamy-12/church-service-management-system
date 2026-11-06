@@ -110,12 +110,13 @@ void main() {
 
       for (final entry in workflows.entries) {
         final item = find.byKey(Key(entry.key));
-        await tester.scrollUntilVisible(
-          item,
-          240,
-          scrollable: find.byType(Scrollable).first,
-        );
-        await tester.pumpAndSettle();
+        if (entry.key == 'nav_settings') {
+          await tester.drag(
+            find.byType(ListView).first,
+            const Offset(0, -500),
+          );
+          await tester.pumpAndSettle();
+        }
         await tester.tap(item);
         await tester.pumpAndSettle();
         expect(find.text(entry.value), findsOneWidget);
