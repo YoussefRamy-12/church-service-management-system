@@ -338,13 +338,16 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                                     ? 'أدخل كلمة المرور'
                                     : null,
                               ),
-                              CheckboxListTile(
+                              Material(
+                                color: Colors.transparent,
+                                child: CheckboxListTile(
                                 key: const Key('login_remember_me'),
                                 contentPadding: EdgeInsets.zero,
                                 controlAffinity: ListTileControlAffinity.leading,
                                 title: const Text('تذكرني'),
                                 value: _rememberMe,
                                 onChanged: _loading ? null : (value) => setState(() => _rememberMe = value ?? false),
+                                ),
                               ),
                               Align(
                                 alignment: AlignmentDirectional.centerEnd,
