@@ -110,7 +110,11 @@ void main() {
 
       for (final entry in workflows.entries) {
         final item = find.byKey(Key(entry.key));
-        await tester.ensureVisible(item);
+        await tester.scrollUntilVisible(
+          item,
+          240,
+          scrollable: find.byType(Scrollable).first,
+        );
         await tester.pumpAndSettle();
         await tester.tap(item);
         await tester.pumpAndSettle();
