@@ -38,6 +38,7 @@ class _AttendanceSessionPageState extends ConsumerState<AttendanceSessionPage> {
   bool _readOnly = true;
   _AttendanceFilter _filter = _AttendanceFilter.all;
   Map<String, String> _classNames = {};
+  List<Student> _studentsSnapshot = const [];
 
   bool get _allStudentsMode => widget.classId == 'all';
 
@@ -261,24 +262,11 @@ class _AttendanceSessionPageState extends ConsumerState<AttendanceSessionPage> {
         .updateCheckedInAt(attendanceId: attendanceId, checkedInAt: updated);
   }
 
-  Future<void> _openQrScanner(Stream<List<Student>> studentsStream) async {
+  Future<void> _openQrScanner(List<Student> students) async {
     if (_readOnly) return;
     if (openingQrScanner) return;
     setState(() => openingQrScanner = true);
     try {
-      try {
-        if (_allStudentsMode) {
-          await ref
-              .read(studentRepositoryProvider)
-              .refreshStudentsForService(widget.serviceId);
-        } else {
-          await ref
-              .read(studentRepositoryProvider)
-              .refreshStudents(widget.classId);
-        }
-      } catch (_) {}
-
-      final students = await studentsStream.first;
       final attendance = await ref
           .read(attendanceRepositoryProvider)
           .watchForMeeting(widget.meetingId)
@@ -315,8 +303,7 @@ class _AttendanceSessionPageState extends ConsumerState<AttendanceSessionPage> {
     }
   }
 
-  Future<void> _review(Stream<List<Student>> studentsStream) async {
-    final students = await studentsStream.first;
+  Future<void> _review(List<Student> students) async {
     final records = await ref
         .read(attendanceRepositoryProvider)
         .watchForMeeting(widget.meetingId)
@@ -502,7 +489,7 @@ class _AttendanceSessionPageState extends ConsumerState<AttendanceSessionPage> {
             key: const Key('attendance_review'),
             tooltip: 'مراجعة الحضور',
             icon: const Icon(Icons.fact_check_outlined),
-            onPressed: () => _review(studentsStream),
+            onPressed: () => _review(_studentsSnapshot),
           ),
           const SyncStatusWidget(),
           if (!_readOnly) IconButton(
@@ -522,6 +509,7 @@ class _AttendanceSessionPageState extends ConsumerState<AttendanceSessionPage> {
         stream: studentsStream,
         builder: (context, snapshot) {
           final allStudents = snapshot.data ?? const <Student>[];
+          _studentsSnapshot = allStudents;
           if (snapshot.hasError && snapshot.data == null) {
             return const EmptyState(
               icon: Icons.error_outline,
@@ -657,7 +645,7 @@ class _AttendanceSessionPageState extends ConsumerState<AttendanceSessionPage> {
                               if (!_readOnly) FilledButton.icon(
                                 onPressed: openingQrScanner
                                     ? null
-                                    : () => _openQrScanner(studentsStream),
+                                    : () => _openQrScanner(allStudents),
                                 icon: const Icon(
                                   Icons.qr_code_scanner_rounded,
                                   size: 20,
