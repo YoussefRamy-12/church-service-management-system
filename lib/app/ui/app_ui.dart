@@ -2,8 +2,7 @@ import 'package:flutter/material.dart';
 import '../theme.dart';
 export 'role_labels.dart';
 
-/// Full-canvas Ambient Background that renders soft, luminous 2026 gradient orbs.
-/// Frosted glass surfaces placed over this glow with rich translucent color.
+/// Applies the shared, quiet canvas behind the application shell.
 class AmbientBackground extends StatelessWidget {
   const AmbientBackground({
     super.key,
@@ -23,7 +22,8 @@ class AmbientBackground extends StatelessWidget {
   }
 }
 
-/// Frosted Glass Container with backdrop blur, crystalline gradient border, and shadow.
+/// Solid surface container. Legacy visual parameters remain accepted so existing
+/// call sites keep working while rendering stays crisp and predictable.
 class GlassContainer extends StatelessWidget {
   const GlassContainer({
     super.key,
@@ -133,7 +133,7 @@ class SolidCard extends StatelessWidget {
   }
 }
 
-/// Interactive 2026 Glass Card with subtle hover lift and micro-animation.
+/// Shared solid card with an optional accessible tap target.
 class GlassCard extends StatelessWidget {
   const GlassCard({
     super.key,
