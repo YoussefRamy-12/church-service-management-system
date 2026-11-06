@@ -11,7 +11,41 @@ import 'package:church_service_management_system/core/sync/sync_engine_provider.
 import 'package:church_service_management_system/core/sync/sync_operation.dart';
 import 'package:church_service_management_system/core/sync/sync_queue_repository.dart';
 import 'package:church_service_management_system/features/auth/domain/entities/servant_profile.dart';
+import 'package:church_service_management_system/features/auth/domain/entities/auth_user.dart';
+import 'package:church_service_management_system/features/auth/domain/repositories/auth_repository.dart';
 import 'package:church_service_management_system/features/auth/presentation/auth_providers.dart';
+
+
+class _NoopAuthRepository implements AuthRepository {
+  @override
+  Stream<AuthUser?> get authStateChanges => Stream.value(null);
+
+  @override
+  AuthUser? get currentUser => null;
+
+  @override
+  Future<AuthUser> signIn({required String email, required String password}) =>
+      throw UnimplementedError();
+
+  @override
+  Future<AuthUser> signUpServant({
+    required String name,
+    required String email,
+    required String phone,
+    required DateTime birthDate,
+    required String workStudy,
+    required String password,
+  }) => throw UnimplementedError();
+
+  @override
+  Future<void> sendPasswordReset(String email) async {}
+
+  @override
+  Future<void> updatePassword(String password) async {}
+
+  @override
+  Future<void> signOut() async {}
+}
 
 class _NoopTransport implements SyncTransport {
   @override
@@ -79,6 +113,7 @@ void main() {
   Widget buildSubject(GoRouter router) => ProviderScope(
     overrides: [
       currentServantProfileProvider.overrideWith((ref) async => profile),
+      authRepositoryProvider.overrideWithValue(_NoopAuthRepository()),
       syncEngineProvider.overrideWithValue(engine),
       syncQueueRepositoryProvider.overrideWithValue(SyncQueueRepository(db)),
     ],
