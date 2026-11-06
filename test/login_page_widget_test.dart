@@ -39,6 +39,8 @@ void main() {
 
       await tester.ensureVisible(find.text('تسجيل الدخول'));
       await tester.pumpAndSettle();
+      await tester.ensureVisible(find.text('تسجيل الدخول'));
+      await tester.pumpAndSettle();
       await tester.tap(find.text('تسجيل الدخول'));
       await tester.pump();
 
@@ -55,6 +57,8 @@ void main() {
 
       final fields = find.byType(TextFormField);
       await tester.enterText(fields.at(0), 'servant@example.com');
+      await tester.ensureVisible(find.text('تسجيل الدخول'));
+      await tester.pumpAndSettle();
       await tester.tap(find.text('تسجيل الدخول'));
       await tester.pump();
 
