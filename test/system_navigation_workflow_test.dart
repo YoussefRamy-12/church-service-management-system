@@ -109,7 +109,10 @@ void main() {
       };
 
       for (final entry in workflows.entries) {
-        await tester.tap(find.byKey(Key(entry.key)));
+        final item = find.byKey(Key(entry.key));
+        await tester.ensureVisible(item);
+        await tester.pumpAndSettle();
+        await tester.tap(item);
         await tester.pumpAndSettle();
         expect(find.text(entry.value), findsOneWidget);
       }
