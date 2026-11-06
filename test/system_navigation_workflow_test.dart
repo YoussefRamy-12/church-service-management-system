@@ -110,10 +110,10 @@ void main() {
 
       for (final entry in workflows.entries) {
         final item = find.byKey(Key(entry.key));
-        if (entry.key == 'nav_settings') {
+        if (entry.key == 'nav_settings' || entry.key == 'nav_dashboard') {
           await tester.drag(
             find.byType(ListView).first,
-            const Offset(0, -500),
+            Offset(0, entry.key == 'nav_settings' ? -500 : 600),
           );
           await tester.pumpAndSettle();
         }
