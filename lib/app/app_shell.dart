@@ -1,4 +1,3 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -268,21 +267,16 @@ class _DesktopSidebar extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
-    final sidebarBg = isDark
-        ? const Color(0xFF111827).withValues(alpha: 0.88)
-        : Colors.white.withValues(alpha: 0.82);
+    final sidebarBg = isDark ? const Color(0xFF111827) : Colors.white;
     final borderColor = isDark
         ? const Color(0x33818CF8)
-        : const Color(0x1F4F46E5);
+        : const Color(0xFFC5C5D3);
     final subtextColor = isDark
         ? const Color(0xFF94A3B8)
-        : const Color(0xFF64748B);
+        : const Color(0xFF444651);
 
-    return ClipRect(
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
-        child: Container(
-          width: 290,
+    return Container(
+          width: 288,
           decoration: BoxDecoration(
             color: sidebarBg,
             border: Border(left: BorderSide(color: borderColor, width: 1.2)),
@@ -299,21 +293,8 @@ class _DesktopSidebar extends ConsumerWidget {
                         width: 48,
                         height: 48,
                         decoration: BoxDecoration(
-                          gradient: const LinearGradient(
-                            colors: [Color(0xFF4338CA), Color(0xFF6366F1)],
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                          ),
-                          borderRadius: BorderRadius.circular(16),
-                          boxShadow: [
-                            BoxShadow(
-                              color: const Color(
-                                0xFF4F46E5,
-                              ).withValues(alpha: 0.35),
-                              blurRadius: 16,
-                              offset: const Offset(0, 6),
-                            ),
-                          ],
+                          color: appPrimary,
+                          borderRadius: BorderRadius.circular(12),
                         ),
                         child: const Icon(
                           Icons.church_rounded,
@@ -414,10 +395,8 @@ class _DesktopSidebar extends ConsumerWidget {
                   margin: const EdgeInsets.all(14),
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: isDark
-                        ? const Color(0xFF1E293B).withValues(alpha: 0.75)
-                        : const Color(0xFFF1F5F9).withValues(alpha: 0.8),
-                    borderRadius: BorderRadius.circular(18),
+                    color: isDark ? const Color(0xFF1E293B) : appSoftBlue,
+                    borderRadius: BorderRadius.circular(12),
                     border: Border.all(color: borderColor, width: 1),
                   ),
                   child: Row(
@@ -425,21 +404,9 @@ class _DesktopSidebar extends ConsumerWidget {
                       Container(
                         width: 42,
                         height: 42,
-                        decoration: BoxDecoration(
-                          gradient: const LinearGradient(
-                            colors: [Color(0xFF6366F1), Color(0xFF818CF8)],
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                          ),
+                        decoration: const BoxDecoration(
+                          color: appPrimary,
                           shape: BoxShape.circle,
-                          boxShadow: [
-                            BoxShadow(
-                              color: const Color(
-                                0xFF6366F1,
-                              ).withValues(alpha: 0.3),
-                              blurRadius: 10,
-                            ),
-                          ],
                         ),
                         alignment: Alignment.center,
                         child: Text(
@@ -495,9 +462,7 @@ class _DesktopSidebar extends ConsumerWidget {
               ],
             ),
           ),
-        ),
-      ),
-    );
+      );
   }
 
   String _roleLabel(String? role) => formatRoleLabel(role);
@@ -539,20 +504,15 @@ class _ShellTopBar extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
-    final topBarBg = isDark
-        ? const Color(0xFF111827).withValues(alpha: 0.88)
-        : Colors.white.withValues(alpha: 0.85);
+    final topBarBg = isDark ? const Color(0xFF111827) : Colors.white;
     final borderBottom = isDark
         ? const Color(0x33818CF8)
-        : const Color(0x1A4F46E5);
+        : const Color(0xFFC5C5D3);
     final subtextColor = isDark
         ? const Color(0xFF94A3B8)
-        : const Color(0xFF64748B);
+        : const Color(0xFF444651);
 
-    return ClipRect(
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
-        child: Container(
+    return Container(
           height: 66,
           decoration: BoxDecoration(
             color: topBarBg,
@@ -611,7 +571,7 @@ class _ShellTopBar extends ConsumerWidget {
                   size: 20,
                   color: isDark
                       ? const Color(0xFFFBBF24)
-                      : const Color(0xFF4F46E5),
+                      : appPrimary,
                 ),
               ),
               if (canSwitchService)
@@ -669,19 +629,9 @@ class _ShellTopBar extends ConsumerWidget {
                   child: Container(
                     width: 36,
                     height: 36,
-                    decoration: BoxDecoration(
-                      gradient: const LinearGradient(
-                        colors: [Color(0xFF4338CA), Color(0xFF6366F1)],
-                      ),
+                    decoration: const BoxDecoration(
+                      color: appPrimary,
                       shape: BoxShape.circle,
-                      boxShadow: [
-                        BoxShadow(
-                          color: const Color(
-                            0xFF4F46E5,
-                          ).withValues(alpha: 0.25),
-                          blurRadius: 8,
-                        ),
-                      ],
                     ),
                     alignment: Alignment.center,
                     child: Text(
@@ -702,10 +652,8 @@ class _ShellTopBar extends ConsumerWidget {
                 child: SyncStatusWidget(key: Key('sync_status_mobile')),
               ),
             ],
-          ),
         ),
-      ),
-    );
+      );
   }
 
   String _roleLabel(String? role) => formatRoleLabel(role);
@@ -731,13 +679,11 @@ class _NavTileState extends State<_NavTile> {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final primaryAccent = isDark
-        ? const Color(0xFF818CF8)
-        : const Color(0xFF4F46E5);
+    final primaryAccent = isDark ? const Color(0xFF93A8FF) : appPrimary;
     final idleTextColor = isDark
         ? const Color(0xFF94A3B8)
-        : const Color(0xFF1E293B);
-    final hoveredTextColor = isDark ? Colors.white : const Color(0xFF1E1B4B);
+        : appInk;
+    final hoveredTextColor = isDark ? Colors.white : appPrimary;
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 2.5),
@@ -748,30 +694,10 @@ class _NavTileState extends State<_NavTile> {
           duration: const Duration(milliseconds: 180),
           curve: Curves.easeOutCubic,
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(14),
-            gradient: widget.selected
-                ? const LinearGradient(
-                    colors: [Color(0xFF4338CA), Color(0xFF6366F1)],
-                    begin: Alignment.centerRight,
-                    end: Alignment.centerLeft,
-                  )
-                : (_hovered
-                      ? LinearGradient(
-                          colors: [
-                            primaryAccent.withValues(alpha: 0.12),
-                            primaryAccent.withValues(alpha: 0.05),
-                          ],
-                        )
-                      : null),
-            boxShadow: widget.selected
-                ? [
-                    BoxShadow(
-                      color: const Color(0xFF4F46E5).withValues(alpha: 0.35),
-                      blurRadius: 12,
-                      offset: const Offset(0, 4),
-                    ),
-                  ]
-                : null,
+            borderRadius: BorderRadius.circular(10),
+            color: widget.selected
+                ? (isDark ? const Color(0xFF263B68) : const Color(0xFFE7EEFF))
+                : (_hovered ? appSoftBlue : null),
           ),
           child: Material(
             color: Colors.transparent,
@@ -779,7 +705,7 @@ class _NavTileState extends State<_NavTile> {
             child: ListTile(
               key: Key('nav_${widget.item.segment}'),
               selected: widget.selected,
-              selectedColor: Colors.white,
+              selectedColor: isDark ? Colors.white : appPrimary,
               selectedTileColor: Colors.transparent,
               leading: Icon(
                 widget.item.icon,

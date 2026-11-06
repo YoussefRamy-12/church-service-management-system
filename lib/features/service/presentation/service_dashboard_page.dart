@@ -164,13 +164,13 @@ class _ServiceDashboardPageState extends ConsumerState<ServiceDashboardPage> {
               final wide = constraints.maxWidth >= 900;
               return ListView(
                 padding: EdgeInsets.fromLTRB(
-                  wide ? 32 : 20,
-                  28,
-                  wide ? 32 : 20,
+                  wide ? 32 : 16,
+                  24,
+                  wide ? 32 : 16,
                   40,
                 ),
                 children: [
-                  Row(
+                    Row(
                     children: [
                       Expanded(
                         child: Column(
@@ -206,34 +206,21 @@ class _ServiceDashboardPageState extends ConsumerState<ServiceDashboardPage> {
                   ),
                   const SizedBox(height: 20),
                   GlassCard(
-                    borderRadius: 24,
-                    padding: const EdgeInsets.all(22),
+                    borderRadius: 16,
+                    padding: const EdgeInsets.all(18),
                     child: Row(
                       children: [
                         Container(
-                          width: 56,
-                          height: 56,
+                          width: 48,
+                          height: 48,
                           decoration: BoxDecoration(
-                            gradient: const LinearGradient(
-                              colors: [Color(0xFF4338CA), Color(0xFF6366F1)],
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
-                            ),
-                            borderRadius: BorderRadius.circular(18),
-                            boxShadow: [
-                              BoxShadow(
-                                color: const Color(
-                                  0xFF4F46E5,
-                                ).withValues(alpha: 0.35),
-                                blurRadius: 16,
-                                offset: const Offset(0, 6),
-                              ),
-                            ],
+                            color: const Color(0xFFE7EEFF),
+                            borderRadius: BorderRadius.circular(12),
                           ),
                           child: const Icon(
                             Icons.church_rounded,
-                            color: Colors.white,
-                            size: 30,
+                            color: Color(0xFF00236F),
+                            size: 25,
                           ),
                         ),
                         const SizedBox(width: 18),
@@ -311,7 +298,7 @@ class _ServiceDashboardPageState extends ConsumerState<ServiceDashboardPage> {
                                 ? '${visibleStudents.where((student) => student.isPending).length}'
                                 : '—',
                             icon: Icons.pending_actions_rounded,
-                            color: const Color(0xFFD97706),
+                            color: const Color(0xFF904D00),
                           ),
                         ],
                       );
@@ -706,16 +693,16 @@ class _QuickAction extends StatelessWidget {
   final VoidCallback onTap;
   @override
   Widget build(BuildContext context) => ActionChip(
-    avatar: Icon(icon, size: 18, color: const Color(0xFF4F46E5)),
+    avatar: Icon(icon, size: 18, color: const Color(0xFF00236F)),
     label: Text(
       label,
       style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13),
     ),
     onPressed: onTap,
-    backgroundColor: Colors.white.withValues(alpha: 0.85),
-    side: const BorderSide(color: Color(0x334F46E5), width: 1.1),
-    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(999)),
-    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+    backgroundColor: Colors.white,
+    side: const BorderSide(color: Color(0xFFC5C5D3)),
+    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
   );
 }
 
@@ -734,33 +721,19 @@ class _DashboardMetric extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => SizedBox(
-    width: 220,
+    width: 205,
     child: GlassCard(
       padding: const EdgeInsets.all(16),
-      borderRadius: 20,
-      opacity: 0.85,
+      borderRadius: 14,
+      opacity: 1,
       child: Row(
         children: [
           Container(
             width: 48,
             height: 48,
             decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  color.withValues(alpha: 0.22),
-                  color.withValues(alpha: 0.08),
-                ],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-              borderRadius: BorderRadius.circular(14),
-              border: Border.all(
-                color: color.withValues(alpha: 0.28),
-                width: 1.2,
-              ),
-              boxShadow: [
-                BoxShadow(color: color.withValues(alpha: 0.16), blurRadius: 12),
-              ],
+              color: color.withValues(alpha: 0.10),
+              borderRadius: BorderRadius.circular(10),
             ),
             child: Icon(icon, color: color, size: 24),
           ),

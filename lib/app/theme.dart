@@ -1,37 +1,37 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-// 2026 Trend Palette: Deep Royal Indigo, Electric Indigo, Sacred Amber, Luminous Emerald & Cyan
-const appCanvas = Color(0xFFF5F7FC);
+// Diakonia Stewardship palette from UI/DESIGN.md.
+const appCanvas = Color(0xFFF8F9FF);
 const appSurface = Color(0xFFFFFFFF);
 const appSurfaceGlass = Color(0xD8FFFFFF);
-const appPrimary = Color(0xFF312E81); // Deep Royal Indigo
-const appPrimaryContainer = Color(0xFF4F46E5); // Electric Indigo 2026
-const appSecondary = Color(0xFFD97706); // Sacred Amber Gold
-const appSecondaryContainer = Color(0xFFF59E0B);
-const appTertiary = Color(0xFF0D9488); // Cyan Teal
+const appPrimary = Color(0xFF00236F);
+const appPrimaryContainer = Color(0xFF1E3A8A);
+const appSecondary = Color(0xFF904D00);
+const appSecondaryContainer = Color(0xFFF4C27A);
+const appTertiary = Color(0xFF059669);
 const appAccentCyan = Color(0xFF06B6D4);
 const appAccentViolet = Color(0xFF818CF8);
-const appSoftBlue = Color(0xFFEEF2FF);
-const appMistBlue = Color(0xFFE0E7FF);
-const appInk = Color(0xFF0F172A); // Obsidian Slate
-const appMutedInk = Color(0xFF475569);
-const appBorder = Color(0xFFE2E8F0);
-const appGlassBorder = Color(0x334F46E5);
-const appSuccess = Color(0xFF10B981);
-const appWarning = Color(0xFFF59E0B);
-const appError = Color(0xFFEF4444);
+const appSoftBlue = Color(0xFFEFF4FF);
+const appMistBlue = Color(0xFFDCE9FF);
+const appInk = Color(0xFF0D1C2E);
+const appMutedInk = Color(0xFF444651);
+const appBorder = Color(0xFFC5C5D3);
+const appGlassBorder = Color(0x1F00236F);
+const appSuccess = Color(0xFF059669);
+const appWarning = Color(0xFF904D00);
+const appError = Color(0xFFDC2626);
 
 ThemeData buildAppTheme() {
   const radius = 16.0;
   const scheme = ColorScheme.light(
-    primary: appPrimaryContainer,
+    primary: appPrimary,
     onPrimary: Colors.white,
-    primaryContainer: appPrimary,
+    primaryContainer: appPrimaryContainer,
     onPrimaryContainer: Colors.white,
     secondary: appSecondary,
     onSecondary: Colors.white,
-    secondaryContainer: appSecondaryContainer,
+    secondaryContainer: Color(0xFFFFE8C2),
     onSecondaryContainer: Color(0xFF451A03),
     tertiary: appTertiary,
     onTertiary: Colors.white,
@@ -43,18 +43,18 @@ ThemeData buildAppTheme() {
     onSurface: appInk,
     surfaceContainerLowest: appSurface,
     surfaceContainerLow: appSoftBlue,
-    surfaceContainer: Color(0xFFE6EEFF),
+    surfaceContainer: Color(0xFFF1F4FA),
     surfaceContainerHigh: appMistBlue,
-    surfaceContainerHighest: Color(0xFFD5E3FC),
+    surfaceContainerHighest: Color(0xFFE6EAF2),
     onSurfaceVariant: appMutedInk,
-    outline: Color(0xFF94A3B8),
+    outline: appMutedInk,
     outlineVariant: appBorder,
     shadow: Color(0x140F172A),
     scrim: Color(0x660F172A),
     inverseSurface: Color(0xFF1E293B),
     onInverseSurface: Color(0xFFF8FAFC),
     inversePrimary: Color(0xFFC7D2FE),
-    surfaceTint: Color(0xFF4F46E5),
+    surfaceTint: appPrimary,
   );
 
   return ThemeData(
@@ -63,7 +63,7 @@ ThemeData buildAppTheme() {
     scaffoldBackgroundColor: appCanvas,
     visualDensity: VisualDensity.standard,
     materialTapTargetSize: MaterialTapTargetSize.padded,
-    dividerColor: const Color(0x144F46E5),
+    dividerColor: appBorder,
     appBarTheme: const AppBarTheme(
       backgroundColor: Colors.transparent,
       foregroundColor: appInk,
@@ -155,19 +155,19 @@ ThemeData buildAppTheme() {
     ),
     inputDecorationTheme: InputDecorationTheme(
       filled: true,
-      fillColor: const Color(0xF2FFFFFF),
-      contentPadding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
+      fillColor: appSurface,
+      contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(radius),
-        borderSide: const BorderSide(color: appBorder, width: 1.2),
+        borderRadius: BorderRadius.circular(10),
+        borderSide: const BorderSide(color: appBorder),
       ),
       enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(radius),
-        borderSide: const BorderSide(color: appBorder, width: 1.2),
+        borderRadius: BorderRadius.circular(10),
+        borderSide: const BorderSide(color: appBorder),
       ),
       focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(radius),
-        borderSide: const BorderSide(color: appPrimaryContainer, width: 2),
+        borderRadius: BorderRadius.circular(10),
+        borderSide: const BorderSide(color: appPrimary, width: 2),
       ),
       errorBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(radius),
@@ -184,13 +184,13 @@ ThemeData buildAppTheme() {
       ),
     ),
     cardTheme: CardThemeData(
-      color: appSurface.withValues(alpha: 0.90),
+      color: appSurface,
       elevation: 0,
       margin: EdgeInsets.zero,
       clipBehavior: Clip.antiAlias,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
-        side: const BorderSide(color: Color(0x1F4F46E5), width: 1.2),
+        borderRadius: BorderRadius.circular(radius),
+        side: const BorderSide(color: appBorder),
       ),
     ),
     listTileTheme: const ListTileThemeData(
@@ -200,11 +200,10 @@ ThemeData buildAppTheme() {
     filledButtonTheme: FilledButtonThemeData(
       style: FilledButton.styleFrom(
         minimumSize: const Size(0, 50),
-        backgroundColor: appPrimaryContainer,
+        backgroundColor: appPrimary,
         foregroundColor: Colors.white,
-        elevation: 1,
-        shadowColor: appPrimaryContainer.withValues(alpha: 0.35),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+        elevation: 0,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
         textStyle: const TextStyle(
           fontWeight: FontWeight.w700,
           fontSize: 15,
@@ -215,9 +214,9 @@ ThemeData buildAppTheme() {
     outlinedButtonTheme: OutlinedButtonThemeData(
       style: OutlinedButton.styleFrom(
         minimumSize: const Size(0, 48),
-        foregroundColor: appPrimaryContainer,
-        side: const BorderSide(color: Color(0x334F46E5), width: 1.4),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+        foregroundColor: appPrimary,
+        side: const BorderSide(color: appBorder),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
         textStyle: const TextStyle(
           fontWeight: FontWeight.w700,
           fontSize: 14,
@@ -228,7 +227,7 @@ ThemeData buildAppTheme() {
     textButtonTheme: TextButtonThemeData(
       style: TextButton.styleFrom(
         minimumSize: const Size(0, 44),
-        foregroundColor: appPrimaryContainer,
+        foregroundColor: appPrimary,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         textStyle: const TextStyle(
           fontWeight: FontWeight.w700,
@@ -302,7 +301,7 @@ ThemeData buildAppTheme() {
         fontFamilyFallback: ['Cairo', 'IBM Plex Sans', 'Arial'],
       ),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(999)),
-      side: const BorderSide(color: Color(0x1F4F46E5), width: 1),
+      side: const BorderSide(color: appBorder),
     ),
     snackBarTheme: SnackBarThemeData(
       behavior: SnackBarBehavior.floating,

@@ -1,4 +1,3 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import '../theme.dart';
 export 'role_labels.dart';
@@ -17,75 +16,9 @@ class AmbientBackground extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        // Base canvas
-        Positioned.fill(
-          child: Container(color: Theme.of(context).scaffoldBackgroundColor),
-        ),
-        // Ambient soft gradient orbs
-        Positioned(
-          top: -120,
-          right: -80,
-          child: IgnorePointer(
-            child: Container(
-              width: 380,
-              height: 380,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                gradient: RadialGradient(
-                  colors: [
-                    const Color(0xFF6366F1).withValues(alpha: 0.16 * intensity),
-                    const Color(0xFF818CF8).withValues(alpha: 0.06 * intensity),
-                    Colors.transparent,
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ),
-        Positioned(
-          bottom: -100,
-          left: -100,
-          child: IgnorePointer(
-            child: Container(
-              width: 440,
-              height: 440,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                gradient: RadialGradient(
-                  colors: [
-                    const Color(0xFF06B6D4).withValues(alpha: 0.12 * intensity),
-                    const Color(0xFF38BDF8).withValues(alpha: 0.04 * intensity),
-                    Colors.transparent,
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ),
-        Positioned(
-          top: 300,
-          left: 120,
-          child: IgnorePointer(
-            child: Container(
-              width: 300,
-              height: 300,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                gradient: RadialGradient(
-                  colors: [
-                    const Color(0xFFF59E0B).withValues(alpha: 0.07 * intensity),
-                    Colors.transparent,
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ),
-        // Child content
-        Positioned.fill(child: child),
-      ],
+    return ColoredBox(
+      color: Theme.of(context).scaffoldBackgroundColor,
+      child: child,
     );
   }
 }
@@ -123,60 +56,19 @@ class GlassContainer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final defaultBg = isDark ? const Color(0xFF131D33) : Colors.white;
-    final effectiveColor = (color ?? defaultBg).withValues(alpha: opacity);
-    final effectiveBorder =
-        border ??
-        Border.all(
-          color: isDark
-              ? const Color(0x33818CF8)
-              : Colors.white.withValues(alpha: 0.65),
-          width: 1.2,
-        );
-
-    Widget content = Container(
+    final theme = Theme.of(context);
+    return Container(
       width: width,
       height: height,
       alignment: alignment,
       padding: padding,
-      decoration: BoxDecoration(
-        color: effectiveColor,
-        borderRadius: BorderRadius.circular(borderRadius),
-        border: effectiveBorder,
-      ),
-      child: child,
-    );
-
-    if (blur > 0) {
-      content = ClipRRect(
-        borderRadius: BorderRadius.circular(borderRadius),
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: blur, sigmaY: blur),
-          child: content,
-        ),
-      );
-    }
-
-    final defaultShadowColor = isDark
-        ? Colors.black.withValues(alpha: 0.35)
-        : const Color(0xFF0F172A).withValues(alpha: 0.06);
-
-    return Container(
       margin: margin,
       decoration: BoxDecoration(
+        color: color ?? theme.colorScheme.surface,
         borderRadius: BorderRadius.circular(borderRadius),
-        boxShadow:
-            boxShadow ??
-            [
-              BoxShadow(
-                color: defaultShadowColor,
-                blurRadius: 20,
-                offset: const Offset(0, 8),
-              ),
-            ],
+        border: border ?? Border.all(color: theme.colorScheme.outlineVariant),
       ),
-      child: content,
+      child: child,
     );
   }
 }
@@ -242,7 +134,7 @@ class SolidCard extends StatelessWidget {
 }
 
 /// Interactive 2026 Glass Card with subtle hover lift and micro-animation.
-class GlassCard extends StatefulWidget {
+class GlassCard extends StatelessWidget {
   const GlassCard({
     super.key,
     required this.child,
@@ -267,97 +159,25 @@ class GlassCard extends StatefulWidget {
   final bool hoverElevation;
 
   @override
-  State<GlassCard> createState() => _GlassCardState();
-}
-
-class _GlassCardState extends State<GlassCard> {
-  bool _hovered = false;
-  bool _pressed = false;
-
-  @override
   Widget build(BuildContext context) {
-    final isInteractive = widget.onTap != null;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final defaultBg = isDark ? const Color(0xFF131D33) : Colors.white;
-    final scale = _pressed
-        ? 0.985
-        : (_hovered && widget.hoverElevation ? 1.012 : 1.0);
-
-    return MouseRegion(
-      onEnter: (_) {
-        if (isInteractive || widget.hoverElevation) {
-          setState(() => _hovered = true);
-        }
-      },
-      onExit: (_) {
-        if (isInteractive || widget.hoverElevation) {
-          setState(() => _hovered = false);
-        }
-      },
-      child: GestureDetector(
-        onTapDown: (_) => setState(() => _pressed = true),
-        onTapUp: (_) => setState(() => _pressed = false),
-        onTapCancel: () => setState(() => _pressed = false),
-        onTap: widget.onTap,
-        child: AnimatedScale(
-          scale: scale,
-          duration: const Duration(milliseconds: 180),
-          curve: Curves.easeOutCubic,
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 180),
-            curve: Curves.easeOutCubic,
-            margin: widget.margin,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(widget.borderRadius),
-              boxShadow: [
-                BoxShadow(
-                  color: _hovered
-                      ? (isDark
-                            ? const Color(0xFF818CF8).withValues(alpha: 0.16)
-                            : const Color(0xFF4F46E5).withValues(alpha: 0.12))
-                      : (isDark
-                            ? Colors.black.withValues(alpha: 0.25)
-                            : const Color(0xFF0F172A).withValues(alpha: 0.05)),
-                  blurRadius: _hovered ? 26 : 18,
-                  offset: Offset(0, _hovered ? 8 : 4),
-                ),
-              ],
-            ),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(widget.borderRadius),
-              child: BackdropFilter(
-                filter: ImageFilter.blur(
-                  sigmaX: widget.blur,
-                  sigmaY: widget.blur,
-                ),
-                child: Container(
-                  padding: widget.padding ?? const EdgeInsets.all(18),
-                  decoration: BoxDecoration(
-                    color: (widget.color ?? defaultBg).withValues(
-                      alpha: _hovered
-                          ? (widget.opacity + 0.06).clamp(0.0, 1.0)
-                          : widget.opacity,
-                    ),
-                    borderRadius: BorderRadius.circular(widget.borderRadius),
-                    border: Border.all(
-                      color: _hovered
-                          ? (isDark
-                                ? const Color(0xFF818CF8).withValues(alpha: 0.6)
-                                : const Color(
-                                    0xFF4F46E5,
-                                  ).withValues(alpha: 0.45))
-                          : (isDark
-                                ? const Color(0x33818CF8)
-                                : Colors.white.withValues(alpha: 0.70)),
-                      width: _hovered ? 1.4 : 1.2,
-                    ),
-                  ),
-                  child: widget.child,
-                ),
-              ),
-            ),
-          ),
-        ),
+    final theme = Theme.of(context);
+    final card = Container(
+      margin: margin,
+      padding: padding ?? const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        color: color ?? theme.colorScheme.surface,
+        borderRadius: BorderRadius.circular(borderRadius),
+        border: Border.all(color: theme.colorScheme.outlineVariant),
+      ),
+      child: child,
+    );
+    if (onTap == null) return card;
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(borderRadius),
+        child: card,
       ),
     );
   }
