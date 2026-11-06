@@ -9,7 +9,7 @@ class LocalMeetingRepository {
   Stream<List<Meeting>> watchMeetings(String serviceId) =>
       (_db.select(_db.cachedMeetings)
             ..where((t) => t.serviceId.equals(serviceId))
-            ..orderBy([(t) => OrderingTerm.asc(t.meetingDate)]))
+            ..orderBy([(t) => OrderingTerm.desc(t.meetingDate)]))
           .watch()
           .map(
             (rows) => rows
@@ -19,6 +19,8 @@ class LocalMeetingRepository {
                     serviceId: r.serviceId,
                     meetingDate: DateTime.parse(r.meetingDate),
                     startTime: r.startTime,
+                    name: r.name,
+                    scheduleId: r.scheduleId,
                   ),
                 )
                 .toList(),
@@ -34,6 +36,8 @@ class LocalMeetingRepository {
             serviceId: item.serviceId,
             meetingDate: item.meetingDate.toIso8601String(),
             startTime: item.startTime,
+            name: Value(item.name),
+            scheduleId: Value(item.scheduleId),
             cachedAt: DateTime.now(),
           ),
           mode: InsertMode.insertOrReplace,

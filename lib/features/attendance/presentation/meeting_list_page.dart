@@ -105,6 +105,12 @@ class _MeetingListPageState extends ConsumerState<MeetingListPage> {
       appBar: AppBar(
         title: const Text('الاجتماعات'),
         actions: [
+          if (canCreate)
+            IconButton(
+              tooltip: 'إعدادات اجتماعات الخدمة',
+              icon: const Icon(Icons.settings_outlined),
+              onPressed: () => context.go('/service/${widget.serviceId}/settings/meetings'),
+            ),
           const SyncStatusWidget(),
           IconButton(
             icon: const Icon(Icons.sync),
@@ -215,8 +221,6 @@ class _MeetingListPageState extends ConsumerState<MeetingListPage> {
               final date = meeting.meetingDate;
               return !DateTime(date.year, date.month, date.day).isAfter(today);
             }).toList();
-            final currentMeetingId = eligible.isEmpty ? null : eligible.last.id;
-
             return AppContent(
               maxWidth: 900,
               child: ListView.separated(
@@ -225,8 +229,16 @@ class _MeetingListPageState extends ConsumerState<MeetingListPage> {
                 separatorBuilder: (_, _) => const SizedBox(height: 12),
                 itemBuilder: (_, index) {
                   final meeting = meetings[index];
-                  final isCurrent = meeting.id == currentMeetingId;
                   final meetingDay = DateTime(meeting.meetingDate.year, meeting.meetingDate.month, meeting.meetingDate.day);
+                  final sameScheduleEligible = eligible.where((candidate) =>
+                    meeting.scheduleId != null
+                        ? candidate.scheduleId == meeting.scheduleId
+                        : candidate.scheduleId == null && candidate.name == meeting.name
+                  ).toList();
+                  final latestScheduleDay = sameScheduleEligible.isEmpty
+                      ? null
+                      : DateTime(sameScheduleEligible.last.meetingDate.year, sameScheduleEligible.last.meetingDate.month, sameScheduleEligible.last.meetingDate.day);
+                  final isCurrent = latestScheduleDay != null && meetingDay == latestScheduleDay;
                   final isFuture = meetingDay.isAfter(today);
                   final dateParts = meeting.meetingDate
                       .toLocal()
@@ -314,7 +326,7 @@ class _MeetingListPageState extends ConsumerState<MeetingListPage> {
                               Row(
                                 children: [
                                   Text(
-                                    'اجتماع $dateParts',
+                                    '${meeting.name} — $dateParts',
                                     style: const TextStyle(
                                       fontWeight: FontWeight.w800,
                                       fontSize: 15,

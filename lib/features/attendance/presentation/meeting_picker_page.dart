@@ -78,7 +78,7 @@ class _MeetingPickerPageState extends ConsumerState<MeetingPickerPage> {
                       child: Icon(Icons.event_available_outlined),
                     ),
                     title: Text(
-                      'اجتماع ${meeting.meetingDate.toLocal().toString().split(' ').first}',
+                      '${meeting.name} — ${meeting.meetingDate.toLocal().toString().split(' ').first}',
                     ),
                     subtitle: Text('البداية ${meeting.startTime}'),
                     trailing: const Icon(Icons.chevron_left),

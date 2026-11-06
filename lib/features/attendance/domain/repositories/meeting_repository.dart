@@ -8,6 +8,8 @@ abstract interface class MeetingRepository {
     required String serviceId,
     required DateTime date,
     required String startTime,
+    String name = 'اجتماع الخدمة',
+    String? scheduleId,
     String? id,
   });
   Future<void> ensureConfiguredSchedule(Service service);

@@ -32,6 +32,7 @@ class _AttendanceSessionPageState extends ConsumerState<AttendanceSessionPage> {
   String query = '';
   String? busyStudentId;
   TimeOfDay meetingTime = const TimeOfDay(hour: 15, minute: 0);
+  String _meetingName = 'اجتماع الخدمة';
   int earlyAttendanceMinutes = 15;
   bool openingQrScanner = false;
   bool _readOnly = true;
@@ -49,11 +50,35 @@ class _AttendanceSessionPageState extends ConsumerState<AttendanceSessionPage> {
         final meetings = await ref.read(meetingRepositoryProvider).watchMeetings(widget.serviceId).first;
         final now = DateTime.now();
         final today = DateTime(now.year, now.month, now.day);
+        final selected = meetings.where((meeting) => meeting.id == widget.meetingId);
+        final selectedMeeting = selected.isEmpty ? null : selected.first;
         final active = meetings.where((meeting) {
           final date = meeting.meetingDate;
-          return !DateTime(date.year, date.month, date.day).isAfter(today);
+          final isNotFuture = !DateTime(date.year, date.month, date.day).isAfter(today);
+          if (!isNotFuture || selectedMeeting == null) return isNotFuture;
+          return selectedMeeting.scheduleId != null
+              ? meeting.scheduleId == selectedMeeting.scheduleId
+              : meeting.scheduleId == null && meeting.name == selectedMeeting.name;
         }).toList()..sort((a, b) => b.meetingDate.compareTo(a.meetingDate));
-        if (mounted) setState(() => _readOnly = active.isEmpty || active.first.id != widget.meetingId);
+        final latestDay = active.isEmpty
+            ? null
+            : DateTime(active.first.meetingDate.year, active.first.meetingDate.month, active.first.meetingDate.day);
+        final selectedDay = selectedMeeting == null
+            ? null
+            : DateTime(selectedMeeting.meetingDate.year, selectedMeeting.meetingDate.month, selectedMeeting.meetingDate.day);
+        if (mounted) {
+          setState(() {
+            _readOnly = latestDay == null || selectedDay == null || selectedDay != latestDay;
+            if (selectedMeeting != null) {
+              _meetingName = selectedMeeting.name;
+              final parts = selectedMeeting.startTime.split(':');
+              meetingTime = TimeOfDay(
+                hour: int.tryParse(parts.first) ?? 15,
+                minute: parts.length > 1 ? int.tryParse(parts[1]) ?? 0 : 0,
+              );
+            }
+          });
+        }
       } catch (_) {}
     });
     Future.microtask(() async {
@@ -62,12 +87,7 @@ class _AttendanceSessionPageState extends ConsumerState<AttendanceSessionPage> {
             .read(serviceRepositoryProvider)
             .getService(widget.serviceId);
         if (!mounted || service == null) return;
-        final parts = service.meetingStartTime.split(':');
         setState(() {
-          meetingTime = TimeOfDay(
-            hour: int.tryParse(parts.first) ?? 15,
-            minute: parts.length > 1 ? int.tryParse(parts[1]) ?? 0 : 0,
-          );
           earlyAttendanceMinutes = service.earlyAttendanceMinutes;
         });
       } catch (_) {}
@@ -474,7 +494,7 @@ class _AttendanceSessionPageState extends ConsumerState<AttendanceSessionPage> {
       key: const Key('attendance_session'),
       appBar: AppBar(
         title: Text(
-          _allStudentsMode ? 'حضور جميع طلاب الخدمة' : 'تسجيل الحضور',
+          _allStudentsMode ? '$_meetingName — حضور جميع طلاب الخدمة' : '$_meetingName — تسجيل الحضور',
           style: const TextStyle(fontWeight: FontWeight.w800),
         ),
         actions: [
