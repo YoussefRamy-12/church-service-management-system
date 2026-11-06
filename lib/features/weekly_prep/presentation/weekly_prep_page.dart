@@ -400,15 +400,15 @@ class _WeeklyPrepPageState extends ConsumerState<WeeklyPrepPage> {
                         onTap: lesson == null
                             ? null
                             : () => Navigator.of(context).push(
-                                  MaterialPageRoute<void>(
-                                    builder: (_) => _WeeklyLessonDetailPage(
-                                      lesson: lesson,
-                                      profileId: profile?.id,
-                                      weekLabel: _weekLabel(week),
-                                      isCurrentWeek: isCurrent,
-                                    ),
+                                MaterialPageRoute<void>(
+                                  builder: (_) => _WeeklyLessonDetailPage(
+                                    lesson: lesson,
+                                    profileId: profile?.id,
+                                    weekLabel: _weekLabel(week),
+                                    isCurrentWeek: isCurrent,
                                   ),
                                 ),
+                              ),
                         trailing: Wrap(
                           spacing: 0,
                           children: [
@@ -850,7 +850,6 @@ class _FormResult {
   final Uint8List bytes;
 }
 
-
 class _WeeklyLessonDetailPage extends ConsumerStatefulWidget {
   const _WeeklyLessonDetailPage({
     required this.lesson,
@@ -873,7 +872,7 @@ class _WeeklyLessonDetailPageState
     extends ConsumerState<_WeeklyLessonDetailPage> {
   bool _loadingPreparation = true;
   bool _savingPreparation = false;
-  bool _preparationLoadFailed = false;
+  final bool _preparationLoadFailed = false;
   bool _prepared = false;
 
   @override
@@ -891,10 +890,9 @@ class _WeeklyLessonDetailPageState
       return;
     }
     try {
-      final value = await ref.read(weeklyLessonRepositoryProvider).isPrepared(
-        lessonId: widget.lesson.id,
-        servantProfileId: profileId,
-      );
+      final value = await ref
+          .read(weeklyLessonRepositoryProvider)
+          .isPrepared(lessonId: widget.lesson.id, servantProfileId: profileId);
       if (mounted) {
         setState(() {
           _prepared = value;
@@ -908,21 +906,29 @@ class _WeeklyLessonDetailPageState
 
   Future<void> _setPrepared(bool value) async {
     final profileId = widget.profileId;
-    if (profileId == null || !widget.isCurrentWeek || _savingPreparation) return;
+    if (profileId == null || !widget.isCurrentWeek || _savingPreparation) {
+      return;
+    }
     setState(() => _savingPreparation = true);
     try {
-      await ref.read(weeklyLessonRepositoryProvider).setPrepared(
-        lessonId: widget.lesson.id,
-        servantProfileId: profileId,
-        prepared: value,
-      );
+      await ref
+          .read(weeklyLessonRepositoryProvider)
+          .setPrepared(
+            lessonId: widget.lesson.id,
+            servantProfileId: profileId,
+            prepared: value,
+          );
       if (mounted) {
         setState(() {
           _prepared = value;
           _savingPreparation = false;
         });
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(value ? 'تم تسجيل الدرس كمُحضّر.' : 'تم إلغاء علامة التحضير.')),
+          SnackBar(
+            content: Text(
+              value ? 'تم تسجيل الدرس كمُحضّر.' : 'تم إلغاء علامة التحضير.',
+            ),
+          ),
         );
       }
     } catch (error) {
@@ -937,7 +943,8 @@ class _WeeklyLessonDetailPageState
 
   Future<void> _open({required bool download}) async {
     try {
-      final url = await ref.read(weeklyLessonRepositoryProvider)
+      final url = await ref
+          .read(weeklyLessonRepositoryProvider)
           .signedUrl(widget.lesson, download: download);
       if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
         throw Exception('تعذر فتح الرابط');
@@ -945,7 +952,9 @@ class _WeeklyLessonDetailPageState
     } catch (error) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('تعذر ${download ? 'تنزيل' : 'فتح'} الملف: $error')),
+          SnackBar(
+            content: Text('تعذر ${download ? 'تنزيل' : 'فتح'} الملف: $error'),
+          ),
         );
       }
     }
@@ -969,18 +978,34 @@ class _WeeklyLessonDetailPageState
                   children: [
                     const Icon(Icons.menu_book_rounded, size: 36),
                     const SizedBox(height: 14),
-                    Text(widget.lesson.fileName, style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800)),
+                    Text(
+                      widget.lesson.fileName,
+                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
                     const SizedBox(height: 8),
                     Text(widget.weekLabel),
                     const SizedBox(height: 12),
                     Chip(
-                      avatar: Icon(isHistorical ? Icons.lock_outline_rounded : Icons.edit_note_rounded, size: 18),
-                      label: Text(isHistorical ? 'أسبوع سابق — للقراءة فقط' : 'الأسبوع الحالي'),
+                      avatar: Icon(
+                        isHistorical
+                            ? Icons.lock_outline_rounded
+                            : Icons.edit_note_rounded,
+                        size: 18,
+                      ),
+                      label: Text(
+                        isHistorical
+                            ? 'أسبوع سابق — للقراءة فقط'
+                            : 'الأسبوع الحالي',
+                      ),
                     ),
                     if (isHistorical)
                       const Padding(
                         padding: EdgeInsets.only(top: 8),
-                        child: Text('يمكن فتح الملف للاطلاع عليه، لكن التنزيل وتغيير حالة التحضير غير متاحين للأسابيع السابقة.'),
+                        child: Text(
+                          'يمكن فتح الملف للاطلاع عليه، لكن التنزيل وتغيير حالة التحضير غير متاحين للأسابيع السابقة.',
+                        ),
                       ),
                   ],
                 ),
@@ -994,7 +1019,9 @@ class _WeeklyLessonDetailPageState
             ),
             const SizedBox(height: 8),
             OutlinedButton.icon(
-              onPressed: widget.isCurrentWeek ? () => _open(download: true) : null,
+              onPressed: widget.isCurrentWeek
+                  ? () => _open(download: true)
+                  : null,
               icon: const Icon(Icons.download_rounded),
               label: const Text('تنزيل الدرس'),
             ),
@@ -1005,7 +1032,8 @@ class _WeeklyLessonDetailPageState
                 child: SwitchListTile(
                   key: const Key('weekly_lesson_prepared_switch'),
                   value: _prepared,
-                  onChanged: widget.isCurrentWeek &&
+                  onChanged:
+                      widget.isCurrentWeek &&
                           widget.profileId != null &&
                           !_loadingPreparation &&
                           !_preparationLoadFailed &&
@@ -1017,18 +1045,26 @@ class _WeeklyLessonDetailPageState
                     widget.profileId == null
                         ? 'تعذر تحديد حساب الخادم الحالي.'
                         : isHistorical
-                            ? 'الأسابيع السابقة للقراءة فقط.'
-                            : _preparationLoadFailed
-                                ? 'تعذر تحميل حالة التحضير؛ تحقق من الاتصال وتحديث قاعدة البيانات.'
-                                : _loadingPreparation
-                                ? 'جاري تحميل حالة التحضير...'
-                                : _prepared
-                                    ? 'تم تسجيل الدرس كمُحضّر بواسطة حسابك.'
-                                    : 'فعّل الخيار بعد الانتهاء من التحضير.',
+                        ? 'الأسابيع السابقة للقراءة فقط.'
+                        : _preparationLoadFailed
+                        ? 'تعذر تحميل حالة التحضير؛ تحقق من الاتصال وتحديث قاعدة البيانات.'
+                        : _loadingPreparation
+                        ? 'جاري تحميل حالة التحضير...'
+                        : _prepared
+                        ? 'تم تسجيل الدرس كمُحضّر بواسطة حسابك.'
+                        : 'فعّل الخيار بعد الانتهاء من التحضير.',
                   ),
                   secondary: _savingPreparation
-                      ? const SizedBox(width: 24, height: 24, child: CircularProgressIndicator(strokeWidth: 2))
-                      : Icon(_prepared ? Icons.check_circle_rounded : Icons.radio_button_unchecked_rounded),
+                      ? const SizedBox(
+                          width: 24,
+                          height: 24,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : Icon(
+                          _prepared
+                              ? Icons.check_circle_rounded
+                              : Icons.radio_button_unchecked_rounded,
+                        ),
                 ),
               ),
             ),
