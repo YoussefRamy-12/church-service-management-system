@@ -6,6 +6,7 @@ import '../../../core/sync/sync_operation.dart';
 import '../../../core/sync/sync_queue_repository.dart';
 import '../domain/entities/attendance_record.dart';
 import '../domain/repositories/attendance_repository.dart';
+import 'attendance_timestamp.dart';
 import 'local_attendance_repository.dart';
 
 class OfflineFirstAttendanceRepository implements AttendanceRepository {
@@ -72,7 +73,7 @@ class OfflineFirstAttendanceRepository implements AttendanceRepository {
           'meeting_id': record.meetingId,
           'student_id': record.studentId,
           'class_id_at_attendance': record.classIdAtAttendance,
-          'checked_in_at': record.checkedInAt.toIso8601String(),
+          'checked_in_at': record.checkedInAt.toUtc().toIso8601String(),
           'recorded_by': record.recordedBy,
         }),
       ),
@@ -91,7 +92,7 @@ class OfflineFirstAttendanceRepository implements AttendanceRepository {
         'meeting_id': record.meetingId,
         'student_id': record.studentId,
         'class_id_at_attendance': record.classIdAtAttendance,
-        'checked_in_at': record.checkedInAt.toIso8601String(),
+        'checked_in_at': record.checkedInAt.toUtc().toIso8601String(),
         'recorded_by': record.recordedBy,
         'client_operation_id': record.clientOperationId,
       }, onConflict: 'meeting_id,student_id');
@@ -117,7 +118,7 @@ class OfflineFirstAttendanceRepository implements AttendanceRepository {
           meetingId: row['meeting_id'] as String,
           studentId: row['student_id'] as String,
           classIdAtAttendance: row['class_id_at_attendance'] as String,
-          checkedInAt: DateTime.parse(row['checked_in_at'] as String),
+          checkedInAt: attendanceTimestampFromRow(row),
           recordedBy: row['recorded_by'] as String,
           clientOperationId: (row['client_operation_id'] as String?) ?? '',
           syncState: 'synced',

@@ -3,6 +3,7 @@ import 'package:uuid/uuid.dart';
 
 import '../domain/entities/attendance_record.dart';
 import '../domain/repositories/attendance_repository.dart';
+import 'attendance_timestamp.dart';
 import 'attendance_profile_resolver.dart';
 
 /// Online-only implementation of [AttendanceRepository].
@@ -58,7 +59,7 @@ class OnlineAttendanceRepository implements AttendanceRepository {
       'meeting_id': meetingId,
       'student_id': studentId,
       'class_id_at_attendance': classIdAtAttendance,
-      'checked_in_at': checkedInAt.toIso8601String(),
+      'checked_in_at': checkedInAt.toUtc().toIso8601String(),
       'recorded_by': effectiveRecordedBy,
       'client_operation_id': clientOpId,
     }, onConflict: 'meeting_id,student_id');
@@ -82,7 +83,7 @@ class OnlineAttendanceRepository implements AttendanceRepository {
   }) async {
     final rows = await _client
         .from('attendance_records')
-        .update({'checked_in_at': checkedInAt.toIso8601String()})
+        .update({'checked_in_at': checkedInAt.toUtc().toIso8601String()})
         .eq('id', attendanceId)
         .select();
 
@@ -107,7 +108,7 @@ class OnlineAttendanceRepository implements AttendanceRepository {
     meetingId: row['meeting_id'] as String,
     studentId: row['student_id'] as String,
     classIdAtAttendance: row['class_id_at_attendance'] as String,
-    checkedInAt: DateTime.parse(row['checked_in_at'] as String),
+    checkedInAt: attendanceTimestampFromRow(row),
     recordedBy: row['recorded_by'] as String,
     clientOperationId: (row['client_operation_id'] as String?) ?? '',
     syncState: 'synced',

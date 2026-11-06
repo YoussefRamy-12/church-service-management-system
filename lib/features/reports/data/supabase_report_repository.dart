@@ -2,6 +2,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:intl/intl.dart';
 
 import '../domain/service_report.dart';
+import '../../attendance/data/attendance_timestamp.dart';
 
 class SupabaseReportRepository {
   SupabaseReportRepository(this._client);
@@ -45,7 +46,9 @@ class SupabaseReportRepository {
     if (meetingIds.isNotEmpty) {
       attendance = await _client
           .from('attendance_records')
-          .select('meeting_id, student_id, checked_in_at')
+          .select(
+            'meeting_id, student_id, checked_in_at, created_at, updated_at',
+          )
           .inFilter('meeting_id', meetingIds);
     }
 
@@ -111,7 +114,7 @@ class SupabaseReportRepository {
       final key = '$meetingId:$studentId';
       if (!counted.add(key)) continue;
       present++;
-      final checkedIn = DateTime.parse(row['checked_in_at'] as String).toLocal();
+      final checkedIn = attendanceTimestampFromRow(row);
       final meeting = meetingRows.firstWhere((item) => item['id'] == meetingId);
       final startParts = (meeting['start_time'] as String).split(':');
       final dateParts = (meeting['meeting_date'] as String).split('-');

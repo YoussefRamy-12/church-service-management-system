@@ -28,7 +28,9 @@ class AttendanceSyncHandler implements EntitySyncHandler {
       'meeting_id': payload['meeting_id'],
       'student_id': payload['student_id'],
       'class_id_at_attendance': payload['class_id_at_attendance'],
-      'checked_in_at': payload['checked_in_at'],
+      'checked_in_at': DateTime.parse(
+        payload['checked_in_at'] as String,
+      ).toUtc().toIso8601String(),
       'recorded_by': recordedBy,
       'client_operation_id': operation.operationId,
     }, onConflict: 'meeting_id,student_id');

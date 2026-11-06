@@ -260,6 +260,7 @@ class _AttendanceSessionPageState extends ConsumerState<AttendanceSessionPage> {
     await ref
         .read(attendanceRepositoryProvider)
         .updateCheckedInAt(attendanceId: attendanceId, checkedInAt: updated);
+    if (mounted) setState(() {});
   }
 
   Future<void> _openQrScanner(List<Student> students) async {
