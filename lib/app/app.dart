@@ -18,6 +18,7 @@ import '../features/export/presentation/export_page.dart';
 import '../features/follow_up/presentation/follow_up_hub_page.dart';
 import '../features/reports/presentation/reports_page.dart';
 import '../features/weekly_prep/presentation/weekly_prep_page.dart';
+import '../features/spiritual_notebook/presentation/spiritual_notebook_page.dart';
 import '../features/servants/presentation/servant_management_page.dart';
 import '../features/service/presentation/service_dashboard_page.dart';
 import '../features/service/presentation/stage_dashboard_page.dart';
@@ -212,6 +213,21 @@ class _ChurchServiceAppState extends ConsumerState<ChurchServiceApp> {
                 builder: (context, state) => WeeklyPrepPage(
                   serviceId: state.pathParameters['serviceId']!,
                 ),
+              ),
+              GoRoute(
+                path: 'spiritual-notebook',
+                builder: (context, state) => SpiritualNotebookPage(
+                  serviceId: state.pathParameters['serviceId']!,
+                ),
+                routes: [
+                  GoRoute(
+                    path: 'student/:studentId',
+                    builder: (context, state) => SpiritualNotebookStudentPage(
+                      serviceId: state.pathParameters['serviceId']!,
+                      studentId: state.pathParameters['studentId']!,
+                    ),
+                  ),
+                ],
               ),
               GoRoute(
                 path: 'servants',

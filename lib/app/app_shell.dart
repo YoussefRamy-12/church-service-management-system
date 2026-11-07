@@ -15,6 +15,7 @@ class AppShell extends ConsumerWidget {
   static const _items = <_NavItem>[
     _NavItem('الرئيسية', Icons.dashboard_rounded, 'dashboard'),
     _NavItem('التلاميذ', Icons.school_rounded, 'students'),
+    _NavItem('النوتة الروحية', Icons.auto_stories_rounded, 'spiritual-notebook'),
     _NavItem('الحضور', Icons.how_to_reg_rounded, 'attendance'),
     _NavItem('المتابعة', Icons.phone_in_talk_rounded, 'follow-up'),
     _NavItem('التقارير', Icons.insights_rounded, 'reports'),
@@ -134,6 +135,7 @@ class AppShell extends ConsumerWidget {
     return switch (segment) {
       'dashboard' => 'الرئيسية',
       'students' => 'التلاميذ',
+      'spiritual-notebook' => 'النوتة الروحية',
       'attendance' => 'الحضور',
       'follow-up' => 'المتابعة',
       'reports' => 'التقارير',
