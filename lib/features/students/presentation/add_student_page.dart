@@ -318,7 +318,7 @@ class _AddStudentPageState extends ConsumerState<AddStudentPage> {
                         // Header Intro Card
                         GlassContainer(
                           padding: const EdgeInsets.all(18),
-                          borderRadius: 20,
+                          borderRadius: 12,
                           margin: const EdgeInsets.only(bottom: 24),
                           child: Row(
                             children: [

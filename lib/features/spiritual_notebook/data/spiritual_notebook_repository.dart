@@ -73,6 +73,27 @@ class SpiritualNotebookRepository {
     });
   }
 
+  Future<void> updateActivity({
+    required String activityId,
+    required String name,
+    required int points,
+  }) async {
+    await _client.from('spiritual_notebook_activities').update({
+      'name': name.trim(),
+      'points': points,
+      'updated_at': DateTime.now().toIso8601String(),
+    }).eq('id', activityId);
+  }
+
+  Future<void> deleteActivity(String activityId) async {
+    // Soft delete: sets is_active = false so that it no longer appears for future
+    // submissions while preserving all past weeks' submission records, snapshots, and scores.
+    await _client.from('spiritual_notebook_activities').update({
+      'is_active': false,
+      'updated_at': DateTime.now().toIso8601String(),
+    }).eq('id', activityId);
+  }
+
   Future<void> upsertSettings(
     String serviceId, {
     required int maxBonus,

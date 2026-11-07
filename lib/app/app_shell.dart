@@ -271,8 +271,8 @@ class _DesktopSidebar extends ConsumerWidget {
     final isDark = theme.brightness == Brightness.dark;
     final sidebarBg = isDark ? const Color(0xFF111827) : Colors.white;
     final borderColor = isDark
-        ? const Color(0x33818CF8)
-        : const Color(0xFFC5C5D3);
+        ? const Color(0xFF1E293B)
+        : const Color(0xFFE2E8F0);
     final subtextColor = isDark
         ? const Color(0xFF94A3B8)
         : const Color(0xFF444651);
@@ -508,8 +508,8 @@ class _ShellTopBar extends ConsumerWidget {
     final isDark = theme.brightness == Brightness.dark;
     final topBarBg = isDark ? const Color(0xFF111827) : Colors.white;
     final borderBottom = isDark
-        ? const Color(0x33818CF8)
-        : const Color(0xFFC5C5D3);
+        ? const Color(0xFF1E293B)
+        : const Color(0xFFE2E8F0);
     final subtextColor = isDark
         ? const Color(0xFF94A3B8)
         : const Color(0xFF444651);
@@ -688,7 +688,7 @@ class _NavTileState extends State<_NavTile> {
     final hoveredTextColor = isDark ? Colors.white : appPrimary;
 
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 2.5),
+      padding: const EdgeInsets.symmetric(vertical: 1.0),
       child: MouseRegion(
         onEnter: (_) => setState(() => _hovered = true),
         onExit: (_) => setState(() => _hovered = false),
@@ -698,14 +698,33 @@ class _NavTileState extends State<_NavTile> {
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(10),
             color: widget.selected
-                ? (isDark ? const Color(0xFF263B68) : const Color(0xFFE7EEFF))
-                : (_hovered ? appSoftBlue : null),
+                ? (isDark ? const Color(0xFF3B82F6) : appPrimaryContainer)
+                : (_hovered
+                      ? (isDark
+                            ? const Color(0xFF1E293B)
+                            : appSoftBlue)
+                      : null),
+            boxShadow: widget.selected
+                ? [
+                    BoxShadow(
+                      color: (isDark ? const Color(0xFF3B82F6) : appPrimaryContainer)
+                          .withValues(alpha: 0.25),
+                      blurRadius: 6,
+                      offset: const Offset(0, 2),
+                    ),
+                  ]
+                : null,
           ),
           child: Material(
             color: Colors.transparent,
-            borderRadius: BorderRadius.circular(14),
+            borderRadius: BorderRadius.circular(10),
             child: ListTile(
               key: Key('nav_${widget.item.segment}'),
+              dense: true,
+              visualDensity: const VisualDensity(vertical: -2.5),
+              minLeadingWidth: 20,
+              minVerticalPadding: 0,
+              contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
               selected: widget.selected,
               selectedColor: isDark ? Colors.white : appPrimary,
               selectedTileColor: Colors.transparent,
@@ -718,7 +737,7 @@ class _NavTileState extends State<_NavTile> {
                           : (isDark
                                 ? const Color(0xFF94A3B8)
                                 : const Color(0xFF64748B))),
-                size: 22,
+                size: 20,
               ),
               title: Text(
                 widget.item.label,
@@ -729,11 +748,11 @@ class _NavTileState extends State<_NavTile> {
                   color: widget.selected
                       ? Colors.white
                       : (_hovered ? hoveredTextColor : idleTextColor),
-                  fontSize: 14,
+                  fontSize: 13.5,
                 ),
               ),
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(14),
+                borderRadius: BorderRadius.circular(10),
               ),
               onTap: widget.onTap,
             ),

@@ -23,7 +23,8 @@ const appWarning = Color(0xFF904D00);
 const appError = Color(0xFFDC2626);
 
 ThemeData buildAppTheme() {
-  const radius = 16.0;
+  const radius = 12.0;
+  const controlRadius = 8.0;
   const scheme = ColorScheme.light(
     primary: appPrimary,
     onPrimary: Colors.white,
@@ -63,7 +64,7 @@ ThemeData buildAppTheme() {
     scaffoldBackgroundColor: appCanvas,
     visualDensity: VisualDensity.standard,
     materialTapTargetSize: MaterialTapTargetSize.padded,
-    dividerColor: appBorder,
+    dividerColor: const Color(0xFFE2E8F0),
     appBarTheme: const AppBarTheme(
       backgroundColor: Colors.transparent,
       foregroundColor: appInk,
@@ -158,23 +159,23 @@ ThemeData buildAppTheme() {
       fillColor: appSurface,
       contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(10),
-        borderSide: const BorderSide(color: appBorder),
+        borderRadius: BorderRadius.circular(controlRadius),
+        borderSide: const BorderSide(color: Color(0xFFC5C5D3)),
       ),
       enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(10),
-        borderSide: const BorderSide(color: appBorder),
+        borderRadius: BorderRadius.circular(controlRadius),
+        borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
       ),
       focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(controlRadius),
         borderSide: const BorderSide(color: appPrimary, width: 2),
       ),
       errorBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(radius),
+        borderRadius: BorderRadius.circular(controlRadius),
         borderSide: const BorderSide(color: appError, width: 1.2),
       ),
       focusedErrorBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(radius),
+        borderRadius: BorderRadius.circular(controlRadius),
         borderSide: const BorderSide(color: appError, width: 2),
       ),
       hintStyle: const TextStyle(color: Color(0xFF94A3B8), fontSize: 14),
@@ -190,7 +191,7 @@ ThemeData buildAppTheme() {
       clipBehavior: Clip.antiAlias,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(radius),
-        side: const BorderSide(color: appBorder),
+        side: const BorderSide(color: Color(0xFFE2E8F0)),
       ),
     ),
     listTileTheme: const ListTileThemeData(
@@ -199,24 +200,24 @@ ThemeData buildAppTheme() {
     ),
     filledButtonTheme: FilledButtonThemeData(
       style: FilledButton.styleFrom(
-        minimumSize: const Size(0, 50),
+        minimumSize: const Size(0, 44),
         backgroundColor: appPrimary,
         foregroundColor: Colors.white,
         elevation: 0,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(controlRadius)),
         textStyle: const TextStyle(
           fontWeight: FontWeight.w700,
-          fontSize: 15,
+          fontSize: 14,
           fontFamilyFallback: ['Cairo', 'IBM Plex Sans', 'Arial'],
         ),
       ),
     ),
     outlinedButtonTheme: OutlinedButtonThemeData(
       style: OutlinedButton.styleFrom(
-        minimumSize: const Size(0, 48),
+        minimumSize: const Size(0, 44),
         foregroundColor: appPrimary,
-        side: const BorderSide(color: appBorder),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        side: const BorderSide(color: Color(0xFFC5C5D3)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(controlRadius)),
         textStyle: const TextStyle(
           fontWeight: FontWeight.w700,
           fontSize: 14,
@@ -228,7 +229,7 @@ ThemeData buildAppTheme() {
       style: TextButton.styleFrom(
         minimumSize: const Size(0, 44),
         foregroundColor: appPrimary,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(controlRadius)),
         textStyle: const TextStyle(
           fontWeight: FontWeight.w700,
           fontFamilyFallback: ['Cairo', 'IBM Plex Sans', 'Arial'],
@@ -236,13 +237,13 @@ ThemeData buildAppTheme() {
       ),
     ),
     dialogTheme: DialogThemeData(
-      backgroundColor: const Color(0xF7FFFFFF),
+      backgroundColor: Colors.white,
       surfaceTintColor: Colors.transparent,
-      elevation: 16,
-      shadowColor: const Color(0x2E0F172A),
+      elevation: 6,
+      shadowColor: const Color(0x1F0F172A),
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(24),
-        side: const BorderSide(color: Color(0x33FFFFFF), width: 1.5),
+        borderRadius: BorderRadius.circular(radius),
+        side: const BorderSide(color: Color(0xFFE2E8F0), width: 1),
       ),
       titleTextStyle: const TextStyle(
         color: appInk,
@@ -252,13 +253,13 @@ ThemeData buildAppTheme() {
       ),
     ),
     bottomSheetTheme: const BottomSheetThemeData(
-      backgroundColor: Color(0xF7FFFFFF),
+      backgroundColor: Colors.white,
       surfaceTintColor: Colors.transparent,
-      elevation: 20,
+      elevation: 8,
       showDragHandle: true,
       dragHandleColor: Color(0xFFCBD5E1),
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),
     ),
     dataTableTheme: const DataTableThemeData(
@@ -279,7 +280,7 @@ ThemeData buildAppTheme() {
         (states) =>
             states.contains(WidgetState.selected) ? appPrimaryContainer : null,
       ),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
       side: const BorderSide(color: appBorder, width: 1.5),
     ),
     switchTheme: SwitchThemeData(
@@ -301,38 +302,73 @@ ThemeData buildAppTheme() {
         fontFamilyFallback: ['Cairo', 'IBM Plex Sans', 'Arial'],
       ),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(999)),
-      side: const BorderSide(color: appBorder),
+      side: const BorderSide(color: Color(0xFFE2E8F0)),
     ),
     snackBarTheme: SnackBarThemeData(
       behavior: SnackBarBehavior.floating,
-      backgroundColor: const Color(0xF20F172A),
+      backgroundColor: const Color(0xFF0F172A),
       contentTextStyle: const TextStyle(
         color: Colors.white,
         fontWeight: FontWeight.w600,
         fontFamilyFallback: ['Cairo', 'IBM Plex Sans', 'Arial'],
       ),
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-        side: const BorderSide(color: Color(0x26FFFFFF), width: 1),
+        borderRadius: BorderRadius.circular(8),
       ),
-      elevation: 8,
+      elevation: 4,
     ),
     progressIndicatorTheme: const ProgressIndicatorThemeData(
       color: appPrimaryContainer,
       linearTrackColor: appMistBlue,
     ),
+    focusColor: appPrimaryContainer.withValues(alpha: 0.12),
+    hoverColor: appSoftBlue,
+    iconButtonTheme: IconButtonThemeData(
+      style: IconButton.styleFrom(
+        minimumSize: const Size(44, 44),
+        tapTargetSize: MaterialTapTargetSize.padded,
+      ),
+    ),
+    tooltipTheme: TooltipThemeData(
+      decoration: BoxDecoration(
+        color: const Color(0xFF0F172A),
+        borderRadius: BorderRadius.circular(6),
+      ),
+      textStyle: const TextStyle(
+        color: Colors.white,
+        fontSize: 12,
+        fontWeight: FontWeight.w600,
+        fontFamilyFallback: ['Cairo', 'IBM Plex Sans', 'Arial'],
+      ),
+      waitDuration: const Duration(milliseconds: 500),
+      showDuration: const Duration(seconds: 2),
+    ),
+    segmentedButtonTheme: SegmentedButtonThemeData(
+      style: SegmentedButton.styleFrom(
+        selectedBackgroundColor: appPrimaryContainer,
+        selectedForegroundColor: Colors.white,
+        foregroundColor: appInk,
+        textStyle: const TextStyle(
+          fontWeight: FontWeight.w700,
+          fontSize: 13,
+          fontFamilyFallback: ['Cairo', 'IBM Plex Sans', 'Arial'],
+        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(controlRadius)),
+      ),
+    ),
   );
 }
 
 ThemeData buildAppDarkTheme() {
-  const radius = 16.0;
+  const radius = 12.0;
+  const controlRadius = 8.0;
   const darkCanvas = Color(0xFF0B1120); // Deep Obsidian Canvas
   const darkSurface = Color(0xFF131D33); // Elevated Midnight Slate
-  const darkSurfaceContainer = Color(0xFF1A2642);
+  const darkSurfaceContainer = Color(0xFF1E293B);
   const darkInk = Color(0xFFF8FAFC);
   const darkMutedInk = Color(0xFF94A3B8);
   const darkBorder = Color(0xFF1E293B);
-  const darkGlassBorder = Color(0x33818CF8);
+  const darkSubtleBorder = Color(0xFF334155);
 
   const scheme = ColorScheme.dark(
     primary: appAccentViolet,
@@ -374,7 +410,7 @@ ThemeData buildAppDarkTheme() {
     scaffoldBackgroundColor: darkCanvas,
     visualDensity: VisualDensity.standard,
     materialTapTargetSize: MaterialTapTargetSize.padded,
-    dividerColor: const Color(0x1F818CF8),
+    dividerColor: darkBorder,
     appBarTheme: const AppBarTheme(
       backgroundColor: Colors.transparent,
       foregroundColor: darkInk,
@@ -466,26 +502,26 @@ ThemeData buildAppDarkTheme() {
     ),
     inputDecorationTheme: InputDecorationTheme(
       filled: true,
-      fillColor: const Color(0xCC131D33),
-      contentPadding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
+      fillColor: darkSurface,
+      contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(radius),
-        borderSide: const BorderSide(color: Color(0xFF334155), width: 1.2),
+        borderRadius: BorderRadius.circular(controlRadius),
+        borderSide: const BorderSide(color: darkSubtleBorder),
       ),
       enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(radius),
-        borderSide: const BorderSide(color: Color(0xFF334155), width: 1.2),
+        borderRadius: BorderRadius.circular(controlRadius),
+        borderSide: const BorderSide(color: darkBorder),
       ),
       focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(radius),
+        borderRadius: BorderRadius.circular(controlRadius),
         borderSide: const BorderSide(color: appAccentViolet, width: 2),
       ),
       errorBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(radius),
+        borderRadius: BorderRadius.circular(controlRadius),
         borderSide: const BorderSide(color: Color(0xFFF87171), width: 1.2),
       ),
       focusedErrorBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(radius),
+        borderRadius: BorderRadius.circular(controlRadius),
         borderSide: const BorderSide(color: Color(0xFFF87171), width: 2),
       ),
       hintStyle: const TextStyle(color: Color(0xFF64748B), fontSize: 14),
@@ -495,13 +531,13 @@ ThemeData buildAppDarkTheme() {
       ),
     ),
     cardTheme: CardThemeData(
-      color: darkSurface.withValues(alpha: 0.88),
+      color: darkSurface,
       elevation: 0,
       margin: EdgeInsets.zero,
       clipBehavior: Clip.antiAlias,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
-        side: const BorderSide(color: darkGlassBorder, width: 1.2),
+        borderRadius: BorderRadius.circular(radius),
+        side: const BorderSide(color: darkBorder, width: 1),
       ),
     ),
     listTileTheme: const ListTileThemeData(
@@ -510,25 +546,24 @@ ThemeData buildAppDarkTheme() {
     ),
     filledButtonTheme: FilledButtonThemeData(
       style: FilledButton.styleFrom(
-        minimumSize: const Size(0, 50),
+        minimumSize: const Size(0, 44),
         backgroundColor: const Color(0xFF4F46E5),
         foregroundColor: Colors.white,
-        elevation: 2,
-        shadowColor: const Color(0xFF4F46E5).withValues(alpha: 0.45),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+        elevation: 0,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(controlRadius)),
         textStyle: const TextStyle(
           fontWeight: FontWeight.w700,
-          fontSize: 15,
+          fontSize: 14,
           fontFamilyFallback: ['Cairo', 'IBM Plex Sans', 'Arial'],
         ),
       ),
     ),
     outlinedButtonTheme: OutlinedButtonThemeData(
       style: OutlinedButton.styleFrom(
-        minimumSize: const Size(0, 48),
+        minimumSize: const Size(0, 44),
         foregroundColor: appAccentViolet,
-        side: const BorderSide(color: Color(0x55818CF8), width: 1.4),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+        side: const BorderSide(color: darkSubtleBorder, width: 1),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(controlRadius)),
         textStyle: const TextStyle(
           fontWeight: FontWeight.w700,
           fontSize: 14,
@@ -540,7 +575,7 @@ ThemeData buildAppDarkTheme() {
       style: TextButton.styleFrom(
         minimumSize: const Size(0, 44),
         foregroundColor: appAccentViolet,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(controlRadius)),
         textStyle: const TextStyle(
           fontWeight: FontWeight.w700,
           fontFamilyFallback: ['Cairo', 'IBM Plex Sans', 'Arial'],
@@ -548,13 +583,13 @@ ThemeData buildAppDarkTheme() {
       ),
     ),
     dialogTheme: DialogThemeData(
-      backgroundColor: const Color(0xF2131D33),
+      backgroundColor: darkSurface,
       surfaceTintColor: Colors.transparent,
-      elevation: 20,
+      elevation: 8,
       shadowColor: const Color(0x66000000),
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(24),
-        side: const BorderSide(color: Color(0x33818CF8), width: 1.5),
+        borderRadius: BorderRadius.circular(radius),
+        side: const BorderSide(color: darkSubtleBorder, width: 1),
       ),
       titleTextStyle: const TextStyle(
         color: darkInk,
@@ -564,13 +599,13 @@ ThemeData buildAppDarkTheme() {
       ),
     ),
     bottomSheetTheme: const BottomSheetThemeData(
-      backgroundColor: Color(0xF5131D33),
+      backgroundColor: darkSurface,
       surfaceTintColor: Colors.transparent,
-      elevation: 24,
+      elevation: 10,
       showDragHandle: true,
       dragHandleColor: Color(0xFF475569),
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),
     ),
     dataTableTheme: const DataTableThemeData(
@@ -592,7 +627,7 @@ ThemeData buildAppDarkTheme() {
             ? const Color(0xFF4F46E5)
             : null,
       ),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
       side: const BorderSide(color: Color(0xFF475569), width: 1.5),
     ),
     switchTheme: SwitchThemeData(
@@ -615,25 +650,60 @@ ThemeData buildAppDarkTheme() {
         fontFamilyFallback: ['Cairo', 'IBM Plex Sans', 'Arial'],
       ),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(999)),
-      side: const BorderSide(color: Color(0x33818CF8), width: 1),
+      side: const BorderSide(color: darkSubtleBorder, width: 1),
     ),
     snackBarTheme: SnackBarThemeData(
       behavior: SnackBarBehavior.floating,
-      backgroundColor: const Color(0xF21E293B),
+      backgroundColor: const Color(0xFF1E293B),
       contentTextStyle: const TextStyle(
         color: Colors.white,
         fontWeight: FontWeight.w600,
         fontFamilyFallback: ['Cairo', 'IBM Plex Sans', 'Arial'],
       ),
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-        side: const BorderSide(color: Color(0x33818CF8), width: 1),
+        borderRadius: BorderRadius.circular(8),
+        side: const BorderSide(color: darkSubtleBorder, width: 1),
       ),
-      elevation: 10,
+      elevation: 4,
     ),
     progressIndicatorTheme: const ProgressIndicatorThemeData(
       color: appAccentViolet,
       linearTrackColor: Color(0xFF1E293B),
+    ),
+    focusColor: const Color(0xFF4F46E5).withValues(alpha: 0.20),
+    hoverColor: const Color(0xFF1E293B),
+    iconButtonTheme: IconButtonThemeData(
+      style: IconButton.styleFrom(
+        minimumSize: const Size(44, 44),
+        tapTargetSize: MaterialTapTargetSize.padded,
+      ),
+    ),
+    tooltipTheme: TooltipThemeData(
+      decoration: BoxDecoration(
+        color: const Color(0xFF1E293B),
+        borderRadius: BorderRadius.circular(6),
+      ),
+      textStyle: const TextStyle(
+        color: Colors.white,
+        fontSize: 12,
+        fontWeight: FontWeight.w600,
+        fontFamilyFallback: ['Cairo', 'IBM Plex Sans', 'Arial'],
+      ),
+      waitDuration: const Duration(milliseconds: 500),
+      showDuration: const Duration(seconds: 2),
+    ),
+    segmentedButtonTheme: SegmentedButtonThemeData(
+      style: SegmentedButton.styleFrom(
+        selectedBackgroundColor: const Color(0xFF4F46E5),
+        selectedForegroundColor: Colors.white,
+        foregroundColor: darkInk,
+        textStyle: const TextStyle(
+          fontWeight: FontWeight.w700,
+          fontSize: 13,
+          fontFamilyFallback: ['Cairo', 'IBM Plex Sans', 'Arial'],
+        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(controlRadius)),
+      ),
     ),
   );
 }

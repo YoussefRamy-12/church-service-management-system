@@ -638,7 +638,7 @@ class _ImportStudentsExcelPageState
                               onTap: _parsingFile || _importing
                                   ? null
                                   : _pickAndParseFile,
-                              borderRadius: BorderRadius.circular(16),
+                              borderRadius: BorderRadius.circular(12),
                               child: Container(
                                 width: double.infinity,
                                 padding: const EdgeInsets.symmetric(
@@ -650,9 +650,9 @@ class _ImportStudentsExcelPageState
                                     color: const Color(
                                       0xFF00236F,
                                     ).withValues(alpha: 0.3),
-                                    width: 1.5,
+                                    width: 1,
                                   ),
-                                  borderRadius: BorderRadius.circular(16),
+                                  borderRadius: BorderRadius.circular(12),
                                   color: const Color(
                                     0xFF00236F,
                                   ).withValues(alpha: 0.03),
@@ -1007,7 +1007,7 @@ class _ImportStudentsExcelPageState
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: const Color(0xFF059669).withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: const Color(0xFF059669).withValues(alpha: 0.3),
         ),

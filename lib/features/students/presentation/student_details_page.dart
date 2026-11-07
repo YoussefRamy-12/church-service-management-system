@@ -444,17 +444,10 @@ class _StudentDetailsPageState extends ConsumerState<StudentDetailsPage> {
                             padding: const EdgeInsets.all(12),
                             decoration: BoxDecoration(
                               color: Colors.white,
-                              borderRadius: BorderRadius.circular(16),
+                              borderRadius: BorderRadius.circular(12),
                               border: Border.all(
                                 color: const Color(0xFFE2E8F0),
                               ),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withValues(alpha: 0.05),
-                                  blurRadius: 10,
-                                  offset: const Offset(0, 4),
-                                ),
-                              ],
                             ),
                             child: QrImageView(
                               data: student.id,

@@ -97,13 +97,15 @@ class _ReportsPageState extends ConsumerState<ReportsPage> {
             children: [
               // Date Range Filter Card
               GlassCard(
-                borderRadius: 22,
+                borderRadius: 12,
                 padding: const EdgeInsets.all(18),
                 hoverElevation: false,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
+                child: LayoutBuilder(
+                  builder: (context, constraints) {
+                    final isCompact = constraints.maxWidth < 600;
+                    final isVeryCompact = constraints.maxWidth < 450;
+
+                    final header = Row(
                       children: [
                         Icon(
                           Icons.date_range_rounded,
@@ -116,49 +118,74 @@ class _ReportsPageState extends ConsumerState<ReportsPage> {
                           style: Theme.of(context).textTheme.titleSmall
                               ?.copyWith(fontWeight: FontWeight.w800),
                         ),
-                        const Spacer(),
-                        // Preset chips
-                        Wrap(
-                          spacing: 6,
-                          children: [
-                            _presetChip('هذا الشهر', 'month'),
-                            _presetChip('٣ أشهر', '3months'),
-                            _presetChip('هذا العام', 'year'),
-                          ],
-                        ),
                       ],
-                    ),
-                    const SizedBox(height: 14),
-                    Row(
+                    );
+
+                    final chips = Wrap(
+                      spacing: 8,
+                      runSpacing: 6,
                       children: [
-                        Expanded(
-                          child: _dateButton(
-                            context,
-                            label: 'من تاريخ',
-                            value: formatter.format(start),
-                            onPick: (value) {
-                              setState(() => start = value);
-                              _load();
-                            },
-                            initialDate: start,
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: _dateButton(
-                            context,
-                            label: 'إلى تاريخ',
-                            value: formatter.format(end),
-                            onPick: (value) {
-                              setState(() => end = value);
-                              _load();
-                            },
-                            initialDate: end,
-                          ),
-                        ),
+                        _presetChip('هذا الشهر', 'month'),
+                        _presetChip('٣ أشهر', '3months'),
+                        _presetChip('هذا العام', 'year'),
                       ],
-                    ),
-                  ],
+                    );
+
+                    final fromBtn = _dateButton(
+                      context,
+                      label: 'من تاريخ',
+                      value: formatter.format(start),
+                      onPick: (value) {
+                        setState(() => start = value);
+                        _load();
+                      },
+                      initialDate: start,
+                    );
+
+                    final toBtn = _dateButton(
+                      context,
+                      label: 'إلى تاريخ',
+                      value: formatter.format(end),
+                      onPick: (value) {
+                        setState(() => end = value);
+                        _load();
+                      },
+                      initialDate: end,
+                    );
+
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        if (isCompact) ...[
+                          header,
+                          const SizedBox(height: 10),
+                          chips,
+                        ] else ...[
+                          Row(
+                            children: [
+                              header,
+                              const Spacer(),
+                              chips,
+                            ],
+                          ),
+                        ],
+                        const SizedBox(height: 14),
+                        if (isVeryCompact) ...[
+                          fromBtn,
+                          const SizedBox(height: 10),
+                          toBtn,
+                        ] else ...[
+                          Row(
+                            children: [
+                              Expanded(child: fromBtn),
+                              const SizedBox(width: 12),
+                              Expanded(child: toBtn),
+                            ],
+                          ),
+                        ],
+                      ],
+                    );
+                  },
                 ),
               ),
               const SizedBox(height: 20),
@@ -169,7 +196,7 @@ class _ReportsPageState extends ConsumerState<ReportsPage> {
                 )
               else if (report == null)
                 GlassCard(
-                  borderRadius: 22,
+                  borderRadius: 12,
                   padding: const EdgeInsets.all(32),
                   child: Center(
                     child: Column(
@@ -203,13 +230,13 @@ class _ReportsPageState extends ConsumerState<ReportsPage> {
 
   Widget _presetChip(String label, String preset) {
     return InkWell(
-      borderRadius: BorderRadius.circular(20),
+      borderRadius: BorderRadius.circular(999),
       onTap: () => _setDatePreset(preset),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
         decoration: BoxDecoration(
           color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.08),
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(999),
         ),
         child: Text(
           label,
@@ -322,7 +349,7 @@ class _ReportSummary extends StatelessWidget {
       children: [
         // Hero Attendance Banner
         GlassCard(
-          borderRadius: 24,
+          borderRadius: 12,
           padding: const EdgeInsets.all(24),
           child: Column(
             children: [
@@ -405,21 +432,15 @@ class _ReportSummary extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 16),
-        // Metric cards grid
-        GridView.count(
-          crossAxisCount: 2,
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          crossAxisSpacing: 12,
-          mainAxisSpacing: 12,
-          childAspectRatio: 1.8,
+        // Metric cards responsive grid
+        ResponsiveMetricGrid(
           children: [
             _metric(
               context,
               'إجمالي التلاميذ',
               report.students.toString(),
               Icons.school_rounded,
-              const Color(0xFF4F46E5),
+              const Color(0xFF00236F),
               'students',
             ),
             _metric(
@@ -427,7 +448,7 @@ class _ReportSummary extends StatelessWidget {
               'الاجتماعات',
               report.meetings.toString(),
               Icons.event_available_rounded,
-              const Color(0xFF7C3AED),
+              const Color(0xFF00236F),
               'meetings',
             ),
             _metric(
@@ -435,7 +456,7 @@ class _ReportSummary extends StatelessWidget {
               'حضور مبكر',
               report.early.toString(),
               Icons.timer_rounded,
-              const Color(0xFF06B6D4),
+              const Color(0xFF059669),
               'early',
             ),
             _metric(
@@ -443,7 +464,7 @@ class _ReportSummary extends StatelessWidget {
               'قبل بداية الاجتماع',
               report.before.toString(),
               Icons.access_time_filled_rounded,
-              const Color(0xFF4F46E5),
+              const Color(0xFF00236F),
               'before',
             ),
             _metric(
@@ -451,7 +472,7 @@ class _ReportSummary extends StatelessWidget {
               'حضور عادي',
               report.normal.toString(),
               Icons.schedule_rounded,
-              const Color(0xFF3B82F6),
+              const Color(0xFF1E3A8A),
               'normal',
             ),
             _metric(
@@ -459,7 +480,7 @@ class _ReportSummary extends StatelessWidget {
               'المتابعات المنجزة',
               report.followUps.toString(),
               Icons.volunteer_activism_rounded,
-              const Color(0xFFEC4899),
+              const Color(0xFF904D00),
               'followUps',
             ),
             _metric(
@@ -467,7 +488,7 @@ class _ReportSummary extends StatelessWidget {
               'إجمالي الحضور',
               '${report.present}/${report.expectedAttendance}',
               Icons.fact_check_rounded,
-              const Color(0xFF10B981),
+              const Color(0xFF059669),
               'attendance',
             ),
           ],
@@ -484,57 +505,60 @@ class _ReportSummary extends StatelessWidget {
     Color color,
     String key,
   ) {
-    return GlassCard(
-      onTap: () => onMetricTap(key, title),
-      borderRadius: 20,
+    return SolidCard(
+      borderRadius: 14,
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      child: Row(
-        children: [
-          Container(
-            width: 44,
-            height: 44,
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  color.withValues(alpha: 0.22),
-                  color.withValues(alpha: 0.08),
-                ],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
+      child: InkWell(
+        onTap: () => onMetricTap(key, title),
+        borderRadius: BorderRadius.circular(12),
+        child: Row(
+          children: [
+            Container(
+              width: 44,
+              height: 44,
+              decoration: BoxDecoration(
+                color: color.withValues(alpha: 0.12),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: color.withValues(alpha: 0.20)),
               ),
-              borderRadius: BorderRadius.circular(14),
-              border: Border.all(color: color.withValues(alpha: 0.2)),
+              child: Icon(icon, color: color, size: 22),
             ),
-            child: Icon(icon, color: color, size: 22),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  title,
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    fontWeight: FontWeight.w600,
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    title,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  value,
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.w900,
-                    color: color,
+                  const SizedBox(height: 2),
+                  Text(
+                    value,
+                    style: TextStyle(
+                      fontSize: 17,
+                      fontWeight: FontWeight.w800,
+                      color: color,
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-        ],
+            const SizedBox(width: 6),
+            Icon(
+              Icons.chevron_left_rounded,
+              size: 18,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -612,7 +636,7 @@ class _ReportMetricDetailPage extends StatelessWidget {
                               ? 'وقت بداية الاجتماع: ${parts.length > 1 ? parts[1] : 'غير محدد'}'
                               : parts.length > 1 ? '${parts.first} • ${parts.sublist(1, parts.length - 1).join(' • ')}' : description;
                           return GlassCard(
-                            borderRadius: 16,
+                            borderRadius: 12,
                             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                             hoverElevation: false,
                             child: ListTile(

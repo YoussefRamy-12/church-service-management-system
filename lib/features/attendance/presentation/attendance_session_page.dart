@@ -140,8 +140,8 @@ class _AttendanceSessionPageState extends ConsumerState<AttendanceSessionPage> {
 
   Color _classColorFor(String id) {
     const palette = <Color>[
-      Color(0xFF4F46E5), Color(0xFF0D9488), Color(0xFFB45309),
-      Color(0xFF7C3AED), Color(0xFF0369A1), Color(0xFFBE123C),
+      Color(0xFF00236F), Color(0xFF0D9488), Color(0xFFB45309),
+      Color(0xFF475569), Color(0xFF0369A1), Color(0xFFBE123C),
     ];
     final stableHash = id.codeUnits.fold<int>(0, (value, unit) => value + unit);
     return palette[stableHash % palette.length];
@@ -274,8 +274,7 @@ class _AttendanceSessionPageState extends ConsumerState<AttendanceSessionPage> {
           .first;
       if (!mounted) return;
 
-      final studentId = await Navigator.push<String>(
-        context,
+      final studentId = await Navigator.of(context, rootNavigator: true).push<String>(
         MaterialPageRoute(
           builder: (_) => QrScanPage(
             students: students,
@@ -322,7 +321,7 @@ class _AttendanceSessionPageState extends ConsumerState<AttendanceSessionPage> {
           ? const Color(0xF7131D33)
           : const Color(0xF7FFFFFF),
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),
       builder: (context) => SafeArea(
         child: SizedBox(
@@ -465,7 +464,7 @@ class _AttendanceSessionPageState extends ConsumerState<AttendanceSessionPage> {
     final label = _attendanceLabel(checkedInAt);
     if (label == 'مبكر') return const Color(0xFFD97706); // Amber
     if (label == 'عادي') return const Color(0xFF059669); // Green
-    if (label == 'قبل الاجتماع') return const Color(0xFF4F46E5);
+    if (label == 'قبل الاجتماع') return const Color(0xFF00236F);
     return const Color(0xFF64748B);
   }
 
@@ -591,7 +590,7 @@ class _AttendanceSessionPageState extends ConsumerState<AttendanceSessionPage> {
                     GlassContainer(
                       padding: const EdgeInsets.all(16),
                       margin: const EdgeInsets.only(bottom: 14),
-                      borderRadius: 20,
+                      borderRadius: 12,
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
@@ -600,17 +599,15 @@ class _AttendanceSessionPageState extends ConsumerState<AttendanceSessionPage> {
                               Container(
                                 padding: const EdgeInsets.all(10),
                                 decoration: BoxDecoration(
-                                  gradient: const LinearGradient(
-                                    colors: [
-                                      Color(0xFF4338CA),
-                                      Color(0xFF6366F1),
-                                    ],
+                                  color: const Color(0xFF00236F).withValues(alpha: 0.08),
+                                  borderRadius: BorderRadius.circular(8),
+                                  border: Border.all(
+                                    color: const Color(0xFF00236F).withValues(alpha: 0.15),
                                   ),
-                                  borderRadius: BorderRadius.circular(12),
                                 ),
                                 child: const Icon(
                                   Icons.event_note_rounded,
-                                  color: Colors.white,
+                                  color: Color(0xFF00236F),
                                   size: 20,
                                 ),
                               ),
@@ -653,7 +650,6 @@ class _AttendanceSessionPageState extends ConsumerState<AttendanceSessionPage> {
                                 ),
                                 label: const Text('مسح QR'),
                                 style: FilledButton.styleFrom(
-                                  backgroundColor: const Color(0xFF4F46E5),
                                   padding: const EdgeInsets.symmetric(
                                     horizontal: 16,
                                     vertical: 12,
@@ -672,7 +668,7 @@ class _AttendanceSessionPageState extends ConsumerState<AttendanceSessionPage> {
                                 label: 'إجمالي المقيدين',
                                 value: '$totalCount',
                                 icon: Icons.groups_rounded,
-                                color: const Color(0xFF4F46E5),
+                                color: const Color(0xFF00236F),
                               ),
                               _KpiPill(
                                 label: 'حاضر',
@@ -696,7 +692,7 @@ class _AttendanceSessionPageState extends ConsumerState<AttendanceSessionPage> {
                                 label: 'قبل الاجتماع',
                                 value: '${relevantRecords.where((r) => _attendanceLabel(r.checkedInAt) == 'قبل الاجتماع').length}',
                                 icon: Icons.access_time_filled_rounded,
-                                color: const Color(0xFF4F46E5),
+                                color: const Color(0xFF00236F),
                               ),
                               _KpiPill(
                                 label: 'عادي',
@@ -718,7 +714,7 @@ class _AttendanceSessionPageState extends ConsumerState<AttendanceSessionPage> {
                         vertical: 10,
                       ),
                       margin: const EdgeInsets.only(bottom: 12),
-                      borderRadius: 16,
+                      borderRadius: 12,
                       child: Column(
                         children: [
                           TextField(
@@ -853,74 +849,53 @@ class _AttendanceSessionPageState extends ConsumerState<AttendanceSessionPage> {
                                 horizontal: 12,
                                 vertical: 10,
                               ),
-                              borderRadius: 16,
+                              borderRadius: 12,
                               child: Row(
                                 children: [
-                                  // Avatar
+                                  // Avatar (Solid surface, no gradient/glow)
                                   Container(
-                                    width: 44,
-                                    height: 44,
+                                    width: 42,
+                                    height: 42,
                                     decoration: BoxDecoration(
                                       shape: BoxShape.circle,
-                                      gradient: isPresent
-                                          ? const LinearGradient(
-                                              colors: [
-                                                Color(0xFF059669),
-                                                Color(0xFF10B981),
-                                              ],
-                                            )
+                                      color: isPresent
+                                          ? const Color(0xFF059669).withValues(alpha: 0.12)
                                           : (student.isPending
-                                                ? const LinearGradient(
-                                                    colors: [
-                                                      Color(0xFFD97706),
-                                                      Color(0xFFF59E0B),
-                                                    ],
-                                                  )
+                                                ? const Color(0xFFD97706).withValues(alpha: 0.10)
                                                 : (isDark
-                                                      ? const LinearGradient(
-                                                          colors: [
-                                                            Color(0xFF1E293B),
-                                                            Color(0xFF334155),
-                                                          ],
-                                                        )
-                                                      : const LinearGradient(
-                                                          colors: [
-                                                            Color(0xFFE2E8F0),
-                                                            Color(0xFFCBD5E1),
-                                                          ],
-                                                        ))),
-                                      boxShadow: isPresent
-                                          ? [
-                                              BoxShadow(
-                                                color: const Color(
-                                                  0xFF059669,
-                                                ).withValues(alpha: 0.35),
-                                                blurRadius: 10,
-                                              ),
-                                            ]
-                                          : null,
+                                                      ? const Color(0xFF1E293B)
+                                                      : const Color(0xFFF1F5F9))),
+                                      border: Border.all(
+                                        color: isPresent
+                                            ? const Color(0xFF059669).withValues(alpha: 0.30)
+                                            : (student.isPending
+                                                  ? const Color(0xFFD97706).withValues(alpha: 0.25)
+                                                  : (isDark
+                                                        ? const Color(0xFF334155)
+                                                        : const Color(0xFFE2E8F0))),
+                                      ),
                                     ),
                                     alignment: Alignment.center,
                                     child: isPresent
                                         ? const Icon(
                                             Icons.check_rounded,
-                                            color: Colors.white,
-                                            size: 22,
+                                            color: Color(0xFF059669),
+                                            size: 20,
                                           )
                                         : Text(
                                             student.name.isNotEmpty
                                                 ? student.name.characters.first
                                                 : 'ت',
                                             style: TextStyle(
-                                              fontWeight: FontWeight.w800,
-                                              fontSize: 16,
+                                              fontWeight: FontWeight.w700,
+                                              fontSize: 15,
                                               color: isDark
-                                                  ? Colors.white
-                                                  : const Color(0xFF1E293B),
+                                                  ? const Color(0xFFCBD5E1)
+                                                  : const Color(0xFF334155),
                                             ),
                                           ),
                                   ),
-                                  const SizedBox(width: 14),
+                                  const SizedBox(width: 12),
 
                                   // Student Details
                                   Expanded(
@@ -1125,7 +1100,7 @@ class _KpiPill extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.08),
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(8),
         border: Border.all(color: color.withValues(alpha: 0.22), width: 1),
       ),
       child: Row(
@@ -1178,10 +1153,10 @@ class _FilterChipButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final effectiveColor = color ?? const Color(0xFF4F46E5);
+    final effectiveColor = color ?? const Color(0xFF00236F);
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(20),
+      borderRadius: BorderRadius.circular(999),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 160),
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
@@ -1189,7 +1164,7 @@ class _FilterChipButton extends StatelessWidget {
           color: selected
               ? effectiveColor
               : effectiveColor.withValues(alpha: 0.08),
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(999),
           border: Border.all(
             color: selected
                 ? effectiveColor

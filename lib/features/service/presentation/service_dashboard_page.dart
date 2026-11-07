@@ -1,6 +1,7 @@
 // ignore_for_file: prefer_interpolation_to_compose_strings
 
 import 'package:church_service_management_system/app/ui/app_ui.dart';
+import '../../../app/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -170,43 +171,20 @@ class _ServiceDashboardPageState extends ConsumerState<ServiceDashboardPage> {
                   40,
                 ),
                 children: [
-                    Row(
-                    children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'مرحبًا بك',
-                              style: Theme.of(context).textTheme.bodyLarge
-                                  ?.copyWith(
-                                    color: Theme.of(
-                                      context,
-                                    ).colorScheme.onSurfaceVariant,
-                                  ),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              'لوحة الخدمة',
-                              style: Theme.of(context).textTheme.headlineMedium
-                                  ?.copyWith(fontWeight: FontWeight.w800),
-                            ),
-                          ],
-                        ),
+                  ResponsiveHeaderRow(
+                    title: 'لوحة الخدمة',
+                    action: FilledButton.icon(
+                      key: const Key('dashboard_attendance'),
+                      onPressed: () => context.go(
+                        '/service/' + widget.serviceId + '/attendance',
                       ),
-                      FilledButton.icon(
-                        key: const Key('dashboard_attendance'),
-                        onPressed: () => context.go(
-                          '/service/' + widget.serviceId + '/attendance',
-                        ),
-                        icon: const Icon(Icons.fact_check_rounded),
-                        label: const Text('تسجيل الحضور'),
-                      ),
-                    ],
+                      icon: const Icon(Icons.fact_check_rounded),
+                      label: const Text('تسجيل الحضور'),
+                    ),
                   ),
-                  const SizedBox(height: 20),
-                  GlassCard(
-                    borderRadius: 16,
+                  const SizedBox(height: 16),
+                  SolidCard(
+                    borderRadius: 14,
                     padding: const EdgeInsets.all(18),
                     child: Row(
                       children: [
@@ -214,16 +192,16 @@ class _ServiceDashboardPageState extends ConsumerState<ServiceDashboardPage> {
                           width: 48,
                           height: 48,
                           decoration: BoxDecoration(
-                            color: const Color(0xFFE7EEFF),
+                            color: appPrimary.withValues(alpha: 0.10),
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: const Icon(
                             Icons.church_rounded,
-                            color: Color(0xFF00236F),
-                            size: 25,
+                            color: appPrimary,
+                            size: 26,
                           ),
                         ),
-                        const SizedBox(width: 18),
+                        const SizedBox(width: 16),
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -252,7 +230,7 @@ class _ServiceDashboardPageState extends ConsumerState<ServiceDashboardPage> {
                       ],
                     ),
                   ),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 20),
                   StreamBuilder<List<Student>>(
                     stream: ref
                         .watch(studentRepositoryProvider)
@@ -272,11 +250,9 @@ class _ServiceDashboardPageState extends ConsumerState<ServiceDashboardPage> {
                                 )
                                 .toList()
                           : students;
-                      return Wrap(
-                        spacing: 12,
-                        runSpacing: 12,
+                      return ResponsiveMetricGrid(
                         children: [
-                          _DashboardMetric(
+                          ModernMetricCard(
                             label: 'إجمالي التلاميذ',
                             value: studentSnapshot.hasData
                                 ? '${visibleStudents.length}'
@@ -284,7 +260,7 @@ class _ServiceDashboardPageState extends ConsumerState<ServiceDashboardPage> {
                             icon: Icons.groups_rounded,
                             color: Theme.of(context).colorScheme.primary,
                           ),
-                          _DashboardMetric(
+                          ModernMetricCard(
                             label: 'معتمدون',
                             value: studentSnapshot.hasData
                                 ? '${visibleStudents.where((student) => student.isApproved).length}'
@@ -292,7 +268,7 @@ class _ServiceDashboardPageState extends ConsumerState<ServiceDashboardPage> {
                             icon: Icons.verified_rounded,
                             color: const Color(0xFF059669),
                           ),
-                          _DashboardMetric(
+                          ModernMetricCard(
                             label: 'بانتظار الاعتماد',
                             value: studentSnapshot.hasData
                                 ? '${visibleStudents.where((student) => student.isPending).length}'
@@ -691,77 +667,33 @@ class _QuickAction extends StatelessWidget {
   final IconData icon;
   final String label;
   final VoidCallback onTap;
-  @override
-  Widget build(BuildContext context) => ActionChip(
-    avatar: Icon(icon, size: 18, color: const Color(0xFF00236F)),
-    label: Text(
-      label,
-      style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13),
-    ),
-    onPressed: onTap,
-    backgroundColor: Colors.white,
-    side: const BorderSide(color: Color(0xFFC5C5D3)),
-    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-  );
-}
-
-class _DashboardMetric extends StatelessWidget {
-  const _DashboardMetric({
-    required this.label,
-    required this.value,
-    required this.icon,
-    required this.color,
-  });
-
-  final String label;
-  final String value;
-  final IconData icon;
-  final Color color;
 
   @override
-  Widget build(BuildContext context) => SizedBox(
-    width: 205,
-    child: GlassCard(
-      padding: const EdgeInsets.all(16),
-      borderRadius: 14,
-      opacity: 1,
-      child: Row(
-        children: [
-          Container(
-            width: 48,
-            height: 48,
-            decoration: BoxDecoration(
-              color: color.withValues(alpha: 0.10),
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Icon(icon, color: color, size: 24),
-          ),
-          const SizedBox(width: 14),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  label,
-                  style: Theme.of(
-                    context,
-                  ).textTheme.bodySmall?.copyWith(fontWeight: FontWeight.w600),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  value,
-                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                    color: color,
-                    fontWeight: FontWeight.w800,
-                    letterSpacing: -0.3,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    return ActionChip(
+      avatar: Icon(
+        icon,
+        size: 20,
+        color: isDark ? appAccentViolet : appPrimary,
       ),
-    ),
-  );
+      label: Text(
+        label,
+        style: TextStyle(
+          fontWeight: FontWeight.w700,
+          fontSize: 13,
+          color: isDark ? Colors.white : appInk,
+        ),
+      ),
+      onPressed: onTap,
+      backgroundColor: isDark ? const Color(0xFF1E293B) : Colors.white,
+      side: BorderSide(
+        color: isDark ? const Color(0xFF334155) : const Color(0xFFC5C5D3),
+        width: 1.0,
+      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+    );
+  }
 }

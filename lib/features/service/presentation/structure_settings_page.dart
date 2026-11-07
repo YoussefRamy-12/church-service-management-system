@@ -306,29 +306,30 @@ class _StructureSettingsPageState extends ConsumerState<StructureSettingsPage> {
                     child: ExpansionTile(
                       key: Key('structure_stage_${stage.id}'),
                       leading: const Icon(Icons.layers_outlined),
-                      title: Row(
+                      title: Text(
+                        stage.name,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                      trailing: Row(
+                        mainAxisSize: MainAxisSize.min,
                         children: [
-                          Expanded(
-                            child: Text(
-                              stage.name,
-                              style: const TextStyle(
-                                fontWeight: FontWeight.w700,
-                              ),
-                            ),
-                          ),
                           IconButton(
+                            visualDensity: VisualDensity.compact,
                             tooltip: 'تعديل المرحلة',
                             onPressed: saving
                                 ? null
                                 : () => _editStage(stage.id, stage.name),
-                            icon: const Icon(Icons.edit_outlined),
+                            icon: const Icon(Icons.edit_outlined, size: 20),
                           ),
                           IconButton(
+                            visualDensity: VisualDensity.compact,
                             tooltip: 'حذف المرحلة',
                             onPressed: saving
                                 ? null
                                 : () => _deleteStage(stage.id, stage.name),
-                            icon: const Icon(Icons.delete_outline_rounded),
+                            icon: const Icon(Icons.delete_outline_rounded, size: 20),
                           ),
                         ],
                       ),
@@ -364,9 +365,11 @@ class _StructureSettingsPageState extends ConsumerState<StructureSettingsPage> {
                                     key: Key('structure_class_${item.id}'),
                                     leading: const Icon(Icons.groups_outlined),
                                     title: Text(item.name),
-                                    trailing: Wrap(
+                                    trailing: Row(
+                                      mainAxisSize: MainAxisSize.min,
                                       children: [
                                         IconButton(
+                                          visualDensity: VisualDensity.compact,
                                           tooltip: 'تعديل الفصل',
                                           onPressed: saving
                                               ? null
@@ -375,9 +378,10 @@ class _StructureSettingsPageState extends ConsumerState<StructureSettingsPage> {
                                                   stage.id,
                                                   item.name,
                                                 ),
-                                          icon: const Icon(Icons.edit_outlined),
+                                          icon: const Icon(Icons.edit_outlined, size: 18),
                                         ),
                                         IconButton(
+                                          visualDensity: VisualDensity.compact,
                                           tooltip: 'حذف الفصل',
                                           onPressed: saving
                                               ? null
@@ -388,6 +392,7 @@ class _StructureSettingsPageState extends ConsumerState<StructureSettingsPage> {
                                                 ),
                                           icon: const Icon(
                                             Icons.delete_outline_rounded,
+                                            size: 18,
                                           ),
                                         ),
                                       ],

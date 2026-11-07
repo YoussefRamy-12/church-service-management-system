@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="ar">
 <head>
   <base href="/">
   <meta charset="UTF-8">
@@ -13,6 +13,15 @@
   <link rel="icon" type="image/svg+xml" href="icons/app-icon.svg">
   <link rel="apple-touch-icon" href="icons/app-icon.svg">
   <title>أسرة تلاميذ المسيح</title>
+  <style>
+    /* Ensure Flutter platform views (Camera, Video) align strictly with Flutter canvas coordinates in Web */
+    html, body {
+      direction: ltr;
+    }
+    flt-platform-view-slot, flt-platform-view, flt-glass-pane {
+      direction: ltr !important;
+    }
+  </style>
 </head>
 <body>
   <script>

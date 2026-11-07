@@ -116,160 +116,166 @@ class _FollowUpHubPageState extends ConsumerState<FollowUpHubPage> {
                   return ListView(
                     padding: const EdgeInsets.fromLTRB(20, 16, 20, 32),
                     children: [
-                      // Quick Action Navigation Cards
-                      Row(
-                        children: [
-                          Expanded(
-                            child: GlassCard(
-                              borderRadius: 20,
-                              padding: const EdgeInsets.all(16),
-                              onTap: () => Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (_) => WeeklyFollowUpPage(
-                                    serviceId: widget.serviceId,
-                                  ),
+                      // Quick Action Navigation Cards (Responsive Stack <620px)
+                      LayoutBuilder(
+                        builder: (context, constraints) {
+                          final isNarrow = constraints.maxWidth < 620;
+                          final weeklyCard = GlassCard(
+                            borderRadius: 12,
+                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                            onTap: () => Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => WeeklyFollowUpPage(
+                                  serviceId: widget.serviceId,
                                 ),
                               ),
-                              child: Row(
-                                children: [
-                                  Container(
-                                    width: 44,
-                                    height: 44,
-                                    decoration: BoxDecoration(
-                                      gradient: const LinearGradient(
-                                        colors: [
-                                          Color(0xFF4F46E5),
-                                          Color(0xFF7C3AED),
-                                        ],
-                                      ),
-                                      borderRadius: BorderRadius.circular(14),
-                                    ),
-                                    child: const Icon(
-                                      Icons.calendar_view_week_rounded,
-                                      color: Colors.white,
-                                      size: 22,
-                                    ),
-                                  ),
-                                  const SizedBox(width: 12),
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        const Text(
-                                          'متابعات الأسبوع',
-                                          style: TextStyle(
-                                            fontWeight: FontWeight.w800,
-                                            fontSize: 14,
-                                          ),
-                                        ),
-                                        const SizedBox(height: 2),
-                                        Text(
-                                          'خطة الاتصال الأسبوعية',
-                                          style: TextStyle(
-                                            fontSize: 11,
-                                            color: Theme.of(
-                                              context,
-                                            ).colorScheme.onSurfaceVariant,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  Icon(
-                                    Icons.chevron_left_rounded,
-                                    color: Theme.of(
-                                      context,
-                                    ).colorScheme.primary,
-                                  ),
-                                ],
-                              ),
                             ),
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: GlassCard(
-                              borderRadius: 20,
-                              padding: const EdgeInsets.all(16),
-                              onTap: () => Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (_) => AbsencePrioritizationPage(
-                                    serviceId: widget.serviceId,
+                            child: Row(
+                              children: [
+                                Container(
+                                  width: 42,
+                                  height: 42,
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFF00236F).withValues(alpha: 0.08),
+                                    borderRadius: BorderRadius.circular(8),
+                                    border: Border.all(
+                                      color: const Color(0xFF00236F).withValues(alpha: 0.15),
+                                    ),
+                                  ),
+                                  child: const Icon(
+                                    Icons.calendar_view_week_rounded,
+                                    color: Color(0xFF00236F),
+                                    size: 20,
                                   ),
                                 ),
-                              ),
-                              child: Row(
-                                children: [
-                                  Container(
-                                    width: 44,
-                                    height: 44,
-                                    decoration: BoxDecoration(
-                                      gradient: const LinearGradient(
-                                        colors: [
-                                          Color(0xFFF59E0B),
-                                          Color(0xFFEF4444),
-                                        ],
+                                const SizedBox(width: 14),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      const Text(
+                                        'متابعات الأسبوع',
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.w700,
+                                          fontSize: 14,
+                                        ),
                                       ),
-                                      borderRadius: BorderRadius.circular(14),
-                                    ),
-                                    child: const Icon(
-                                      Icons.priority_high_rounded,
-                                      color: Colors.white,
-                                      size: 22,
-                                    ),
-                                  ),
-                                  const SizedBox(width: 12),
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        const Text(
-                                          'أولوية الغياب',
-                                          style: TextStyle(
-                                            fontWeight: FontWeight.w800,
-                                            fontSize: 14,
-                                          ),
+                                      const SizedBox(height: 2),
+                                      Text(
+                                        'خطة الاتصال والتواصل الأسبوعية',
+                                        style: TextStyle(
+                                          fontSize: 11,
+                                          color: Theme.of(context).colorScheme.onSurfaceVariant,
                                         ),
-                                        const SizedBox(height: 2),
-                                        Text(
-                                          'المتغيبون أكثر من أسبوع',
-                                          style: TextStyle(
-                                            fontSize: 11,
-                                            color: Theme.of(
-                                              context,
-                                            ).colorScheme.onSurfaceVariant,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
+                                      ),
+                                    ],
                                   ),
-                                  Icon(
-                                    Icons.chevron_left_rounded,
-                                    color: Theme.of(
-                                      context,
-                                    ).colorScheme.primary,
-                                  ),
-                                ],
+                                ),
+                                Icon(
+                                  Icons.chevron_left_rounded,
+                                  color: Theme.of(context).colorScheme.primary,
+                                  size: 20,
+                                ),
+                              ],
+                            ),
+                          );
+
+                          final absenceCard = GlassCard(
+                            borderRadius: 12,
+                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                            onTap: () => Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => AbsencePrioritizationPage(
+                                  serviceId: widget.serviceId,
+                                ),
                               ),
                             ),
-                          ),
-                        ],
+                            child: Row(
+                              children: [
+                                Container(
+                                  width: 42,
+                                  height: 42,
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFFEF4444).withValues(alpha: 0.08),
+                                    borderRadius: BorderRadius.circular(8),
+                                    border: Border.all(
+                                      color: const Color(0xFFEF4444).withValues(alpha: 0.20),
+                                    ),
+                                  ),
+                                  child: const Icon(
+                                    Icons.priority_high_rounded,
+                                    color: Color(0xFFDC2626),
+                                    size: 20,
+                                  ),
+                                ),
+                                const SizedBox(width: 14),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      const Text(
+                                        'أولوية الغياب',
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.w700,
+                                          fontSize: 14,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 2),
+                                      Text(
+                                        'المتغيبون أكثر من أسبوع متتالي',
+                                        style: TextStyle(
+                                          fontSize: 11,
+                                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                Icon(
+                                  Icons.chevron_left_rounded,
+                                  color: Theme.of(context).colorScheme.primary,
+                                  size: 20,
+                                ),
+                              ],
+                            ),
+                          );
+
+                          if (isNarrow) {
+                            return Column(
+                              children: [
+                                weeklyCard,
+                                const SizedBox(height: 10),
+                                absenceCard,
+                              ],
+                            );
+                          }
+
+                          return Row(
+                            children: [
+                              Expanded(child: weeklyCard),
+                              const SizedBox(width: 12),
+                              Expanded(child: absenceCard),
+                            ],
+                          );
+                        },
                       ),
-                      const SizedBox(height: 18),
+                      const SizedBox(height: 14),
                       // Search Card
                       GlassCard(
-                        borderRadius: 20,
-                        padding: const EdgeInsets.all(12),
+                        borderRadius: 12,
+                        padding: const EdgeInsets.all(8),
                         hoverElevation: false,
                         child: TextField(
                           key: const Key('follow_up_search'),
                           onChanged: (value) =>
                               setState(() => query = value.trim()),
                           decoration: InputDecoration(
-                            prefixIcon: const Icon(Icons.search_rounded),
+                            isDense: true,
+                            prefixIcon: const Icon(Icons.search_rounded, size: 20),
                             hintText: 'ابحث باسم التلميذ للمتابعة...',
                             suffixIcon: query.isEmpty
                                 ? null
@@ -284,12 +290,12 @@ class _FollowUpHubPageState extends ConsumerState<FollowUpHubPage> {
                           ),
                         ),
                       ),
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 14),
                       for (final stage in stages)
                         Padding(
                           padding: const EdgeInsets.only(bottom: 12),
                           child: GlassCard(
-                            borderRadius: 20,
+                            borderRadius: 12,
                             padding: EdgeInsets.zero,
                             hoverElevation: false,
                             child: Theme(
@@ -299,25 +305,25 @@ class _FollowUpHubPageState extends ConsumerState<FollowUpHubPage> {
                               child: ExpansionTile(
                                 key: Key('follow_up_stage_' + stage.id),
                                 leading: Container(
-                                  width: 40,
-                                  height: 40,
+                                  width: 38,
+                                  height: 38,
                                   decoration: BoxDecoration(
                                     color: const Color(
-                                      0xFF4F46E5,
-                                    ).withValues(alpha: 0.12),
-                                    borderRadius: BorderRadius.circular(12),
+                                      0xFF00236F,
+                                    ).withValues(alpha: 0.08),
+                                    borderRadius: BorderRadius.circular(8),
                                   ),
                                   child: const Icon(
                                     Icons.layers_outlined,
-                                    color: Color(0xFF4F46E5),
-                                    size: 22,
+                                    color: Color(0xFF00236F),
+                                    size: 20,
                                   ),
                                 ),
                                 title: Text(
                                   stage.name,
                                   style: const TextStyle(
-                                    fontWeight: FontWeight.w800,
-                                    fontSize: 16,
+                                    fontWeight: FontWeight.w700,
+                                    fontSize: 15,
                                   ),
                                 ),
                                 onExpansionChanged: (expanded) {

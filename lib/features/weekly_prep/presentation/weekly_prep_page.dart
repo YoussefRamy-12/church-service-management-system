@@ -220,40 +220,23 @@ class _WeeklyPrepPageState extends ConsumerState<WeeklyPrepPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    Row(
-                      children: [
-                        const Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'تحضيري',
-                                style: TextStyle(
-                                  fontSize: 25,
-                                  fontWeight: FontWeight.w800,
+                    ResponsiveHeaderRow(
+                      title: 'تحضيري',
+                      subtitle:
+                          'ملفات الدروس الأسبوعية حسب المرحلة — فتح وتنزيل الأسبوع الحالي فقط',
+                      action: IconButton(
+                        onPressed: _refreshing ? null : _refresh,
+                        tooltip: 'تحديث',
+                        icon: _refreshing
+                            ? const SizedBox(
+                                width: 20,
+                                height: 20,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
                                 ),
-                              ),
-                              SizedBox(height: 5),
-                              Text(
-                                'ملفات الدروس الأسبوعية حسب المرحلة — فتح وتنزيل الأسبوع الحالي فقط',
-                              ),
-                            ],
-                          ),
-                        ),
-                        IconButton(
-                          onPressed: _refreshing ? null : _refresh,
-                          tooltip: 'تحديث',
-                          icon: _refreshing
-                              ? const SizedBox(
-                                  width: 20,
-                                  height: 20,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                  ),
-                                )
-                              : const Icon(Icons.refresh),
-                        ),
-                      ],
+                              )
+                            : const Icon(Icons.refresh),
+                      ),
                     ),
                     const SizedBox(height: 18),
                     if (stageSnapshot.connectionState ==
@@ -409,61 +392,148 @@ class _WeeklyPrepPageState extends ConsumerState<WeeklyPrepPage> {
                                     ),
                                   ),
                                 ),
-                        trailing: Wrap(
-                          spacing: 0,
-                          children: [
-                            if (lesson != null)
-                              IconButton(
-                                tooltip: 'فتح تفاصيل الدرس',
-                                onPressed: () => Navigator.of(context).push(
-                                  MaterialPageRoute<void>(
-                                    builder: (_) => _WeeklyLessonDetailPage(
-                                      lesson: lesson,
-                                      profileId: profile?.id,
-                                      weekLabel: _weekLabel(week),
-                                      isCurrentWeek: isCurrent,
+                        trailing: Builder(
+                          builder: (context) {
+                            final isMobile = MediaQuery.sizeOf(context).width < 500;
+                            if (isMobile && lesson != null) {
+                              return PopupMenuButton<String>(
+                                tooltip: 'خيارات الدرس',
+                                icon: const Icon(Icons.more_vert_rounded),
+                                onSelected: (action) {
+                                  switch (action) {
+                                    case 'details':
+                                      Navigator.of(context).push(
+                                        MaterialPageRoute<void>(
+                                          builder: (_) => _WeeklyLessonDetailPage(
+                                            lesson: lesson,
+                                            profileId: profile?.id,
+                                            weekLabel: _weekLabel(week),
+                                            isCurrentWeek: isCurrent,
+                                          ),
+                                        ),
+                                      );
+                                      break;
+                                    case 'download':
+                                      if (isCurrent) _open(lesson, download: true);
+                                      break;
+                                    case 'edit':
+                                      _showForm(
+                                        stages: allowedStages,
+                                        initialStage: stage,
+                                        lesson: lesson,
+                                        week: week,
+                                      );
+                                      break;
+                                    case 'delete':
+                                      _delete(lesson);
+                                      break;
+                                  }
+                                },
+                                itemBuilder: (context) => [
+                                  const PopupMenuItem(
+                                    value: 'details',
+                                    child: Row(
+                                      children: [
+                                        Icon(Icons.open_in_new_rounded, size: 18),
+                                        SizedBox(width: 8),
+                                        Text('تفاصيل الدرس'),
+                                      ],
                                     ),
                                   ),
-                                ),
-                                icon: const Icon(Icons.open_in_new_rounded),
-                              ),
-                            if (lesson != null)
-                              IconButton(
-                                tooltip: isCurrent
-                                    ? 'تنزيل الملف الحالي'
-                                    : 'الأسابيع السابقة للقراءة فقط — التنزيل غير متاح',
-                                onPressed: isCurrent
-                                    ? () => _open(lesson, download: true)
-                                    : null,
-                                icon: const Icon(Icons.download_rounded),
-                              ),
-                            if (isManager)
-                              IconButton(
-                                tooltip: lesson == null
-                                    ? 'رفع ملف لهذا الأسبوع'
-                                    : 'استبدال الملف',
-                                onPressed: () => _showForm(
-                                  stages: allowedStages,
-                                  initialStage: stage,
-                                  lesson: lesson,
-                                  week: week,
-                                ),
-                                icon: Icon(
-                                  lesson == null
-                                      ? Icons.upload_file_rounded
-                                      : Icons.edit_outlined,
-                                ),
-                              ),
-                            if (isManager && lesson != null)
-                              IconButton(
-                                tooltip: 'حذف',
-                                onPressed: () => _delete(lesson),
-                                icon: const Icon(
-                                  Icons.delete_outline_rounded,
-                                  color: Colors.red,
-                                ),
-                              ),
-                          ],
+                                  if (isCurrent)
+                                    const PopupMenuItem(
+                                      value: 'download',
+                                      child: Row(
+                                        children: [
+                                          Icon(Icons.download_rounded, size: 18),
+                                          SizedBox(width: 8),
+                                          Text('تنزيل الملف'),
+                                        ],
+                                      ),
+                                    ),
+                                  if (isManager) ...[
+                                    const PopupMenuItem(
+                                      value: 'edit',
+                                      child: Row(
+                                        children: [
+                                          Icon(Icons.edit_outlined, size: 18),
+                                          SizedBox(width: 8),
+                                          Text('استبدال الملف'),
+                                        ],
+                                      ),
+                                    ),
+                                    const PopupMenuItem(
+                                      value: 'delete',
+                                      child: Row(
+                                        children: [
+                                          Icon(Icons.delete_outline_rounded, size: 18, color: Colors.red),
+                                          SizedBox(width: 8),
+                                          Text('حذف الملف', style: TextStyle(color: Colors.red)),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ],
+                              );
+                            }
+
+                            return Wrap(
+                              spacing: 0,
+                              children: [
+                                if (lesson != null)
+                                  IconButton(
+                                    tooltip: 'فتح تفاصيل الدرس',
+                                    onPressed: () => Navigator.of(context).push(
+                                      MaterialPageRoute<void>(
+                                        builder: (_) => _WeeklyLessonDetailPage(
+                                          lesson: lesson,
+                                          profileId: profile?.id,
+                                          weekLabel: _weekLabel(week),
+                                          isCurrentWeek: isCurrent,
+                                        ),
+                                      ),
+                                    ),
+                                    icon: const Icon(Icons.open_in_new_rounded),
+                                  ),
+                                if (lesson != null)
+                                  IconButton(
+                                    tooltip: isCurrent
+                                        ? 'تنزيل الملف الحالي'
+                                        : 'الأسابيع السابقة للقراءة فقط — التنزيل غير متاح',
+                                    onPressed: isCurrent
+                                        ? () => _open(lesson, download: true)
+                                        : null,
+                                    icon: const Icon(Icons.download_rounded),
+                                  ),
+                                if (isManager)
+                                  IconButton(
+                                    tooltip: lesson == null
+                                        ? 'رفع ملف لهذا الأسبوع'
+                                        : 'استبدال الملف',
+                                    onPressed: () => _showForm(
+                                      stages: allowedStages,
+                                      initialStage: stage,
+                                      lesson: lesson,
+                                      week: week,
+                                    ),
+                                    icon: Icon(
+                                      lesson == null
+                                          ? Icons.upload_file_rounded
+                                          : Icons.edit_outlined,
+                                    ),
+                                  ),
+                                if (isManager && lesson != null)
+                                  IconButton(
+                                    tooltip: 'حذف',
+                                    onPressed: () => _delete(lesson),
+                                    icon: const Icon(
+                                      Icons.delete_outline_rounded,
+                                      color: Colors.red,
+                                    ),
+                                  ),
+                              ],
+                            );
+                          },
                         ),
                       ),
                     );
