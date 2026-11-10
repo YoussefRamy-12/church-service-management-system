@@ -7,5 +7,8 @@ abstract interface class ReportRepository {
     required DateTime start,
     required DateTime end,
     Set<String>? classIds,
+    String? stageId,
+    String? studentId,
+    bool compareWithPrevious = true,
   });
 }

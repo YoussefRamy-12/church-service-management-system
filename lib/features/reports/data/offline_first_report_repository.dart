@@ -15,6 +15,9 @@ class OfflineFirstReportRepository implements ReportRepository {
     required DateTime start,
     required DateTime end,
     Set<String>? classIds,
+    String? stageId,
+    String? studentId,
+    bool compareWithPrevious = true,
   }) async {
     try {
       return await remote.fetch(
@@ -22,6 +25,9 @@ class OfflineFirstReportRepository implements ReportRepository {
         start: start,
         end: end,
         classIds: classIds,
+        stageId: stageId,
+        studentId: studentId,
+        compareWithPrevious: compareWithPrevious,
       );
     } catch (_) {
       return local.fetch(
@@ -29,6 +35,9 @@ class OfflineFirstReportRepository implements ReportRepository {
         start: start,
         end: end,
         classIds: classIds,
+        stageId: stageId,
+        studentId: studentId,
+        compareWithPrevious: compareWithPrevious,
       );
     }
   }

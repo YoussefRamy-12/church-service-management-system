@@ -2219,6 +2219,7 @@ class _SpiritualNotebookStudentPageState
 
   Future<void> _submitRecord() async {
     final d = (await data);
+    if (!mounted) return;
     final period = WeeklyPeriod.containing(DateTime.now());
     final role = ref.read(currentServantProfileProvider).value?.role;
     final bonusAllowed = (d.settings?['bonus_roles'] as List<dynamic>? ?? [])
