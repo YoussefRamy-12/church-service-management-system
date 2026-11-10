@@ -147,6 +147,59 @@ class CachedFollowUpRecords extends Table {
   Set<Column<Object>> get primaryKey => {id};
 }
 
+class CachedFollowUpCases extends Table {
+  TextColumn get id => text()();
+  TextColumn get serviceId => text()();
+  TextColumn get studentId => text()();
+  TextColumn get classId => text()();
+  TextColumn get title => text()();
+  TextColumn get description => text().nullable()();
+  TextColumn get priority => text()();
+  TextColumn get status => text()();
+  TextColumn get caseType => text().withDefault(const Constant('general'))();
+  TextColumn get createdBy => text()();
+  DateTimeColumn get createdAt => dateTime()();
+  DateTimeColumn get updatedAt => dateTime()();
+  DateTimeColumn get resolvedAt => dateTime().nullable()();
+  DateTimeColumn get closedAt => dateTime().nullable()();
+  TextColumn get clientOperationId => text()();
+  DateTimeColumn get cachedAt => dateTime()();
+
+  @override
+  Set<Column<Object>> get primaryKey => {id};
+}
+
+class CachedFollowUpCaseAssignments extends Table {
+  TextColumn get id => text()();
+  TextColumn get caseId => text()();
+  TextColumn get servantId => text()();
+  TextColumn get assignedBy => text()();
+  DateTimeColumn get assignedAt => dateTime()();
+  TextColumn get assignmentStatus =>
+      text().withDefault(const Constant('active'))();
+  DateTimeColumn get removedAt => dateTime().nullable()();
+  TextColumn get clientOperationId => text()();
+  DateTimeColumn get cachedAt => dateTime()();
+
+  @override
+  Set<Column<Object>> get primaryKey => {id};
+}
+
+class CachedFollowUpActivities extends Table {
+  TextColumn get id => text()();
+  TextColumn get caseId => text()();
+  TextColumn get activityType => text()();
+  TextColumn get description => text()();
+  TextColumn get createdBy => text()();
+  DateTimeColumn get createdAt => dateTime()();
+  TextColumn get activityDate => text()();
+  TextColumn get clientOperationId => text()();
+  DateTimeColumn get cachedAt => dateTime()();
+
+  @override
+  Set<Column<Object>> get primaryKey => {id};
+}
+
 class CachedReportingPeriods extends Table {
   TextColumn get id => text()();
   TextColumn get serviceId => text()();
@@ -186,6 +239,9 @@ class SyncQueueEntries extends Table {
     CachedAttendanceRecords,
     CachedFollowUpRecords,
     CachedReportingPeriods,
+    CachedFollowUpCases,
+    CachedFollowUpCaseAssignments,
+    CachedFollowUpActivities,
     SyncQueueEntries,
   ],
 )
@@ -203,7 +259,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.forTesting() : super(testingDatabaseConnection());
 
   @override
-  int get schemaVersion => 8;
+  int get schemaVersion => 9;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -238,6 +294,11 @@ class AppDatabase extends _$AppDatabase {
       if (from < 8) {
         await m.addColumn(cachedMeetings, cachedMeetings.name);
         await m.addColumn(cachedMeetings, cachedMeetings.scheduleId);
+      }
+      if (from < 9) {
+        await m.createTable(cachedFollowUpCases);
+        await m.createTable(cachedFollowUpCaseAssignments);
+        await m.createTable(cachedFollowUpActivities);
       }
     },
   );
