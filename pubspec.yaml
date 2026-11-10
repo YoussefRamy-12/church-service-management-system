@@ -27,6 +27,7 @@ dependencies:
   file_picker: ^13.1.0
   url_launcher: ^6.3.3
   shared_preferences: ^2.5.6
+  marionette_flutter: ^0.7.0
 
 dev_dependencies:
   flutter_test:
