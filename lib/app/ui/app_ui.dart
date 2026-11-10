@@ -326,56 +326,79 @@ class EmptyState extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(32),
-        child: GlassContainer(
-          borderRadius: 16,
-          padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 36),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                width: 64,
-                height: 64,
-                decoration: BoxDecoration(
-                  color: scheme.primary.withValues(alpha: 0.08),
-                  shape: BoxShape.circle,
-                  border: Border.all(
-                    color: scheme.primary.withValues(alpha: 0.20),
-                    width: 1,
-                  ),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final isCompact = constraints.maxHeight < 280 || constraints.maxWidth < 420;
+
+        return Center(
+          child: SingleChildScrollView(
+            physics: const BouncingScrollPhysics(),
+            child: Padding(
+              padding: EdgeInsets.all(isCompact ? 12 : 24),
+              child: GlassContainer(
+                borderRadius: 16,
+                padding: EdgeInsets.symmetric(
+                  horizontal: isCompact ? 16 : 28,
+                  vertical: isCompact ? 14 : 28,
                 ),
-                child: Icon(icon, size: 30, color: scheme.primary),
-              ),
-              const SizedBox(height: 20),
-              Text(
-                title,
-                textAlign: TextAlign.center,
-                style: Theme.of(
-                  context,
-                ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),
-              ),
-              if (message != null) ...[
-                const SizedBox(height: 8),
-                ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 420),
-                  child: Text(
-                    message!,
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      color: scheme.onSurfaceVariant,
-                      height: 1.55,
-                      fontSize: 14,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      width: isCompact ? 44 : 64,
+                      height: isCompact ? 44 : 64,
+                      decoration: BoxDecoration(
+                        color: scheme.primary.withValues(alpha: 0.08),
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                          color: scheme.primary.withValues(alpha: 0.20),
+                          width: 1,
+                        ),
+                      ),
+                      child: Icon(
+                        icon,
+                        size: isCompact ? 22 : 30,
+                        color: scheme.primary,
+                      ),
                     ),
-                  ),
+                    SizedBox(height: isCompact ? 10 : 18),
+                    Text(
+                      title,
+                      textAlign: TextAlign.center,
+                      style: (isCompact
+                              ? Theme.of(context).textTheme.titleMedium
+                              : Theme.of(context).textTheme.titleLarge)
+                          ?.copyWith(
+                        fontWeight: FontWeight.w800,
+                        fontSize: isCompact ? 15 : 18,
+                      ),
+                    ),
+                    if (message != null) ...[
+                      SizedBox(height: isCompact ? 4 : 8),
+                      ConstrainedBox(
+                        constraints: const BoxConstraints(maxWidth: 420),
+                        child: Text(
+                          message!,
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color: scheme.onSurfaceVariant,
+                            height: 1.4,
+                            fontSize: isCompact ? 12 : 14,
+                          ),
+                        ),
+                      ),
+                    ],
+                    if (action != null) ...[
+                      SizedBox(height: isCompact ? 12 : 20),
+                      action!,
+                    ],
+                  ],
                 ),
-              ],
-              if (action != null) ...[const SizedBox(height: 20), action!],
-            ],
+              ),
+            ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 }

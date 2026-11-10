@@ -29,6 +29,8 @@ import '../features/auth/presentation/servant_sign_up_page.dart';
 import '../features/auth/presentation/servant_registration_requests_page.dart';
 import '../features/auth/presentation/password_recovery_pages.dart';
 import '../features/service/presentation/service_settings_page.dart';
+import '../features/settings/presentation/global_settings_page.dart';
+import '../features/settings/presentation/settings_providers.dart';
 import '../features/students/presentation/students_page.dart';
 import 'app_shell.dart';
 import 'theme.dart';
@@ -57,6 +59,7 @@ class _ChurchServiceAppState extends ConsumerState<ChurchServiceApp> {
   @override
   Widget build(BuildContext context) {
     final themeMode = ref.watch(themeModeProvider);
+    final textScaler = ref.watch(textScalerProvider);
     ref.listen(authUserProvider, (previous, next) => _router.refresh());
     return MaterialApp.router(
       title: 'أسرة تلاميذ المسيح',
@@ -72,10 +75,16 @@ class _ChurchServiceAppState extends ConsumerState<ChurchServiceApp> {
         GlobalCupertinoLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,
       ],
-      builder: (context, child) => Directionality(
-        textDirection: TextDirection.rtl,
-        child: child ?? const SizedBox.shrink(),
-      ),
+      builder: (context, child) {
+        final mediaQuery = MediaQuery.of(context);
+        return MediaQuery(
+          data: mediaQuery.copyWith(textScaler: textScaler),
+          child: Directionality(
+            textDirection: TextDirection.rtl,
+            child: child ?? const SizedBox.shrink(),
+          ),
+        );
+      },
     );
   }
 
@@ -248,6 +257,12 @@ class _ChurchServiceAppState extends ConsumerState<ChurchServiceApp> {
                 builder: (context, state) => ExportPage(
                   serviceId: state.pathParameters['serviceId']!,
                   graduationOnly: true,
+                ),
+              ),
+              GoRoute(
+                path: 'my-settings',
+                builder: (context, state) => GlobalSettingsPage(
+                  serviceId: state.pathParameters['serviceId']!,
                 ),
               ),
               GoRoute(

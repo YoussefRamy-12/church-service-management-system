@@ -19,5 +19,9 @@ abstract interface class AuthRepository {
 
   Future<void> updatePassword(String password);
 
+  Future<bool> verifyCurrentPassword(String currentPassword);
+
+  Future<void> updateEmail(String newEmail);
+
   Future<void> signOut();
 }

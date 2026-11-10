@@ -23,7 +23,8 @@ class AppShell extends ConsumerWidget {
     _NavItem('الخدام', Icons.supervised_user_circle_rounded, 'servants'),
     _NavItem('تصدير البيانات', Icons.file_download_rounded, 'export'),
     _NavItem('التخرج', Icons.school_outlined, 'graduation'),
-    _NavItem('الإعدادات', Icons.settings_rounded, 'settings'),
+    _NavItem('إعدادات الخدمة', Icons.settings_rounded, 'settings'),
+    _NavItem('حسابي', Icons.account_circle_rounded, 'my-settings'),
   ];
 
   void _go(BuildContext context, String segment) =>
@@ -62,6 +63,8 @@ class AppShell extends ConsumerWidget {
             profile?.role == 'overall_leader' ||
             profile?.role == 'overall_helper';
       }
+      // 'my-settings' is visible to ALL roles — no restriction.
+      if (item.segment == 'my-settings') return true;
       if (item.segment == 'servants' ||
           item.segment == 'export' ||
           item.segment == 'graduation') {
@@ -117,6 +120,7 @@ class AppShell extends ConsumerWidget {
                         ? 'اختيار خدمة أخرى'
                         : 'تغيير الخدمة',
                     onSwitchService: switchService,
+                    onMySettings: () => _go(context, 'my-settings'),
                     onLogout: logout,
                   ),
                   Expanded(child: child),
@@ -143,7 +147,8 @@ class AppShell extends ConsumerWidget {
       'servants' => 'الخدام',
       'export' => 'التصدير',
       'graduation' => 'التخرج',
-      'settings' => 'الإعدادات',
+      'settings' => 'إعدادات الخدمة',
+      'my-settings' => 'حسابي',
       'structure' => 'المراحل والفصول',
       'system' => 'إعدادات النظام',
       _ => 'إدارة الخدمة',
@@ -490,6 +495,7 @@ class _ShellTopBar extends ConsumerWidget {
     required this.canSwitchService,
     required this.switchServiceLabel,
     required this.onSwitchService,
+    required this.onMySettings,
   });
 
   final bool compact;
@@ -501,6 +507,7 @@ class _ShellTopBar extends ConsumerWidget {
   final bool canSwitchService;
   final String switchServiceLabel;
   final VoidCallback onSwitchService;
+  final VoidCallback onMySettings;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -587,6 +594,7 @@ class _ShellTopBar extends ConsumerWidget {
                 key: const Key('user_menu'),
                 tooltip: 'قائمة المستخدم',
                 onSelected: (value) {
+                  if (value == 'settings') onMySettings();
                   if (value == 'logout') onLogout();
                 },
                 itemBuilder: (context) => [
@@ -608,6 +616,17 @@ class _ShellTopBar extends ConsumerWidget {
                     ),
                   ),
                   const PopupMenuDivider(),
+                  const PopupMenuItem(
+                    value: 'settings',
+                    child: ListTile(
+                      contentPadding: EdgeInsets.zero,
+                      leading: Icon(Icons.account_circle_rounded),
+                      title: Text(
+                        'إعداداتي وحسابي',
+                        style: TextStyle(fontWeight: FontWeight.w600),
+                      ),
+                    ),
+                  ),
                   const PopupMenuItem(
                     value: 'logout',
                     child: ListTile(

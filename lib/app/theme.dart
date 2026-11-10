@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../features/settings/domain/entities/app_settings.dart';
+import '../features/settings/presentation/settings_providers.dart';
 
 // Diakonia Stewardship palette from UI/DESIGN.md.
 const appCanvas = Color(0xFFF8F9FF);
@@ -710,14 +712,25 @@ ThemeData buildAppDarkTheme() {
 
 class ThemeModeNotifier extends Notifier<ThemeMode> {
   @override
-  ThemeMode build() => ThemeMode.light;
+  ThemeMode build() {
+    final settings = ref.watch(appSettingsProvider);
+    return settings.themeMode.mode;
+  }
 
   void toggleTheme() {
-    state = state == ThemeMode.dark ? ThemeMode.light : ThemeMode.dark;
+    final current = state;
+    final next = current == ThemeMode.dark ? ThemeMode.light : ThemeMode.dark;
+    setThemeMode(next);
   }
 
   void setThemeMode(ThemeMode mode) {
     state = mode;
+    final appMode = switch (mode) {
+      ThemeMode.light => AppThemeMode.light,
+      ThemeMode.dark => AppThemeMode.dark,
+      ThemeMode.system => AppThemeMode.system,
+    };
+    ref.read(appSettingsProvider.notifier).setThemeMode(appMode);
   }
 }
 

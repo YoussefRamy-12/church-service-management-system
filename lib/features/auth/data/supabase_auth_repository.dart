@@ -79,6 +79,29 @@ class SupabaseAuthRepository implements AuthRepository {
     await _client.auth.updateUser(supabase.UserAttributes(password: password));
   }
 
+  @override
+  Future<bool> verifyCurrentPassword(String currentPassword) async {
+    final email = currentUser?.email;
+    if (email == null || email.isEmpty) return false;
+    try {
+      final res = await _client.auth.signInWithPassword(
+        email: email,
+        password: currentPassword,
+      );
+      return res.user != null;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  @override
+  Future<void> updateEmail(String newEmail) async {
+    await _client.auth.updateUser(
+      supabase.UserAttributes(email: newEmail.trim()),
+      emailRedirectTo: _redirectUri('/auth/callback'),
+    );
+  }
+
   String _redirectUri(String path) {
     final origin = Uri.base.origin;
     if (origin == 'null') {

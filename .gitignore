@@ -6,3 +6,6 @@ coverage/
 .agent/
 .agents/
 .impeccable/
+
+# Firebase local cache
+.firebase/
