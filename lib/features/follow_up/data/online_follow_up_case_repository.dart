@@ -24,7 +24,11 @@ class OnlineFollowUpCaseRepository implements FollowUpCaseRepository {
   }) async* {
     var query = _client.from('follow_up_cases').select().eq('service_id', serviceId);
 
-    if (classIds != null && classIds.isNotEmpty) {
+    if (classIds != null) {
+      if (classIds.isEmpty) {
+        yield const [];
+        return;
+      }
       query = query.inFilter('class_id', classIds.toList());
     }
     if (studentId != null) {
@@ -293,10 +297,19 @@ class OnlineFollowUpCaseRepository implements FollowUpCaseRepository {
     Set<String>? classIds,
     int limit = 50,
   }) async* {
-    final cases = await _client
+    if (classIds != null && classIds.isEmpty) {
+      yield const [];
+      return;
+    }
+
+    var casesQuery = _client
         .from('follow_up_cases')
         .select('id, student:students(name), title')
         .eq('service_id', serviceId);
+    if (classIds != null) {
+      casesQuery = casesQuery.inFilter('class_id', classIds.toList());
+    }
+    final cases = await casesQuery;
 
     final caseIds = (cases as List).map((c) => c['id'] as String).toList();
     if (caseIds.isEmpty) {
