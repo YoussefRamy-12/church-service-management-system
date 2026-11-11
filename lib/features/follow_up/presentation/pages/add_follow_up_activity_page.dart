@@ -12,11 +12,13 @@ class AddFollowUpActivityPage extends ConsumerStatefulWidget {
   const AddFollowUpActivityPage({
     super.key,
     required this.caseId,
+    required this.serviceId,
     required this.caseTitle,
     required this.studentName,
   });
 
   final String caseId;
+  final String serviceId;
   final String caseTitle;
   final String studentName;
 
@@ -290,6 +292,11 @@ class _AddFollowUpActivityPageState
             createdBy: actorId,
             activityDate: dateStr,
           );
+      invalidateFollowUpCaseData(
+        ref,
+        serviceId: widget.serviceId,
+        caseId: widget.caseId,
+      );
 
       if (mounted) {
         Navigator.pop(context, true);
