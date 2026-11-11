@@ -194,9 +194,15 @@ void main() {
       repo.watchActivitiesForScope(serviceId: 'service-1'),
     );
 
-    addTearDown(cases.cancel);
-    addTearDown(activities.cancel);
-    addTearDown(scopeActivities.cancel);
+    addTearDown(() async {
+      await cases.cancel();
+    });
+    addTearDown(() async {
+      await activities.cancel();
+    });
+    addTearDown(() async {
+      await scopeActivities.cancel();
+    });
 
     expect(await cases.moveNext(), isTrue);
     expect(cases.current, isEmpty);
