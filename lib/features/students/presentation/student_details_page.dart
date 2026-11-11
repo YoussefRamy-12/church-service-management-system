@@ -17,6 +17,7 @@ import '../../../core/ui/phone_contact_actions.dart';
 import '../../attendance/presentation/attendance_providers.dart';
 import '../../attendance/presentation/meeting_providers.dart';
 import '../../follow_up/presentation/follow_up_case_providers.dart';
+import '../../follow_up/presentation/follow_up_providers.dart';
 import '../../follow_up/presentation/pages/create_follow_up_case_page.dart';
 import '../../follow_up/presentation/pages/follow_up_case_details_page.dart';
 import '../../follow_up/presentation/widgets/case_priority_badge.dart';
@@ -959,6 +960,60 @@ class _StudentFollowUpTab extends ConsumerWidget {
                       ),
                     )
                     .toList(),
+              );
+            },
+          ),
+          const SizedBox(height: 20),
+          Text(
+            'السجل السابق (قبل نظام الحالات)',
+            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.w800,
+                ),
+          ),
+          const SizedBox(height: 8),
+          StreamBuilder(
+            stream: ref.watch(followUpRepositoryProvider).watchForStudent(student.id),
+            builder: (context, snapshot) {
+              if (snapshot.hasError) {
+                return const Text('تعذر تحميل السجل السابق.');
+              }
+              if (!snapshot.hasData) {
+                return const LoadingView(message: 'جاري تحميل السجل السابق...');
+              }
+              final legacyRecords = snapshot.data!;
+              if (legacyRecords.isEmpty) {
+                return const Text(
+                  'لا توجد سجلات سابقة محفوظة.',
+                  style: TextStyle(color: Colors.grey),
+                );
+              }
+              return Column(
+                children: legacyRecords.map((record) => Card(
+                  margin: const EdgeInsets.only(bottom: 8),
+                  child: ListTile(
+                    leading: Icon(
+                      record.contactStatus == 'contacted'
+                          ? Icons.call_made_rounded
+                          : Icons.phone_missed_rounded,
+                    ),
+                    title: Text(
+                      '${record.followUpDate} — ${record.contactStatus == 'contacted' ? 'تم التواصل' : 'لم يتم التواصل'}',
+                    ),
+                    subtitle: Text(
+                      record.notes?.isNotEmpty == true
+                          ? record.notes!
+                          : (record.actionRequired?.isNotEmpty == true
+                              ? record.actionRequired!
+                              : 'لا توجد ملاحظات'),
+                    ),
+                    trailing: record.anotherFollowUpNeeded
+                        ? const Tooltip(
+                            message: 'متابعة أخرى مطلوبة',
+                            child: Icon(Icons.event_repeat_rounded),
+                          )
+                        : null,
+                  ),
+                )).toList(),
               );
             },
           ),
