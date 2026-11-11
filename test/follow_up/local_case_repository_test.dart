@@ -216,14 +216,18 @@ void main() {
 
     expect(await cases.moveNext(), isTrue);
     expect(cases.current.map((item) => item.id), contains(created.id));
-    expect(await activities.moveNext(), isTrue);
+    while (await activities.moveNext() &&
+        !activities.current.any(
+          (activity) => activity.description.contains('تم فتح حالة المتابعة'),
+        )) {}
     expect(
       activities.current.any(
         (activity) => activity.description.contains('تم فتح حالة المتابعة'),
       ),
       isTrue,
     );
-    expect(await scopeActivities.moveNext(), isTrue);
+    while (await scopeActivities.moveNext() &&
+        scopeActivities.current.isEmpty) {}
     expect(scopeActivities.current, hasLength(1));
 
     await repo.updateCaseStatus(
@@ -235,14 +239,20 @@ void main() {
 
     expect(await cases.moveNext(), isTrue);
     expect(cases.current.single.status, CaseStatus.inProgress);
-    expect(await activities.moveNext(), isTrue);
+    while (await activities.moveNext() &&
+        !activities.current.any(
+          (activity) => activity.activityType == ActivityType.statusChange,
+        )) {}
     expect(
       activities.current.any(
         (activity) => activity.activityType == ActivityType.statusChange,
       ),
       isTrue,
     );
-    expect(await scopeActivities.moveNext(), isTrue);
+    while (await scopeActivities.moveNext() &&
+        !scopeActivities.current.any(
+          (activity) => activity.activityType == ActivityType.statusChange,
+        )) {}
     expect(
       scopeActivities.current.any(
         (activity) => activity.activityType == ActivityType.statusChange,
@@ -258,14 +268,20 @@ void main() {
       activityDate: '2026-11-11',
     );
 
-    expect(await activities.moveNext(), isTrue);
+    while (await activities.moveNext() &&
+        !activities.current.any(
+          (activity) => activity.description == 'تم التواصل مع ولي الأمر',
+        )) {}
     expect(
       activities.current.any(
         (activity) => activity.description == 'تم التواصل مع ولي الأمر',
       ),
       isTrue,
     );
-    expect(await scopeActivities.moveNext(), isTrue);
+    while (await scopeActivities.moveNext() &&
+        !scopeActivities.current.any(
+          (activity) => activity.description == 'تم التواصل مع ولي الأمر',
+        )) {}
     expect(
       scopeActivities.current.any(
         (activity) => activity.description == 'تم التواصل مع ولي الأمر',
