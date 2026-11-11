@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:church_service_management_system/core/database/app_database.dart';
 import 'package:church_service_management_system/features/follow_up/data/local_follow_up_case_repository.dart';
@@ -182,5 +183,74 @@ void main() {
     expect(visitAct.description, 'تمت زيارة منزل التلميذ ولقاء والدته');
     expect(visitAct.createdBy, 'servant-2');
   });
+  test('case and activity streams emit immediately after each mutation', () async {
+    final cases = StreamIterator(
+      repo.watchCasesForScope(serviceId: 'service-1'),
+    );
+    final activities = StreamIterator(
+      repo.watchActivitiesForStudent('student-1'),
+    );
+
+    addTearDown(cases.cancel);
+    addTearDown(activities.cancel);
+
+    expect(await cases.moveNext(), isTrue);
+    expect(cases.current, isEmpty);
+    expect(await activities.moveNext(), isTrue);
+    expect(activities.current, isEmpty);
+
+    final created = await repo.createCase(
+      serviceId: 'service-1',
+      studentId: 'student-1',
+      classId: 'class-5a',
+      title: 'متابعة فورية',
+      priority: CasePriority.medium,
+      createdBy: 'servant-1',
+    );
+
+    expect(await cases.moveNext(), isTrue);
+    expect(cases.current.map((item) => item.id), contains(created.id));
+    expect(await activities.moveNext(), isTrue);
+    expect(
+      activities.current.any(
+        (activity) => activity.description.contains('تم فتح حالة المتابعة'),
+      ),
+      isTrue,
+    );
+
+    await repo.updateCaseStatus(
+      caseId: created.id,
+      newStatus: CaseStatus.inProgress,
+      actorId: 'servant-1',
+      actorRole: 'class_servant',
+    );
+
+    expect(await cases.moveNext(), isTrue);
+    expect(cases.current.single.status, CaseStatus.inProgress);
+    expect(await activities.moveNext(), isTrue);
+    expect(
+      activities.current.any(
+        (activity) => activity.activityType == ActivityType.statusChange,
+      ),
+      isTrue,
+    );
+
+    await repo.recordActivity(
+      caseId: created.id,
+      activityType: ActivityType.call,
+      description: 'تم التواصل مع ولي الأمر',
+      createdBy: 'servant-1',
+      activityDate: '2026-11-11',
+    );
+
+    expect(await activities.moveNext(), isTrue);
+    expect(
+      activities.current.any(
+        (activity) => activity.description == 'تم التواصل مع ولي الأمر',
+      ),
+      isTrue,
+    );
+  });
+
 }
 
