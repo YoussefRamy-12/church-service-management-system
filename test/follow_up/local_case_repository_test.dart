@@ -190,14 +190,20 @@ void main() {
     final activities = StreamIterator(
       repo.watchActivitiesForStudent('student-1'),
     );
+    final scopeActivities = StreamIterator(
+      repo.watchActivitiesForScope(serviceId: 'service-1'),
+    );
 
     addTearDown(cases.cancel);
     addTearDown(activities.cancel);
+    addTearDown(scopeActivities.cancel);
 
     expect(await cases.moveNext(), isTrue);
     expect(cases.current, isEmpty);
     expect(await activities.moveNext(), isTrue);
     expect(activities.current, isEmpty);
+    expect(await scopeActivities.moveNext(), isTrue);
+    expect(scopeActivities.current, isEmpty);
 
     final created = await repo.createCase(
       serviceId: 'service-1',
@@ -217,6 +223,8 @@ void main() {
       ),
       isTrue,
     );
+    expect(await scopeActivities.moveNext(), isTrue);
+    expect(scopeActivities.current, hasLength(1));
 
     await repo.updateCaseStatus(
       caseId: created.id,
@@ -234,6 +242,13 @@ void main() {
       ),
       isTrue,
     );
+    expect(await scopeActivities.moveNext(), isTrue);
+    expect(
+      scopeActivities.current.any(
+        (activity) => activity.activityType == ActivityType.statusChange,
+      ),
+      isTrue,
+    );
 
     await repo.recordActivity(
       caseId: created.id,
@@ -246,6 +261,13 @@ void main() {
     expect(await activities.moveNext(), isTrue);
     expect(
       activities.current.any(
+        (activity) => activity.description == 'تم التواصل مع ولي الأمر',
+      ),
+      isTrue,
+    );
+    expect(await scopeActivities.moveNext(), isTrue);
+    expect(
+      scopeActivities.current.any(
         (activity) => activity.description == 'تم التواصل مع ولي الأمر',
       ),
       isTrue,
