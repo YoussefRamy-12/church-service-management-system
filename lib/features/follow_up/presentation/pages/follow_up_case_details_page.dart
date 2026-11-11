@@ -46,7 +46,11 @@ class FollowUpCaseDetailsPage extends ConsumerWidget {
           IconButton(
             tooltip: 'تحديث البيانات',
             icon: const Icon(Icons.refresh_rounded),
-            onPressed: () => invalidateFollowUpCaseData(\n              ref,\n              serviceId: serviceId,\n              caseId: caseId,\n            ),
+            onPressed: () => invalidateFollowUpCaseData(
+              ref,
+              serviceId: serviceId,
+              caseId: caseId,
+            ),
           ),
         ],
       ),
@@ -325,13 +329,19 @@ class FollowUpCaseDetailsPage extends ConsumerWidget {
                             MaterialPageRoute(
                               builder: (_) => AddFollowUpActivityPage(
                                 caseId: caseItem.id,
+                                serviceId: serviceId,
                                 caseTitle: caseItem.title,
                                 studentName: caseItem.studentName ?? 'التلميذ',
                               ),
                             ),
                           );
                           if (recorded == true) {
-                            ref.invalidate(followUpCaseByIdProvider(caseId));
+                            invalidateFollowUpCaseData(
+                              ref,
+                              serviceId: serviceId,
+                              studentId: caseItem.studentId,
+                              caseId: caseItem.id,
+                            );
                           }
                         },
                       ),
