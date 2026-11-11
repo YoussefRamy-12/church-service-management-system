@@ -16,6 +16,12 @@ import '../../../core/network/network_error_formatter.dart';
 import '../../../core/ui/phone_contact_actions.dart';
 import '../../attendance/presentation/attendance_providers.dart';
 import '../../attendance/presentation/meeting_providers.dart';
+import '../../follow_up/presentation/follow_up_case_providers.dart';
+import '../../follow_up/presentation/pages/create_follow_up_case_page.dart';
+import '../../follow_up/presentation/pages/follow_up_case_details_page.dart';
+import '../../follow_up/presentation/widgets/case_priority_badge.dart';
+import '../../follow_up/presentation/widgets/case_status_badge.dart';
+import '../../follow_up/presentation/widgets/follow_up_activity_card.dart';
 
 class StudentDetailsPage extends ConsumerStatefulWidget {
   const StudentDetailsPage({super.key, required this.student});
@@ -834,7 +840,7 @@ class _StudentFollowUpTab extends ConsumerWidget {
                     builder: (_) => CreateFollowUpCasePage(
                       serviceId: student.serviceId,
                       preselectedStudent: student,
-                      classId: student.currentClassId,
+                      classId: student.currentClassId ?? student.proposedClassId,
                     ),
                   ),
                 ),
