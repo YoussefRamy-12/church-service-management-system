@@ -125,6 +125,35 @@ final studentCasesProvider =
   );
 });
 
+/// Invalidates every case-based follow-up view affected by a mutation.
+///
+/// Online repository streams are one-shot Supabase queries rather than
+/// Realtime subscriptions, so explicit invalidation is required after writes.
+/// Local Drift streams continue to update from their watched tables.
+void invalidateFollowUpCaseData(
+  WidgetRef ref, {
+  required String serviceId,
+  String? studentId,
+  String? caseId,
+}) {
+  ref.invalidate(followUpCasesInScopeProvider(serviceId));
+  ref.invalidate(followUpActivitiesInScopeProvider(serviceId));
+  ref.invalidate(followUpStudentItemsProvider(serviceId));
+
+  if (studentId != null) {
+    ref.invalidate(
+      studentCasesProvider((serviceId: serviceId, studentId: studentId)),
+    );
+    ref.invalidate(studentActivitiesProvider(studentId));
+  }
+
+  if (caseId != null) {
+    ref.invalidate(followUpCaseByIdProvider(caseId));
+    ref.invalidate(caseAssignmentsProvider(caseId));
+    ref.invalidate(caseActivitiesProvider(caseId));
+  }
+}
+
 // --- Aggregated Follow-up Student Items in Scope ---
 
 final followUpStudentItemsProvider =
