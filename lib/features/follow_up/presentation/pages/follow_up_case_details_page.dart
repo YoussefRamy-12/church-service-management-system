@@ -46,7 +46,7 @@ class FollowUpCaseDetailsPage extends ConsumerWidget {
           IconButton(
             tooltip: 'تحديث البيانات',
             icon: const Icon(Icons.refresh_rounded),
-            onPressed: () => ref.invalidate(followUpCaseByIdProvider(caseId)),
+            onPressed: () => invalidateFollowUpCaseData(\n              ref,\n              serviceId: serviceId,\n              caseId: caseId,\n            ),
           ),
         ],
       ),
