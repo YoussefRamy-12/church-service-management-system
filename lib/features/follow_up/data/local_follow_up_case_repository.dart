@@ -430,31 +430,42 @@ class LocalFollowUpCaseRepository implements FollowUpCaseRepository {
     Set<String>? classIds,
     int limit = 50,
   }) {
-    // Select cases in scope
-    final caseQuery = _db.select(_db.cachedFollowUpCases)
-      ..where((c) => c.serviceId.equals(serviceId));
-    if (classIds != null) {
-      caseQuery.where((c) => c.classId.isIn(classIds));
+    if (classIds != null && classIds.isEmpty) {
+      return Stream.value(const <FollowUpActivity>[]);
     }
 
-    return caseQuery.watch().asyncMap((cases) async {
-      if (cases.isEmpty) return const <FollowUpActivity>[];
+    // Join both tables so activity inserts trigger this stream even when the
+    // parent case status does not change (for example, an activity on an
+    // already in-progress case).
+    final query = _db.select(_db.cachedFollowUpActivities).join([
+      innerJoin(
+        _db.cachedFollowUpCases,
+        _db.cachedFollowUpCases.id.equalsExp(
+          _db.cachedFollowUpActivities.caseId,
+        ),
+      ),
+    ])
+      ..where(_db.cachedFollowUpCases.serviceId.equals(serviceId));
 
-      final caseMap = {for (final c in cases) c.id: c};
-      final caseIds = caseMap.keys.toList();
+    if (classIds != null) {
+      query.where(_db.cachedFollowUpCases.classId.isIn(classIds));
+    }
 
-      final actQuery = _db.select(_db.cachedFollowUpActivities)
-        ..where((a) => a.caseId.isIn(caseIds))
-        ..orderBy([
-          (a) => OrderingTerm(expression: a.createdAt, mode: OrderingMode.desc),
-        ])
-        ..limit(limit);
+    query
+      ..orderBy([
+        OrderingTerm(
+          expression: _db.cachedFollowUpActivities.createdAt,
+          mode: OrderingMode.desc,
+        ),
+      ])
+      ..limit(limit);
 
-      final actRows = await actQuery.get();
+    return query.watch().asyncMap((rows) async {
       final list = <FollowUpActivity>[];
-      for (final r in actRows) {
-        final parentCase = caseMap[r.caseId];
-        list.add(await _enrichActivity(r, parentCase: parentCase));
+      for (final row in rows) {
+        final activity = row.readTable(_db.cachedFollowUpActivities);
+        final parentCase = row.readTable(_db.cachedFollowUpCases);
+        list.add(await _enrichActivity(activity, parentCase: parentCase));
       }
       return list;
     });
@@ -462,23 +473,28 @@ class LocalFollowUpCaseRepository implements FollowUpCaseRepository {
 
   @override
   Stream<List<FollowUpActivity>> watchActivitiesForStudent(String studentId) {
-    final caseQuery = _db.select(_db.cachedFollowUpCases)
-      ..where((c) => c.studentId.equals(studentId));
+    final query = _db.select(_db.cachedFollowUpActivities).join([
+      innerJoin(
+        _db.cachedFollowUpCases,
+        _db.cachedFollowUpCases.id.equalsExp(
+          _db.cachedFollowUpActivities.caseId,
+        ),
+      ),
+    ])..where(_db.cachedFollowUpCases.studentId.equals(studentId));
 
-    return caseQuery.watch().asyncMap((cases) async {
-      if (cases.isEmpty) return const <FollowUpActivity>[];
+    query.orderBy([
+      OrderingTerm(
+        expression: _db.cachedFollowUpActivities.createdAt,
+        mode: OrderingMode.desc,
+      ),
+    ]);
 
-      final caseMap = {for (final c in cases) c.id: c};
-      final actQuery = _db.select(_db.cachedFollowUpActivities)
-        ..where((a) => a.caseId.isIn(caseMap.keys))
-        ..orderBy([
-          (a) => OrderingTerm(expression: a.createdAt, mode: OrderingMode.desc),
-        ]);
-
-      final rows = await actQuery.get();
+    return query.watch().asyncMap((rows) async {
       final list = <FollowUpActivity>[];
-      for (final r in rows) {
-        list.add(await _enrichActivity(r, parentCase: caseMap[r.caseId]));
+      for (final row in rows) {
+        final activity = row.readTable(_db.cachedFollowUpActivities);
+        final parentCase = row.readTable(_db.cachedFollowUpCases);
+        list.add(await _enrichActivity(activity, parentCase: parentCase));
       }
       return list;
     });
