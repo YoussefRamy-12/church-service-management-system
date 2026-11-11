@@ -165,6 +165,12 @@ class _AssignServantsDialogState extends ConsumerState<AssignServantsDialog> {
         }
       }
 
+      invalidateFollowUpCaseData(
+        ref,
+        serviceId: widget.serviceId,
+        caseId: widget.caseId,
+      );
+
       if (mounted) {
         Navigator.pop(context);
         ScaffoldMessenger.of(context).showSnackBar(
