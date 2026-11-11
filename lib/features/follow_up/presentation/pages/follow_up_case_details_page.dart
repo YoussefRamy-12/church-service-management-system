@@ -209,17 +209,24 @@ class FollowUpCaseDetailsPage extends ConsumerWidget {
                           data: (assignments) => TextButton.icon(
                             icon: const Icon(Icons.person_add_alt_1_rounded, size: 16),
                             label: const Text('إدارة التكليفات'),
-                            onPressed: () => showDialog(
-                              context: context,
-                              builder: (_) => AssignServantsDialog(
+                            onPressed: () async {
+                              await showDialog(
+                                context: context,
+                                builder: (_) => AssignServantsDialog(
+                                  serviceId: serviceId,
+                                  caseId: caseItem.id,
+                                  classId: caseItem.classId,
+                                  assignedByProfileId: profile?.id ?? '',
+                                  currentAssignments: assignments,
+                                ),
+                              );
+                              invalidateFollowUpCaseData(
+                                ref,
                                 serviceId: serviceId,
+                                studentId: caseItem.studentId,
                                 caseId: caseItem.id,
-                                classId: caseItem.classId,
-                                assignedByProfileId:
-                                    profile?.id ?? '',
-                                currentAssignments: assignments,
-                              ),
-                            ),
+                              );
+                            },
                           ),
                           loading: () => const SizedBox.shrink(),
                           error: (_, _) => const SizedBox.shrink(),
