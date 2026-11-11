@@ -433,7 +433,12 @@ class FollowUpCaseDetailsPage extends ConsumerWidget {
               actorRole: userRole ?? 'class_servant',
             );
 
-        ref.invalidate(followUpCaseByIdProvider(caseItem.id));
+        invalidateFollowUpCaseData(
+          ref,
+          serviceId: serviceId,
+          studentId: caseItem.studentId,
+          caseId: caseItem.id,
+        );
       },
       itemBuilder: (context) {
         return allowed.map((status) {
