@@ -404,8 +404,10 @@ class _CreateFollowUpCasePageState
       );
 
       if (mounted) {
-        Navigator.pop(context);
-        Navigator.push(
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('تم فتح حالة المتابعة بنجاح')),
+        );
+        Navigator.pushReplacement(
           context,
           MaterialPageRoute(
             builder: (_) => FollowUpCaseDetailsPage(
@@ -413,9 +415,6 @@ class _CreateFollowUpCasePageState
               caseId: newCase.id,
             ),
           ),
-        );
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('تم فتح حالة المتابعة بنجاح')),
         );
       }
     } catch (e) {
