@@ -396,6 +396,13 @@ class _CreateFollowUpCasePageState
             initialServantIds: _selectedServantIds.toList(),
           );
 
+      invalidateFollowUpCaseData(
+        ref,
+        serviceId: widget.serviceId,
+        studentId: _selectedStudent!.id,
+        caseId: newCase.id,
+      );
+
       if (mounted) {
         Navigator.pop(context);
         Navigator.push(
