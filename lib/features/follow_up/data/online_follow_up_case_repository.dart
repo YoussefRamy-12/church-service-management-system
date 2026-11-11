@@ -343,7 +343,7 @@ class OnlineFollowUpCaseRepository implements FollowUpCaseRepository {
   Stream<List<FollowUpActivity>> watchActivitiesForStudent(String studentId) async* {
     final cases = await _client
         .from('follow_up_cases')
-        .select('id, title')
+        .select('id, title, student:students(name)')
         .eq('student_id', studentId);
 
     final caseIds = (cases as List).map((c) => c['id'] as String).toList();
@@ -352,13 +352,29 @@ class OnlineFollowUpCaseRepository implements FollowUpCaseRepository {
       return;
     }
 
+    final caseMap = {
+      for (final c in cases)
+        c['id'] as String: {
+          'title': c['title'] as String?,
+          'student_name': (c['student'] as Map<String, dynamic>?)?['name'] as String?,
+        }
+    };
+
     final rows = await _client
         .from('follow_up_activities')
         .select('*, author:servant_profiles!created_by(name, role)')
         .inFilter('case_id', caseIds)
         .order('created_at', ascending: false);
 
-    yield (rows as List).map((r) => _mapActivity(Map<String, dynamic>.from(r))).toList();
+    yield (rows as List).map((row) {
+      final item = Map<String, dynamic>.from(row);
+      final meta = caseMap[item['case_id']];
+      return _mapActivity(
+        item,
+        studentName: meta?['student_name'],
+        caseTitle: meta?['title'],
+      );
+    }).toList();
   }
 
   @override
