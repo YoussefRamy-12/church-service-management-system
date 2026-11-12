@@ -50,6 +50,40 @@ class SupabaseWeeklyPreparationRepository
     return _changesController.stream;
   }
 
+  Future<WeeklyPreparation?> _queuedPreparation({
+    required String lessonId,
+    required String servantProfileId,
+  }) async {
+    final queue = _queue;
+    if (queue == null) return null;
+
+    final operations = await queue.pending();
+    for (final operation in operations.reversed) {
+      if (operation.entityType != 'weekly_preparation') continue;
+      final payload = queue.decode(operation.payloadJson);
+      if (payload['weekly_lesson_id'] != lessonId ||
+          payload['servant_profile_id'] != servantProfileId) {
+        continue;
+      }
+      return WeeklyPreparation(
+        weeklyLessonId: lessonId,
+        servantProfileId: servantProfileId,
+        status: PreparationStatus.fromString(
+          payload['status'] as String?,
+        ),
+        prepared: false,
+        submittedAt: payload['submitted_at'] != null
+            ? DateTime.parse(payload['submitted_at'] as String)
+            : null,
+        updatedAt: payload['updated_at'] != null
+            ? DateTime.parse(payload['updated_at'] as String)
+            : DateTime.now().toUtc(),
+        syncState: 'pending',
+      );
+    }
+    return null;
+  }
+
   @override
   Future<WeeklyPreparation> getPreparation({
     required String lessonId,
@@ -62,6 +96,13 @@ class SupabaseWeeklyPreparationRepository
           .eq('weekly_lesson_id', lessonId)
           .eq('servant_profile_id', servantProfileId)
           .maybeSingle();
+
+      // A durable queued mutation takes precedence until the sync engine applies it.
+      final queued = await _queuedPreparation(
+        lessonId: lessonId,
+        servantProfileId: servantProfileId,
+      );
+      if (queued != null) return queued;
 
       if (row == null) {
         return WeeklyPreparation(
@@ -95,15 +136,12 @@ class SupabaseWeeklyPreparationRepository
         syncState: 'synced',
       );
     } catch (_) {
-      // Return default not submitted on error / offline fallback
-      return WeeklyPreparation(
-        weeklyLessonId: lessonId,
+      final queued = await _queuedPreparation(
+        lessonId: lessonId,
         servantProfileId: servantProfileId,
-        status: PreparationStatus.notSubmitted,
-        prepared: false,
-        updatedAt: DateTime.now().toUtc(),
-        syncState: 'synced',
       );
+      if (queued != null) return queued;
+      rethrow;
     }
   }
 
@@ -136,6 +174,7 @@ class SupabaseWeeklyPreparationRepository
         syncState: 'synced',
       );
     } catch (error) {
+      if (error is PostgrestException) rethrow;
       if (_queue != null) {
         final opId = const Uuid().v4();
         await _queue.enqueue(
@@ -198,6 +237,7 @@ class SupabaseWeeklyPreparationRepository
         syncState: 'synced',
       );
     } catch (error) {
+      if (error is PostgrestException) rethrow;
       if (_queue != null) {
         final opId = const Uuid().v4();
         await _queue.enqueue(
