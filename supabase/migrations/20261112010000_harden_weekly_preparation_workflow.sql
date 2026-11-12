@@ -65,6 +65,16 @@ begin
     raise exception 'preparation_identity_immutable';
   end if;
 
+  -- An uncertain network response may cause the same queued submission to
+  -- be replayed after the server already accepted it. Treat submitted -> submitted
+  -- as an idempotent no-op; never let it rewrite the original submission timestamp.
+  if v_actor_profile_id is not null
+     and new.servant_profile_id = v_actor_profile_id
+     and old.status = 'submitted'
+     and new.status = 'submitted' then
+    return old;
+  end if;
+
   -- A servant can only submit a new record or resubmit a returned one.
   if v_actor_profile_id is not null
      and new.servant_profile_id = v_actor_profile_id then
