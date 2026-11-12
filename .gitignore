@@ -3,3 +3,9 @@ build/
 .flutter-plugins-dependencies
 .packages
 coverage/
+.agent/
+.agents/
+.impeccable/
+
+# Firebase local cache
+.firebase/

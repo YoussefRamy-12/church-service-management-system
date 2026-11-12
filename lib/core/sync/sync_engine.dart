@@ -7,12 +7,16 @@ import '../network/connectivity_service.dart';
 import '../network/connectivity_service_impl.dart';
 import 'entity_sync_handler.dart';
 import 'handlers/attendance_sync_handler.dart';
+import 'handlers/follow_up_activity_sync_handler.dart';
+import 'handlers/follow_up_case_assignment_sync_handler.dart';
+import 'handlers/follow_up_case_sync_handler.dart';
 import 'handlers/follow_up_sync_handler.dart';
 import 'handlers/meeting_sync_handler.dart';
 import 'handlers/reporting_period_sync_handler.dart';
 import 'handlers/servant_sync_handler.dart';
 import 'handlers/service_sync_handler.dart';
 import 'handlers/student_sync_handler.dart';
+import 'handlers/weekly_preparation_sync_handler.dart';
 import 'sync_conflict_exception.dart';
 import 'sync_operation.dart';
 import 'sync_queue_repository.dart';
@@ -43,9 +47,13 @@ class SupabaseSyncTransport implements SyncTransport {
       StudentSyncHandler(client),
       AttendanceSyncHandler(client),
       FollowUpSyncHandler(client),
+      FollowUpCaseSyncHandler(client),
+      FollowUpCaseAssignmentSyncHandler(client),
+      FollowUpActivitySyncHandler(client),
       ServantSyncHandler(client),
       ServiceSyncHandler(client),
       ReportingPeriodSyncHandler(client),
+      WeeklyPreparationSyncHandler(client),
     ];
     return {for (final handler in list) handler.entityType: handler};
   }

@@ -6151,6 +6151,2079 @@ class CachedReportingPeriodsCompanion
   }
 }
 
+class $CachedFollowUpCasesTable extends CachedFollowUpCases
+    with TableInfo<$CachedFollowUpCasesTable, CachedFollowUpCase> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $CachedFollowUpCasesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _serviceIdMeta = const VerificationMeta(
+    'serviceId',
+  );
+  @override
+  late final GeneratedColumn<String> serviceId = GeneratedColumn<String>(
+    'service_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _studentIdMeta = const VerificationMeta(
+    'studentId',
+  );
+  @override
+  late final GeneratedColumn<String> studentId = GeneratedColumn<String>(
+    'student_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _classIdMeta = const VerificationMeta(
+    'classId',
+  );
+  @override
+  late final GeneratedColumn<String> classId = GeneratedColumn<String>(
+    'class_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _titleMeta = const VerificationMeta('title');
+  @override
+  late final GeneratedColumn<String> title = GeneratedColumn<String>(
+    'title',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _descriptionMeta = const VerificationMeta(
+    'description',
+  );
+  @override
+  late final GeneratedColumn<String> description = GeneratedColumn<String>(
+    'description',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _priorityMeta = const VerificationMeta(
+    'priority',
+  );
+  @override
+  late final GeneratedColumn<String> priority = GeneratedColumn<String>(
+    'priority',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _statusMeta = const VerificationMeta('status');
+  @override
+  late final GeneratedColumn<String> status = GeneratedColumn<String>(
+    'status',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _caseTypeMeta = const VerificationMeta(
+    'caseType',
+  );
+  @override
+  late final GeneratedColumn<String> caseType = GeneratedColumn<String>(
+    'case_type',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant('general'),
+  );
+  static const VerificationMeta _createdByMeta = const VerificationMeta(
+    'createdBy',
+  );
+  @override
+  late final GeneratedColumn<String> createdBy = GeneratedColumn<String>(
+    'created_by',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
+    'updatedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+    'updated_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _resolvedAtMeta = const VerificationMeta(
+    'resolvedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> resolvedAt = GeneratedColumn<DateTime>(
+    'resolved_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _closedAtMeta = const VerificationMeta(
+    'closedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> closedAt = GeneratedColumn<DateTime>(
+    'closed_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _clientOperationIdMeta = const VerificationMeta(
+    'clientOperationId',
+  );
+  @override
+  late final GeneratedColumn<String> clientOperationId =
+      GeneratedColumn<String>(
+        'client_operation_id',
+        aliasedName,
+        false,
+        type: DriftSqlType.string,
+        requiredDuringInsert: true,
+      );
+  static const VerificationMeta _cachedAtMeta = const VerificationMeta(
+    'cachedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> cachedAt = GeneratedColumn<DateTime>(
+    'cached_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    serviceId,
+    studentId,
+    classId,
+    title,
+    description,
+    priority,
+    status,
+    caseType,
+    createdBy,
+    createdAt,
+    updatedAt,
+    resolvedAt,
+    closedAt,
+    clientOperationId,
+    cachedAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'cached_follow_up_cases';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<CachedFollowUpCase> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('service_id')) {
+      context.handle(
+        _serviceIdMeta,
+        serviceId.isAcceptableOrUnknown(data['service_id']!, _serviceIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_serviceIdMeta);
+    }
+    if (data.containsKey('student_id')) {
+      context.handle(
+        _studentIdMeta,
+        studentId.isAcceptableOrUnknown(data['student_id']!, _studentIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_studentIdMeta);
+    }
+    if (data.containsKey('class_id')) {
+      context.handle(
+        _classIdMeta,
+        classId.isAcceptableOrUnknown(data['class_id']!, _classIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_classIdMeta);
+    }
+    if (data.containsKey('title')) {
+      context.handle(
+        _titleMeta,
+        title.isAcceptableOrUnknown(data['title']!, _titleMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_titleMeta);
+    }
+    if (data.containsKey('description')) {
+      context.handle(
+        _descriptionMeta,
+        description.isAcceptableOrUnknown(
+          data['description']!,
+          _descriptionMeta,
+        ),
+      );
+    }
+    if (data.containsKey('priority')) {
+      context.handle(
+        _priorityMeta,
+        priority.isAcceptableOrUnknown(data['priority']!, _priorityMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_priorityMeta);
+    }
+    if (data.containsKey('status')) {
+      context.handle(
+        _statusMeta,
+        status.isAcceptableOrUnknown(data['status']!, _statusMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_statusMeta);
+    }
+    if (data.containsKey('case_type')) {
+      context.handle(
+        _caseTypeMeta,
+        caseType.isAcceptableOrUnknown(data['case_type']!, _caseTypeMeta),
+      );
+    }
+    if (data.containsKey('created_by')) {
+      context.handle(
+        _createdByMeta,
+        createdBy.isAcceptableOrUnknown(data['created_by']!, _createdByMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_createdByMeta);
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_createdAtMeta);
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(
+        _updatedAtMeta,
+        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_updatedAtMeta);
+    }
+    if (data.containsKey('resolved_at')) {
+      context.handle(
+        _resolvedAtMeta,
+        resolvedAt.isAcceptableOrUnknown(data['resolved_at']!, _resolvedAtMeta),
+      );
+    }
+    if (data.containsKey('closed_at')) {
+      context.handle(
+        _closedAtMeta,
+        closedAt.isAcceptableOrUnknown(data['closed_at']!, _closedAtMeta),
+      );
+    }
+    if (data.containsKey('client_operation_id')) {
+      context.handle(
+        _clientOperationIdMeta,
+        clientOperationId.isAcceptableOrUnknown(
+          data['client_operation_id']!,
+          _clientOperationIdMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_clientOperationIdMeta);
+    }
+    if (data.containsKey('cached_at')) {
+      context.handle(
+        _cachedAtMeta,
+        cachedAt.isAcceptableOrUnknown(data['cached_at']!, _cachedAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_cachedAtMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  CachedFollowUpCase map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return CachedFollowUpCase(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      serviceId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}service_id'],
+      )!,
+      studentId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}student_id'],
+      )!,
+      classId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}class_id'],
+      )!,
+      title: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}title'],
+      )!,
+      description: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}description'],
+      ),
+      priority: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}priority'],
+      )!,
+      status: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}status'],
+      )!,
+      caseType: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}case_type'],
+      )!,
+      createdBy: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}created_by'],
+      )!,
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}created_at'],
+      )!,
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}updated_at'],
+      )!,
+      resolvedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}resolved_at'],
+      ),
+      closedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}closed_at'],
+      ),
+      clientOperationId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}client_operation_id'],
+      )!,
+      cachedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}cached_at'],
+      )!,
+    );
+  }
+
+  @override
+  $CachedFollowUpCasesTable createAlias(String alias) {
+    return $CachedFollowUpCasesTable(attachedDatabase, alias);
+  }
+}
+
+class CachedFollowUpCase extends DataClass
+    implements Insertable<CachedFollowUpCase> {
+  final String id;
+  final String serviceId;
+  final String studentId;
+  final String classId;
+  final String title;
+  final String? description;
+  final String priority;
+  final String status;
+  final String caseType;
+  final String createdBy;
+  final DateTime createdAt;
+  final DateTime updatedAt;
+  final DateTime? resolvedAt;
+  final DateTime? closedAt;
+  final String clientOperationId;
+  final DateTime cachedAt;
+  const CachedFollowUpCase({
+    required this.id,
+    required this.serviceId,
+    required this.studentId,
+    required this.classId,
+    required this.title,
+    this.description,
+    required this.priority,
+    required this.status,
+    required this.caseType,
+    required this.createdBy,
+    required this.createdAt,
+    required this.updatedAt,
+    this.resolvedAt,
+    this.closedAt,
+    required this.clientOperationId,
+    required this.cachedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['service_id'] = Variable<String>(serviceId);
+    map['student_id'] = Variable<String>(studentId);
+    map['class_id'] = Variable<String>(classId);
+    map['title'] = Variable<String>(title);
+    if (!nullToAbsent || description != null) {
+      map['description'] = Variable<String>(description);
+    }
+    map['priority'] = Variable<String>(priority);
+    map['status'] = Variable<String>(status);
+    map['case_type'] = Variable<String>(caseType);
+    map['created_by'] = Variable<String>(createdBy);
+    map['created_at'] = Variable<DateTime>(createdAt);
+    map['updated_at'] = Variable<DateTime>(updatedAt);
+    if (!nullToAbsent || resolvedAt != null) {
+      map['resolved_at'] = Variable<DateTime>(resolvedAt);
+    }
+    if (!nullToAbsent || closedAt != null) {
+      map['closed_at'] = Variable<DateTime>(closedAt);
+    }
+    map['client_operation_id'] = Variable<String>(clientOperationId);
+    map['cached_at'] = Variable<DateTime>(cachedAt);
+    return map;
+  }
+
+  CachedFollowUpCasesCompanion toCompanion(bool nullToAbsent) {
+    return CachedFollowUpCasesCompanion(
+      id: Value(id),
+      serviceId: Value(serviceId),
+      studentId: Value(studentId),
+      classId: Value(classId),
+      title: Value(title),
+      description: description == null && nullToAbsent
+          ? const Value.absent()
+          : Value(description),
+      priority: Value(priority),
+      status: Value(status),
+      caseType: Value(caseType),
+      createdBy: Value(createdBy),
+      createdAt: Value(createdAt),
+      updatedAt: Value(updatedAt),
+      resolvedAt: resolvedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(resolvedAt),
+      closedAt: closedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(closedAt),
+      clientOperationId: Value(clientOperationId),
+      cachedAt: Value(cachedAt),
+    );
+  }
+
+  factory CachedFollowUpCase.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return CachedFollowUpCase(
+      id: serializer.fromJson<String>(json['id']),
+      serviceId: serializer.fromJson<String>(json['serviceId']),
+      studentId: serializer.fromJson<String>(json['studentId']),
+      classId: serializer.fromJson<String>(json['classId']),
+      title: serializer.fromJson<String>(json['title']),
+      description: serializer.fromJson<String?>(json['description']),
+      priority: serializer.fromJson<String>(json['priority']),
+      status: serializer.fromJson<String>(json['status']),
+      caseType: serializer.fromJson<String>(json['caseType']),
+      createdBy: serializer.fromJson<String>(json['createdBy']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+      resolvedAt: serializer.fromJson<DateTime?>(json['resolvedAt']),
+      closedAt: serializer.fromJson<DateTime?>(json['closedAt']),
+      clientOperationId: serializer.fromJson<String>(json['clientOperationId']),
+      cachedAt: serializer.fromJson<DateTime>(json['cachedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'serviceId': serializer.toJson<String>(serviceId),
+      'studentId': serializer.toJson<String>(studentId),
+      'classId': serializer.toJson<String>(classId),
+      'title': serializer.toJson<String>(title),
+      'description': serializer.toJson<String?>(description),
+      'priority': serializer.toJson<String>(priority),
+      'status': serializer.toJson<String>(status),
+      'caseType': serializer.toJson<String>(caseType),
+      'createdBy': serializer.toJson<String>(createdBy),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
+      'resolvedAt': serializer.toJson<DateTime?>(resolvedAt),
+      'closedAt': serializer.toJson<DateTime?>(closedAt),
+      'clientOperationId': serializer.toJson<String>(clientOperationId),
+      'cachedAt': serializer.toJson<DateTime>(cachedAt),
+    };
+  }
+
+  CachedFollowUpCase copyWith({
+    String? id,
+    String? serviceId,
+    String? studentId,
+    String? classId,
+    String? title,
+    Value<String?> description = const Value.absent(),
+    String? priority,
+    String? status,
+    String? caseType,
+    String? createdBy,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+    Value<DateTime?> resolvedAt = const Value.absent(),
+    Value<DateTime?> closedAt = const Value.absent(),
+    String? clientOperationId,
+    DateTime? cachedAt,
+  }) => CachedFollowUpCase(
+    id: id ?? this.id,
+    serviceId: serviceId ?? this.serviceId,
+    studentId: studentId ?? this.studentId,
+    classId: classId ?? this.classId,
+    title: title ?? this.title,
+    description: description.present ? description.value : this.description,
+    priority: priority ?? this.priority,
+    status: status ?? this.status,
+    caseType: caseType ?? this.caseType,
+    createdBy: createdBy ?? this.createdBy,
+    createdAt: createdAt ?? this.createdAt,
+    updatedAt: updatedAt ?? this.updatedAt,
+    resolvedAt: resolvedAt.present ? resolvedAt.value : this.resolvedAt,
+    closedAt: closedAt.present ? closedAt.value : this.closedAt,
+    clientOperationId: clientOperationId ?? this.clientOperationId,
+    cachedAt: cachedAt ?? this.cachedAt,
+  );
+  CachedFollowUpCase copyWithCompanion(CachedFollowUpCasesCompanion data) {
+    return CachedFollowUpCase(
+      id: data.id.present ? data.id.value : this.id,
+      serviceId: data.serviceId.present ? data.serviceId.value : this.serviceId,
+      studentId: data.studentId.present ? data.studentId.value : this.studentId,
+      classId: data.classId.present ? data.classId.value : this.classId,
+      title: data.title.present ? data.title.value : this.title,
+      description: data.description.present
+          ? data.description.value
+          : this.description,
+      priority: data.priority.present ? data.priority.value : this.priority,
+      status: data.status.present ? data.status.value : this.status,
+      caseType: data.caseType.present ? data.caseType.value : this.caseType,
+      createdBy: data.createdBy.present ? data.createdBy.value : this.createdBy,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      resolvedAt: data.resolvedAt.present
+          ? data.resolvedAt.value
+          : this.resolvedAt,
+      closedAt: data.closedAt.present ? data.closedAt.value : this.closedAt,
+      clientOperationId: data.clientOperationId.present
+          ? data.clientOperationId.value
+          : this.clientOperationId,
+      cachedAt: data.cachedAt.present ? data.cachedAt.value : this.cachedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CachedFollowUpCase(')
+          ..write('id: $id, ')
+          ..write('serviceId: $serviceId, ')
+          ..write('studentId: $studentId, ')
+          ..write('classId: $classId, ')
+          ..write('title: $title, ')
+          ..write('description: $description, ')
+          ..write('priority: $priority, ')
+          ..write('status: $status, ')
+          ..write('caseType: $caseType, ')
+          ..write('createdBy: $createdBy, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('resolvedAt: $resolvedAt, ')
+          ..write('closedAt: $closedAt, ')
+          ..write('clientOperationId: $clientOperationId, ')
+          ..write('cachedAt: $cachedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    serviceId,
+    studentId,
+    classId,
+    title,
+    description,
+    priority,
+    status,
+    caseType,
+    createdBy,
+    createdAt,
+    updatedAt,
+    resolvedAt,
+    closedAt,
+    clientOperationId,
+    cachedAt,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is CachedFollowUpCase &&
+          other.id == this.id &&
+          other.serviceId == this.serviceId &&
+          other.studentId == this.studentId &&
+          other.classId == this.classId &&
+          other.title == this.title &&
+          other.description == this.description &&
+          other.priority == this.priority &&
+          other.status == this.status &&
+          other.caseType == this.caseType &&
+          other.createdBy == this.createdBy &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt &&
+          other.resolvedAt == this.resolvedAt &&
+          other.closedAt == this.closedAt &&
+          other.clientOperationId == this.clientOperationId &&
+          other.cachedAt == this.cachedAt);
+}
+
+class CachedFollowUpCasesCompanion extends UpdateCompanion<CachedFollowUpCase> {
+  final Value<String> id;
+  final Value<String> serviceId;
+  final Value<String> studentId;
+  final Value<String> classId;
+  final Value<String> title;
+  final Value<String?> description;
+  final Value<String> priority;
+  final Value<String> status;
+  final Value<String> caseType;
+  final Value<String> createdBy;
+  final Value<DateTime> createdAt;
+  final Value<DateTime> updatedAt;
+  final Value<DateTime?> resolvedAt;
+  final Value<DateTime?> closedAt;
+  final Value<String> clientOperationId;
+  final Value<DateTime> cachedAt;
+  final Value<int> rowid;
+  const CachedFollowUpCasesCompanion({
+    this.id = const Value.absent(),
+    this.serviceId = const Value.absent(),
+    this.studentId = const Value.absent(),
+    this.classId = const Value.absent(),
+    this.title = const Value.absent(),
+    this.description = const Value.absent(),
+    this.priority = const Value.absent(),
+    this.status = const Value.absent(),
+    this.caseType = const Value.absent(),
+    this.createdBy = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.resolvedAt = const Value.absent(),
+    this.closedAt = const Value.absent(),
+    this.clientOperationId = const Value.absent(),
+    this.cachedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  CachedFollowUpCasesCompanion.insert({
+    required String id,
+    required String serviceId,
+    required String studentId,
+    required String classId,
+    required String title,
+    this.description = const Value.absent(),
+    required String priority,
+    required String status,
+    this.caseType = const Value.absent(),
+    required String createdBy,
+    required DateTime createdAt,
+    required DateTime updatedAt,
+    this.resolvedAt = const Value.absent(),
+    this.closedAt = const Value.absent(),
+    required String clientOperationId,
+    required DateTime cachedAt,
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       serviceId = Value(serviceId),
+       studentId = Value(studentId),
+       classId = Value(classId),
+       title = Value(title),
+       priority = Value(priority),
+       status = Value(status),
+       createdBy = Value(createdBy),
+       createdAt = Value(createdAt),
+       updatedAt = Value(updatedAt),
+       clientOperationId = Value(clientOperationId),
+       cachedAt = Value(cachedAt);
+  static Insertable<CachedFollowUpCase> custom({
+    Expression<String>? id,
+    Expression<String>? serviceId,
+    Expression<String>? studentId,
+    Expression<String>? classId,
+    Expression<String>? title,
+    Expression<String>? description,
+    Expression<String>? priority,
+    Expression<String>? status,
+    Expression<String>? caseType,
+    Expression<String>? createdBy,
+    Expression<DateTime>? createdAt,
+    Expression<DateTime>? updatedAt,
+    Expression<DateTime>? resolvedAt,
+    Expression<DateTime>? closedAt,
+    Expression<String>? clientOperationId,
+    Expression<DateTime>? cachedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (serviceId != null) 'service_id': serviceId,
+      if (studentId != null) 'student_id': studentId,
+      if (classId != null) 'class_id': classId,
+      if (title != null) 'title': title,
+      if (description != null) 'description': description,
+      if (priority != null) 'priority': priority,
+      if (status != null) 'status': status,
+      if (caseType != null) 'case_type': caseType,
+      if (createdBy != null) 'created_by': createdBy,
+      if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (resolvedAt != null) 'resolved_at': resolvedAt,
+      if (closedAt != null) 'closed_at': closedAt,
+      if (clientOperationId != null) 'client_operation_id': clientOperationId,
+      if (cachedAt != null) 'cached_at': cachedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  CachedFollowUpCasesCompanion copyWith({
+    Value<String>? id,
+    Value<String>? serviceId,
+    Value<String>? studentId,
+    Value<String>? classId,
+    Value<String>? title,
+    Value<String?>? description,
+    Value<String>? priority,
+    Value<String>? status,
+    Value<String>? caseType,
+    Value<String>? createdBy,
+    Value<DateTime>? createdAt,
+    Value<DateTime>? updatedAt,
+    Value<DateTime?>? resolvedAt,
+    Value<DateTime?>? closedAt,
+    Value<String>? clientOperationId,
+    Value<DateTime>? cachedAt,
+    Value<int>? rowid,
+  }) {
+    return CachedFollowUpCasesCompanion(
+      id: id ?? this.id,
+      serviceId: serviceId ?? this.serviceId,
+      studentId: studentId ?? this.studentId,
+      classId: classId ?? this.classId,
+      title: title ?? this.title,
+      description: description ?? this.description,
+      priority: priority ?? this.priority,
+      status: status ?? this.status,
+      caseType: caseType ?? this.caseType,
+      createdBy: createdBy ?? this.createdBy,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      resolvedAt: resolvedAt ?? this.resolvedAt,
+      closedAt: closedAt ?? this.closedAt,
+      clientOperationId: clientOperationId ?? this.clientOperationId,
+      cachedAt: cachedAt ?? this.cachedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (serviceId.present) {
+      map['service_id'] = Variable<String>(serviceId.value);
+    }
+    if (studentId.present) {
+      map['student_id'] = Variable<String>(studentId.value);
+    }
+    if (classId.present) {
+      map['class_id'] = Variable<String>(classId.value);
+    }
+    if (title.present) {
+      map['title'] = Variable<String>(title.value);
+    }
+    if (description.present) {
+      map['description'] = Variable<String>(description.value);
+    }
+    if (priority.present) {
+      map['priority'] = Variable<String>(priority.value);
+    }
+    if (status.present) {
+      map['status'] = Variable<String>(status.value);
+    }
+    if (caseType.present) {
+      map['case_type'] = Variable<String>(caseType.value);
+    }
+    if (createdBy.present) {
+      map['created_by'] = Variable<String>(createdBy.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    if (resolvedAt.present) {
+      map['resolved_at'] = Variable<DateTime>(resolvedAt.value);
+    }
+    if (closedAt.present) {
+      map['closed_at'] = Variable<DateTime>(closedAt.value);
+    }
+    if (clientOperationId.present) {
+      map['client_operation_id'] = Variable<String>(clientOperationId.value);
+    }
+    if (cachedAt.present) {
+      map['cached_at'] = Variable<DateTime>(cachedAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CachedFollowUpCasesCompanion(')
+          ..write('id: $id, ')
+          ..write('serviceId: $serviceId, ')
+          ..write('studentId: $studentId, ')
+          ..write('classId: $classId, ')
+          ..write('title: $title, ')
+          ..write('description: $description, ')
+          ..write('priority: $priority, ')
+          ..write('status: $status, ')
+          ..write('caseType: $caseType, ')
+          ..write('createdBy: $createdBy, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('resolvedAt: $resolvedAt, ')
+          ..write('closedAt: $closedAt, ')
+          ..write('clientOperationId: $clientOperationId, ')
+          ..write('cachedAt: $cachedAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $CachedFollowUpCaseAssignmentsTable extends CachedFollowUpCaseAssignments
+    with
+        TableInfo<
+          $CachedFollowUpCaseAssignmentsTable,
+          CachedFollowUpCaseAssignment
+        > {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $CachedFollowUpCaseAssignmentsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _caseIdMeta = const VerificationMeta('caseId');
+  @override
+  late final GeneratedColumn<String> caseId = GeneratedColumn<String>(
+    'case_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _servantIdMeta = const VerificationMeta(
+    'servantId',
+  );
+  @override
+  late final GeneratedColumn<String> servantId = GeneratedColumn<String>(
+    'servant_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _assignedByMeta = const VerificationMeta(
+    'assignedBy',
+  );
+  @override
+  late final GeneratedColumn<String> assignedBy = GeneratedColumn<String>(
+    'assigned_by',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _assignedAtMeta = const VerificationMeta(
+    'assignedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> assignedAt = GeneratedColumn<DateTime>(
+    'assigned_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _assignmentStatusMeta = const VerificationMeta(
+    'assignmentStatus',
+  );
+  @override
+  late final GeneratedColumn<String> assignmentStatus = GeneratedColumn<String>(
+    'assignment_status',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant('active'),
+  );
+  static const VerificationMeta _removedAtMeta = const VerificationMeta(
+    'removedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> removedAt = GeneratedColumn<DateTime>(
+    'removed_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _clientOperationIdMeta = const VerificationMeta(
+    'clientOperationId',
+  );
+  @override
+  late final GeneratedColumn<String> clientOperationId =
+      GeneratedColumn<String>(
+        'client_operation_id',
+        aliasedName,
+        false,
+        type: DriftSqlType.string,
+        requiredDuringInsert: true,
+      );
+  static const VerificationMeta _cachedAtMeta = const VerificationMeta(
+    'cachedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> cachedAt = GeneratedColumn<DateTime>(
+    'cached_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    caseId,
+    servantId,
+    assignedBy,
+    assignedAt,
+    assignmentStatus,
+    removedAt,
+    clientOperationId,
+    cachedAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'cached_follow_up_case_assignments';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<CachedFollowUpCaseAssignment> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('case_id')) {
+      context.handle(
+        _caseIdMeta,
+        caseId.isAcceptableOrUnknown(data['case_id']!, _caseIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_caseIdMeta);
+    }
+    if (data.containsKey('servant_id')) {
+      context.handle(
+        _servantIdMeta,
+        servantId.isAcceptableOrUnknown(data['servant_id']!, _servantIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_servantIdMeta);
+    }
+    if (data.containsKey('assigned_by')) {
+      context.handle(
+        _assignedByMeta,
+        assignedBy.isAcceptableOrUnknown(data['assigned_by']!, _assignedByMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_assignedByMeta);
+    }
+    if (data.containsKey('assigned_at')) {
+      context.handle(
+        _assignedAtMeta,
+        assignedAt.isAcceptableOrUnknown(data['assigned_at']!, _assignedAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_assignedAtMeta);
+    }
+    if (data.containsKey('assignment_status')) {
+      context.handle(
+        _assignmentStatusMeta,
+        assignmentStatus.isAcceptableOrUnknown(
+          data['assignment_status']!,
+          _assignmentStatusMeta,
+        ),
+      );
+    }
+    if (data.containsKey('removed_at')) {
+      context.handle(
+        _removedAtMeta,
+        removedAt.isAcceptableOrUnknown(data['removed_at']!, _removedAtMeta),
+      );
+    }
+    if (data.containsKey('client_operation_id')) {
+      context.handle(
+        _clientOperationIdMeta,
+        clientOperationId.isAcceptableOrUnknown(
+          data['client_operation_id']!,
+          _clientOperationIdMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_clientOperationIdMeta);
+    }
+    if (data.containsKey('cached_at')) {
+      context.handle(
+        _cachedAtMeta,
+        cachedAt.isAcceptableOrUnknown(data['cached_at']!, _cachedAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_cachedAtMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  CachedFollowUpCaseAssignment map(
+    Map<String, dynamic> data, {
+    String? tablePrefix,
+  }) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return CachedFollowUpCaseAssignment(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      caseId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}case_id'],
+      )!,
+      servantId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}servant_id'],
+      )!,
+      assignedBy: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}assigned_by'],
+      )!,
+      assignedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}assigned_at'],
+      )!,
+      assignmentStatus: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}assignment_status'],
+      )!,
+      removedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}removed_at'],
+      ),
+      clientOperationId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}client_operation_id'],
+      )!,
+      cachedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}cached_at'],
+      )!,
+    );
+  }
+
+  @override
+  $CachedFollowUpCaseAssignmentsTable createAlias(String alias) {
+    return $CachedFollowUpCaseAssignmentsTable(attachedDatabase, alias);
+  }
+}
+
+class CachedFollowUpCaseAssignment extends DataClass
+    implements Insertable<CachedFollowUpCaseAssignment> {
+  final String id;
+  final String caseId;
+  final String servantId;
+  final String assignedBy;
+  final DateTime assignedAt;
+  final String assignmentStatus;
+  final DateTime? removedAt;
+  final String clientOperationId;
+  final DateTime cachedAt;
+  const CachedFollowUpCaseAssignment({
+    required this.id,
+    required this.caseId,
+    required this.servantId,
+    required this.assignedBy,
+    required this.assignedAt,
+    required this.assignmentStatus,
+    this.removedAt,
+    required this.clientOperationId,
+    required this.cachedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['case_id'] = Variable<String>(caseId);
+    map['servant_id'] = Variable<String>(servantId);
+    map['assigned_by'] = Variable<String>(assignedBy);
+    map['assigned_at'] = Variable<DateTime>(assignedAt);
+    map['assignment_status'] = Variable<String>(assignmentStatus);
+    if (!nullToAbsent || removedAt != null) {
+      map['removed_at'] = Variable<DateTime>(removedAt);
+    }
+    map['client_operation_id'] = Variable<String>(clientOperationId);
+    map['cached_at'] = Variable<DateTime>(cachedAt);
+    return map;
+  }
+
+  CachedFollowUpCaseAssignmentsCompanion toCompanion(bool nullToAbsent) {
+    return CachedFollowUpCaseAssignmentsCompanion(
+      id: Value(id),
+      caseId: Value(caseId),
+      servantId: Value(servantId),
+      assignedBy: Value(assignedBy),
+      assignedAt: Value(assignedAt),
+      assignmentStatus: Value(assignmentStatus),
+      removedAt: removedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(removedAt),
+      clientOperationId: Value(clientOperationId),
+      cachedAt: Value(cachedAt),
+    );
+  }
+
+  factory CachedFollowUpCaseAssignment.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return CachedFollowUpCaseAssignment(
+      id: serializer.fromJson<String>(json['id']),
+      caseId: serializer.fromJson<String>(json['caseId']),
+      servantId: serializer.fromJson<String>(json['servantId']),
+      assignedBy: serializer.fromJson<String>(json['assignedBy']),
+      assignedAt: serializer.fromJson<DateTime>(json['assignedAt']),
+      assignmentStatus: serializer.fromJson<String>(json['assignmentStatus']),
+      removedAt: serializer.fromJson<DateTime?>(json['removedAt']),
+      clientOperationId: serializer.fromJson<String>(json['clientOperationId']),
+      cachedAt: serializer.fromJson<DateTime>(json['cachedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'caseId': serializer.toJson<String>(caseId),
+      'servantId': serializer.toJson<String>(servantId),
+      'assignedBy': serializer.toJson<String>(assignedBy),
+      'assignedAt': serializer.toJson<DateTime>(assignedAt),
+      'assignmentStatus': serializer.toJson<String>(assignmentStatus),
+      'removedAt': serializer.toJson<DateTime?>(removedAt),
+      'clientOperationId': serializer.toJson<String>(clientOperationId),
+      'cachedAt': serializer.toJson<DateTime>(cachedAt),
+    };
+  }
+
+  CachedFollowUpCaseAssignment copyWith({
+    String? id,
+    String? caseId,
+    String? servantId,
+    String? assignedBy,
+    DateTime? assignedAt,
+    String? assignmentStatus,
+    Value<DateTime?> removedAt = const Value.absent(),
+    String? clientOperationId,
+    DateTime? cachedAt,
+  }) => CachedFollowUpCaseAssignment(
+    id: id ?? this.id,
+    caseId: caseId ?? this.caseId,
+    servantId: servantId ?? this.servantId,
+    assignedBy: assignedBy ?? this.assignedBy,
+    assignedAt: assignedAt ?? this.assignedAt,
+    assignmentStatus: assignmentStatus ?? this.assignmentStatus,
+    removedAt: removedAt.present ? removedAt.value : this.removedAt,
+    clientOperationId: clientOperationId ?? this.clientOperationId,
+    cachedAt: cachedAt ?? this.cachedAt,
+  );
+  CachedFollowUpCaseAssignment copyWithCompanion(
+    CachedFollowUpCaseAssignmentsCompanion data,
+  ) {
+    return CachedFollowUpCaseAssignment(
+      id: data.id.present ? data.id.value : this.id,
+      caseId: data.caseId.present ? data.caseId.value : this.caseId,
+      servantId: data.servantId.present ? data.servantId.value : this.servantId,
+      assignedBy: data.assignedBy.present
+          ? data.assignedBy.value
+          : this.assignedBy,
+      assignedAt: data.assignedAt.present
+          ? data.assignedAt.value
+          : this.assignedAt,
+      assignmentStatus: data.assignmentStatus.present
+          ? data.assignmentStatus.value
+          : this.assignmentStatus,
+      removedAt: data.removedAt.present ? data.removedAt.value : this.removedAt,
+      clientOperationId: data.clientOperationId.present
+          ? data.clientOperationId.value
+          : this.clientOperationId,
+      cachedAt: data.cachedAt.present ? data.cachedAt.value : this.cachedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CachedFollowUpCaseAssignment(')
+          ..write('id: $id, ')
+          ..write('caseId: $caseId, ')
+          ..write('servantId: $servantId, ')
+          ..write('assignedBy: $assignedBy, ')
+          ..write('assignedAt: $assignedAt, ')
+          ..write('assignmentStatus: $assignmentStatus, ')
+          ..write('removedAt: $removedAt, ')
+          ..write('clientOperationId: $clientOperationId, ')
+          ..write('cachedAt: $cachedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    caseId,
+    servantId,
+    assignedBy,
+    assignedAt,
+    assignmentStatus,
+    removedAt,
+    clientOperationId,
+    cachedAt,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is CachedFollowUpCaseAssignment &&
+          other.id == this.id &&
+          other.caseId == this.caseId &&
+          other.servantId == this.servantId &&
+          other.assignedBy == this.assignedBy &&
+          other.assignedAt == this.assignedAt &&
+          other.assignmentStatus == this.assignmentStatus &&
+          other.removedAt == this.removedAt &&
+          other.clientOperationId == this.clientOperationId &&
+          other.cachedAt == this.cachedAt);
+}
+
+class CachedFollowUpCaseAssignmentsCompanion
+    extends UpdateCompanion<CachedFollowUpCaseAssignment> {
+  final Value<String> id;
+  final Value<String> caseId;
+  final Value<String> servantId;
+  final Value<String> assignedBy;
+  final Value<DateTime> assignedAt;
+  final Value<String> assignmentStatus;
+  final Value<DateTime?> removedAt;
+  final Value<String> clientOperationId;
+  final Value<DateTime> cachedAt;
+  final Value<int> rowid;
+  const CachedFollowUpCaseAssignmentsCompanion({
+    this.id = const Value.absent(),
+    this.caseId = const Value.absent(),
+    this.servantId = const Value.absent(),
+    this.assignedBy = const Value.absent(),
+    this.assignedAt = const Value.absent(),
+    this.assignmentStatus = const Value.absent(),
+    this.removedAt = const Value.absent(),
+    this.clientOperationId = const Value.absent(),
+    this.cachedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  CachedFollowUpCaseAssignmentsCompanion.insert({
+    required String id,
+    required String caseId,
+    required String servantId,
+    required String assignedBy,
+    required DateTime assignedAt,
+    this.assignmentStatus = const Value.absent(),
+    this.removedAt = const Value.absent(),
+    required String clientOperationId,
+    required DateTime cachedAt,
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       caseId = Value(caseId),
+       servantId = Value(servantId),
+       assignedBy = Value(assignedBy),
+       assignedAt = Value(assignedAt),
+       clientOperationId = Value(clientOperationId),
+       cachedAt = Value(cachedAt);
+  static Insertable<CachedFollowUpCaseAssignment> custom({
+    Expression<String>? id,
+    Expression<String>? caseId,
+    Expression<String>? servantId,
+    Expression<String>? assignedBy,
+    Expression<DateTime>? assignedAt,
+    Expression<String>? assignmentStatus,
+    Expression<DateTime>? removedAt,
+    Expression<String>? clientOperationId,
+    Expression<DateTime>? cachedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (caseId != null) 'case_id': caseId,
+      if (servantId != null) 'servant_id': servantId,
+      if (assignedBy != null) 'assigned_by': assignedBy,
+      if (assignedAt != null) 'assigned_at': assignedAt,
+      if (assignmentStatus != null) 'assignment_status': assignmentStatus,
+      if (removedAt != null) 'removed_at': removedAt,
+      if (clientOperationId != null) 'client_operation_id': clientOperationId,
+      if (cachedAt != null) 'cached_at': cachedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  CachedFollowUpCaseAssignmentsCompanion copyWith({
+    Value<String>? id,
+    Value<String>? caseId,
+    Value<String>? servantId,
+    Value<String>? assignedBy,
+    Value<DateTime>? assignedAt,
+    Value<String>? assignmentStatus,
+    Value<DateTime?>? removedAt,
+    Value<String>? clientOperationId,
+    Value<DateTime>? cachedAt,
+    Value<int>? rowid,
+  }) {
+    return CachedFollowUpCaseAssignmentsCompanion(
+      id: id ?? this.id,
+      caseId: caseId ?? this.caseId,
+      servantId: servantId ?? this.servantId,
+      assignedBy: assignedBy ?? this.assignedBy,
+      assignedAt: assignedAt ?? this.assignedAt,
+      assignmentStatus: assignmentStatus ?? this.assignmentStatus,
+      removedAt: removedAt ?? this.removedAt,
+      clientOperationId: clientOperationId ?? this.clientOperationId,
+      cachedAt: cachedAt ?? this.cachedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (caseId.present) {
+      map['case_id'] = Variable<String>(caseId.value);
+    }
+    if (servantId.present) {
+      map['servant_id'] = Variable<String>(servantId.value);
+    }
+    if (assignedBy.present) {
+      map['assigned_by'] = Variable<String>(assignedBy.value);
+    }
+    if (assignedAt.present) {
+      map['assigned_at'] = Variable<DateTime>(assignedAt.value);
+    }
+    if (assignmentStatus.present) {
+      map['assignment_status'] = Variable<String>(assignmentStatus.value);
+    }
+    if (removedAt.present) {
+      map['removed_at'] = Variable<DateTime>(removedAt.value);
+    }
+    if (clientOperationId.present) {
+      map['client_operation_id'] = Variable<String>(clientOperationId.value);
+    }
+    if (cachedAt.present) {
+      map['cached_at'] = Variable<DateTime>(cachedAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CachedFollowUpCaseAssignmentsCompanion(')
+          ..write('id: $id, ')
+          ..write('caseId: $caseId, ')
+          ..write('servantId: $servantId, ')
+          ..write('assignedBy: $assignedBy, ')
+          ..write('assignedAt: $assignedAt, ')
+          ..write('assignmentStatus: $assignmentStatus, ')
+          ..write('removedAt: $removedAt, ')
+          ..write('clientOperationId: $clientOperationId, ')
+          ..write('cachedAt: $cachedAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $CachedFollowUpActivitiesTable extends CachedFollowUpActivities
+    with TableInfo<$CachedFollowUpActivitiesTable, CachedFollowUpActivity> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $CachedFollowUpActivitiesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _caseIdMeta = const VerificationMeta('caseId');
+  @override
+  late final GeneratedColumn<String> caseId = GeneratedColumn<String>(
+    'case_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _activityTypeMeta = const VerificationMeta(
+    'activityType',
+  );
+  @override
+  late final GeneratedColumn<String> activityType = GeneratedColumn<String>(
+    'activity_type',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _descriptionMeta = const VerificationMeta(
+    'description',
+  );
+  @override
+  late final GeneratedColumn<String> description = GeneratedColumn<String>(
+    'description',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _createdByMeta = const VerificationMeta(
+    'createdBy',
+  );
+  @override
+  late final GeneratedColumn<String> createdBy = GeneratedColumn<String>(
+    'created_by',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _activityDateMeta = const VerificationMeta(
+    'activityDate',
+  );
+  @override
+  late final GeneratedColumn<String> activityDate = GeneratedColumn<String>(
+    'activity_date',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _clientOperationIdMeta = const VerificationMeta(
+    'clientOperationId',
+  );
+  @override
+  late final GeneratedColumn<String> clientOperationId =
+      GeneratedColumn<String>(
+        'client_operation_id',
+        aliasedName,
+        false,
+        type: DriftSqlType.string,
+        requiredDuringInsert: true,
+      );
+  static const VerificationMeta _cachedAtMeta = const VerificationMeta(
+    'cachedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> cachedAt = GeneratedColumn<DateTime>(
+    'cached_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    caseId,
+    activityType,
+    description,
+    createdBy,
+    createdAt,
+    activityDate,
+    clientOperationId,
+    cachedAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'cached_follow_up_activities';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<CachedFollowUpActivity> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('case_id')) {
+      context.handle(
+        _caseIdMeta,
+        caseId.isAcceptableOrUnknown(data['case_id']!, _caseIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_caseIdMeta);
+    }
+    if (data.containsKey('activity_type')) {
+      context.handle(
+        _activityTypeMeta,
+        activityType.isAcceptableOrUnknown(
+          data['activity_type']!,
+          _activityTypeMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_activityTypeMeta);
+    }
+    if (data.containsKey('description')) {
+      context.handle(
+        _descriptionMeta,
+        description.isAcceptableOrUnknown(
+          data['description']!,
+          _descriptionMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_descriptionMeta);
+    }
+    if (data.containsKey('created_by')) {
+      context.handle(
+        _createdByMeta,
+        createdBy.isAcceptableOrUnknown(data['created_by']!, _createdByMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_createdByMeta);
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_createdAtMeta);
+    }
+    if (data.containsKey('activity_date')) {
+      context.handle(
+        _activityDateMeta,
+        activityDate.isAcceptableOrUnknown(
+          data['activity_date']!,
+          _activityDateMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_activityDateMeta);
+    }
+    if (data.containsKey('client_operation_id')) {
+      context.handle(
+        _clientOperationIdMeta,
+        clientOperationId.isAcceptableOrUnknown(
+          data['client_operation_id']!,
+          _clientOperationIdMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_clientOperationIdMeta);
+    }
+    if (data.containsKey('cached_at')) {
+      context.handle(
+        _cachedAtMeta,
+        cachedAt.isAcceptableOrUnknown(data['cached_at']!, _cachedAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_cachedAtMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  CachedFollowUpActivity map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return CachedFollowUpActivity(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      caseId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}case_id'],
+      )!,
+      activityType: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}activity_type'],
+      )!,
+      description: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}description'],
+      )!,
+      createdBy: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}created_by'],
+      )!,
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}created_at'],
+      )!,
+      activityDate: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}activity_date'],
+      )!,
+      clientOperationId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}client_operation_id'],
+      )!,
+      cachedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}cached_at'],
+      )!,
+    );
+  }
+
+  @override
+  $CachedFollowUpActivitiesTable createAlias(String alias) {
+    return $CachedFollowUpActivitiesTable(attachedDatabase, alias);
+  }
+}
+
+class CachedFollowUpActivity extends DataClass
+    implements Insertable<CachedFollowUpActivity> {
+  final String id;
+  final String caseId;
+  final String activityType;
+  final String description;
+  final String createdBy;
+  final DateTime createdAt;
+  final String activityDate;
+  final String clientOperationId;
+  final DateTime cachedAt;
+  const CachedFollowUpActivity({
+    required this.id,
+    required this.caseId,
+    required this.activityType,
+    required this.description,
+    required this.createdBy,
+    required this.createdAt,
+    required this.activityDate,
+    required this.clientOperationId,
+    required this.cachedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['case_id'] = Variable<String>(caseId);
+    map['activity_type'] = Variable<String>(activityType);
+    map['description'] = Variable<String>(description);
+    map['created_by'] = Variable<String>(createdBy);
+    map['created_at'] = Variable<DateTime>(createdAt);
+    map['activity_date'] = Variable<String>(activityDate);
+    map['client_operation_id'] = Variable<String>(clientOperationId);
+    map['cached_at'] = Variable<DateTime>(cachedAt);
+    return map;
+  }
+
+  CachedFollowUpActivitiesCompanion toCompanion(bool nullToAbsent) {
+    return CachedFollowUpActivitiesCompanion(
+      id: Value(id),
+      caseId: Value(caseId),
+      activityType: Value(activityType),
+      description: Value(description),
+      createdBy: Value(createdBy),
+      createdAt: Value(createdAt),
+      activityDate: Value(activityDate),
+      clientOperationId: Value(clientOperationId),
+      cachedAt: Value(cachedAt),
+    );
+  }
+
+  factory CachedFollowUpActivity.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return CachedFollowUpActivity(
+      id: serializer.fromJson<String>(json['id']),
+      caseId: serializer.fromJson<String>(json['caseId']),
+      activityType: serializer.fromJson<String>(json['activityType']),
+      description: serializer.fromJson<String>(json['description']),
+      createdBy: serializer.fromJson<String>(json['createdBy']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      activityDate: serializer.fromJson<String>(json['activityDate']),
+      clientOperationId: serializer.fromJson<String>(json['clientOperationId']),
+      cachedAt: serializer.fromJson<DateTime>(json['cachedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'caseId': serializer.toJson<String>(caseId),
+      'activityType': serializer.toJson<String>(activityType),
+      'description': serializer.toJson<String>(description),
+      'createdBy': serializer.toJson<String>(createdBy),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+      'activityDate': serializer.toJson<String>(activityDate),
+      'clientOperationId': serializer.toJson<String>(clientOperationId),
+      'cachedAt': serializer.toJson<DateTime>(cachedAt),
+    };
+  }
+
+  CachedFollowUpActivity copyWith({
+    String? id,
+    String? caseId,
+    String? activityType,
+    String? description,
+    String? createdBy,
+    DateTime? createdAt,
+    String? activityDate,
+    String? clientOperationId,
+    DateTime? cachedAt,
+  }) => CachedFollowUpActivity(
+    id: id ?? this.id,
+    caseId: caseId ?? this.caseId,
+    activityType: activityType ?? this.activityType,
+    description: description ?? this.description,
+    createdBy: createdBy ?? this.createdBy,
+    createdAt: createdAt ?? this.createdAt,
+    activityDate: activityDate ?? this.activityDate,
+    clientOperationId: clientOperationId ?? this.clientOperationId,
+    cachedAt: cachedAt ?? this.cachedAt,
+  );
+  CachedFollowUpActivity copyWithCompanion(
+    CachedFollowUpActivitiesCompanion data,
+  ) {
+    return CachedFollowUpActivity(
+      id: data.id.present ? data.id.value : this.id,
+      caseId: data.caseId.present ? data.caseId.value : this.caseId,
+      activityType: data.activityType.present
+          ? data.activityType.value
+          : this.activityType,
+      description: data.description.present
+          ? data.description.value
+          : this.description,
+      createdBy: data.createdBy.present ? data.createdBy.value : this.createdBy,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      activityDate: data.activityDate.present
+          ? data.activityDate.value
+          : this.activityDate,
+      clientOperationId: data.clientOperationId.present
+          ? data.clientOperationId.value
+          : this.clientOperationId,
+      cachedAt: data.cachedAt.present ? data.cachedAt.value : this.cachedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CachedFollowUpActivity(')
+          ..write('id: $id, ')
+          ..write('caseId: $caseId, ')
+          ..write('activityType: $activityType, ')
+          ..write('description: $description, ')
+          ..write('createdBy: $createdBy, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('activityDate: $activityDate, ')
+          ..write('clientOperationId: $clientOperationId, ')
+          ..write('cachedAt: $cachedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    caseId,
+    activityType,
+    description,
+    createdBy,
+    createdAt,
+    activityDate,
+    clientOperationId,
+    cachedAt,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is CachedFollowUpActivity &&
+          other.id == this.id &&
+          other.caseId == this.caseId &&
+          other.activityType == this.activityType &&
+          other.description == this.description &&
+          other.createdBy == this.createdBy &&
+          other.createdAt == this.createdAt &&
+          other.activityDate == this.activityDate &&
+          other.clientOperationId == this.clientOperationId &&
+          other.cachedAt == this.cachedAt);
+}
+
+class CachedFollowUpActivitiesCompanion
+    extends UpdateCompanion<CachedFollowUpActivity> {
+  final Value<String> id;
+  final Value<String> caseId;
+  final Value<String> activityType;
+  final Value<String> description;
+  final Value<String> createdBy;
+  final Value<DateTime> createdAt;
+  final Value<String> activityDate;
+  final Value<String> clientOperationId;
+  final Value<DateTime> cachedAt;
+  final Value<int> rowid;
+  const CachedFollowUpActivitiesCompanion({
+    this.id = const Value.absent(),
+    this.caseId = const Value.absent(),
+    this.activityType = const Value.absent(),
+    this.description = const Value.absent(),
+    this.createdBy = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.activityDate = const Value.absent(),
+    this.clientOperationId = const Value.absent(),
+    this.cachedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  CachedFollowUpActivitiesCompanion.insert({
+    required String id,
+    required String caseId,
+    required String activityType,
+    required String description,
+    required String createdBy,
+    required DateTime createdAt,
+    required String activityDate,
+    required String clientOperationId,
+    required DateTime cachedAt,
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       caseId = Value(caseId),
+       activityType = Value(activityType),
+       description = Value(description),
+       createdBy = Value(createdBy),
+       createdAt = Value(createdAt),
+       activityDate = Value(activityDate),
+       clientOperationId = Value(clientOperationId),
+       cachedAt = Value(cachedAt);
+  static Insertable<CachedFollowUpActivity> custom({
+    Expression<String>? id,
+    Expression<String>? caseId,
+    Expression<String>? activityType,
+    Expression<String>? description,
+    Expression<String>? createdBy,
+    Expression<DateTime>? createdAt,
+    Expression<String>? activityDate,
+    Expression<String>? clientOperationId,
+    Expression<DateTime>? cachedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (caseId != null) 'case_id': caseId,
+      if (activityType != null) 'activity_type': activityType,
+      if (description != null) 'description': description,
+      if (createdBy != null) 'created_by': createdBy,
+      if (createdAt != null) 'created_at': createdAt,
+      if (activityDate != null) 'activity_date': activityDate,
+      if (clientOperationId != null) 'client_operation_id': clientOperationId,
+      if (cachedAt != null) 'cached_at': cachedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  CachedFollowUpActivitiesCompanion copyWith({
+    Value<String>? id,
+    Value<String>? caseId,
+    Value<String>? activityType,
+    Value<String>? description,
+    Value<String>? createdBy,
+    Value<DateTime>? createdAt,
+    Value<String>? activityDate,
+    Value<String>? clientOperationId,
+    Value<DateTime>? cachedAt,
+    Value<int>? rowid,
+  }) {
+    return CachedFollowUpActivitiesCompanion(
+      id: id ?? this.id,
+      caseId: caseId ?? this.caseId,
+      activityType: activityType ?? this.activityType,
+      description: description ?? this.description,
+      createdBy: createdBy ?? this.createdBy,
+      createdAt: createdAt ?? this.createdAt,
+      activityDate: activityDate ?? this.activityDate,
+      clientOperationId: clientOperationId ?? this.clientOperationId,
+      cachedAt: cachedAt ?? this.cachedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (caseId.present) {
+      map['case_id'] = Variable<String>(caseId.value);
+    }
+    if (activityType.present) {
+      map['activity_type'] = Variable<String>(activityType.value);
+    }
+    if (description.present) {
+      map['description'] = Variable<String>(description.value);
+    }
+    if (createdBy.present) {
+      map['created_by'] = Variable<String>(createdBy.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (activityDate.present) {
+      map['activity_date'] = Variable<String>(activityDate.value);
+    }
+    if (clientOperationId.present) {
+      map['client_operation_id'] = Variable<String>(clientOperationId.value);
+    }
+    if (cachedAt.present) {
+      map['cached_at'] = Variable<DateTime>(cachedAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CachedFollowUpActivitiesCompanion(')
+          ..write('id: $id, ')
+          ..write('caseId: $caseId, ')
+          ..write('activityType: $activityType, ')
+          ..write('description: $description, ')
+          ..write('createdBy: $createdBy, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('activityDate: $activityDate, ')
+          ..write('clientOperationId: $clientOperationId, ')
+          ..write('cachedAt: $cachedAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 class $SyncQueueEntriesTable extends SyncQueueEntries
     with TableInfo<$SyncQueueEntriesTable, SyncQueueEntry> {
   @override
@@ -6705,6 +8778,12 @@ abstract class _$AppDatabase extends GeneratedDatabase {
       $CachedFollowUpRecordsTable(this);
   late final $CachedReportingPeriodsTable cachedReportingPeriods =
       $CachedReportingPeriodsTable(this);
+  late final $CachedFollowUpCasesTable cachedFollowUpCases =
+      $CachedFollowUpCasesTable(this);
+  late final $CachedFollowUpCaseAssignmentsTable cachedFollowUpCaseAssignments =
+      $CachedFollowUpCaseAssignmentsTable(this);
+  late final $CachedFollowUpActivitiesTable cachedFollowUpActivities =
+      $CachedFollowUpActivitiesTable(this);
   late final $SyncQueueEntriesTable syncQueueEntries = $SyncQueueEntriesTable(
     this,
   );
@@ -6723,6 +8802,9 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     cachedAttendanceRecords,
     cachedFollowUpRecords,
     cachedReportingPeriods,
+    cachedFollowUpCases,
+    cachedFollowUpCaseAssignments,
+    cachedFollowUpActivities,
     syncQueueEntries,
   ];
 }
@@ -9884,6 +11966,1078 @@ typedef $$CachedReportingPeriodsTableProcessedTableManager =
       CachedReportingPeriod,
       PrefetchHooks Function()
     >;
+typedef $$CachedFollowUpCasesTableCreateCompanionBuilder =
+    CachedFollowUpCasesCompanion Function({
+      required String id,
+      required String serviceId,
+      required String studentId,
+      required String classId,
+      required String title,
+      Value<String?> description,
+      required String priority,
+      required String status,
+      Value<String> caseType,
+      required String createdBy,
+      required DateTime createdAt,
+      required DateTime updatedAt,
+      Value<DateTime?> resolvedAt,
+      Value<DateTime?> closedAt,
+      required String clientOperationId,
+      required DateTime cachedAt,
+      Value<int> rowid,
+    });
+typedef $$CachedFollowUpCasesTableUpdateCompanionBuilder =
+    CachedFollowUpCasesCompanion Function({
+      Value<String> id,
+      Value<String> serviceId,
+      Value<String> studentId,
+      Value<String> classId,
+      Value<String> title,
+      Value<String?> description,
+      Value<String> priority,
+      Value<String> status,
+      Value<String> caseType,
+      Value<String> createdBy,
+      Value<DateTime> createdAt,
+      Value<DateTime> updatedAt,
+      Value<DateTime?> resolvedAt,
+      Value<DateTime?> closedAt,
+      Value<String> clientOperationId,
+      Value<DateTime> cachedAt,
+      Value<int> rowid,
+    });
+
+class $$CachedFollowUpCasesTableFilterComposer
+    extends Composer<_$AppDatabase, $CachedFollowUpCasesTable> {
+  $$CachedFollowUpCasesTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get serviceId => $composableBuilder(
+    column: $table.serviceId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get studentId => $composableBuilder(
+    column: $table.studentId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get classId => $composableBuilder(
+    column: $table.classId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get title => $composableBuilder(
+    column: $table.title,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get description => $composableBuilder(
+    column: $table.description,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get priority => $composableBuilder(
+    column: $table.priority,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get status => $composableBuilder(
+    column: $table.status,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get caseType => $composableBuilder(
+    column: $table.caseType,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get createdBy => $composableBuilder(
+    column: $table.createdBy,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get resolvedAt => $composableBuilder(
+    column: $table.resolvedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get closedAt => $composableBuilder(
+    column: $table.closedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get clientOperationId => $composableBuilder(
+    column: $table.clientOperationId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get cachedAt => $composableBuilder(
+    column: $table.cachedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$CachedFollowUpCasesTableOrderingComposer
+    extends Composer<_$AppDatabase, $CachedFollowUpCasesTable> {
+  $$CachedFollowUpCasesTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get serviceId => $composableBuilder(
+    column: $table.serviceId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get studentId => $composableBuilder(
+    column: $table.studentId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get classId => $composableBuilder(
+    column: $table.classId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get title => $composableBuilder(
+    column: $table.title,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get description => $composableBuilder(
+    column: $table.description,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get priority => $composableBuilder(
+    column: $table.priority,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get status => $composableBuilder(
+    column: $table.status,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get caseType => $composableBuilder(
+    column: $table.caseType,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get createdBy => $composableBuilder(
+    column: $table.createdBy,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get resolvedAt => $composableBuilder(
+    column: $table.resolvedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get closedAt => $composableBuilder(
+    column: $table.closedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get clientOperationId => $composableBuilder(
+    column: $table.clientOperationId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get cachedAt => $composableBuilder(
+    column: $table.cachedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$CachedFollowUpCasesTableAnnotationComposer
+    extends Composer<_$AppDatabase, $CachedFollowUpCasesTable> {
+  $$CachedFollowUpCasesTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get serviceId =>
+      $composableBuilder(column: $table.serviceId, builder: (column) => column);
+
+  GeneratedColumn<String> get studentId =>
+      $composableBuilder(column: $table.studentId, builder: (column) => column);
+
+  GeneratedColumn<String> get classId =>
+      $composableBuilder(column: $table.classId, builder: (column) => column);
+
+  GeneratedColumn<String> get title =>
+      $composableBuilder(column: $table.title, builder: (column) => column);
+
+  GeneratedColumn<String> get description => $composableBuilder(
+    column: $table.description,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get priority =>
+      $composableBuilder(column: $table.priority, builder: (column) => column);
+
+  GeneratedColumn<String> get status =>
+      $composableBuilder(column: $table.status, builder: (column) => column);
+
+  GeneratedColumn<String> get caseType =>
+      $composableBuilder(column: $table.caseType, builder: (column) => column);
+
+  GeneratedColumn<String> get createdBy =>
+      $composableBuilder(column: $table.createdBy, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get resolvedAt => $composableBuilder(
+    column: $table.resolvedAt,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get closedAt =>
+      $composableBuilder(column: $table.closedAt, builder: (column) => column);
+
+  GeneratedColumn<String> get clientOperationId => $composableBuilder(
+    column: $table.clientOperationId,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get cachedAt =>
+      $composableBuilder(column: $table.cachedAt, builder: (column) => column);
+}
+
+class $$CachedFollowUpCasesTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $CachedFollowUpCasesTable,
+          CachedFollowUpCase,
+          $$CachedFollowUpCasesTableFilterComposer,
+          $$CachedFollowUpCasesTableOrderingComposer,
+          $$CachedFollowUpCasesTableAnnotationComposer,
+          $$CachedFollowUpCasesTableCreateCompanionBuilder,
+          $$CachedFollowUpCasesTableUpdateCompanionBuilder,
+          (
+            CachedFollowUpCase,
+            BaseReferences<
+              _$AppDatabase,
+              $CachedFollowUpCasesTable,
+              CachedFollowUpCase
+            >,
+          ),
+          CachedFollowUpCase,
+          PrefetchHooks Function()
+        > {
+  $$CachedFollowUpCasesTableTableManager(
+    _$AppDatabase db,
+    $CachedFollowUpCasesTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$CachedFollowUpCasesTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$CachedFollowUpCasesTableOrderingComposer(
+                $db: db,
+                $table: table,
+              ),
+          createComputedFieldComposer: () =>
+              $$CachedFollowUpCasesTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String> serviceId = const Value.absent(),
+                Value<String> studentId = const Value.absent(),
+                Value<String> classId = const Value.absent(),
+                Value<String> title = const Value.absent(),
+                Value<String?> description = const Value.absent(),
+                Value<String> priority = const Value.absent(),
+                Value<String> status = const Value.absent(),
+                Value<String> caseType = const Value.absent(),
+                Value<String> createdBy = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<DateTime> updatedAt = const Value.absent(),
+                Value<DateTime?> resolvedAt = const Value.absent(),
+                Value<DateTime?> closedAt = const Value.absent(),
+                Value<String> clientOperationId = const Value.absent(),
+                Value<DateTime> cachedAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => CachedFollowUpCasesCompanion(
+                id: id,
+                serviceId: serviceId,
+                studentId: studentId,
+                classId: classId,
+                title: title,
+                description: description,
+                priority: priority,
+                status: status,
+                caseType: caseType,
+                createdBy: createdBy,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                resolvedAt: resolvedAt,
+                closedAt: closedAt,
+                clientOperationId: clientOperationId,
+                cachedAt: cachedAt,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required String serviceId,
+                required String studentId,
+                required String classId,
+                required String title,
+                Value<String?> description = const Value.absent(),
+                required String priority,
+                required String status,
+                Value<String> caseType = const Value.absent(),
+                required String createdBy,
+                required DateTime createdAt,
+                required DateTime updatedAt,
+                Value<DateTime?> resolvedAt = const Value.absent(),
+                Value<DateTime?> closedAt = const Value.absent(),
+                required String clientOperationId,
+                required DateTime cachedAt,
+                Value<int> rowid = const Value.absent(),
+              }) => CachedFollowUpCasesCompanion.insert(
+                id: id,
+                serviceId: serviceId,
+                studentId: studentId,
+                classId: classId,
+                title: title,
+                description: description,
+                priority: priority,
+                status: status,
+                caseType: caseType,
+                createdBy: createdBy,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                resolvedAt: resolvedAt,
+                closedAt: closedAt,
+                clientOperationId: clientOperationId,
+                cachedAt: cachedAt,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable<$CachedFollowUpCasesTable, CachedFollowUpCase>(
+                    table,
+                  ),
+                  BaseReferences<
+                    _$AppDatabase,
+                    $CachedFollowUpCasesTable,
+                    CachedFollowUpCase
+                  >(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$CachedFollowUpCasesTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $CachedFollowUpCasesTable,
+      CachedFollowUpCase,
+      $$CachedFollowUpCasesTableFilterComposer,
+      $$CachedFollowUpCasesTableOrderingComposer,
+      $$CachedFollowUpCasesTableAnnotationComposer,
+      $$CachedFollowUpCasesTableCreateCompanionBuilder,
+      $$CachedFollowUpCasesTableUpdateCompanionBuilder,
+      (
+        CachedFollowUpCase,
+        BaseReferences<
+          _$AppDatabase,
+          $CachedFollowUpCasesTable,
+          CachedFollowUpCase
+        >,
+      ),
+      CachedFollowUpCase,
+      PrefetchHooks Function()
+    >;
+typedef $$CachedFollowUpCaseAssignmentsTableCreateCompanionBuilder =
+    CachedFollowUpCaseAssignmentsCompanion Function({
+      required String id,
+      required String caseId,
+      required String servantId,
+      required String assignedBy,
+      required DateTime assignedAt,
+      Value<String> assignmentStatus,
+      Value<DateTime?> removedAt,
+      required String clientOperationId,
+      required DateTime cachedAt,
+      Value<int> rowid,
+    });
+typedef $$CachedFollowUpCaseAssignmentsTableUpdateCompanionBuilder =
+    CachedFollowUpCaseAssignmentsCompanion Function({
+      Value<String> id,
+      Value<String> caseId,
+      Value<String> servantId,
+      Value<String> assignedBy,
+      Value<DateTime> assignedAt,
+      Value<String> assignmentStatus,
+      Value<DateTime?> removedAt,
+      Value<String> clientOperationId,
+      Value<DateTime> cachedAt,
+      Value<int> rowid,
+    });
+
+class $$CachedFollowUpCaseAssignmentsTableFilterComposer
+    extends Composer<_$AppDatabase, $CachedFollowUpCaseAssignmentsTable> {
+  $$CachedFollowUpCaseAssignmentsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get caseId => $composableBuilder(
+    column: $table.caseId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get servantId => $composableBuilder(
+    column: $table.servantId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get assignedBy => $composableBuilder(
+    column: $table.assignedBy,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get assignedAt => $composableBuilder(
+    column: $table.assignedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get assignmentStatus => $composableBuilder(
+    column: $table.assignmentStatus,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get removedAt => $composableBuilder(
+    column: $table.removedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get clientOperationId => $composableBuilder(
+    column: $table.clientOperationId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get cachedAt => $composableBuilder(
+    column: $table.cachedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$CachedFollowUpCaseAssignmentsTableOrderingComposer
+    extends Composer<_$AppDatabase, $CachedFollowUpCaseAssignmentsTable> {
+  $$CachedFollowUpCaseAssignmentsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get caseId => $composableBuilder(
+    column: $table.caseId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get servantId => $composableBuilder(
+    column: $table.servantId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get assignedBy => $composableBuilder(
+    column: $table.assignedBy,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get assignedAt => $composableBuilder(
+    column: $table.assignedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get assignmentStatus => $composableBuilder(
+    column: $table.assignmentStatus,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get removedAt => $composableBuilder(
+    column: $table.removedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get clientOperationId => $composableBuilder(
+    column: $table.clientOperationId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get cachedAt => $composableBuilder(
+    column: $table.cachedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$CachedFollowUpCaseAssignmentsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $CachedFollowUpCaseAssignmentsTable> {
+  $$CachedFollowUpCaseAssignmentsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get caseId =>
+      $composableBuilder(column: $table.caseId, builder: (column) => column);
+
+  GeneratedColumn<String> get servantId =>
+      $composableBuilder(column: $table.servantId, builder: (column) => column);
+
+  GeneratedColumn<String> get assignedBy => $composableBuilder(
+    column: $table.assignedBy,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get assignedAt => $composableBuilder(
+    column: $table.assignedAt,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get assignmentStatus => $composableBuilder(
+    column: $table.assignmentStatus,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get removedAt =>
+      $composableBuilder(column: $table.removedAt, builder: (column) => column);
+
+  GeneratedColumn<String> get clientOperationId => $composableBuilder(
+    column: $table.clientOperationId,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get cachedAt =>
+      $composableBuilder(column: $table.cachedAt, builder: (column) => column);
+}
+
+class $$CachedFollowUpCaseAssignmentsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $CachedFollowUpCaseAssignmentsTable,
+          CachedFollowUpCaseAssignment,
+          $$CachedFollowUpCaseAssignmentsTableFilterComposer,
+          $$CachedFollowUpCaseAssignmentsTableOrderingComposer,
+          $$CachedFollowUpCaseAssignmentsTableAnnotationComposer,
+          $$CachedFollowUpCaseAssignmentsTableCreateCompanionBuilder,
+          $$CachedFollowUpCaseAssignmentsTableUpdateCompanionBuilder,
+          (
+            CachedFollowUpCaseAssignment,
+            BaseReferences<
+              _$AppDatabase,
+              $CachedFollowUpCaseAssignmentsTable,
+              CachedFollowUpCaseAssignment
+            >,
+          ),
+          CachedFollowUpCaseAssignment,
+          PrefetchHooks Function()
+        > {
+  $$CachedFollowUpCaseAssignmentsTableTableManager(
+    _$AppDatabase db,
+    $CachedFollowUpCaseAssignmentsTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$CachedFollowUpCaseAssignmentsTableFilterComposer(
+                $db: db,
+                $table: table,
+              ),
+          createOrderingComposer: () =>
+              $$CachedFollowUpCaseAssignmentsTableOrderingComposer(
+                $db: db,
+                $table: table,
+              ),
+          createComputedFieldComposer: () =>
+              $$CachedFollowUpCaseAssignmentsTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String> caseId = const Value.absent(),
+                Value<String> servantId = const Value.absent(),
+                Value<String> assignedBy = const Value.absent(),
+                Value<DateTime> assignedAt = const Value.absent(),
+                Value<String> assignmentStatus = const Value.absent(),
+                Value<DateTime?> removedAt = const Value.absent(),
+                Value<String> clientOperationId = const Value.absent(),
+                Value<DateTime> cachedAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => CachedFollowUpCaseAssignmentsCompanion(
+                id: id,
+                caseId: caseId,
+                servantId: servantId,
+                assignedBy: assignedBy,
+                assignedAt: assignedAt,
+                assignmentStatus: assignmentStatus,
+                removedAt: removedAt,
+                clientOperationId: clientOperationId,
+                cachedAt: cachedAt,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required String caseId,
+                required String servantId,
+                required String assignedBy,
+                required DateTime assignedAt,
+                Value<String> assignmentStatus = const Value.absent(),
+                Value<DateTime?> removedAt = const Value.absent(),
+                required String clientOperationId,
+                required DateTime cachedAt,
+                Value<int> rowid = const Value.absent(),
+              }) => CachedFollowUpCaseAssignmentsCompanion.insert(
+                id: id,
+                caseId: caseId,
+                servantId: servantId,
+                assignedBy: assignedBy,
+                assignedAt: assignedAt,
+                assignmentStatus: assignmentStatus,
+                removedAt: removedAt,
+                clientOperationId: clientOperationId,
+                cachedAt: cachedAt,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable<
+                    $CachedFollowUpCaseAssignmentsTable,
+                    CachedFollowUpCaseAssignment
+                  >(table),
+                  BaseReferences<
+                    _$AppDatabase,
+                    $CachedFollowUpCaseAssignmentsTable,
+                    CachedFollowUpCaseAssignment
+                  >(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$CachedFollowUpCaseAssignmentsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $CachedFollowUpCaseAssignmentsTable,
+      CachedFollowUpCaseAssignment,
+      $$CachedFollowUpCaseAssignmentsTableFilterComposer,
+      $$CachedFollowUpCaseAssignmentsTableOrderingComposer,
+      $$CachedFollowUpCaseAssignmentsTableAnnotationComposer,
+      $$CachedFollowUpCaseAssignmentsTableCreateCompanionBuilder,
+      $$CachedFollowUpCaseAssignmentsTableUpdateCompanionBuilder,
+      (
+        CachedFollowUpCaseAssignment,
+        BaseReferences<
+          _$AppDatabase,
+          $CachedFollowUpCaseAssignmentsTable,
+          CachedFollowUpCaseAssignment
+        >,
+      ),
+      CachedFollowUpCaseAssignment,
+      PrefetchHooks Function()
+    >;
+typedef $$CachedFollowUpActivitiesTableCreateCompanionBuilder =
+    CachedFollowUpActivitiesCompanion Function({
+      required String id,
+      required String caseId,
+      required String activityType,
+      required String description,
+      required String createdBy,
+      required DateTime createdAt,
+      required String activityDate,
+      required String clientOperationId,
+      required DateTime cachedAt,
+      Value<int> rowid,
+    });
+typedef $$CachedFollowUpActivitiesTableUpdateCompanionBuilder =
+    CachedFollowUpActivitiesCompanion Function({
+      Value<String> id,
+      Value<String> caseId,
+      Value<String> activityType,
+      Value<String> description,
+      Value<String> createdBy,
+      Value<DateTime> createdAt,
+      Value<String> activityDate,
+      Value<String> clientOperationId,
+      Value<DateTime> cachedAt,
+      Value<int> rowid,
+    });
+
+class $$CachedFollowUpActivitiesTableFilterComposer
+    extends Composer<_$AppDatabase, $CachedFollowUpActivitiesTable> {
+  $$CachedFollowUpActivitiesTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get caseId => $composableBuilder(
+    column: $table.caseId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get activityType => $composableBuilder(
+    column: $table.activityType,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get description => $composableBuilder(
+    column: $table.description,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get createdBy => $composableBuilder(
+    column: $table.createdBy,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get activityDate => $composableBuilder(
+    column: $table.activityDate,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get clientOperationId => $composableBuilder(
+    column: $table.clientOperationId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get cachedAt => $composableBuilder(
+    column: $table.cachedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$CachedFollowUpActivitiesTableOrderingComposer
+    extends Composer<_$AppDatabase, $CachedFollowUpActivitiesTable> {
+  $$CachedFollowUpActivitiesTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get caseId => $composableBuilder(
+    column: $table.caseId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get activityType => $composableBuilder(
+    column: $table.activityType,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get description => $composableBuilder(
+    column: $table.description,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get createdBy => $composableBuilder(
+    column: $table.createdBy,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get activityDate => $composableBuilder(
+    column: $table.activityDate,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get clientOperationId => $composableBuilder(
+    column: $table.clientOperationId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get cachedAt => $composableBuilder(
+    column: $table.cachedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$CachedFollowUpActivitiesTableAnnotationComposer
+    extends Composer<_$AppDatabase, $CachedFollowUpActivitiesTable> {
+  $$CachedFollowUpActivitiesTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get caseId =>
+      $composableBuilder(column: $table.caseId, builder: (column) => column);
+
+  GeneratedColumn<String> get activityType => $composableBuilder(
+    column: $table.activityType,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get description => $composableBuilder(
+    column: $table.description,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get createdBy =>
+      $composableBuilder(column: $table.createdBy, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<String> get activityDate => $composableBuilder(
+    column: $table.activityDate,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get clientOperationId => $composableBuilder(
+    column: $table.clientOperationId,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get cachedAt =>
+      $composableBuilder(column: $table.cachedAt, builder: (column) => column);
+}
+
+class $$CachedFollowUpActivitiesTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $CachedFollowUpActivitiesTable,
+          CachedFollowUpActivity,
+          $$CachedFollowUpActivitiesTableFilterComposer,
+          $$CachedFollowUpActivitiesTableOrderingComposer,
+          $$CachedFollowUpActivitiesTableAnnotationComposer,
+          $$CachedFollowUpActivitiesTableCreateCompanionBuilder,
+          $$CachedFollowUpActivitiesTableUpdateCompanionBuilder,
+          (
+            CachedFollowUpActivity,
+            BaseReferences<
+              _$AppDatabase,
+              $CachedFollowUpActivitiesTable,
+              CachedFollowUpActivity
+            >,
+          ),
+          CachedFollowUpActivity,
+          PrefetchHooks Function()
+        > {
+  $$CachedFollowUpActivitiesTableTableManager(
+    _$AppDatabase db,
+    $CachedFollowUpActivitiesTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$CachedFollowUpActivitiesTableFilterComposer(
+                $db: db,
+                $table: table,
+              ),
+          createOrderingComposer: () =>
+              $$CachedFollowUpActivitiesTableOrderingComposer(
+                $db: db,
+                $table: table,
+              ),
+          createComputedFieldComposer: () =>
+              $$CachedFollowUpActivitiesTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String> caseId = const Value.absent(),
+                Value<String> activityType = const Value.absent(),
+                Value<String> description = const Value.absent(),
+                Value<String> createdBy = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<String> activityDate = const Value.absent(),
+                Value<String> clientOperationId = const Value.absent(),
+                Value<DateTime> cachedAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => CachedFollowUpActivitiesCompanion(
+                id: id,
+                caseId: caseId,
+                activityType: activityType,
+                description: description,
+                createdBy: createdBy,
+                createdAt: createdAt,
+                activityDate: activityDate,
+                clientOperationId: clientOperationId,
+                cachedAt: cachedAt,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required String caseId,
+                required String activityType,
+                required String description,
+                required String createdBy,
+                required DateTime createdAt,
+                required String activityDate,
+                required String clientOperationId,
+                required DateTime cachedAt,
+                Value<int> rowid = const Value.absent(),
+              }) => CachedFollowUpActivitiesCompanion.insert(
+                id: id,
+                caseId: caseId,
+                activityType: activityType,
+                description: description,
+                createdBy: createdBy,
+                createdAt: createdAt,
+                activityDate: activityDate,
+                clientOperationId: clientOperationId,
+                cachedAt: cachedAt,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable<
+                    $CachedFollowUpActivitiesTable,
+                    CachedFollowUpActivity
+                  >(table),
+                  BaseReferences<
+                    _$AppDatabase,
+                    $CachedFollowUpActivitiesTable,
+                    CachedFollowUpActivity
+                  >(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$CachedFollowUpActivitiesTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $CachedFollowUpActivitiesTable,
+      CachedFollowUpActivity,
+      $$CachedFollowUpActivitiesTableFilterComposer,
+      $$CachedFollowUpActivitiesTableOrderingComposer,
+      $$CachedFollowUpActivitiesTableAnnotationComposer,
+      $$CachedFollowUpActivitiesTableCreateCompanionBuilder,
+      $$CachedFollowUpActivitiesTableUpdateCompanionBuilder,
+      (
+        CachedFollowUpActivity,
+        BaseReferences<
+          _$AppDatabase,
+          $CachedFollowUpActivitiesTable,
+          CachedFollowUpActivity
+        >,
+      ),
+      CachedFollowUpActivity,
+      PrefetchHooks Function()
+    >;
 typedef $$SyncQueueEntriesTableCreateCompanionBuilder =
     SyncQueueEntriesCompanion Function({
       required String operationId,
@@ -10199,6 +13353,19 @@ class $AppDatabaseManager {
       $$CachedReportingPeriodsTableTableManager(
         _db,
         _db.cachedReportingPeriods,
+      );
+  $$CachedFollowUpCasesTableTableManager get cachedFollowUpCases =>
+      $$CachedFollowUpCasesTableTableManager(_db, _db.cachedFollowUpCases);
+  $$CachedFollowUpCaseAssignmentsTableTableManager
+  get cachedFollowUpCaseAssignments =>
+      $$CachedFollowUpCaseAssignmentsTableTableManager(
+        _db,
+        _db.cachedFollowUpCaseAssignments,
+      );
+  $$CachedFollowUpActivitiesTableTableManager get cachedFollowUpActivities =>
+      $$CachedFollowUpActivitiesTableTableManager(
+        _db,
+        _db.cachedFollowUpActivities,
       );
   $$SyncQueueEntriesTableTableManager get syncQueueEntries =>
       $$SyncQueueEntriesTableTableManager(_db, _db.syncQueueEntries);

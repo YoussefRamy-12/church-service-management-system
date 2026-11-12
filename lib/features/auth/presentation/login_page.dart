@@ -164,11 +164,11 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
     final cardBg = isDark
-        ? const Color(0xFF131D33).withValues(alpha: 0.90)
-        : Colors.white.withValues(alpha: 0.85);
+        ? const Color(0xFF131D33)
+        : Colors.white;
     final cardBorder = isDark
-        ? const Color(0x33818CF8)
-        : Colors.white.withValues(alpha: 0.8);
+        ? const Color(0xFF1E293B)
+        : const Color(0xFFE2E8F0);
 
     return Scaffold(
       key: const Key('login_page'),
@@ -188,7 +188,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                   isDark ? Icons.light_mode_rounded : Icons.dark_mode_rounded,
                   color: isDark
                       ? const Color(0xFFFBBF24)
-                      : const Color(0xFF4F46E5),
+                      : const Color(0xFF00236F),
                 ),
               ),
             ),
@@ -201,14 +201,14 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                     vertical: 32,
                   ),
                   child: ClipRRect(
-                    borderRadius: BorderRadius.circular(28),
+                    borderRadius: BorderRadius.circular(12),
                     child: BackdropFilter(
                       filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
                       child: Container(
                         decoration: BoxDecoration(
                           color: cardBg,
-                          borderRadius: BorderRadius.circular(28),
-                          border: Border.all(color: cardBorder, width: 1.5),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: cardBorder, width: 1),
                           boxShadow: [
                             BoxShadow(
                               color: isDark
@@ -218,13 +218,6 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                                     ).withValues(alpha: 0.08),
                               blurRadius: 32,
                               offset: const Offset(0, 12),
-                            ),
-                            BoxShadow(
-                              color: const Color(
-                                0xFF4F46E5,
-                              ).withValues(alpha: isDark ? 0.15 : 0.08),
-                              blurRadius: 40,
-                              offset: const Offset(0, 16),
                             ),
                           ],
                         ),
@@ -237,32 +230,19 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                             children: [
                               Center(
                                 child: Container(
-                                  width: 76,
-                                  height: 76,
+                                  width: 72,
+                                  height: 72,
                                   decoration: BoxDecoration(
-                                    gradient: const LinearGradient(
-                                      colors: [
-                                        Color(0xFF4338CA),
-                                        Color(0xFF6366F1),
-                                      ],
-                                      begin: Alignment.topLeft,
-                                      end: Alignment.bottomRight,
+                                    color: const Color(0xFF00236F).withValues(alpha: 0.08),
+                                    borderRadius: BorderRadius.circular(12),
+                                    border: Border.all(
+                                      color: const Color(0xFF00236F).withValues(alpha: 0.20),
                                     ),
-                                    borderRadius: BorderRadius.circular(24),
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: const Color(
-                                          0xFF4F46E5,
-                                        ).withValues(alpha: 0.38),
-                                        blurRadius: 20,
-                                        offset: const Offset(0, 8),
-                                      ),
-                                    ],
                                   ),
                                   child: const Icon(
                                     Icons.church_rounded,
-                                    size: 40,
-                                    color: Colors.white,
+                                    size: 36,
+                                    color: Color(0xFF00236F),
                                   ),
                                 ),
                               ),
@@ -416,7 +396,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                                 style: FilledButton.styleFrom(
                                   minimumSize: const Size(0, 52),
                                   shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(16),
+                                    borderRadius: BorderRadius.circular(8),
                                   ),
                                 ),
                                 child: _loading

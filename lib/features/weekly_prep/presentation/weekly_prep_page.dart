@@ -1,10 +1,5 @@
-import 'dart:typed_data';
-
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 import '../../../app/ui/app_ui.dart';
 import '../../attendance/domain/entities/meeting.dart';
@@ -13,7 +8,10 @@ import '../../auth/domain/entities/servant_profile.dart';
 import '../../auth/presentation/auth_providers.dart';
 import '../../service/domain/entities/stage.dart';
 import '../../service/presentation/service_providers.dart';
-import '../domain/weekly_lesson.dart';
+import '../domain/prep_date_formatter.dart';
+import '../domain/weekly_prep_permissions.dart';
+import 'leadership/leadership_prep_dashboard.dart';
+import 'servant/servant_prep_view.dart';
 import 'weekly_prep_providers.dart';
 
 class WeeklyPrepPage extends ConsumerStatefulWidget {
@@ -28,6 +26,7 @@ class _WeeklyPrepPageState extends ConsumerState<WeeklyPrepPage> {
   bool _refreshing = false;
   String? _classStageId;
   late Future<List<Stage>> _stagesFuture;
+  bool _forceServantView = false;
 
   @override
   void initState() {
@@ -41,7 +40,9 @@ class _WeeklyPrepPageState extends ConsumerState<WeeklyPrepPage> {
     try {
       await meetings.refresh(widget.serviceId);
       final profile = await ref.read(currentServantProfileProvider.future);
-      if (ref.read(isSuperAdminProvider) || profile?.role == 'overall_leader') {
+      if (ref.read(isSuperAdminProvider) ||
+          profile?.role == 'overall_leader' ||
+          profile?.role == 'overall_helper') {
         final service = await ref
             .read(serviceRepositoryProvider)
             .getService(widget.serviceId);
@@ -49,7 +50,7 @@ class _WeeklyPrepPageState extends ConsumerState<WeeklyPrepPage> {
         await meetings.refresh(widget.serviceId);
       }
     } catch (_) {
-      // Use the available schedule if the service is offline.
+      // Use the available schedule if offline.
     }
   }
 
@@ -78,431 +79,53 @@ class _WeeklyPrepPageState extends ConsumerState<WeeklyPrepPage> {
       _stagesFuture = _loadStages();
       await ref.read(meetingRepositoryProvider).refresh(widget.serviceId);
       ref.invalidate(weeklyLessonsProvider(widget.serviceId));
+      ref.invalidate(dashboardPreparationsProvider);
+      ref.invalidate(dashboardStatusCountsProvider);
       await ref.read(weeklyLessonsProvider(widget.serviceId).future);
     } catch (error) {
-      if (mounted) _message('تعذر تحديث التحاضير: $error');
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('تعذر تحديث التحاضير: $error')));
+      }
     } finally {
       if (mounted) setState(() => _refreshing = false);
     }
   }
 
-  void _message(String text) =>
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(text)));
-
-  Future<void> _open(WeeklyLesson lesson, {required bool download}) async {
-    try {
-      final url = await ref
-          .read(weeklyLessonRepositoryProvider)
-          .signedUrl(lesson, download: download);
-      if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
-        throw Exception('تعذر فتح الرابط');
-      }
-    } catch (error) {
-      if (mounted) _message('تعذر ${download ? 'تنزيل' : 'فتح'} الملف: $error');
-    }
-  }
-
-  Future<void> _delete(WeeklyLesson lesson) async {
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('حذف التحضير'),
-        content: Text('هل تريد حذف ملف ${lesson.fileName}؟'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('إلغاء'),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.pop(context, true),
-            child: const Text('حذف'),
-          ),
-        ],
-      ),
-    );
-    if (confirmed != true || !mounted) return;
-    try {
-      await ref.read(weeklyLessonRepositoryProvider).delete(lesson);
-      ref.invalidate(weeklyLessonsProvider(widget.serviceId));
-      if (mounted) _message('تم حذف التحضير.');
-    } catch (error) {
-      if (mounted) _message('تعذر حذف التحضير: $error');
-    }
-  }
-
-  Future<void> _showForm({
-    required List<Stage> stages,
-    required Stage? initialStage,
-    required DateTime week,
-    WeeklyLesson? lesson,
-  }) async {
-    final result = await showDialog<_FormResult>(
-      context: context,
-      builder: (_) => _WeeklyLessonForm(
-        stages: stages,
-        initialStage: initialStage,
-        lesson: lesson,
-        initialWeek: week,
-      ),
-    );
-    if (result != null) {
-      try {
-        await ref
-            .read(weeklyLessonRepositoryProvider)
-            .save(
-              serviceId: widget.serviceId,
-              stageId: result.stage.id,
-              weekStart: result.week,
-              fileName: result.fileName,
-              bytes: result.bytes,
-            );
-        ref.invalidate(weeklyLessonsProvider(widget.serviceId));
-        if (mounted) _message('تم حفظ ملف التحضير.');
-      } catch (error) {
-        if (mounted) _message('تعذر حفظ التحضير: $error');
-      }
-    }
-  }
-
-  Future<void> _showBulkForm({
-    required List<Stage> stages,
-    required List<DateTime> weeks,
-  }) async {
-    final result = await showDialog<_BulkFormResult>(
-      context: context,
-      builder: (_) => _WeeklyBulkForm(stages: stages, weeks: weeks),
-    );
-    if (result == null || result.files.isEmpty) return;
-    var uploaded = 0;
-    try {
-      for (final file in result.files) {
-        await ref
-            .read(weeklyLessonRepositoryProvider)
-            .save(
-              serviceId: widget.serviceId,
-              stageId: result.stage.id,
-              weekStart: file.week,
-              fileName: file.fileName,
-              bytes: file.bytes,
-            );
-        uploaded++;
-      }
-      ref.invalidate(weeklyLessonsProvider(widget.serviceId));
-      if (mounted) _message('تم رفع ملفات $uploaded أسبوعًا.');
-    } catch (error) {
-      ref.invalidate(weeklyLessonsProvider(widget.serviceId));
-      if (mounted) _message('تم رفع $uploaded ملفًا، وتعذر رفع الباقي: $error');
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final profileState = ref.watch(currentServantProfileProvider);
-    final superAdmin = ref.watch(isSuperAdminProvider);
-    return FutureBuilder<List<Stage>>(
-      future: _stagesFuture,
-      builder: (context, stageSnapshot) {
-        final stages = stageSnapshot.data ?? const <Stage>[];
-        return FutureBuilder<ServantProfile?>(
-          future: profileState.when(
-            data: (value) async => value,
-            error: (_, _) async => null,
-            loading: () async => null,
-          ),
-          builder: (context, profileSnapshot) {
-            final profile = profileSnapshot.data;
-            final isManager =
-                superAdmin ||
-                profile?.role == 'overall_leader' ||
-                profile?.role == 'stage_leader';
-            return Scaffold(
-              body: AppContent(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Row(
-                      children: [
-                        const Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'تحضيري',
-                                style: TextStyle(
-                                  fontSize: 25,
-                                  fontWeight: FontWeight.w800,
-                                ),
-                              ),
-                              SizedBox(height: 5),
-                              Text(
-                                'ملفات الدروس الأسبوعية حسب المرحلة — فتح وتنزيل الأسبوع الحالي فقط',
-                              ),
-                            ],
-                          ),
-                        ),
-                        IconButton(
-                          onPressed: _refreshing ? null : _refresh,
-                          tooltip: 'تحديث',
-                          icon: _refreshing
-                              ? const SizedBox(
-                                  width: 20,
-                                  height: 20,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                  ),
-                                )
-                              : const Icon(Icons.refresh),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 18),
-                    if (stageSnapshot.connectionState ==
-                            ConnectionState.waiting ||
-                        profileState.isLoading)
-                      const Expanded(
-                        child: LoadingView(message: 'جاري تحميل المراحل...'),
-                      )
-                    else if (profile == null && !superAdmin)
-                      const Expanded(
-                        child: EmptyState(
-                          icon: Icons.lock_outline,
-                          title: 'تعذر تحديد صلاحيات الحساب',
-                          message: 'أعد تسجيل الدخول ثم حاول مرة أخرى.',
-                        ),
-                      )
-                    else
-                      Expanded(
-                        child: StreamBuilder<List<Meeting>>(
-                          stream: ref
-                              .watch(meetingRepositoryProvider)
-                              .watchMeetings(widget.serviceId),
-                          builder: (context, meetingSnapshot) => _lessonList(
-                            stages,
-                            profile,
-                            superAdmin,
-                            isManager,
-                            _weeksFromMeetings(
-                              meetingSnapshot.data ?? const [],
-                            ),
-                          ),
-                        ),
-                      ),
-                  ],
-                ),
-              ),
-            );
-          },
-        );
-      },
-    );
-  }
-
-  Widget _lessonList(
-    List<Stage> stages,
-    ServantProfile? profile,
-    bool superAdmin,
-    bool isManager,
-    List<DateTime> weeks,
-  ) {
-    final allowedStages = _permittedStages(stages, profile, superAdmin);
-    if (allowedStages.isEmpty) {
-      return const EmptyState(
-        icon: Icons.menu_book_outlined,
-        title: 'لا توجد مرحلة متاحة',
-        message: 'لا توجد مرحلة مرتبطة بحسابك لعرض تحاضيرها.',
-      );
-    }
-    final lessons = ref.watch(weeklyLessonsProvider(widget.serviceId));
-    return lessons.when(
-      loading: () => const LoadingView(message: 'جاري تحميل ملفات التحضير...'),
-      error: (error, _) => EmptyState(
-        icon: Icons.cloud_off_rounded,
-        title: 'تعذر تحميل التحاضير',
-        message: '$error',
-        action: OutlinedButton.icon(
-          onPressed: () =>
-              ref.invalidate(weeklyLessonsProvider(widget.serviceId)),
-          icon: const Icon(Icons.refresh),
-          label: const Text('إعادة المحاولة'),
-        ),
-      ),
-      data: (allLessons) {
-        final allowedIds = allowedStages.map((stage) => stage.id).toSet();
-        final visible = allLessons
-            .where((item) => allowedIds.contains(item.stageId))
-            .toList();
-        final currentWeek = _monday(DateTime.now());
-        final plannedWeeks = weeks.isEmpty ? [currentWeek] : weeks;
-        return ListView(
-          children: [
-            if (isManager)
-              Padding(
-                padding: const EdgeInsets.only(bottom: 12),
-                child: Card(
-                  child: ListTile(
-                    leading: const CircleAvatar(
-                      child: Icon(Icons.upload_file_rounded),
-                    ),
-                    title: const Text(
-                      'رفع تحضيرات الأسابيع دفعة واحدة',
-                      style: TextStyle(fontWeight: FontWeight.w800),
-                    ),
-                    subtitle: const Text(
-                      'اختر ملفات الأسابيع ثم احفظها مرة واحدة.',
-                    ),
-                    trailing: const Icon(Icons.chevron_left_rounded),
-                    onTap: () => _showBulkForm(
-                      stages: allowedStages,
-                      weeks: plannedWeeks,
-                    ),
-                  ),
-                ),
-              ),
-            for (final stage in allowedStages) ...[
-              Padding(
-                padding: const EdgeInsets.only(top: 8, bottom: 4),
-                child: Text(
-                  stage.name,
-                  style: Theme.of(
-                    context,
-                  ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),
-                ),
-              ),
-              for (final week in plannedWeeks)
-                Builder(
-                  builder: (context) {
-                    final matches = visible.where(
-                      (item) =>
-                          item.stageId == stage.id &&
-                          _sameDay(item.weekStart, week),
-                    );
-                    final lesson = matches.isEmpty ? null : matches.first;
-                    final isCurrent = _sameDay(week, currentWeek);
-                    return Card(
-                      child: ListTile(
-                        leading: CircleAvatar(
-                          child: Icon(
-                            isCurrent
-                                ? Icons.calendar_today_rounded
-                                : Icons.lock_outline_rounded,
-                          ),
-                        ),
-                        title: Text(
-                          _weekLabel(week),
-                          style: const TextStyle(fontWeight: FontWeight.w700),
-                        ),
-                        subtitle: Text(
-                          lesson?.fileName ??
-                              (isCurrent
-                                  ? 'لا يوجد ملف مرفوع لهذا الأسبوع'
-                                  : 'لا يوجد ملف لهذا الأسبوع'),
-                        ),
-                        onTap: lesson == null
-                            ? null
-                            : () => Navigator.of(context).push(
-                                  MaterialPageRoute<void>(
-                                    builder: (_) => _WeeklyLessonDetailPage(
-                                      lesson: lesson,
-                                      profileId: profile?.id,
-                                      weekLabel: _weekLabel(week),
-                                      isCurrentWeek: isCurrent,
-                                    ),
-                                  ),
-                                ),
-                        trailing: Wrap(
-                          spacing: 0,
-                          children: [
-                            if (lesson != null)
-                              IconButton(
-                                tooltip: 'فتح تفاصيل الدرس',
-                                onPressed: () => Navigator.of(context).push(
-                                  MaterialPageRoute<void>(
-                                    builder: (_) => _WeeklyLessonDetailPage(
-                                      lesson: lesson,
-                                      profileId: profile?.id,
-                                      weekLabel: _weekLabel(week),
-                                      isCurrentWeek: isCurrent,
-                                    ),
-                                  ),
-                                ),
-                                icon: const Icon(Icons.open_in_new_rounded),
-                              ),
-                            if (lesson != null)
-                              IconButton(
-                                tooltip: isCurrent
-                                    ? 'تنزيل الملف الحالي'
-                                    : 'الأسابيع السابقة للقراءة فقط — التنزيل غير متاح',
-                                onPressed: isCurrent
-                                    ? () => _open(lesson, download: true)
-                                    : null,
-                                icon: const Icon(Icons.download_rounded),
-                              ),
-                            if (isManager)
-                              IconButton(
-                                tooltip: lesson == null
-                                    ? 'رفع ملف لهذا الأسبوع'
-                                    : 'استبدال الملف',
-                                onPressed: () => _showForm(
-                                  stages: allowedStages,
-                                  initialStage: stage,
-                                  lesson: lesson,
-                                  week: week,
-                                ),
-                                icon: Icon(
-                                  lesson == null
-                                      ? Icons.upload_file_rounded
-                                      : Icons.edit_outlined,
-                                ),
-                              ),
-                            if (isManager && lesson != null)
-                              IconButton(
-                                tooltip: 'حذف',
-                                onPressed: () => _delete(lesson),
-                                icon: const Icon(
-                                  Icons.delete_outline_rounded,
-                                  color: Colors.red,
-                                ),
-                              ),
-                          ],
-                        ),
-                      ),
-                    );
-                  },
-                ),
-            ],
-          ],
-        );
-      },
-    );
-  }
+  DateTime _monday(DateTime date) =>
+      PrepDateFormatter.normalizeToMondayUtc(date);
 
   List<DateTime> _weeksFromMeetings(List<Meeting> meetings) {
-    final weeks = meetings
-        .map((meeting) => _monday(meeting.meetingDate))
-        .toSet()
-        .toList();
-    final currentWeek = _monday(DateTime.now());
-    if (!weeks.any((week) => _sameDay(week, currentWeek))) {
-      weeks.add(currentWeek);
+    final weeks = <DateTime>[];
+    final weekKeys = <String>{};
+
+    void addWeek(DateTime date) {
+      final monday = PrepDateFormatter.normalizeToMondayUtc(date);
+      final key = '${monday.year}-${monday.month}-${monday.day}';
+      if (weekKeys.add(key)) {
+        weeks.add(monday);
+      }
     }
-    weeks.sort((a, b) => a.compareTo(b));
+
+    addWeek(DateTime.now());
+    for (final meeting in meetings) {
+      addWeek(meeting.meetingDate);
+    }
+    weeks.sort((a, b) => b.compareTo(a)); // Descending: newest first
     return weeks;
   }
-
-  DateTime _monday(DateTime date) {
-    final day = DateTime(date.year, date.month, date.day);
-    return day.subtract(Duration(days: day.weekday - DateTime.monday));
-  }
-
-  bool _sameDay(DateTime a, DateTime b) =>
-      a.year == b.year && a.month == b.month && a.day == b.day;
 
   List<Stage> _permittedStages(
     List<Stage> stages,
     ServantProfile? profile,
     bool superAdmin,
   ) {
-    if (superAdmin || profile?.role == 'overall_leader') return stages;
+    if (superAdmin ||
+        profile?.role == 'overall_leader' ||
+        profile?.role == 'overall_helper') {
+      return stages;
+    }
     final assignedStage = profile?.stageId ?? _classStageId;
     if (assignedStage != null) {
       return stages.where((stage) => stage.id == assignedStage).toList();
@@ -510,536 +133,147 @@ class _WeeklyPrepPageState extends ConsumerState<WeeklyPrepPage> {
     return const [];
   }
 
-  String _weekLabel(DateTime start) {
-    final end = start.add(const Duration(days: 6));
-    final formatter = DateFormat('d MMMM', 'ar');
-    return 'أسبوع ${formatter.format(start)} – ${formatter.format(end)}';
-  }
-}
-
-class _WeeklyLessonForm extends StatefulWidget {
-  const _WeeklyLessonForm({
-    required this.stages,
-    required this.initialStage,
-    required this.lesson,
-    required this.initialWeek,
-  });
-  final List<Stage> stages;
-  final Stage? initialStage;
-  final WeeklyLesson? lesson;
-  final DateTime initialWeek;
-
-  @override
-  State<_WeeklyLessonForm> createState() => _WeeklyLessonFormState();
-}
-
-class _WeeklyLessonFormState extends State<_WeeklyLessonForm> {
-  late Stage? _stage = widget.initialStage;
-  // ignore: prefer_final_fields
-  late DateTime _week = widget.lesson?.weekStart ?? widget.initialWeek;
-  PlatformFile? _file;
-  Uint8List? _fileBytes;
-  bool _saving = false;
-  String? _error;
-
-  Future<void> _selectFile() async {
-    final files = await FilePickerPlatform.instance.pickFiles(
-      type: FileType.custom,
-      allowedExtensions: const ['pdf'],
-    );
-    if (files.isEmpty) return;
-    final file = files.single;
-    final bytes = await file.readAsBytes();
-    if (bytes.isEmpty || !_isPdf(bytes)) {
-      setState(() => _error = 'الملف المختار ليس ملف PDF صالحًا.');
-      return;
-    }
-    if (bytes.length > 25 * 1024 * 1024) {
-      setState(() => _error = 'حجم الملف أكبر من الحد المسموح (25 ميجابايت).');
-      return;
-    }
-    setState(() {
-      _file = file;
-      _fileBytes = bytes;
-      _error = null;
-    });
-  }
-
-  bool _isPdf(Uint8List bytes) =>
-      bytes.length >= 5 && String.fromCharCodes(bytes.take(5)) == '%PDF-';
-
-  Future<void> _save() async {
-    final file = _file;
-    if (_stage == null) {
-      setState(() => _error = 'اختر المرحلة.');
-      return;
-    }
-    if (file == null || _fileBytes == null) {
-      setState(() => _error = 'اختر ملف PDF أولًا.');
-      return;
-    }
-    setState(() {
-      _saving = true;
-      _error = null;
-    });
-    try {
-      Navigator.of(context).pop(
-        _FormResult(
-          stage: _stage!,
-          week: _week,
-          fileName: file.name,
-          bytes: _fileBytes!,
-        ),
-      );
-    } catch (error) {
-      setState(() {
-        _saving = false;
-        _error = '$error';
-      });
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
-    final weekEnd = _week.add(const Duration(days: 6));
-    return AlertDialog(
-      title: Text(
-        widget.lesson == null ? 'رفع تحضير أسبوعي' : 'استبدال ملف التحضير',
-      ),
-      content: SizedBox(
-        width: 440,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            DropdownButtonFormField<Stage>(
-              initialValue: _stage,
-              decoration: const InputDecoration(labelText: 'المرحلة'),
-              items: [
-                for (final stage in widget.stages)
-                  DropdownMenuItem(value: stage, child: Text(stage.name)),
-              ],
-              onChanged: widget.lesson == null
-                  ? (stage) => setState(() => _stage = stage)
-                  : null,
-            ),
-            const SizedBox(height: 12),
-            OutlinedButton.icon(
-              onPressed: null,
-              icon: const Icon(Icons.calendar_month_rounded),
-              label: Text(
-                'الأسبوع: ${DateFormat('d/M/y').format(_week)} – ${DateFormat('d/M/y').format(weekEnd)}',
-              ),
-            ),
-            const SizedBox(height: 12),
-            OutlinedButton.icon(
-              onPressed: _saving ? null : _selectFile,
-              icon: const Icon(Icons.picture_as_pdf_rounded),
-              label: Text(
-                _file?.name ?? (widget.lesson?.fileName ?? 'اختر ملف PDF'),
-              ),
-            ),
-            if (_error != null) ...[
-              const SizedBox(height: 8),
-              Text(_error!, style: const TextStyle(color: Colors.red)),
-            ],
-          ],
-        ),
-      ),
-      actions: [
-        TextButton(
-          onPressed: _saving ? null : () => Navigator.pop(context),
-          child: const Text('إلغاء'),
-        ),
-        FilledButton(
-          onPressed: _saving ? null : _save,
-          child: _saving
-              ? const SizedBox(
-                  width: 18,
-                  height: 18,
-                  child: CircularProgressIndicator(strokeWidth: 2),
-                )
-              : const Text('حفظ'),
-        ),
-      ],
-    );
-  }
-}
-
-class _WeeklyBulkForm extends StatefulWidget {
-  const _WeeklyBulkForm({required this.stages, required this.weeks});
-  final List<Stage> stages;
-  final List<DateTime> weeks;
-
-  @override
-  State<_WeeklyBulkForm> createState() => _WeeklyBulkFormState();
-}
-
-class _WeeklyBulkFormState extends State<_WeeklyBulkForm> {
-  Stage? _stage;
-  final Map<String, _PickedPdf> _files = {};
-  bool _saving = false;
-  String? _error;
-
-  String _key(DateTime week) =>
-      '${week.year.toString().padLeft(4, '0')}-${week.month.toString().padLeft(2, '0')}-${week.day.toString().padLeft(2, '0')}';
-
-  Future<void> _pick(DateTime week) async {
-    final files = await FilePickerPlatform.instance.pickFiles(
-      type: FileType.custom,
-      allowedExtensions: const ['pdf'],
-    );
-    if (files.isEmpty) return;
-    final file = files.single;
-    final bytes = await file.readAsBytes();
-    if (bytes.isEmpty || String.fromCharCodes(bytes.take(5)) != '%PDF-') {
-      setState(() => _error = 'الملف ${file.name} ليس ملف PDF صالحًا.');
-      return;
-    }
-    if (bytes.length > 25 * 1024 * 1024) {
-      setState(
-        () => _error = 'حجم ${file.name} أكبر من الحد المسموح (25 ميجابايت).',
-      );
-      return;
-    }
-    setState(() {
-      _files[_key(week)] = _PickedPdf(file: file, bytes: bytes);
-      _error = null;
+    // Realtime auto-refresh across leader and servant screens
+    ref.listen(weeklyPrepChangesStreamProvider(widget.serviceId), (_, _) {
+      ref.invalidate(weeklyLessonsProvider(widget.serviceId));
+      ref.invalidate(dashboardPreparationsProvider);
+      ref.invalidate(dashboardStatusCountsProvider);
+      ref.invalidate(servantPreparationProvider);
     });
-  }
 
-  void _submit() {
-    if (_stage == null) {
-      setState(() => _error = 'اختر المرحلة.');
-      return;
-    }
-    if (_files.isEmpty) {
-      setState(() => _error = 'اختر ملفًا واحدًا على الأقل.');
-      return;
-    }
-    setState(() => _saving = true);
-    final files = <_FormResult>[];
-    for (final week in widget.weeks) {
-      final file = _files[_key(week)];
-      if (file != null) {
-        files.add(
-          _FormResult(
-            stage: _stage!,
-            week: week,
-            fileName: file.file.name,
-            bytes: file.bytes,
+    final profileState = ref.watch(currentServantProfileProvider);
+    final superAdmin = ref.watch(isSuperAdminProvider);
+
+    return FutureBuilder<List<Stage>>(
+      future: _stagesFuture,
+      builder: (context, stageSnapshot) {
+        final stages = stageSnapshot.data ?? const <Stage>[];
+        return profileState.when(
+          loading: () => const Scaffold(
+            body: LoadingView(message: 'جاري تحميل بيانات الخدمة...'),
           ),
-        );
-      }
-    }
-    Navigator.of(context).pop(_BulkFormResult(stage: _stage!, files: files));
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final height = MediaQuery.sizeOf(context).height * 0.68;
-    return AlertDialog(
-      title: const Text('رفع تحضيرات الأسابيع'),
-      content: SizedBox(
-        width: 560,
-        height: height.clamp(300, 680).toDouble(),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            DropdownButtonFormField<Stage>(
-              initialValue: _stage,
-              decoration: const InputDecoration(labelText: 'المرحلة'),
-              items: [
-                for (final stage in widget.stages)
-                  DropdownMenuItem(value: stage, child: Text(stage.name)),
-              ],
-              onChanged: _saving
-                  ? null
-                  : (stage) => setState(() => _stage = stage),
+          error: (err, _) => Scaffold(
+            body: EmptyState(
+              icon: Icons.error_outline_rounded,
+              title: 'تعذر تحميل الحساب',
+              message: '$err',
             ),
-            const SizedBox(height: 10),
-            const Text(
-              'اختر ملفًا لكل أسبوع تريد تجهيزه. يمكن حفظ الملفات كلها معًا.',
-            ),
-            const SizedBox(height: 8),
-            Expanded(
-              child: ListView.builder(
-                itemCount: widget.weeks.length,
-                itemBuilder: (context, index) {
-                  final week = widget.weeks[index];
-                  final file = _files[_key(week)];
-                  final currentWeek = DateTime.now();
-                  final weekStart = currentWeek.subtract(
-                    Duration(days: currentWeek.weekday - 1),
-                  );
-                  final isCurrent = _key(week) == _key(weekStart);
-                  return ListTile(
-                    dense: true,
-                    leading: Icon(
-                      isCurrent
-                          ? Icons.calendar_today_rounded
-                          : Icons.date_range_rounded,
-                    ),
-                    title: Text(_label(week)),
-                    subtitle: Text(file?.file.name ?? 'لم يتم اختيار ملف'),
-                    trailing: IconButton(
-                      tooltip: 'اختيار ملف PDF',
-                      onPressed: _saving ? null : () => _pick(week),
-                      icon: Icon(
-                        file == null
-                            ? Icons.attach_file_rounded
-                            : Icons.check_circle_outline_rounded,
-                      ),
-                    ),
-                  );
-                },
-              ),
-            ),
-            if (_error != null) ...[
-              const SizedBox(height: 6),
-              Text(_error!, style: const TextStyle(color: Colors.red)),
-            ],
-          ],
-        ),
-      ),
-      actions: [
-        TextButton(
-          onPressed: _saving ? null : () => Navigator.pop(context),
-          child: const Text('إلغاء'),
-        ),
-        FilledButton(
-          onPressed: _saving ? null : _submit,
-          child: _saving
-              ? const SizedBox(
-                  width: 18,
-                  height: 18,
-                  child: CircularProgressIndicator(strokeWidth: 2),
-                )
-              : Text('حفظ ${_files.length} ملفًا'),
-        ),
-      ],
-    );
-  }
-
-  String _label(DateTime start) =>
-      'أسبوع ${DateFormat('d/M/y').format(start)} – ${DateFormat('d/M/y').format(start.add(const Duration(days: 6)))}';
-}
-
-class _BulkFormResult {
-  const _BulkFormResult({required this.stage, required this.files});
-  final Stage stage;
-  final List<_FormResult> files;
-}
-
-class _PickedPdf {
-  const _PickedPdf({required this.file, required this.bytes});
-  final PlatformFile file;
-  final Uint8List bytes;
-}
-
-class _FormResult {
-  const _FormResult({
-    required this.stage,
-    required this.week,
-    required this.fileName,
-    required this.bytes,
-  });
-  final Stage stage;
-  final DateTime week;
-  final String fileName;
-  final Uint8List bytes;
-}
-
-
-class _WeeklyLessonDetailPage extends ConsumerStatefulWidget {
-  const _WeeklyLessonDetailPage({
-    required this.lesson,
-    required this.profileId,
-    required this.weekLabel,
-    required this.isCurrentWeek,
-  });
-
-  final WeeklyLesson lesson;
-  final String? profileId;
-  final String weekLabel;
-  final bool isCurrentWeek;
-
-  @override
-  ConsumerState<_WeeklyLessonDetailPage> createState() =>
-      _WeeklyLessonDetailPageState();
-}
-
-class _WeeklyLessonDetailPageState
-    extends ConsumerState<_WeeklyLessonDetailPage> {
-  bool _loadingPreparation = true;
-  bool _savingPreparation = false;
-  bool _preparationLoadFailed = false;
-  bool _prepared = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _loadPreparation();
-  }
-
-  Future<void> _loadPreparation() async {
-    final profileId = widget.profileId;
-    if (profileId == null) {
-      if (mounted) {
-        setState(() => _loadingPreparation = false);
-      }
-      return;
-    }
-    try {
-      final value = await ref.read(weeklyLessonRepositoryProvider).isPrepared(
-        lessonId: widget.lesson.id,
-        servantProfileId: profileId,
-      );
-      if (mounted) {
-        setState(() {
-          _prepared = value;
-          _loadingPreparation = false;
-        });
-      }
-    } catch (_) {
-      if (mounted) {
-        setState(() {
-          _preparationLoadFailed = true;
-          _loadingPreparation = false;
-        });
-      }
-    }
-  }
-
-  Future<void> _setPrepared(bool value) async {
-    final profileId = widget.profileId;
-    if (profileId == null || !widget.isCurrentWeek || _savingPreparation) return;
-    setState(() => _savingPreparation = true);
-    try {
-      await ref.read(weeklyLessonRepositoryProvider).setPrepared(
-        lessonId: widget.lesson.id,
-        servantProfileId: profileId,
-        prepared: value,
-      );
-      if (mounted) {
-        setState(() {
-          _prepared = value;
-          _savingPreparation = false;
-        });
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(value ? 'تم تسجيل الدرس كمُحضّر.' : 'تم إلغاء علامة التحضير.')),
-        );
-      }
-    } catch (error) {
-      if (mounted) {
-        setState(() => _savingPreparation = false);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('تعذر حفظ حالة التحضير: $error')),
-        );
-      }
-    }
-  }
-
-  Future<void> _open({required bool download}) async {
-    try {
-      final url = await ref.read(weeklyLessonRepositoryProvider)
-          .signedUrl(widget.lesson, download: download);
-      if (!await launchUrl(url, mode: LaunchMode.externalApplication)) {
-        throw Exception('تعذر فتح الرابط');
-      }
-    } catch (error) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('تعذر ${download ? 'تنزيل' : 'فتح'} الملف: $error')),
-        );
-      }
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final isHistorical = !widget.isCurrentWeek;
-    return Scaffold(
-      appBar: AppBar(title: const Text('تفاصيل درس الأسبوع')),
-      body: AppContent(
-        maxWidth: 760,
-        child: ListView(
-          padding: const EdgeInsets.symmetric(vertical: 20),
-          children: [
-            Card(
-              child: Padding(
-                padding: const EdgeInsets.all(20),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Icon(Icons.menu_book_rounded, size: 36),
-                    const SizedBox(height: 14),
-                    Text(widget.lesson.fileName, style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800)),
-                    const SizedBox(height: 8),
-                    Text(widget.weekLabel),
-                    const SizedBox(height: 12),
-                    Chip(
-                      avatar: Icon(isHistorical ? Icons.lock_outline_rounded : Icons.edit_note_rounded, size: 18),
-                      label: Text(isHistorical ? 'أسبوع سابق — للقراءة فقط' : 'الأسبوع الحالي'),
-                    ),
-                    if (isHistorical)
-                      const Padding(
-                        padding: EdgeInsets.only(top: 8),
-                        child: Text('يمكن فتح الملف للاطلاع عليه، لكن التنزيل وتغيير حالة التحضير غير متاحين للأسابيع السابقة.'),
-                      ),
-                  ],
+          ),
+          data: (profile) {
+            if (profile == null) {
+              return const Scaffold(
+                body: EmptyState(
+                  icon: Icons.admin_panel_settings_outlined,
+                  title: 'الحساب الإداري غير مرتبط بملف خادم',
+                  message:
+                      'يلزم ربط حساب Super Admin بملف خادم نشط قبل استخدام لوحة التحاضير ومراجعة الطلبات.',
                 ),
-              ),
-            ),
-            const SizedBox(height: 12),
-            FilledButton.icon(
-              onPressed: () => _open(download: false),
-              icon: const Icon(Icons.open_in_new_rounded),
-              label: const Text('فتح الدرس'),
-            ),
-            const SizedBox(height: 8),
-            OutlinedButton.icon(
-              onPressed: widget.isCurrentWeek ? () => _open(download: true) : null,
-              icon: const Icon(Icons.download_rounded),
-              label: const Text('تنزيل الدرس'),
-            ),
-            const SizedBox(height: 18),
-            Card(
-              child: Padding(
-                padding: const EdgeInsets.all(12),
-                child: SwitchListTile(
-                  key: const Key('weekly_lesson_prepared_switch'),
-                  value: _prepared,
-                  onChanged: widget.isCurrentWeek &&
-                          widget.profileId != null &&
-                          !_loadingPreparation &&
-                          !_preparationLoadFailed &&
-                          !_savingPreparation
-                      ? _setPrepared
-                      : null,
-                  title: const Text('حضّرت الدرس'),
-                  subtitle: Text(
-                    widget.profileId == null
-                        ? 'تعذر تحديد حساب الخادم الحالي.'
-                        : isHistorical
-                            ? 'الأسابيع السابقة للقراءة فقط.'
-                            : _preparationLoadFailed
-                                ? 'تعذر تحميل حالة التحضير؛ تحقق من الاتصال وتحديث قاعدة البيانات.'
-                                : _loadingPreparation
-                                ? 'جاري تحميل حالة التحضير...'
-                                : _prepared
-                                    ? 'تم تسجيل الدرس كمُحضّر بواسطة حسابك.'
-                                    : 'فعّل الخيار بعد الانتهاء من التحضير.',
+              );
+            }
+
+            final isLeader = WeeklyPrepPermissions.canViewLeadershipDashboard(
+              profile: profile,
+              isSuperAdmin: superAdmin,
+            );
+
+            final allowedStages = _permittedStages(stages, profile, superAdmin);
+
+            return StreamBuilder<List<Meeting>>(
+              stream: ref
+                  .watch(meetingRepositoryProvider)
+                  .watchMeetings(widget.serviceId),
+              builder: (context, meetingSnapshot) {
+                final weeks = _weeksFromMeetings(
+                  meetingSnapshot.data ?? const [],
+                );
+                final currentWeekMonday = _monday(DateTime.now());
+
+                final lessonsAsync = ref.watch(
+                  weeklyLessonsProvider(widget.serviceId),
+                );
+
+                return lessonsAsync.when(
+                  loading: () => const Scaffold(
+                    body: LoadingView(message: 'جاري تحميل ملفات التحضير...'),
                   ),
-                  secondary: _savingPreparation
-                      ? const SizedBox(width: 24, height: 24, child: CircularProgressIndicator(strokeWidth: 2))
-                      : Icon(_prepared ? Icons.check_circle_rounded : Icons.radio_button_unchecked_rounded),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
+                  error: (error, _) => Scaffold(
+                    body: EmptyState(
+                      icon: Icons.cloud_off_rounded,
+                      title: 'تعذر تحميل التحاضير',
+                      message: '$error',
+                      action: OutlinedButton.icon(
+                        onPressed: _refresh,
+                        icon: const Icon(Icons.refresh),
+                        label: const Text('إعادة المحاولة'),
+                      ),
+                    ),
+                  ),
+                  data: (lessons) {
+                    // If user is a leader and not toggled to personal servant view:
+                    if (isLeader && !_forceServantView) {
+                      return Stack(
+                        children: [
+                          LeadershipPrepDashboard(
+                            serviceId: widget.serviceId,
+                            currentLeader: profile!,
+                            stages: allowedStages,
+                            weeks: weeks,
+                            lessons: lessons,
+                            onRefresh: _refresh,
+                            refreshing: _refreshing,
+                          ),
+                          // Floating toggle to switch to personal servant preparation view
+                          PositionedDirectional(
+                            start: 24,
+                            bottom: 24,
+                            child: FloatingActionButton.extended(
+                              heroTag: 'toggle_prep_view',
+                              onPressed: () =>
+                                  setState(() => _forceServantView = true),
+                              icon: const Icon(Icons.person_rounded),
+                              label: const Text('تحضيري الشخصي'),
+                            ),
+                          ),
+                        ],
+                      );
+                    }
+
+                    // Otherwise, Servant preparation view:
+                    return Stack(
+                      children: [
+                        ServantPrepView(
+                          serviceId: widget.serviceId,
+                          profile: profile!,
+                          lessons: lessons,
+                          stages: allowedStages,
+                          initialStageId: profile.stageId ?? _classStageId,
+                          currentWeekMonday: currentWeekMonday,
+                          onRefresh: _refresh,
+                          refreshing: _refreshing,
+                        ),
+                        if (isLeader)
+                          PositionedDirectional(
+                            start: 24,
+                            bottom: 24,
+                            child: FloatingActionButton.extended(
+                              heroTag: 'toggle_leader_view',
+                              onPressed: () =>
+                                  setState(() => _forceServantView = false),
+                              icon: const Icon(Icons.dashboard_rounded),
+                              label: const Text('لوحة المتابعة'),
+                            ),
+                          ),
+                      ],
+                    );
+                  },
+                );
+              },
+            );
+          },
+        );
+      },
     );
   }
 }

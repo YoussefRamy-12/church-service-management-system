@@ -220,7 +220,7 @@ class _AnimatedPressableState extends State<AnimatedPressable> {
   }
 }
 
-/// Modern Glass Pill Badge with a glowing status dot
+/// Modern Pill Badge with a crisp solid status dot (Impeccable craft)
 class GlassBadge extends StatelessWidget {
   const GlassBadge({
     super.key,
@@ -238,9 +238,9 @@ class GlassBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.10),
+        color: color.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(999),
         border: Border.all(color: color.withValues(alpha: 0.25), width: 1),
       ),
@@ -249,18 +249,11 @@ class GlassBadge extends StatelessWidget {
         children: [
           if (showDot) ...[
             Container(
-              width: 7,
-              height: 7,
+              width: 6,
+              height: 6,
               decoration: BoxDecoration(
                 color: color,
                 shape: BoxShape.circle,
-                boxShadow: [
-                  BoxShadow(
-                    color: color.withValues(alpha: 0.6),
-                    blurRadius: 6,
-                    spreadRadius: 1,
-                  ),
-                ],
               ),
             ),
             const SizedBox(width: 6),
@@ -333,70 +326,79 @@ class EmptyState extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(32),
-        child: GlassContainer(
-          borderRadius: 24,
-          opacity: 0.82,
-          padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 36),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                width: 72,
-                height: 72,
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [
-                      scheme.primary.withValues(alpha: 0.15),
-                      scheme.primary.withValues(alpha: 0.05),
-                    ],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                  shape: BoxShape.circle,
-                  border: Border.all(
-                    color: scheme.primary.withValues(alpha: 0.20),
-                    width: 1.5,
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: scheme.primary.withValues(alpha: 0.15),
-                      blurRadius: 16,
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final isCompact = constraints.maxHeight < 280 || constraints.maxWidth < 420;
+
+        return Center(
+          child: SingleChildScrollView(
+            physics: const BouncingScrollPhysics(),
+            child: Padding(
+              padding: EdgeInsets.all(isCompact ? 12 : 24),
+              child: GlassContainer(
+                borderRadius: 16,
+                padding: EdgeInsets.symmetric(
+                  horizontal: isCompact ? 16 : 28,
+                  vertical: isCompact ? 14 : 28,
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      width: isCompact ? 44 : 64,
+                      height: isCompact ? 44 : 64,
+                      decoration: BoxDecoration(
+                        color: scheme.primary.withValues(alpha: 0.08),
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                          color: scheme.primary.withValues(alpha: 0.20),
+                          width: 1,
+                        ),
+                      ),
+                      child: Icon(
+                        icon,
+                        size: isCompact ? 22 : 30,
+                        color: scheme.primary,
+                      ),
                     ),
+                    SizedBox(height: isCompact ? 10 : 18),
+                    Text(
+                      title,
+                      textAlign: TextAlign.center,
+                      style: (isCompact
+                              ? Theme.of(context).textTheme.titleMedium
+                              : Theme.of(context).textTheme.titleLarge)
+                          ?.copyWith(
+                        fontWeight: FontWeight.w800,
+                        fontSize: isCompact ? 15 : 18,
+                      ),
+                    ),
+                    if (message != null) ...[
+                      SizedBox(height: isCompact ? 4 : 8),
+                      ConstrainedBox(
+                        constraints: const BoxConstraints(maxWidth: 420),
+                        child: Text(
+                          message!,
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color: scheme.onSurfaceVariant,
+                            height: 1.4,
+                            fontSize: isCompact ? 12 : 14,
+                          ),
+                        ),
+                      ),
+                    ],
+                    if (action != null) ...[
+                      SizedBox(height: isCompact ? 12 : 20),
+                      action!,
+                    ],
                   ],
                 ),
-                child: Icon(icon, size: 34, color: scheme.primary),
               ),
-              const SizedBox(height: 20),
-              Text(
-                title,
-                textAlign: TextAlign.center,
-                style: Theme.of(
-                  context,
-                ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),
-              ),
-              if (message != null) ...[
-                const SizedBox(height: 8),
-                ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 420),
-                  child: Text(
-                    message!,
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      color: scheme.onSurfaceVariant,
-                      height: 1.55,
-                      fontSize: 14,
-                    ),
-                  ),
-                ),
-              ],
-              if (action != null) ...[const SizedBox(height: 20), action!],
-            ],
+            ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 }
@@ -604,6 +606,363 @@ class _SkeletonLineState extends State<_SkeletonLine>
           ),
         );
       },
+    );
+  }
+}
+
+/// UI/UX Pro Max + Impeccable - Responsive Metric Grid
+/// Adapts dynamically to viewport width:
+/// - < 520px: 1 column (generous width, high readability, no clipped text)
+/// - 520px - 850px: 2 columns
+/// - >= 850px: up to 3 or 4 columns (or as many items provided)
+class ResponsiveMetricGrid extends StatelessWidget {
+  const ResponsiveMetricGrid({
+    super.key,
+    required this.children,
+    this.spacing = 12,
+  });
+
+  final List<Widget> children;
+  final double spacing;
+
+  @override
+  Widget build(BuildContext context) {
+    if (children.isEmpty) return const SizedBox.shrink();
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final width = constraints.maxWidth;
+        final int columns;
+        if (width < 520) {
+          columns = 1;
+        } else if (width < 850) {
+          columns = 2;
+        } else if (width < 1200) {
+          columns = children.length >= 4 ? 4 : (children.length >= 3 ? 3 : 2);
+        } else {
+          columns = children.length >= 4 ? 4 : children.length;
+        }
+
+        if (columns == 1) {
+          return Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              for (int i = 0; i < children.length; i++) ...[
+                if (i > 0) SizedBox(height: spacing),
+                SizedBox(width: double.infinity, child: children[i]),
+              ],
+            ],
+          );
+        }
+
+        final itemWidth = (width - (spacing * (columns - 1))) / columns;
+        return Wrap(
+          spacing: spacing,
+          runSpacing: spacing,
+          children: children
+              .map((child) => SizedBox(width: itemWidth, child: child))
+              .toList(),
+        );
+      },
+    );
+  }
+}
+
+/// UI/UX Pro Max + Impeccable - Responsive Header Row with Action
+/// Displays title + optional badge on the start, and action button on the end.
+/// On small screens (< 540px), wraps or stacks vertically to prevent overflow.
+class ResponsiveHeaderRow extends StatelessWidget {
+  const ResponsiveHeaderRow({
+    super.key,
+    required this.title,
+    this.subtitle,
+    this.action,
+    this.badge,
+  });
+
+  final String title;
+  final String? subtitle;
+  final Widget? action;
+  final Widget? badge;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final isCompact = constraints.maxWidth < 540;
+
+        final titleSection = Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Flexible(
+                  child: Text(
+                    title,
+                    style: theme.textTheme.headlineMedium?.copyWith(
+                      fontWeight: FontWeight.w800,
+                      letterSpacing: -0.3,
+                    ),
+                  ),
+                ),
+                if (badge != null) ...[
+                  const SizedBox(width: 8),
+                  badge!,
+                ],
+              ],
+            ),
+            if (subtitle != null) ...[
+              const SizedBox(height: 4),
+              Text(
+                subtitle!,
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  color: theme.colorScheme.onSurfaceVariant,
+                ),
+              ),
+            ],
+          ],
+        );
+
+        if (action == null) {
+          return Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8),
+            child: titleSection,
+          );
+        }
+
+        if (isCompact) {
+          return Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                titleSection,
+                const SizedBox(height: 12),
+                action!,
+              ],
+            ),
+          );
+        }
+
+        return Padding(
+          padding: const EdgeInsets.symmetric(vertical: 8),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Expanded(child: titleSection),
+              const SizedBox(width: 16),
+              action!,
+            ],
+          ),
+        );
+      },
+    );
+  }
+}
+
+/// UI/UX Pro Max - High-impact responsive Metric Card
+class ModernMetricCard extends StatelessWidget {
+  const ModernMetricCard({
+    super.key,
+    required this.label,
+    required this.value,
+    required this.icon,
+    required this.color,
+    this.subtitle,
+    this.onTap,
+  });
+
+  final String label;
+  final String value;
+  final IconData icon;
+  final Color color;
+  final String? subtitle;
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
+    final content = SolidCard(
+      borderRadius: 14,
+      elevation: 0,
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      border: Border.all(
+        color: isDark
+            ? color.withValues(alpha: 0.25)
+            : color.withValues(alpha: 0.15),
+        width: 1.0,
+      ),
+      color: isDark
+          ? color.withValues(alpha: 0.08)
+          : color.withValues(alpha: 0.04),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Container(
+            width: 44,
+            height: 44,
+            decoration: BoxDecoration(
+              color: color.withValues(alpha: isDark ? 0.20 : 0.12),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Icon(icon, color: color, size: 22),
+          ),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  label,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: theme.textTheme.bodyMedium?.copyWith(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 13,
+                    color: isDark ? const Color(0xFF94A3B8) : appMutedInk,
+                  ),
+                ),
+                const SizedBox(height: 3),
+                Text(
+                  value,
+                  style: theme.textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.w800,
+                    color: isDark ? Colors.white : appInk,
+                    letterSpacing: -0.3,
+                  ),
+                ),
+                if (subtitle != null) ...[
+                  const SizedBox(height: 2),
+                  Text(
+                    subtitle!,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: theme.textTheme.labelSmall?.copyWith(
+                      color: isDark ? const Color(0xFF64748B) : appMutedInk,
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+
+    if (onTap == null) return content;
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(14),
+      child: content,
+    );
+  }
+}
+
+/// UI/UX Pro Max - Accessible Search Field with clear action
+class AppSearchField extends StatelessWidget {
+  const AppSearchField({
+    super.key,
+    required this.hintText,
+    required this.onChanged,
+    this.controller,
+    this.onClear,
+  });
+
+  final String hintText;
+  final ValueChanged<String> onChanged;
+  final TextEditingController? controller;
+  final VoidCallback? onClear;
+
+  @override
+  Widget build(BuildContext context) {
+    return TextField(
+      controller: controller,
+      onChanged: onChanged,
+      textInputAction: TextInputAction.search,
+      decoration: InputDecoration(
+        hintText: hintText,
+        prefixIcon: const Icon(Icons.search_rounded, size: 22),
+        suffixIcon: controller != null && controller!.text.isNotEmpty
+            ? IconButton(
+                tooltip: 'مسح البحث',
+                icon: const Icon(Icons.clear_rounded, size: 18),
+                onPressed: () {
+                  controller!.clear();
+                  onChanged('');
+                  onClear?.call();
+                },
+              )
+            : null,
+      ),
+    );
+  }
+}
+
+/// UI/UX Pro Max - Section Header with optional action
+class ModernSectionHeader extends StatelessWidget {
+  const ModernSectionHeader({
+    super.key,
+    required this.title,
+    this.subtitle,
+    this.action,
+    this.badge,
+  });
+
+  final String title;
+  final String? subtitle;
+  final Widget? action;
+  final Widget? badge;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      title,
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                    if (badge != null) ...[
+                      const SizedBox(width: 8),
+                      badge!,
+                    ],
+                  ],
+                ),
+                if (subtitle != null) ...[
+                  const SizedBox(height: 3),
+                  Text(
+                    subtitle!,
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ),
+          ?action,
+        ],
+      ),
     );
   }
 }

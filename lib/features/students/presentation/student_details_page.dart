@@ -10,14 +10,19 @@ import '../domain/entities/sensitive_student_data.dart';
 import '../domain/entities/student.dart';
 import '../domain/student_permissions.dart';
 import 'student_providers.dart';
-import '../../follow_up/presentation/follow_up_page.dart';
 import '../../../app/ui/app_ui.dart';
 import '../../../core/config/config_provider.dart';
 import '../../../core/network/network_error_formatter.dart';
 import '../../../core/ui/phone_contact_actions.dart';
 import '../../attendance/presentation/attendance_providers.dart';
 import '../../attendance/presentation/meeting_providers.dart';
+import '../../follow_up/presentation/follow_up_case_providers.dart';
 import '../../follow_up/presentation/follow_up_providers.dart';
+import '../../follow_up/presentation/pages/create_follow_up_case_page.dart';
+import '../../follow_up/presentation/pages/follow_up_case_details_page.dart';
+import '../../follow_up/presentation/widgets/case_priority_badge.dart';
+import '../../follow_up/presentation/widgets/case_status_badge.dart';
+import '../../follow_up/presentation/widgets/follow_up_activity_card.dart';
 
 class StudentDetailsPage extends ConsumerStatefulWidget {
   const StudentDetailsPage({super.key, required this.student});
@@ -444,17 +449,10 @@ class _StudentDetailsPageState extends ConsumerState<StudentDetailsPage> {
                             padding: const EdgeInsets.all(12),
                             decoration: BoxDecoration(
                               color: Colors.white,
-                              borderRadius: BorderRadius.circular(16),
+                              borderRadius: BorderRadius.circular(12),
                               border: Border.all(
                                 color: const Color(0xFFE2E8F0),
                               ),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withValues(alpha: 0.05),
-                                  blurRadius: 10,
-                                  offset: const Offset(0, 4),
-                                ),
-                              ],
                             ),
                             child: QrImageView(
                               data: student.id,
@@ -809,61 +807,188 @@ class _StudentAttendanceTabState extends ConsumerState<_StudentAttendanceTab> {
 class _StudentFollowUpTab extends ConsumerWidget {
   const _StudentFollowUpTab({required this.student});
   final Student student;
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final stream = ref
-        .watch(followUpRepositoryProvider)
-        .watchForStudent(student.id);
+    final casesAsync = ref.watch(
+      studentCasesProvider((
+        serviceId: student.serviceId,
+        studentId: student.id,
+      )),
+    );
+    final activitiesAsync = ref.watch(studentActivitiesProvider(student.id));
+
     return AppContent(
       maxWidth: 900,
-      child: StreamBuilder(
-        stream: stream,
-        builder: (context, snapshot) {
-          if (snapshot.hasError) {
-            return const EmptyState(
-              icon: Icons.error_outline,
-              title: 'تعذر تحميل سجل المتابعة',
-            );
-          }
-          if (!snapshot.hasData) {
-            return const LoadingView(message: 'جاري تحميل سجل المتابعة...');
-          }
-          final rows = snapshot.data!;
-          return ListView(
-            padding: const EdgeInsets.symmetric(vertical: 16),
+      child: ListView(
+        padding: const EdgeInsets.symmetric(vertical: 16),
+        children: [
+          Row(
             children: [
-              Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      'سجل المتابعة',
-                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+              Expanded(
+                child: Text(
+                  'حالات المتابعة',
+                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
                         fontWeight: FontWeight.w800,
                       ),
-                    ),
-                  ),
-                  FilledButton.icon(
-                    key: const Key('student_follow_up_add'),
-                    onPressed: () => Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => FollowUpPage(student: student),
-                      ),
-                    ),
-                    icon: const Icon(Icons.add),
-                    label: const Text('إضافة'),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 12),
-              if (rows.isEmpty)
-                const EmptyState(
-                  icon: Icons.history_toggle_off_rounded,
-                  title: 'لا توجد متابعات بعد',
-                  message: 'سجّل متابعة جديدة لتظهر في هذا السجل.',
                 ),
-              for (final record in rows)
-                Card(
+              ),
+              FilledButton.icon(
+                key: const Key('student_follow_up_add'),
+                onPressed: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => CreateFollowUpCasePage(
+                      serviceId: student.serviceId,
+                      preselectedStudent: student,
+                      classId: student.currentClassId ?? student.proposedClassId,
+                    ),
+                  ),
+                ),
+                icon: const Icon(Icons.add),
+                label: const Text('فتح حالة'),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          casesAsync.when(
+            loading: () => const LoadingView(
+              message: 'جاري تحميل حالات المتابعة...',
+            ),
+            error: (error, _) => EmptyState(
+              icon: Icons.error_outline_rounded,
+              title: 'تعذر تحميل حالات المتابعة',
+              message: '$error',
+            ),
+            data: (cases) {
+              if (cases.isEmpty) {
+                return const EmptyState(
+                  icon: Icons.folder_open_rounded,
+                  title: 'لا توجد حالات متابعة',
+                  message: 'افتح حالة جديدة لتسجيل المتابعة ومراحلها في ملف التلميذ.',
+                );
+              }
+              return Column(
+                children: cases.map((caseItem) {
+                  return Card(
+                    key: ValueKey('student_follow_up_case_${caseItem.id}'),
+                    margin: const EdgeInsets.only(bottom: 8),
+                    child: ListTile(
+                      onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => FollowUpCaseDetailsPage(
+                            serviceId: student.serviceId,
+                            caseId: caseItem.id,
+                          ),
+                        ),
+                      ),
+                      leading: const Icon(Icons.folder_shared_outlined),
+                      title: Text(
+                        caseItem.title,
+                        style: const TextStyle(fontWeight: FontWeight.w700),
+                      ),
+                      subtitle: Padding(
+                        padding: const EdgeInsets.only(top: 7),
+                        child: Wrap(
+                          spacing: 6,
+                          runSpacing: 6,
+                          children: [
+                            CaseStatusBadge(
+                              status: caseItem.status,
+                              dense: true,
+                            ),
+                            CasePriorityBadge(
+                              priority: caseItem.priority,
+                              dense: true,
+                            ),
+                          ],
+                        ),
+                      ),
+                      trailing: const Icon(Icons.chevron_right_rounded),
+                    ),
+                  );
+                }).toList(),
+              );
+            },
+          ),
+          const SizedBox(height: 20),
+          Text(
+            'سجل الأنشطة والافتقاد',
+            style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                  fontWeight: FontWeight.w800,
+                ),
+          ),
+          const SizedBox(height: 10),
+          activitiesAsync.when(
+            loading: () => const LoadingView(
+              message: 'جاري تحميل سجل الأنشطة...',
+            ),
+            error: (error, _) => EmptyState(
+              icon: Icons.error_outline_rounded,
+              title: 'تعذر تحميل سجل الأنشطة',
+              message: '$error',
+            ),
+            data: (activities) {
+              if (activities.isEmpty) {
+                return const EmptyState(
+                  icon: Icons.history_toggle_off_rounded,
+                  title: 'لا توجد أنشطة مسجلة',
+                  message: 'ستظهر هنا كل الاتصالات والزيارات وتغييرات الحالة.',
+                );
+              }
+              return Column(
+                children: activities
+                    .map(
+                      (activity) => Padding(
+                        padding: const EdgeInsets.only(bottom: 8),
+                        child: FollowUpActivityCard(
+                          activity: activity,
+                          showCaseInfo: true,
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => FollowUpCaseDetailsPage(
+                                  serviceId: student.serviceId,
+                                  caseId: activity.caseId,
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                    )
+                    .toList(),
+              );
+            },
+          ),
+          const SizedBox(height: 20),
+          Text(
+            'السجل السابق (قبل نظام الحالات)',
+            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.w800,
+                ),
+          ),
+          const SizedBox(height: 8),
+          StreamBuilder(
+            stream: ref.watch(followUpRepositoryProvider).watchForStudent(student.id),
+            builder: (context, snapshot) {
+              if (snapshot.hasError) {
+                return const Text('تعذر تحميل السجل السابق.');
+              }
+              if (!snapshot.hasData) {
+                return const LoadingView(message: 'جاري تحميل السجل السابق...');
+              }
+              final legacyRecords = snapshot.data!;
+              if (legacyRecords.isEmpty) {
+                return const Text(
+                  'لا توجد سجلات سابقة محفوظة.',
+                  style: TextStyle(color: Colors.grey),
+                );
+              }
+              return Column(
+                children: legacyRecords.map((record) => Card(
                   margin: const EdgeInsets.only(bottom: 8),
                   child: ListTile(
                     leading: Icon(
@@ -878,8 +1003,8 @@ class _StudentFollowUpTab extends ConsumerWidget {
                       record.notes?.isNotEmpty == true
                           ? record.notes!
                           : (record.actionRequired?.isNotEmpty == true
-                                ? record.actionRequired!
-                                : 'لا توجد ملاحظات'),
+                              ? record.actionRequired!
+                              : 'لا توجد ملاحظات'),
                     ),
                     trailing: record.anotherFollowUpNeeded
                         ? const Tooltip(
@@ -888,10 +1013,11 @@ class _StudentFollowUpTab extends ConsumerWidget {
                           )
                         : null,
                   ),
-                ),
-            ],
-          );
-        },
+                )).toList(),
+              );
+            },
+          ),
+        ],
       ),
     );
   }

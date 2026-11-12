@@ -18,6 +18,7 @@ import '../features/export/presentation/export_page.dart';
 import '../features/follow_up/presentation/follow_up_hub_page.dart';
 import '../features/reports/presentation/reports_page.dart';
 import '../features/weekly_prep/presentation/weekly_prep_page.dart';
+import '../features/spiritual_notebook/presentation/spiritual_notebook_page.dart';
 import '../features/servants/presentation/servant_management_page.dart';
 import '../features/service/presentation/service_dashboard_page.dart';
 import '../features/service/presentation/stage_dashboard_page.dart';
@@ -28,6 +29,8 @@ import '../features/auth/presentation/servant_sign_up_page.dart';
 import '../features/auth/presentation/servant_registration_requests_page.dart';
 import '../features/auth/presentation/password_recovery_pages.dart';
 import '../features/service/presentation/service_settings_page.dart';
+import '../features/settings/presentation/global_settings_page.dart';
+import '../features/settings/presentation/settings_providers.dart';
 import '../features/students/presentation/students_page.dart';
 import 'app_shell.dart';
 import 'theme.dart';
@@ -56,6 +59,7 @@ class _ChurchServiceAppState extends ConsumerState<ChurchServiceApp> {
   @override
   Widget build(BuildContext context) {
     final themeMode = ref.watch(themeModeProvider);
+    final textScaler = ref.watch(textScalerProvider);
     ref.listen(authUserProvider, (previous, next) => _router.refresh());
     return MaterialApp.router(
       title: 'أسرة تلاميذ المسيح',
@@ -71,10 +75,16 @@ class _ChurchServiceAppState extends ConsumerState<ChurchServiceApp> {
         GlobalCupertinoLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,
       ],
-      builder: (context, child) => Directionality(
-        textDirection: TextDirection.rtl,
-        child: child ?? const SizedBox.shrink(),
-      ),
+      builder: (context, child) {
+        final mediaQuery = MediaQuery.of(context);
+        return MediaQuery(
+          data: mediaQuery.copyWith(textScaler: textScaler),
+          child: Directionality(
+            textDirection: TextDirection.rtl,
+            child: child ?? const SizedBox.shrink(),
+          ),
+        );
+      },
     );
   }
 
@@ -214,6 +224,21 @@ class _ChurchServiceAppState extends ConsumerState<ChurchServiceApp> {
                 ),
               ),
               GoRoute(
+                path: 'spiritual-notebook',
+                builder: (context, state) => SpiritualNotebookPage(
+                  serviceId: state.pathParameters['serviceId']!,
+                ),
+                routes: [
+                  GoRoute(
+                    path: 'student/:studentId',
+                    builder: (context, state) => SpiritualNotebookStudentPage(
+                      serviceId: state.pathParameters['serviceId']!,
+                      studentId: state.pathParameters['studentId']!,
+                    ),
+                  ),
+                ],
+              ),
+              GoRoute(
                 path: 'servants',
                 builder: (context, state) => ServantManagementPage(
                   serviceId: state.pathParameters['serviceId']!,
@@ -232,6 +257,12 @@ class _ChurchServiceAppState extends ConsumerState<ChurchServiceApp> {
                 builder: (context, state) => ExportPage(
                   serviceId: state.pathParameters['serviceId']!,
                   graduationOnly: true,
+                ),
+              ),
+              GoRoute(
+                path: 'my-settings',
+                builder: (context, state) => GlobalSettingsPage(
+                  serviceId: state.pathParameters['serviceId']!,
                 ),
               ),
               GoRoute(

@@ -104,7 +104,7 @@ class _ServantSignUpPageState extends ConsumerState<ServantSignUpPage> {
             child: SingleChildScrollView(
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
               child: GlassCard(
-                borderRadius: 24,
+                borderRadius: 12,
                 padding: const EdgeInsets.all(28),
                 hoverElevation: false,
                 child: _submitted ? _success() : _form(),

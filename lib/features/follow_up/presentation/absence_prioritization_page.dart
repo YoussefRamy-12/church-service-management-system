@@ -274,13 +274,13 @@ class _AbsencePrioritizationPageState
                 SolidCard(
                   margin: const EdgeInsets.only(bottom: 10),
                   padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
+                    horizontal: 14,
                     vertical: 12,
                   ),
-                  borderRadius: 16,
+                  borderRadius: 12,
                   child: InkWell(
                     key: Key('absence_priority_${item.student.id}'),
-                    borderRadius: BorderRadius.circular(14),
+                    borderRadius: BorderRadius.circular(10),
                     onTap: () => Navigator.of(context).push(
                       MaterialPageRoute(
                         builder: (_) => FollowUpPage(student: item.student),
@@ -289,8 +289,8 @@ class _AbsencePrioritizationPageState
                     child: Row(
                       children: [
                         Container(
-                          width: 44,
-                          height: 44,
+                          width: 42,
+                          height: 42,
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
                             color:
@@ -308,15 +308,15 @@ class _AbsencePrioritizationPageState
                                                 ? const Color(0xFFD97706)
                                                 : const Color(0xFF059669)))
                                       .withValues(alpha: 0.3),
-                              width: 1.5,
+                              width: 1.0,
                             ),
                           ),
                           alignment: Alignment.center,
                           child: Text(
                             '${item.absences}',
                             style: TextStyle(
-                              fontWeight: FontWeight.w800,
-                              fontSize: 18,
+                              fontWeight: FontWeight.w700,
+                              fontSize: 16,
                               color: item.absences >= 2
                                   ? const Color(0xFFDC2626)
                                   : (item.absences == 1
@@ -325,7 +325,7 @@ class _AbsencePrioritizationPageState
                             ),
                           ),
                         ),
-                        const SizedBox(width: 14),
+                        const SizedBox(width: 12),
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -333,15 +333,15 @@ class _AbsencePrioritizationPageState
                               Text(
                                 item.student.name,
                                 style: const TextStyle(
-                                  fontWeight: FontWeight.w800,
-                                  fontSize: 15,
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: 14,
                                 ),
                               ),
-                              const SizedBox(height: 3),
+                              const SizedBox(height: 2),
                               Text(
-                                '${item.absences} غياب من أصل ${item.availableMeetings} لقاء${item.followUpDue ? ' • متابعة مستحقة اليوم' : ''}',
+                                '${item.absences} غياب من أصل ${item.availableMeetings} لقاء${item.followUpDue ? ' • متابعة مستحقة' : ''}',
                                 style: TextStyle(
-                                  fontSize: 12,
+                                  fontSize: 11,
                                   color: item.followUpDue
                                       ? const Color(0xFFDC2626)
                                       : Theme.of(
@@ -367,7 +367,7 @@ class _AbsencePrioritizationPageState
                                     : const Color(0xFF059669)),
                           showDot: item.followUpDue || item.absences >= 2,
                         ),
-                        const SizedBox(width: 6),
+                        const SizedBox(width: 4),
                         const Icon(Icons.chevron_left_rounded, size: 20),
                       ],
                     ),
