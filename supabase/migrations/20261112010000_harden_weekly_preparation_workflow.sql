@@ -21,7 +21,6 @@ begin
   from public.servant_profiles sp
   where sp.auth_user_id = (select auth.uid())
     and sp.account_status = 'active'
-  order by sp.created_at
   limit 1;
 
   v_is_admin := coalesce((select public.is_active_system_admin()), false);
@@ -162,7 +161,6 @@ begin
   from public.servant_profiles sp
   where sp.auth_user_id = (select auth.uid())
     and sp.account_status = 'active'
-  order by sp.created_at
   limit 1;
 
   if v_reviewer_id is null then
