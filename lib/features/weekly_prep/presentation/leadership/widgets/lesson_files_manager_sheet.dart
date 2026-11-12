@@ -413,7 +413,7 @@ class _BulkUploadDialogState extends State<_BulkUploadDialog> {
     for (final file in result.files) {
       final bytes = file.bytes;
       if (bytes == null || bytes.length < 5 || String.fromCharCodes(bytes.take(5)) != '%PDF-' || bytes.length > 25 * 1024 * 1024) continue;
-      Stage? stage = widget.stages.isEmpty ? null : widget.stages.first;
+      Stage? stage;
       for (final candidate in widget.stages) {
         if (file.name.toLowerCase().contains(candidate.name.toLowerCase())) { stage = candidate; break; }
       }
