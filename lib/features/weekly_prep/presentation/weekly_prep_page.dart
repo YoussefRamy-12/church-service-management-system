@@ -162,12 +162,13 @@ class _WeeklyPrepPageState extends ConsumerState<WeeklyPrepPage> {
             ),
           ),
           data: (profile) {
-            if (profile == null && !superAdmin) {
+            if (profile == null) {
               return const Scaffold(
                 body: EmptyState(
-                  icon: Icons.lock_outline,
-                  title: 'تعذر تحديد صلاحيات الحساب',
-                  message: 'أعد تسجيل الدخول ثم حاول مرة أخرى.',
+                  icon: Icons.admin_panel_settings_outlined,
+                  title: 'الحساب الإداري غير مرتبط بملف خادم',
+                  message:
+                      'يلزم ربط حساب Super Admin بملف خادم نشط قبل استخدام لوحة التحاضير ومراجعة الطلبات.',
                 ),
               );
             }
