@@ -5,6 +5,7 @@ import 'package:church_service_management_system/app/theme.dart';
 import 'package:church_service_management_system/features/auth/domain/entities/servant_profile.dart';
 import '../../../domain/prep_date_formatter.dart';
 import '../../../domain/preparation_status.dart';
+import '../../../domain/preparation_review.dart';
 import '../../../domain/weekly_preparation.dart';
 import '../../servant/widgets/preparation_history_sheet.dart';
 import '../../servant/widgets/preparation_status_badge.dart';
@@ -41,6 +42,61 @@ class _PreparationReviewDialogState
 
   bool get _isSelf =>
       widget.preparation.servantProfileId == widget.currentLeader.id;
+
+  bool get _canReview =>
+      widget.preparation.status == PreparationStatus.submitted && !_isSelf;
+
+  Future<void> _showReviewHistory() async {
+    final prep = widget.preparation;
+    final historyFuture = ref.read(
+      preparationReviewHistoryProvider((
+        lessonId: prep.weeklyLessonId,
+        servantProfileId: prep.servantProfileId,
+      )).future,
+    );
+
+    if (!mounted) return;
+    showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      builder: (context) => FutureBuilder<List<PreparationReview>>(
+        future: historyFuture,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const SafeArea(
+              child: Padding(
+                padding: EdgeInsets.all(32),
+                child: Center(child: CircularProgressIndicator()),
+              ),
+            );
+          }
+          if (snapshot.hasError) {
+            return SafeArea(
+              child: Padding(
+                padding: const EdgeInsets.all(24),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(Icons.error_outline, color: Colors.red),
+                    const SizedBox(height: 8),
+                    const Text('تعذر تحميل سجل المراجعات.'),
+                    TextButton(
+                      onPressed: () => Navigator.pop(context),
+                      child: const Text('إغلاق'),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          }
+          return PreparationHistorySheet(
+            reviews: snapshot.data ?? const [],
+            lessonFileName: 'تحضير ${prep.servantName ?? ''}',
+          );
+        },
+      ),
+    );
+  }
 
   Future<void> _handleApprove() async {
     if (_isSelf) {
@@ -196,7 +252,9 @@ class _PreparationReviewDialogState
           const SizedBox(width: 10),
           Expanded(
             child: Text(
-              'مراجعة تحضير: ${prep.servantName ?? 'الخادم'}',
+              _canReview
+                  ? 'مراجعة تحضير: ${prep.servantName ?? 'الخادم'}'
+                  : 'تفاصيل مراجعة التحضير: ${prep.servantName ?? 'الخادم'}',
               style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 17),
             ),
           ),
@@ -253,21 +311,39 @@ class _PreparationReviewDialogState
 
               const SizedBox(height: 16),
 
-              // Feedback input textfield
-              TextField(
-                controller: _noteController,
-                maxLines: 4,
-                enabled: !_submitting && !_isSelf,
-                decoration: InputDecoration(
-                  labelText:
-                      'ملاحظات وتوجيهات المراجعة (إلزامية في حالة طلب التعديل)',
-                  hintText: 'اكتب ملاحظاتك للخادم هنا...',
-                  alignLabelWithHint: true,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
+              if (_canReview) ...[
+                // Feedback input is available only while a submission awaits review.
+                TextField(
+                  controller: _noteController,
+                  maxLines: 4,
+                  enabled: !_submitting,
+                  decoration: InputDecoration(
+                    labelText:
+                        'ملاحظات وتوجيهات المراجعة (إلزامية في حالة طلب التعديل)',
+                    hintText: 'اكتب ملاحظاتك للخادم هنا...',
+                    alignLabelWithHint: true,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
                   ),
                 ),
-              ),
+              ] else ...[
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF1F5F9),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: const Text(
+                    'هذه مراجعة سابقة للقراءة فقط. يمكنك الاطلاع على سجل المراجعات دون تغيير القرار.',
+                    style: TextStyle(
+                      color: Color(0xFF475569),
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ),
+              ],
 
               if (_errorMessage != null) ...[
                 const SizedBox(height: 10),
@@ -297,23 +373,7 @@ class _PreparationReviewDialogState
 
               // Button to view history trail
               OutlinedButton.icon(
-                onPressed: () {
-                  final reviewsAsync = ref.read(
-                    preparationReviewHistoryProvider((
-                      lessonId: prep.weeklyLessonId,
-                      servantProfileId: prep.servantProfileId,
-                    )),
-                  );
-                  final reviews = reviewsAsync.value ?? [];
-                  showModalBottomSheet<void>(
-                    context: context,
-                    isScrollControlled: true,
-                    builder: (ctx) => PreparationHistorySheet(
-                      reviews: reviews,
-                      lessonFileName: 'تحضير ${prep.servantName ?? ''}',
-                    ),
-                  );
-                },
+                onPressed: _submitting ? null : _showReviewHistory,
                 icon: const Icon(Icons.history_rounded, size: 18),
                 label: const Text('عرض سجل المراجعات السابقة'),
               ),
@@ -324,24 +384,26 @@ class _PreparationReviewDialogState
       actions: [
         TextButton(
           onPressed: _submitting ? null : () => Navigator.pop(context),
-          child: const Text('إلغاء'),
+          child: Text(_canReview ? 'إلغاء' : 'إغلاق'),
         ),
-        FilledButton.icon(
-          style: FilledButton.styleFrom(
-            backgroundColor: const Color(0xFFEF4444),
+        if (_canReview) ...[
+          FilledButton.icon(
+            style: FilledButton.styleFrom(
+              backgroundColor: const Color(0xFFEF4444),
+            ),
+            onPressed: _submitting ? null : _handleRequestRevision,
+            icon: const Icon(Icons.edit_note_rounded, size: 18),
+            label: const Text('طلب تعديل'),
           ),
-          onPressed: _submitting || _isSelf ? null : _handleRequestRevision,
-          icon: const Icon(Icons.edit_note_rounded, size: 18),
-          label: const Text('طلب تعديل'),
-        ),
-        FilledButton.icon(
-          style: FilledButton.styleFrom(
-            backgroundColor: const Color(0xFF10B981),
+          FilledButton.icon(
+            style: FilledButton.styleFrom(
+              backgroundColor: const Color(0xFF10B981),
+            ),
+            onPressed: _submitting ? null : _handleApprove,
+            icon: const Icon(Icons.check_rounded, size: 18),
+            label: const Text('اعتماد التحضير'),
           ),
-          onPressed: _submitting || _isSelf ? null : _handleApprove,
-          icon: const Icon(Icons.check_rounded, size: 18),
-          label: const Text('اعتماد التحضير'),
-        ),
+        ],
       ],
     );
   }
