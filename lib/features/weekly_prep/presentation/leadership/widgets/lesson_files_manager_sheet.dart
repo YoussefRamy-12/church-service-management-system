@@ -124,15 +124,22 @@ class _LessonFilesManagerSheetState
     }
   }
 
-
   Future<void> _bulkUpload() async {
     final batch = await showDialog<List<_BulkItem>>(
       context: context,
-      builder: (_) => _BulkUploadDialog(stages: widget.stages, weeks: widget.weeks),
+      builder: (_) =>
+          _BulkUploadDialog(stages: widget.stages, weeks: widget.weeks),
     );
     if (batch == null || batch.isEmpty || !mounted) return;
-    final conflicts = batch.where((item) => widget.lessons.any((lesson) =>
-      lesson.stageId == item.stage.id && _sameDay(lesson.weekStart, item.week))).length;
+    final conflicts = batch
+        .where(
+          (item) => widget.lessons.any(
+            (lesson) =>
+                lesson.stageId == item.stage.id &&
+                _sameDay(lesson.weekStart, item.week),
+          ),
+        )
+        .length;
     if (conflicts > 0) {
       final ok = await showDialog<bool>(
         context: context,
@@ -140,8 +147,14 @@ class _LessonFilesManagerSheetState
           title: const Text('تأكيد الاستبدال'),
           content: Text('يوجد $conflicts ملف موجود. هل تريد استبداله؟'),
           actions: [
-            TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('إلغاء')),
-            FilledButton(onPressed: () => Navigator.pop(ctx, true), child: const Text('متابعة')),
+            TextButton(
+              onPressed: () => Navigator.pop(ctx, false),
+              child: const Text('إلغاء'),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.pop(ctx, true),
+              child: const Text('متابعة'),
+            ),
           ],
         ),
       );
@@ -153,10 +166,15 @@ class _LessonFilesManagerSheetState
     try {
       for (final item in batch) {
         try {
-          await ref.read(weeklyLessonRepositoryProvider).save(
-            serviceId: widget.serviceId, stageId: item.stage.id,
-            weekStart: item.week, fileName: item.name, bytes: item.bytes,
-          );
+          await ref
+              .read(weeklyLessonRepositoryProvider)
+              .save(
+                serviceId: widget.serviceId,
+                stageId: item.stage.id,
+                weekStart: item.week,
+                fileName: item.name,
+                bytes: item.bytes,
+              );
           success++;
         } catch (e) {
           errors.add('${item.name}: $e');
@@ -170,16 +188,27 @@ class _LessonFilesManagerSheetState
             title: const Text('نتيجة الرفع'),
             content: SizedBox(
               width: 420,
-              child: SingleChildScrollView(child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text('نجح رفع $success من أصل ${batch.length} ملف.'),
-                  for (final error in errors) Text(error, style: const TextStyle(color: Colors.red, fontSize: 12)),
-                ],
-              )),
+              child: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text('نجح رفع $success من أصل ${batch.length} ملف.'),
+                    for (final error in errors)
+                      Text(
+                        error,
+                        style: const TextStyle(color: Colors.red, fontSize: 12),
+                      ),
+                  ],
+                ),
+              ),
             ),
-            actions: [FilledButton(onPressed: () => Navigator.pop(ctx), child: const Text('إغلاق'))],
+            actions: [
+              FilledButton(
+                onPressed: () => Navigator.pop(ctx),
+                child: const Text('إغلاق'),
+              ),
+            ],
           ),
         );
       }
@@ -371,9 +400,13 @@ class _LessonFilesManagerSheetState
   }
 }
 
-
 class _BulkItem {
-  const _BulkItem({required this.stage, required this.week, required this.name, required this.bytes});
+  const _BulkItem({
+    required this.stage,
+    required this.week,
+    required this.name,
+    required this.bytes,
+  });
   final Stage stage;
   final DateTime week;
   final String name;
@@ -391,31 +424,58 @@ class _BulkUploadDialog extends StatefulWidget {
 class _BulkUploadDialogState extends State<_BulkUploadDialog> {
   final List<_BulkDraft> files = [];
   String label(DateTime date) => PrepDateFormatter.formatWeekWithYear(date);
-  bool same(DateTime a, DateTime b) => a.year == b.year && a.month == b.month && a.day == b.day;
+  bool same(DateTime a, DateTime b) =>
+      a.year == b.year && a.month == b.month && a.day == b.day;
 
   DateTime? inferWeek(String name) {
     for (final week in widget.weeks) {
-      final iso = '${week.year.toString().padLeft(4, '0')}-${week.month.toString().padLeft(2, '0')}-${week.day.toString().padLeft(2, '0')}';
-      if (name.contains(iso) || name.toLowerCase().contains(label(week).toLowerCase())) return week;
+      final iso =
+          '${week.year.toString().padLeft(4, '0')}-${week.month.toString().padLeft(2, '0')}-${week.day.toString().padLeft(2, '0')}';
+      if (name.contains(iso) ||
+          name.toLowerCase().contains(label(week).toLowerCase())) {
+        return week;
+      }
     }
-    final match = RegExp(r'(20\d{2})[._-](\d{1,2})[._-](\d{1,2})').firstMatch(name);
+    final match = RegExp(
+      r'(20\d{2})[._-](\d{1,2})[._-](\d{1,2})',
+    ).firstMatch(name);
     if (match == null) return null;
-    final date = DateTime(int.parse(match.group(1)!), int.parse(match.group(2)!), int.parse(match.group(3)!));
-    final monday = DateTime.utc(date.year, date.month, date.day).subtract(Duration(days: date.weekday - DateTime.monday));
-    for (final week in widget.weeks) { if (same(week, monday)) return week; }
+    final date = DateTime(
+      int.parse(match.group(1)!),
+      int.parse(match.group(2)!),
+      int.parse(match.group(3)!),
+    );
+    final monday = DateTime.utc(
+      date.year,
+      date.month,
+      date.day,
+    ).subtract(Duration(days: date.weekday - DateTime.monday));
+    for (final week in widget.weeks) {
+      if (same(week, monday)) return week;
+    }
     return null;
   }
 
   Future<void> pick() async {
-    final result = await FilePicker.platform.pickFiles(type: FileType.custom, allowedExtensions: const ['pdf'], allowMultiple: true, withData: true);
-    if (result == null) return;
+    final result = await FilePicker.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: const ['pdf'],
+    );
+    if (result.isEmpty) return;
     final additions = <_BulkDraft>[];
-    for (final file in result.files) {
-      final bytes = file.bytes;
-      if (bytes == null || bytes.length < 5 || String.fromCharCodes(bytes.take(5)) != '%PDF-' || bytes.length > 25 * 1024 * 1024) continue;
+    for (final file in result) {
+      final bytes = await file.readAsBytes();
+      if (bytes.length < 5 ||
+          String.fromCharCodes(bytes.take(5)) != '%PDF-' ||
+          bytes.length > 25 * 1024 * 1024) {
+        continue;
+      }
       Stage? stage;
       for (final candidate in widget.stages) {
-        if (file.name.toLowerCase().contains(candidate.name.toLowerCase())) { stage = candidate; break; }
+        if (file.name.toLowerCase().contains(candidate.name.toLowerCase())) {
+          stage = candidate;
+          break;
+        }
       }
       additions.add(_BulkDraft(file.name, bytes, stage, inferWeek(file.name)));
     }
@@ -427,43 +487,131 @@ class _BulkUploadDialogState extends State<_BulkUploadDialog> {
     title: const Text('رفع ملفات دروس لعدة أسابيع'),
     content: SizedBox(
       width: 620,
-      child: Column(mainAxisSize: MainAxisSize.min, children: [
-        const Text('يستنتج النظام الأسبوع من اسم الملف عند التعرف عليه. راجع وعدّل المرحلة والأسبوع لكل ملف قبل الرفع.'),
-        Align(alignment: AlignmentDirectional.centerStart, child: OutlinedButton.icon(onPressed: pick, icon: const Icon(Icons.add), label: const Text('اختيار ملفات PDF'))),
-        if (files.isEmpty) const Text('لم يتم اختيار ملفات بعد.'),
-        if (files.isNotEmpty) Flexible(child: ListView.builder(
-          shrinkWrap: true, itemCount: files.length,
-          itemBuilder: (context, index) {
-            final item = files[index];
-            return Column(children: [
-              Row(children: [
-                Expanded(child: Text(item.name, overflow: TextOverflow.ellipsis)),
-                IconButton(onPressed: () => setState(() => files.removeAt(index)), icon: const Icon(Icons.close)),
-              ]),
-              Row(children: [
-                Expanded(child: DropdownButtonFormField<Stage>(
-                  value: item.stage, isExpanded: true, decoration: const InputDecoration(labelText: 'المرحلة'),
-                  items: widget.stages.map((s) => DropdownMenuItem(value: s, child: Text(s.name))).toList(),
-                  onChanged: (v) => setState(() => item.stage = v),
-                )),
-                const SizedBox(width: 8),
-                Expanded(child: DropdownButtonFormField<DateTime>(
-                  value: item.week, isExpanded: true, decoration: const InputDecoration(labelText: 'الأسبوع'),
-                  hint: const Text('حدد الأسبوع'),
-                  items: widget.weeks.map((w) => DropdownMenuItem(value: w, child: Text(label(w)))).toList(),
-                  onChanged: (v) => setState(() => item.week = v),
-                )),
-              ]),
-              if (item.week == null) const Align(alignment: AlignmentDirectional.centerStart, child: Text('حدد الأسبوع يدوياً', style: TextStyle(color: Colors.deepOrange, fontSize: 11))),
-              const Divider(),
-            ]);
-          },
-        )),
-      ]),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Text(
+            'يستنتج النظام الأسبوع من اسم الملف عند التعرف عليه. راجع وعدّل المرحلة والأسبوع لكل ملف قبل الرفع.',
+          ),
+          Align(
+            alignment: AlignmentDirectional.centerStart,
+            child: OutlinedButton.icon(
+              onPressed: pick,
+              icon: const Icon(Icons.add),
+              label: const Text('اختيار ملفات PDF'),
+            ),
+          ),
+          if (files.isEmpty) const Text('لم يتم اختيار ملفات بعد.'),
+          if (files.isNotEmpty)
+            Flexible(
+              child: ListView.builder(
+                shrinkWrap: true,
+                itemCount: files.length,
+                itemBuilder: (context, index) {
+                  final item = files[index];
+                  return Column(
+                    children: [
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              item.name,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                          IconButton(
+                            onPressed: () =>
+                                setState(() => files.removeAt(index)),
+                            icon: const Icon(Icons.close),
+                          ),
+                        ],
+                      ),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: DropdownButtonFormField<Stage>(
+                              initialValue: item.stage,
+                              isExpanded: true,
+                              decoration: const InputDecoration(
+                                labelText: 'المرحلة',
+                              ),
+                              items: widget.stages
+                                  .map(
+                                    (s) => DropdownMenuItem(
+                                      value: s,
+                                      child: Text(s.name),
+                                    ),
+                                  )
+                                  .toList(),
+                              onChanged: (v) => setState(() => item.stage = v),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: DropdownButtonFormField<DateTime>(
+                              initialValue: item.week,
+                              isExpanded: true,
+                              decoration: const InputDecoration(
+                                labelText: 'الأسبوع',
+                              ),
+                              hint: const Text('حدد الأسبوع'),
+                              items: widget.weeks
+                                  .map(
+                                    (w) => DropdownMenuItem(
+                                      value: w,
+                                      child: Text(label(w)),
+                                    ),
+                                  )
+                                  .toList(),
+                              onChanged: (v) => setState(() => item.week = v),
+                            ),
+                          ),
+                        ],
+                      ),
+                      if (item.week == null)
+                        const Align(
+                          alignment: AlignmentDirectional.centerStart,
+                          child: Text(
+                            'حدد الأسبوع يدوياً',
+                            style: TextStyle(
+                              color: Colors.deepOrange,
+                              fontSize: 11,
+                            ),
+                          ),
+                        ),
+                      const Divider(),
+                    ],
+                  );
+                },
+              ),
+            ),
+        ],
+      ),
     ),
     actions: [
-      TextButton(onPressed: () => Navigator.pop(context), child: const Text('إلغاء')),
-      FilledButton(onPressed: files.isEmpty || files.any((f) => f.stage == null || f.week == null) ? null : () => Navigator.pop(context, files.map((f) => _BulkItem(stage: f.stage!, week: f.week!, name: f.name, bytes: f.bytes)).toList()), child: Text('رفع ${files.length} ملف')),
+      TextButton(
+        onPressed: () => Navigator.pop(context),
+        child: const Text('إلغاء'),
+      ),
+      FilledButton(
+        onPressed:
+            files.isEmpty || files.any((f) => f.stage == null || f.week == null)
+            ? null
+            : () => Navigator.pop(
+                context,
+                files
+                    .map(
+                      (f) => _BulkItem(
+                        stage: f.stage!,
+                        week: f.week!,
+                        name: f.name,
+                        bytes: f.bytes,
+                      ),
+                    )
+                    .toList(),
+              ),
+        child: Text('رفع ${files.length} ملف'),
+      ),
     ],
   );
 }
