@@ -67,7 +67,10 @@ class SupabaseReportRepository {
       ),
     );
     final scopedStudents = directoryRows.where((row) {
-      if (row['membership_status'] != 'active') return false;
+      // Keep inactive/graduated memberships for historical reports; exclude
+      // pending/rejected enrollments from attendance expectations.
+      if (row['membership_status'] == 'pending' ||
+          row['membership_status'] == 'rejected') return false;
       final currentClass = row['class_id'] as String?;
       return currentClass != null &&
           (effectiveClassIds == null || effectiveClassIds.contains(currentClass)) &&
