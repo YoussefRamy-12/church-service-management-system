@@ -194,32 +194,37 @@ The old `students.service_id` and class columns remain in place. No contract/dro
 ## 9. Migration gates and acceptance
 
 ### Gate A — expand schema
-- Add membership table, unique/index constraints and RLS.
-- Backfill exactly one membership per current student, preserving UUID, service, class, approval state and timestamps.
-- Add/backfill membership links for operational records.
-- Verify no null or cross-service membership references.
-- Keep all legacy columns and policies needed by the current app.
+<badge color="success">Completed</badge>
+- Added `service_students`, uniqueness, composite service/class constraints and RLS.
+- Backfilled 82 memberships without changing global student UUIDs.
+- Linked 192 attendance rows, 2 legacy follow-up rows and 3 follow-up cases.
+- Verified zero unscoped classes and zero missing membership references in those operational tables.
+- Kept legacy columns and policies in place.
 
 ### Gate B — application and offline dual compatibility
-- Update domain entities/repositories/providers.
-- Upgrade Drift schema with a transactional local data copy.
-- Update sync handlers and replay legacy queue payloads safely.
-- Add unit/integration tests for membership lifecycle and idempotency.
-- Keep the old single-service workflow working.
+<badge color="warning">Partially completed</badge>
+- Added the `ServiceStudent` entity, Drift membership cache (schema version 11), offline-first repository, and `service_student` sync handler.
+- Added `get_service_student_directory` for authorized identity projection.
+- Added offline cache, queue, archive, RPC-mapping and sync-engine tests.
+- The existing student UI, attendance UI, follow-up UI and spiritual-notebook UI still use legacy student/service fields. The membership path is not yet wired through every feature or provider.
+- A full on-device upgrade test from an existing v10 database and replay of old queued payloads remains required.
 
 ### Gate C — multi-service isolation
-- Service A cannot read/write Service B membership, attendance, follow-up, notebook or sensitive data.
-- A student can have two memberships without duplicating the global student identity.
-- Class/stage-scoped roles remain scoped.
-- System super admin remains platform-scoped, not silently granted to service leaders.
-- Offline queue replay cannot move a record across services.
+<badge color="warning">Partially completed</badge>
+- Membership read/write RLS was tested with users from both services, including cross-service denial.
+- Cross-service class assignment and attendance association were rejected by database constraints/triggers.
+- The identity projection RPC was tested for authorized service access and cross-service denial.
+- End-to-end second-service attendance, follow-up, notebook, and sensitive-data workflows are not yet enabled because their UI/repositories/RPCs have not all moved to membership IDs.
+- Sensitive student data remains on the legacy student-keyed model and needs an explicit per-service confidentiality design.
+- Offline membership queue behavior is covered; cross-service replay of all existing attendance/follow-up queue variants remains outstanding.
 
 ### Gate D — contract / cutover
-- All app and sync consumers use membership IDs.
-- Data parity and historical joins are proven.
-- Rollback plan and backup are verified.
-- Only then propose removal of legacy service-owned fields and obsolete policies/FKs in a separate reviewed migration.
+<badge color="danger">Blocked</badge>
+- Existing application consumers still depend on `students.service_id/current_class_id`.
+- Student hard-delete policies and cascading historical deletes still exist; replace them with membership archival before claiming historical deletion safety.
+- Migration ledger drift has not been repaired; 15 branch migrations and 5 remote ledger versions still need exact catalog diff/reconciliation.
+- No legacy column or policy has been dropped. A backup/rollback plan and full multi-service regression are required before a separate contract migration.
 
 ## 10. Current decision
 
-The current database is not yet the v2.0 global identity model. It is a service-scoped student model with multiple service infrastructure already present. The next safe implementation unit is an additive membership expansion, followed by application/offline adaptation. Production cutover is blocked until the regression and service-isolation gates pass.
+The live database now has an additive membership expansion and a service-scoped global-identity projection. It is a valid expand-phase foundation, not a completed v2.0 cutover. The existing single-service application remains on its legacy data path. Continue by integrating membership-first reads/writes feature by feature, adding archive semantics and sensitive-data boundaries, then run full two-service end-to-end and offline replay tests before contract migration.
