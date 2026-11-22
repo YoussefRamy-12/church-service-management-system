@@ -316,6 +316,14 @@ void main() {
       expect(class1.attendanceRate, 50.0);
       expect(class1.repeatedAbsencesCount, 1);
       expect(class1.openCasesCount, 1);
+
+      final class2 = report.classComparisons.firstWhere((c) => c.classId == 'class-5-2');
+      expect(class2.totalStudents, 1);
+      expect(class2.expectedAttendance, 1);
+      expect(class2.presentCount, 1);
+
+      expect(report.studentAnalytics.attendanceTiers['90-100%'], 2);
+      expect(report.studentAnalytics.attendanceTiers['<50%'], 1);
     });
 
     test('handles zero expected attendance without division by zero', () {
