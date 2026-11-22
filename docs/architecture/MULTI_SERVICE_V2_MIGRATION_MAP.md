@@ -220,10 +220,10 @@ The old `students.service_id` and class columns remain in place. No contract/dro
 
 ### Gate B — application and offline dual compatibility
 **Status: Partially completed**
-- Added the `ServiceStudent` entity, Drift membership cache (schema version 13), offline-first repository, and `service_student` sync handler.
+- Added the `ServiceStudent` entity, Drift membership cache, offline-first repository, and `service_student` sync handler.
 - Added `get_service_student_directory` for authorized identity projection, including the identity-owning service identifier used to isolate sensitive data.
 - Implemented Students membership-backed reads and registration, editing, approval, class assignment, and membership archival through transactional/authorized RPCs.
-- Drift now uses schema version 14 and caches membership ID, membership status, and identity ownership.
+- Drift now uses schema version 16 and caches membership IDs, identity ownership, and service-scoped Attendance and Follow-up records.
 - Offline registration queues the global student insert before its service membership upsert; membership edits/approval/class changes sync separately.
 - Legacy queued physical student deletes now become sync conflicts instead of deleting global identities.
 - Sensitive data is not read from the local device cache when the active membership belongs to a different service or identity ownership is unknown.
