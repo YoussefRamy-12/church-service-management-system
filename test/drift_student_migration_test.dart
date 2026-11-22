@@ -11,7 +11,7 @@ void main() {
       () async {
         final db = AppDatabase.forTesting();
         try {
-          expect(db.schemaVersion, 10);
+          expect(db.schemaVersion, 11);
 
           final local = LocalStudentRepository(db);
 
@@ -73,7 +73,7 @@ void main() {
     );
 
     test(
-      'Version 10 database exposes student, follow-up and membership cache tables',
+      'Version 11 database exposes student, follow-up and membership identity cache tables',
       () async {
         final db = AppDatabase.forTesting();
         try {
