@@ -821,7 +821,7 @@ class _StudentFollowUpTab extends ConsumerWidget {
         studentId: student.id,
       )),
     );
-    final activitiesAsync = ref.watch(studentActivitiesProvider(student.id));
+    final activitiesAsync = ref.watch(studentActivitiesProvider((serviceId: student.serviceId, studentId: student.id)));
 
     return AppContent(
       maxWidth: 900,
