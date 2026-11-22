@@ -7,6 +7,7 @@ class Student {
     required this.serviceId,
     required this.name,
     required this.approvalStatus,
+    this.membershipId,
     this.currentClassId,
     this.proposedClassId,
     this.birthDate,
@@ -23,6 +24,7 @@ class Student {
   final String serviceId;
   final String name;
   final String approvalStatus;
+  final String? membershipId;
   final String? currentClassId;
   final String? proposedClassId;
   final DateTime? birthDate;
@@ -42,6 +44,7 @@ class Student {
     String? serviceId,
     String? name,
     String? approvalStatus,
+    String? membershipId,
     String? currentClassId,
     String? proposedClassId,
     DateTime? birthDate,
@@ -58,6 +61,7 @@ class Student {
       serviceId: serviceId ?? this.serviceId,
       name: name ?? this.name,
       approvalStatus: approvalStatus ?? this.approvalStatus,
+      membershipId: membershipId ?? this.membershipId,
       currentClassId: currentClassId ?? this.currentClassId,
       proposedClassId: proposedClassId ?? this.proposedClassId,
       birthDate: birthDate ?? this.birthDate,
