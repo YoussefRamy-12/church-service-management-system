@@ -127,7 +127,7 @@ No local cache rows or queued operations may be dropped during the Drift upgrade
 
 ## 7. Migration ledger reconciliation
 
-At the initial audit, the remote ledger had 15 versions and the branch had 25 SQL files. After applying the five additive membership, security and performance migrations below, the remote ledger has **23 versions** and the branch has **33 SQL files**. The eight new versions are aligned exactly:
+At the initial audit, the remote ledger had 15 versions and the branch had 25 SQL files. After applying the eight additive membership, security and performance migrations below, the remote ledger has **23 versions** and the branch has **33 SQL files**. The eight new versions are aligned exactly:
 
 - `20261122125142_multi_service_membership_expand`
 - `20261122125643_service_membership_class_scope_write`
@@ -179,10 +179,14 @@ This is evidence that many effects exist in the catalog, not a byte-for-byte pro
 - `20261122125643_service_membership_class_scope_write`: permits authenticated users to create/update memberships only within their service and class authorization scope.
 - `20261122125923_service_membership_fk_indexes`: indexes the new composite foreign keys and adds the membership `updated_at` trigger.
 - `20261122130257_service_student_directory_rpc`: exposes a service-scoped, authorization-checked identity projection so a second service can read only the global identity fields for its own memberships without broadening direct access to the legacy `students` table.
+- `20261122131229_index_remaining_foreign_keys`: adds covering indexes for remaining creator/reviewer and child-table foreign keys; the performance advisor now reports zero unindexed foreign keys.
+- `20261122160500_students_membership_workflows`: adds authenticated, RLS-invoker RPCs for atomic registration, membership editing, approval, class assignment, and archival.
+- `20261122162000_students_update_nullable_date_guard`: preserves existing required date values when optional edit fields are omitted.
+- `20261122162500_student_directory_identity_scope`: adds `identity_service_id` to the directory projection so local sensitive-data cache fallback is denied across service boundaries.
 
-The Flutter/Drift branch now has schema version 11 with a `CachedServiceStudents` table, a `ServiceStudent` domain entity, an offline-first membership repository, and a `service_student` sync handler, and the `get_service_student_directory` RPC projection. Offline tests cover membership cache isolation by service, queued upserts, and archive state changes.
+The Flutter/Drift branch now has schema version 13, a `CachedServiceStudents` table, membership IDs and identity ownership in `CachedStudents`, a `ServiceStudent` domain entity, an offline-first membership repository, and a `service_student` sync handler. The directory RPC returns the identity-owning service ID for sensitive-data isolation. Offline tests cover membership cache isolation by service, queued upserts, and archive state changes.
 
-**Compatibility boundary:** the existing student screens and legacy student repositories still read/write `students.service_id/current_class_id`. The new membership repository and sync handler are additive foundations; the student UI and existing workflows have not yet been switched to membership-first reads/writes or to consume the new identity projection. Therefore this expansion does not yet enable end-to-end second-service student workflows.
+**Compatibility boundary:** the Students screen now reads its roster through `get_service_student_directory` and routes registration, editing, approval, class assignment, and archival through membership lifecycle RPCs. Legacy `students` columns are dual-written only for the existing owning service while other modules are migrated. Attendance, Follow-up, and Spiritual Notebook still need membership-first application cutovers, so this phase does not yet enable complete second-service operations.
 
 The old `students.service_id` and class columns remain in place. No contract/drop migration has been applied.
 
@@ -190,7 +194,7 @@ The old `students.service_id` and class columns remain in place. No contract/dro
 
 - All 26 public tables have RLS enabled; `FORCE ROW LEVEL SECURITY` is false on them.
 - The two previously anonymous-executable `SECURITY DEFINER` helpers, `public.is_active_system_admin()` and `public.is_active_service_schedule_leader(text)`, now have execution revoked from `PUBLIC` and `anon`; `authenticated` and `service_role` retain execution for RLS/application use. The anonymous execution finding is cleared.
-- The advisor now flags seven authenticated-executable `SECURITY DEFINER` functions. These include the registration/enrollment RPCs, admin predicates, weekly-preparation review, spiritual-notebook submission, and the new service-scoped student directory RPC. They are intentionally callable by authenticated clients; each still needs periodic function-body authorization review. Do not blanket-revoke these or convert them to invoker without testing their RLS dependencies.
+- The advisor now flags seven authenticated-executable `SECURITY DEFINER` functions. These include the registration/enrollment RPCs, admin predicates, weekly-preparation review, spiritual-notebook submission, and the service-scoped student directory RPC. The directory RPC explicitly checks service access and returns only the limited identity projection; it does not return sensitive-data rows. They are intentionally callable by authenticated clients; each still needs periodic function-body authorization review. Do not blanket-revoke these or convert them to invoker without testing their RLS dependencies.
 - The weekly-preparation review RPC now resolves the lesson's service before selecting the active reviewer profile and requires the preparer profile to belong to that same service. The previous arbitrary cross-service `LIMIT 1` selection has been removed.
 - Advisor reports leaked-password protection disabled; enable it in Supabase Auth settings after confirming project policy. This setting could not be changed through the available database tools.
 - The advisor now reports **zero unindexed foreign keys**; the membership and remaining creator/reviewer FK indexes were added in the last two index migrations. It still reports 51 multiple-permissive-policy combinations and 30 unused-index notices. The unused-index notices include the newly created FK indexes, which have not yet accumulated workload usage; do not drop FK-covering indexes solely because the workload is currently small. Permissive policies are OR-combined and must be consolidated only after proving the effective authorization logic.
@@ -207,7 +211,7 @@ The old `students.service_id` and class columns remain in place. No contract/dro
 
 ### Gate B — application and offline dual compatibility
 **Status: Partially completed**
-- Added the `ServiceStudent` entity, Drift membership cache (schema version 11), offline-first repository, and `service_student` sync handler.
+- Added the `ServiceStudent` entity, Drift membership cache (schema version 13), offline-first repository, and `service_student` sync handler.
 - Added `get_service_student_directory` for authorized identity projection, including the identity-owning service identifier used to isolate sensitive data.
 - Implemented Students membership-backed reads and registration, editing, approval, class assignment, and membership archival through transactional/authorized RPCs.
 - Drift now uses schema version 13 and caches membership ID, membership status, and identity ownership.
@@ -216,7 +220,7 @@ The old `students.service_id` and class columns remain in place. No contract/dro
 - Sensitive data is not read from the local device cache when the active membership belongs to a different service or identity ownership is unknown.
 - Added offline cache, queue, archive, RPC-mapping, and sync-engine tests.
 - Global identity search/verification and confirmed reuse are not yet exposed in the UI. Duplicate matching remains explicit; automatic merging is out of scope.
-- Latest CI run **#353** passed dependency resolution, Drift generation, Flutter analysis, web build and the full `flutter test` suite: **189 tests passed**. The suite includes attendance, students, follow-up, weekly preparation and spiritual notebook coverage.
+- The preceding stable CI baseline passed dependency resolution, Drift generation, Flutter analysis, web build and 189 tests. The current Students membership-first changes are under a new CI regression run; do not treat them as validated until that run passes.
 - The Students feature now reads and mutates service memberships through the new directory/lifecycle RPCs. Attendance, Follow-up, and Spiritual Notebook still require their own UI/repository cutovers.
 - A full on-device upgrade test from an existing v11/v12 database and replay of old queued payloads remains required; CI generation and tests are the current validation gate.
 
