@@ -345,12 +345,15 @@ class SupabaseReportRepository {
 
     // 9. Follow-Up Cases & Activities
     List<dynamic> followUpCasesRes = [];
-    try {
-      followUpCasesRes = await _client
-          .from('follow_up_cases')
-          .select('id, student_id, class_id, priority, status')
-          .eq('service_id', serviceId);
-    } catch (_) {}
+    if (membershipIds.isNotEmpty) {
+      try {
+        followUpCasesRes = await _client
+            .from('follow_up_cases')
+            .select('id, student_id, service_student_id, class_id, priority, status')
+            .eq('service_id', serviceId)
+            .inFilter('service_student_id', membershipIds.toList());
+      } catch (_) {}
+    }
 
     final scopedCases = followUpCasesRes.where((c) {
       final cid = c['class_id'] as String?;
