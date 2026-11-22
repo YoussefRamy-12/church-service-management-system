@@ -61,6 +61,35 @@ void main() {
     },
   );
 
+  test('queued follow-ups retain their original service after a service switch', () async {
+    await repo.create(
+      studentId: 'shared-student',
+      serviceId: 'service-a',
+      serviceStudentId: 'membership-a',
+      createdBy: 'servant-a',
+      followUpDate: '2026-10-07',
+      contactStatus: 'contacted',
+    );
+    await repo.create(
+      studentId: 'shared-student',
+      serviceId: 'service-b',
+      serviceStudentId: 'membership-b',
+      createdBy: 'servant-b',
+      followUpDate: '2026-10-08',
+      contactStatus: 'contacted',
+    );
+
+    final payloads = (await queue.pending())
+        .map((operation) => queue.decode(operation.payloadJson))
+        .toList();
+
+    expect(payloads, hasLength(2));
+    expect(payloads.map((payload) => payload['service_id']),
+        ['service-a', 'service-b']);
+    expect(payloads.map((payload) => payload['service_student_id']),
+        ['membership-a', 'membership-b']);
+  });
+
   test('follow-up history is ordered newest first', () async {
     await repo.create(
       studentId: 'student-1',
