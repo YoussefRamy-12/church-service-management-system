@@ -171,7 +171,7 @@ class LocalReportRepository {
     // 6. Expected Attendance calculation
     var expectedTotal = 0;
     for (final student in scopedStudents) {
-      final enrollment = studentEnrollment[student.id];
+      final enrollment = studentEnrollment[student.studentId];
       for (final meeting in meetings) {
         final meetingDate = DateTime.parse(meeting.meetingDate);
         if (enrollment == null || !meetingDate.isBefore(enrollment)) {
@@ -187,7 +187,7 @@ class LocalReportRepository {
       var mExpected = 0;
       final meetingDate = DateTime.parse(meeting.meetingDate);
       for (final student in scopedStudents) {
-        final enrollment = studentEnrollment[student.id];
+        final enrollment = studentEnrollment[student.studentId];
         if (enrollment == null || !meetingDate.isBefore(enrollment)) {
           mExpected++;
         }
@@ -268,8 +268,8 @@ class LocalReportRepository {
 
     final repeatedAbsences = <RepeatedAbsenceRecord>[];
     for (final student in scopedStudents) {
-      final enrollment = studentEnrollment[student.id];
-      final attendedSet = pastStudentAttended[student.id] ?? <String>{};
+      final enrollment = studentEnrollment[student.studentId];
+      final attendedSet = pastStudentAttended[student.studentId] ?? <String>{};
       var consecutiveMissed = 0;
       String? lastAttended;
 
@@ -636,7 +636,7 @@ class LocalReportRepository {
       if (prevMeetings.isNotEmpty) {
         var prevExpected = 0;
         for (final student in scopedStudents) {
-          final enrollment = studentEnrollment[student.id];
+          final enrollment = studentEnrollment[student.studentId];
           for (final pm in prevMeetings) {
             final pmDate = DateTime.parse(pm.meetingDate);
             if (enrollment == null || !pmDate.isBefore(enrollment)) {
