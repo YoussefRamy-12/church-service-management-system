@@ -363,6 +363,13 @@ class _CreateFollowUpCasePageState
       );
       return;
     }
+    if (_selectedStudent!.membershipId == null ||
+        _selectedStudent!.serviceId != widget.serviceId) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('التلميذ لا يملك عضوية صالحة في هذه الخدمة')),
+      );
+      return;
+    }
 
     final classId = _selectedClassId ?? _selectedStudent?.currentClassId;
     if (classId == null || classId.isEmpty) {
@@ -386,6 +393,7 @@ class _CreateFollowUpCasePageState
       final newCase = await ref.read(followUpCaseRepositoryProvider).createCase(
             serviceId: widget.serviceId,
             studentId: _selectedStudent!.id,
+            serviceStudentId: _selectedStudent!.membershipId!,
             classId: classId,
             title: _titleController.text.trim(),
             description: _descriptionController.text.trim().isNotEmpty
