@@ -8,16 +8,50 @@ class SpiritualNotebookRepository {
 
   Future<List<Map<String, dynamic>>> students(
     String serviceId,
-  ) async => List<Map<String, dynamic>>.from(
-    await _client
-        .from('students')
-        .select(
-          'id,name,current_class_id,classes!students_current_class_id_fkey(id,name,stage_id,stages(name))',
-        )
-        .eq('service_id', serviceId)
-        .eq('approval_status', 'approved')
-        .order('name'),
-  );
+  ) async {
+    final rows = List<Map<String, dynamic>>.from(
+      await _client.rpc(
+        'get_service_student_directory',
+        params: {'p_service_id': serviceId},
+      ),
+    );
+
+    final classIds = rows
+        .map((row) => row['class_id'] as String?)
+        .whereType<String>()
+        .toSet()
+        .toList();
+    final classById = <String, Map<String, dynamic>>{};
+    if (classIds.isNotEmpty) {
+      final classes = List<Map<String, dynamic>>.from(
+        await _client
+            .from('classes')
+            .select('id,name,stage_id,stages(name)')
+            .inFilter('id', classIds),
+      );
+      for (final row in classes) {
+        classById[row['id'] as String] = row;
+      }
+    }
+
+    return rows.map((row) {
+      final membershipId = row['membership_id'] as String;
+      final classId = row['class_id'] as String?;
+      return <String, dynamic>{
+        // Keep the view model key stable, but it now identifies a membership.
+        'id': membershipId,
+        'membership_id': membershipId,
+        'student_id': row['student_id'] as String,
+        'service_id': row['service_id'] as String,
+        'identity_service_id': row['identity_service_id'] as String?,
+        'name': row['student_name'] as String? ?? '',
+        'current_class_id': classId,
+        'proposed_class_id': row['proposed_class_id'] as String?,
+        'classes': classId == null ? null : classById[classId],
+        'membership_status': row['membership_status'] as String,
+      };
+    }).toList();
+  }
 
   Future<List<Map<String, dynamic>>> activities(String serviceId) async =>
       List<Map<String, dynamic>>.from(
@@ -37,17 +71,24 @@ class SpiritualNotebookRepository {
 
   Future<List<Map<String, dynamic>>> submissions(
     String serviceId,
-  ) async => List<Map<String, dynamic>>.from(
-    await _client
-        .from('spiritual_notebook_submissions')
-        .select(
-          'id,student_id,period_start,total_points,bonus_points,submitted_at',
-        )
-        .eq('service_id', serviceId),
-  );
+  ) async {
+    final rows = List<Map<String, dynamic>>.from(
+      await _client
+          .from('spiritual_notebook_submissions')
+          .select(
+            'id,student_id,service_student_id,period_start,total_points,bonus_points,submitted_at',
+          )
+          .eq('service_id', serviceId),
+    );
+    return rows.map((row) => {
+      ...row,
+      // The notebook view is keyed by membership, not global identity.
+      'student_id': row['service_student_id'],
+    }).toList();
+  }
 
   Future<void> submit({
-    required String studentId,
+    required String membershipId,
     required WeeklyPeriod period,
     required List<String> activityIds,
     required int bonusPoints,
@@ -56,7 +97,7 @@ class SpiritualNotebookRepository {
     await _client.rpc(
       'submit_spiritual_notebook',
       params: {
-        'p_student_id': studentId,
+        'p_service_student_id': membershipId,
         'p_period_start': _date(period.start),
         'p_activity_ids': activityIds,
         'p_bonus_points': bonusPoints,
