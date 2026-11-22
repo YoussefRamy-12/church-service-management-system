@@ -104,6 +104,8 @@ void main() {
         final c = await repo.createCase(
           serviceId: 'service-primary',
           studentId: 'student-5a-mark',
+
+          serviceStudentId: 'student-5a-mark_membership',
           classId: 'class-5a',
           title: 'متابعة غياب مارك',
           priority: CasePriority.high,
@@ -182,6 +184,8 @@ void main() {
         final c = await repo.createCase(
           serviceId: 'service-primary',
           studentId: 'student-5a-john',
+
+          serviceStudentId: 'student-5a-john_membership',
           classId: 'class-5a',
           title: 'متابعة يوحنا',
           priority: CasePriority.medium,
@@ -251,6 +255,8 @@ void main() {
         final c5a = await repo.createCase(
           serviceId: 'service-primary',
           studentId: 'student-5a-1',
+
+          serviceStudentId: 'student-5a-1_membership',
           classId: 'class-5a',
           title: 'حالة 5أ',
           priority: CasePriority.high,
@@ -260,6 +266,8 @@ void main() {
         final c5b = await repo.createCase(
           serviceId: 'service-primary',
           studentId: 'student-5b-1',
+
+          serviceStudentId: 'student-5b-1_membership',
           classId: 'class-5b',
           title: 'حالة 5ب',
           priority: CasePriority.medium,
@@ -296,6 +304,8 @@ void main() {
         await repo.createCase(
           serviceId: 'service-primary',
           studentId: 'student-5a-1',
+
+          serviceStudentId: 'student-5a-1_membership',
           classId: 'class-5a',
           title: 'حالة عامة 1',
           priority: CasePriority.urgent,
@@ -305,6 +315,8 @@ void main() {
         await repo.createCase(
           serviceId: 'service-primary',
           studentId: 'student-6a-1',
+
+          serviceStudentId: 'student-6a-1_membership',
           classId: 'class-6a',
           title: 'حالة عامة 2 في مرحلة أخرى',
           priority: CasePriority.low,
@@ -328,6 +340,8 @@ void main() {
       final c = await repo.createCase(
         serviceId: 'service-primary',
         studentId: 'student-1',
+
+        serviceStudentId: 'student-1_membership',
         classId: 'class-5a',
         title: 'حالة تدقيق المؤلف',
         priority: CasePriority.medium,
