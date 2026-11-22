@@ -207,6 +207,7 @@ The old `students.service_id` and class columns remain in place. No contract/dro
 - Added the `ServiceStudent` entity, Drift membership cache (schema version 11), offline-first repository, and `service_student` sync handler.
 - Added `get_service_student_directory` for authorized identity projection.
 - Added offline cache, queue, archive, RPC-mapping and sync-engine tests.
+- Latest CI run **#353** passed dependency resolution, Drift generation, Flutter analysis, web build and the full `flutter test` suite: **189 tests passed**. The suite includes attendance, students, follow-up, weekly preparation and spiritual notebook coverage.
 - The existing student UI, attendance UI, follow-up UI and spiritual-notebook UI still use legacy student/service fields. The membership path is not yet wired through every feature or provider.
 - A full on-device upgrade test from an existing v10 database and replay of old queued payloads remains required.
 
