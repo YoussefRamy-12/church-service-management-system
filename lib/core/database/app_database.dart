@@ -380,7 +380,8 @@ class AppDatabase extends _$AppDatabase {
             WHERE cached_meetings.id = cached_attendance_records.meeting_id
           )
           WHERE service_id IS NULL;
-
+        ''');
+        await customStatement('''
           UPDATE cached_attendance_records
           SET service_student_id = (
             SELECT css.id
