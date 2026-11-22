@@ -74,7 +74,11 @@ class _StudentDetailsPageState extends ConsumerState<StudentDetailsPage> {
     try {
       final data = await ref
           .read(studentRepositoryProvider)
-          .getSensitiveData(student.id);
+          .getSensitiveData(
+            student.id,
+            serviceId: student.serviceId,
+            identityServiceId: student.identityServiceId,
+          );
       if (mounted && data != null) {
         setState(() => _sensitiveData = data);
       }
