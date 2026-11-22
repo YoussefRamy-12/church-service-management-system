@@ -71,7 +71,10 @@ abstract interface class FollowUpCaseRepository {
     int limit = 50,
   });
 
-  Stream<List<FollowUpActivity>> watchActivitiesForStudent(String studentId);
+  Stream<List<FollowUpActivity>> watchActivitiesForStudent({
+    required String serviceId,
+    required String studentId,
+  });
 
   Future<FollowUpActivity> recordActivity({
     required String caseId,
