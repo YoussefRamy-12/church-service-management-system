@@ -48,7 +48,7 @@ class OfflineFirstStudentRepository implements StudentRepository {
   }) async {
     // Sensitive data belongs to the identity-owning service by default.
     // Never fall back to a device-global cache for another service membership.
-    if (serviceId != null && identityServiceId != null && serviceId != identityServiceId) {
+    if (serviceId != null && serviceId != identityServiceId) {
       return null;
     }
     try {
