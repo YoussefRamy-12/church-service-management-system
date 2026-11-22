@@ -241,6 +241,7 @@ The old `students.service_id` and class columns remain in place. No contract/dro
 - A direct deletion attempt against a global identity with memberships was rejected by the new `ON DELETE RESTRICT` foreign key; the identity remained present.
 - A rolled-back service-B attendance insert for a service-A global identity succeeded only when tied to a service-B membership, service-B meeting, and service-B class snapshot; this exposed and fixed a legacy trigger that previously validated against `students.service_id/current_class_id` instead of membership ownership.
 - A rolled-back service-B follow-up record and case were both readable by the service-B overall leader for a service-A global identity when attached to a valid service-B membership; confidential student data remained invisible.
+- A follow-up case insert pairing a service-B membership with a different global student ID was rejected by the membership-integrity trigger.
 - Cross-service class assignment and attendance association were rejected by database constraints/triggers.
 - The identity projection RPC was tested for authorized service access and cross-service denial.
 - Cross-service reads of `student_sensitive_data` returned zero rows; the directory RPC does not expose that table.
