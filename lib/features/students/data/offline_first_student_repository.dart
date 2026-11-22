@@ -85,6 +85,12 @@ class OfflineFirstStudentRepository implements StudentRepository {
         (membershipId != null && current.membershipId != membershipId)) {
       throw StateError('Student membership is not available locally.');
     }
+    final ownsIdentity = current.serviceId == current.identityServiceId;
+    if (!ownsIdentity && _hasSensitiveData(sensitiveData)) {
+      throw StateError(
+        'Confidential student data can only be changed by the identity-owning service.',
+      );
+    }
     final updated = await local.updateStudent(
       studentId: studentId,
       name: name,
@@ -96,12 +102,15 @@ class OfflineFirstStudentRepository implements StudentRepository {
       enrollmentAt: enrollmentAt,
       photoPath: photoPath,
       notes: notes,
+      updateGlobalIdentity: ownsIdentity,
     );
-    if (sensitiveData != null) {
+    if (sensitiveData != null && ownsIdentity) {
       await local.cacheSensitiveData(sensitiveData);
     }
     await _enqueueMembershipUpdate(updated);
-    await _enqueueUpdate(updated, sensitiveData: sensitiveData);
+    if (ownsIdentity) {
+      await _enqueueUpdate(updated, sensitiveData: sensitiveData);
+    }
     return updated;
   }
 
@@ -151,6 +160,12 @@ class OfflineFirstStudentRepository implements StudentRepository {
     await _enqueueUpdate(updated);
     return updated;
   }
+
+  bool _hasSensitiveData(SensitiveStudentData? data) =>
+      data != null &&
+      data.toMap().values.any(
+        (value) => value != null && value.toString().trim().isNotEmpty,
+      );
 
   Future<void> _enqueueMembershipUpdate(Student student) async {
     final membershipId = student.membershipId;
