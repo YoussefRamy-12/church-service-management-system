@@ -253,7 +253,7 @@ void main() {
       repo.watchCasesForScope(serviceId: 'service-1'),
     );
     final activities = StreamIterator(
-      repo.watchActivitiesForStudent('student-1'),
+      repo.watchActivitiesForStudent(serviceId: 'service-1', studentId: 'student-1'),
     );
     final scopeActivities = StreamIterator(
       repo.watchActivitiesForScope(serviceId: 'service-1'),
