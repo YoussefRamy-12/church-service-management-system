@@ -143,6 +143,8 @@ class CachedAttendanceRecords extends Table {
   TextColumn get id => text()();
   TextColumn get meetingId => text()();
   TextColumn get studentId => text()();
+  TextColumn get serviceId => text().nullable()();
+  TextColumn get serviceStudentId => text().nullable()();
   TextColumn get classIdAtAttendance => text()();
   DateTimeColumn get checkedInAt => dateTime()();
   TextColumn get recordedBy => text()();
@@ -286,7 +288,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.forTesting() : super(testingDatabaseConnection());
 
   @override
-  int get schemaVersion => 14;
+  int get schemaVersion => 15;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -366,6 +368,28 @@ class AppDatabase extends _$AppDatabase {
             COALESCE(identity_service_id, service_id), cached_at
           FROM cached_students
           WHERE membership_id IS NOT NULL;
+        ''');
+      }
+      if (from >= 3 && from < 15) {
+        await m.addColumn(cachedAttendanceRecords, cachedAttendanceRecords.serviceId);
+        await m.addColumn(cachedAttendanceRecords, cachedAttendanceRecords.serviceStudentId);
+        await customStatement('''
+          UPDATE cached_attendance_records
+          SET service_id = (
+            SELECT service_id FROM cached_meetings
+            WHERE cached_meetings.id = cached_attendance_records.meeting_id
+          )
+          WHERE service_id IS NULL;
+
+          UPDATE cached_attendance_records
+          SET service_student_id = (
+            SELECT css.id
+            FROM cached_service_students css
+            WHERE css.student_id = cached_attendance_records.student_id
+              AND css.service_id = cached_attendance_records.service_id
+            LIMIT 1
+          )
+          WHERE service_student_id IS NULL;
         ''');
       }
     },
