@@ -19,17 +19,12 @@ class StudentSyncHandler implements EntitySyncHandler {
     Map<String, dynamic> payload,
   ) async {
     if (operation.operationType == 'delete') {
-      final rows = await client
-          .from('students')
-          .delete()
-          .eq('id', payload['id'] as String)
-          .select('id');
-      if (rows.isEmpty) {
-        throw const SyncConflictException(
-          'Student deletion was rejected or is no longer accessible.',
-        );
-      }
-      return;
+      // Older app versions queued physical identity deletion. Never replay
+      // that destructive operation after the membership migration: it could
+      // erase a global identity shared by multiple services.
+      throw const SyncConflictException(
+        'Legacy student deletion was blocked. Archive the intended service membership instead.',
+      );
     }
 
     if (operation.operationType == 'insert') {
