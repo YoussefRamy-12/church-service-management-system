@@ -121,6 +121,39 @@ void main() {
     expect(report.present, 0);
   });
 
+  test('archived membership remains in historical attendance reports', () async {
+    await seedBaseData();
+    await db
+        .into(db.cachedAttendanceRecords)
+        .insert(
+          CachedAttendanceRecordsCompanion.insert(
+            id: 'attendance-archived-student',
+            meetingId: 'meeting-1',
+            studentId: 'student-1',
+            serviceId: const Value('service-1'),
+            serviceStudentId: const Value('membership-1'),
+            classIdAtAttendance: 'class-1',
+            checkedInAt: DateTime(2026, 10, 5, 10, 10),
+            recordedBy: 'servant-1',
+            clientOperationId: 'op-archived',
+            syncState: const Value('synced'),
+          ),
+        );
+    await (db.update(db.cachedServiceStudents)
+          ..where((row) => row.id.equals('membership-1')))
+        .write(const CachedServiceStudentsCompanion(status: Value('inactive')));
+
+    final report = await repo.fetch(
+      serviceId: 'service-1',
+      start: DateTime(2026, 10, 1),
+      end: DateTime(2026, 10, 31),
+    );
+
+    expect(report.students, 2);
+    expect(report.expectedAttendance, 3);
+    expect(report.present, 1);
+  });
+
   test('report separates early and normal attendance', () async {
     await seedBaseData();
 
