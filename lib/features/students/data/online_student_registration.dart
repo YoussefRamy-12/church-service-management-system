@@ -106,26 +106,6 @@ class OnlineStudentRegistration implements StudentRegistration {
         notes: input.notes?.trim().isEmpty == true ? null : input.notes?.trim(),
       );
 
-      final studentPayload = <String, dynamic>{
-        'id': student.id,
-        'service_id': student.serviceId,
-        'current_class_id': student.currentClassId,
-        'proposed_class_id': student.proposedClassId,
-        'name': student.name,
-        'birth_date': student.birthDate?.toIso8601String().split('T').first,
-        'phone': student.phone,
-        'school': student.school,
-        'grade': student.grade,
-        'is_deacon': student.isDeacon,
-        'approval_status': student.approvalStatus,
-        'enrollment_at': student.enrollmentAt
-            ?.toIso8601String()
-            .split('T')
-            .first,
-        'photo_path': student.photoPath,
-        'notes': student.notes,
-      };
-
       // One transactional RPC creates the global identity (or reuses the
       // explicitly supplied UUID) and its service membership atomically.
       await _client.rpc('register_service_student', params: {
