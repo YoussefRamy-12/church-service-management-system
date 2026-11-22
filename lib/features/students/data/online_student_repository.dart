@@ -137,7 +137,14 @@ class OnlineStudentRepository implements StudentRepository {
 
 
   @override
-  Future<SensitiveStudentData?> getSensitiveData(String studentId) async {
+  Future<SensitiveStudentData?> getSensitiveData(
+    String studentId, {
+    String? serviceId,
+    String? identityServiceId,
+  }) async {
+    if (serviceId != null && identityServiceId != null && serviceId != identityServiceId) {
+      return null;
+    }
     final row = await _client
         .from('student_sensitive_data')
         .select()
