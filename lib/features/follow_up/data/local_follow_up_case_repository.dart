@@ -60,6 +60,7 @@ class LocalFollowUpCaseRepository implements FollowUpCaseRepository {
   Future<FollowUpCase> createCase({
     required String serviceId,
     required String studentId,
+    required String serviceStudentId,
     required String classId,
     required String title,
     String? description,
@@ -81,6 +82,7 @@ class LocalFollowUpCaseRepository implements FollowUpCaseRepository {
             id: id,
             serviceId: serviceId,
             studentId: studentId,
+            serviceStudentId: Value(serviceStudentId),
             classId: classId,
             title: title,
             description: Value(description),
@@ -608,6 +610,7 @@ class LocalFollowUpCaseRepository implements FollowUpCaseRepository {
       id: r.id,
       serviceId: r.serviceId,
       studentId: r.studentId,
+      serviceStudentId: r.serviceStudentId ?? '',
       classId: r.classId,
       title: r.title,
       description: r.description,
