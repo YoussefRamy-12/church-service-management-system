@@ -138,12 +138,14 @@ class LocalStudentRepository {
             ..where((t) => t.id.equals(membershipId) & t.studentId.equals(studentId)))
           .getSingleOrNull();
       if (membership != null) return _fromMembershipRow(membership);
+      return null;
     }
     if (serviceId != null) {
       final membership = await (_db.select(_db.cachedServiceStudents)
             ..where((t) => t.studentId.equals(studentId) & t.serviceId.equals(serviceId)))
           .getSingleOrNull();
       if (membership != null) return _fromMembershipRow(membership);
+      return null;
     }
     final memberships = await (_db.select(_db.cachedServiceStudents)
           ..where((t) => t.studentId.equals(studentId)))
