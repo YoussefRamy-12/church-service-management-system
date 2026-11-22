@@ -92,6 +92,7 @@ class OfflineFirstStudentRegistration implements StudentRegistration {
       final student = Student(
         id: _uuid.v4(),
         membershipId: _uuid.v4(),
+        identityServiceId: serviceId,
         membershipStatus: effectiveApprovalStatus == 'approved' ? 'active' : 'pending',
         serviceId: serviceId,
         name: input.name.trim(),
