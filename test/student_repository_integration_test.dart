@@ -13,6 +13,8 @@ Student _student({
   String? currentClassId = 'class-1',
   String? proposedClassId,
   String? phone = ' 01000000000 ',
+  String? school = 'School',
+  String? grade = '6',
   String? notes = ' note ',
 }) {
   return Student(
@@ -27,8 +29,8 @@ Student _student({
     phone: phone,
     notes: notes,
     birthDate: DateTime(2014, 5, 10),
-    school: 'School',
-    grade: '6',
+    school: school,
+    grade: grade,
     enrollmentAt: DateTime(2026, 9, 1),
   );
 }
