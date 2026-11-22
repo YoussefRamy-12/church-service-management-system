@@ -1,13 +1,13 @@
 # Multi-Service Architecture v2.0 — Existing-to-Target Migration Map
 
-**Status:** Inspection baseline; no destructive cutover authorized by this document  
+**Status:** Expand phase in progress; no destructive cutover authorized by this document  
 **Branch:** `feat/spiritual-notebook`  
 **Inspected:** 2026-11-22  
 **Target:** One church, one application, multiple independently managed services
 
 ## 1. Executive decision
 
-The live database already has a `services` table and two service rows, but its student model is still service-owned: `students.service_id` is NOT NULL and all 82 current students belong to the original Primary Boys service. The second service currently has no student rows. The target model requires global student identity plus independent `service_students` memberships.
+The live database already has a `services` table and two service rows, but its student model is still service-owned: `students.service_id` is NOT NULL and all 82 current students belong to the original Primary Boys service. The second service currently has no student memberships; all 82 memberships belong to the original Primary Boys service. No student identity is currently shared across services. The target model requires global student identity plus independent `service_students` memberships.
 
 The safe migration is expand-and-contract:
 
@@ -28,18 +28,18 @@ The inspected production project is healthy (PostgreSQL 17.11). The `public` sch
 | `services` | Reuse as service registry. Two rows exist: Primary Boys and a second service. |
 | `stages` | Service-owned organization; `service_id` exists. Reuse as service stages. |
 | `classes` | Belongs to `stages`; service ownership is derived through stage. Reuse as service classes. |
-| `students` | 82 approved rows, all in Primary Boys. Contains `service_id`, current/proposed class, name, birth date, phone, school, grade, enrollment date, approval status, photo, notes, deacon flag. Currently mixes person and membership attributes. |
+| `students` | 82 approved global identity rows, all owned by Primary Boys. Still contains legacy `service_id`, current/proposed class, school, grade, enrollment date and approval fields alongside identity attributes. |
 | `student_sensitive_data` | Confidential data keyed by student. Must be reviewed before cross-service reuse; sensitive notes must not automatically become shared global identity data. |
 | `servant_profiles` | Service-scoped servant assignment and role. One user can have multiple service assignments. Reuse as service role assignments initially. |
 | `system_administrators` | Platform-level administrator assignment. Reuse for platform role model; do not conflate with service leadership. |
 | `meetings` | Actual dated meeting occurrences with service ownership and schedule reference. Reuse as meeting occurrences. |
 | `meeting_schedules` | Recurring schedule records. Extend for schedule types/exceptions as needed; preserve historical occurrences. |
-| `attendance_records` | References `meeting_id`, `student_id`, `class_id_at_attendance`, recorder and idempotency key. Add membership linkage; preserve snapshots and immutable identity fields. |
-| `follow_up_records` | Legacy follow-up history referencing student and creator; no service_id. Add membership/service linkage derived from current student and creator. |
-| `follow_up_cases` | New case model with service, student and class. Add membership linkage; keep service-specific confidentiality. |
+| `attendance_records` | Retains `meeting_id`, `student_id`, `class_id_at_attendance`, recorder and idempotency key; `service_id` and `service_student_id` are now populated for all 192 rows. |
+| `follow_up_records` | Retains student and creator references; `service_id` and `service_student_id` are now populated for both legacy rows. |
+| `follow_up_cases` | Service/student/class-owned case model; `service_student_id` is populated for all 3 current cases. |
 | `follow_up_case_assignments`, `follow_up_activities` | Case-owned child records. Service boundary should be inherited and enforced through the parent case. |
 | `spiritual_notebook_activities`, `spiritual_notebook_categories`, `spiritual_notebook_settings` | Service configuration; reuse as service-owned configuration. |
-| `spiritual_notebook_submissions` | Has service and student references; add membership reference. Preserve period and score snapshots. |
+| `spiritual_notebook_submissions` | Has service, student and membership references with a composite membership/service FK. No submissions exist yet. |
 | `spiritual_notebook_submission_items` | Submission-owned snapshots; preserve as historical child records. |
 | `weekly_lessons` | Stage-scoped content; service ownership derives from stage. |
 | `weekly_lesson_preparations`, `weekly_lesson_preparation_reviews` | Preparation and review history linked to servant profiles and lessons; preserve audit trail. |
@@ -48,7 +48,9 @@ The inspected production project is healthy (PostgreSQL 17.11). The `public` sch
 | `servant_attendance_records` | Servant attendance; keep service-scoped via servant assignment and meeting. |
 
 Observed data checks:
-- Students: 82; all currently have `approval_status = approved`.
+- Global students: 82; all currently have `approval_status = approved`.
+- Service memberships: 82; all 82 currently belong to Primary Boys; zero identities are shared across services.
+- The second service has zero memberships, so live two-service data-isolation acceptance is not yet demonstrated.
 - Attendance records: 192; no cross-service meeting/student mismatch found in the inspected join.
 - Legacy follow-up records: 2; no cross-service creator/student mismatch found.
 - Follow-up cases: 3; follow-up activities: 14.
@@ -61,18 +63,18 @@ These are point-in-time counts, not permanent invariants.
 | v2.0 target domain | Existing implementation | Required change | Migration treatment |
 |---|---|---|---|
 | Platform / services | `services`, `system_administrators` | Add service lifecycle/configuration and explicit platform-role boundaries where absent. | Reuse; additive columns/tables only. |
-| Global identity | `students` currently includes `service_id` and class/enrollment attributes. | Keep one person row; move service participation attributes into memberships. | Preserve student UUIDs; no name-based deduplication. |
-| Service membership | No `service_students` table. | Add unique student/service membership, independent lifecycle and class assignment. | Backfill one row per existing student. |
+| Global identity | `students` still includes legacy `service_id` and class/enrollment attributes. | Keep one person row; move service participation attributes into memberships. | Preserve student UUIDs; no name-based deduplication. |
+| Service membership | `service_students` now exists with independent class, enrollment and lifecycle fields. | Finish membership-first feature cutovers and identity reuse controls. | 82 memberships backfilled; no shared identities yet. |
 | Service organization | `stages`, `classes` | Keep service ownership and enforce composite service consistency. | Reuse; add composite keys/constraints only after duplicate and FK audit. |
 | Servants / authorization | `servant_profiles` plus `system_administrators` | Formalize platform role vs service assignment; support multiple services. | Reuse; no role broadening. |
 | Meeting management | `meeting_schedules`, `meetings` | Add meeting types and schedule exceptions/config version where required. | Treat `meetings` as occurrences; do not rewrite historical dates/times. |
-| Attendance | `attendance_records` references global student ID directly. | Reference membership and meeting within same service; preserve class-at-attendance snapshot. | Add nullable membership/service references and backfill. |
+| Attendance | `attendance_records` retains student ID and now carries membership/service IDs. | Switch Flutter repository and sync operations to membership IDs; preserve class-at-attendance snapshot. | 192 historical rows linked; all references populated. |
 | Scoring | No independent score ledger identified in current public table inventory. Spiritual notebook points are a separate module. | Decide whether v2.0 scoring transactions are in scope for a later phase. | Do not reinterpret notebook points as a general scoring ledger. |
-| Follow-up | Legacy `follow_up_records` plus `follow_up_cases` and child tables. | Ensure every case/history row is membership-owned and confidential per service. | Add linkage; preserve all activity and case history. |
-| Spiritual notebook | Service-owned activities/settings/submissions with direct student FK. | Link submissions to membership; retain service-specific activity configuration and snapshots. | Add membership linkage; retain existing score snapshots. |
+| Follow-up | Legacy `follow_up_records` plus membership-linked cases and child tables. | Switch both follow-up workflows to membership-first reads/writes. | 2 records and 3 cases linked; preserve all activity and case history. |
+| Spiritual notebook | Service-owned activities/settings; submissions include membership linkage and a composite service FK. | Switch notebook repository, RPC and RLS fully to membership ownership. | Membership schema ready; zero historical submissions to backfill. |
 | Weekly preparation | Lesson/stage and servant-profile relationships. | Ensure lesson stage and servant assignment resolve to same service; preserve review history. | Reuse and add cross-service integrity tests. |
 | Reporting | `reporting_periods` is service-owned. | Keep reports service-scoped; cross-service aggregation requires platform permission. | Reuse; adapt queries to membership. |
-| Offline cache | Drift `CachedStudents` currently stores `serviceId`, current/proposed class, approval, school/grade and other attributes in one row. | Split global cached identity from cached service membership; add membership IDs to operational caches. | Drift schema upgrade; copy local legacy rows transactionally. |
+| Offline cache | Drift `CachedStudents` still stores legacy `serviceId`, current/proposed class and approval alongside identity attributes; `CachedServiceStudents` now stores service membership rows separately. | Split global cached identity from cached service membership; add membership IDs to operational caches. | Drift schema upgrade; copy local legacy rows transactionally. |
 | Sync | Strategy handlers exist for students, attendance, follow-up, meetings, services and weekly prep. | Add membership handler; make operational payloads carry membership/service context; validate server-side. | Idempotent dual-write/read migration; keep old queued operations replayable. |
 
 ## 4. Target membership model
@@ -107,7 +109,7 @@ For attendance, enforce that meeting, membership and service are consistent at t
 
 ## 6. Drift and offline synchronization mapping
 
-Current Drift schema version is 13. `CachedStudents` remains the global identity cache keyed by student ID. `CachedServiceStudents` is the per-membership offline roster cache keyed by membership ID and now stores the identity-owning service ID. The local schema currently has:
+Current Drift schema version is 14. `CachedStudents` remains the global identity cache keyed by student ID. `CachedServiceStudents` is the per-membership offline roster cache keyed by membership ID and now stores the identity-owning service ID. The local schema currently has:
 - `CachedStudents` with global identity fields, service membership fields, membership ID/status, and identity owner metadata.
 - `CachedStudentSensitiveData` keyed by global student ID; offline reads are denied unless the current service is the identity-owning service.
 - `CachedAttendanceRecords` with meeting and student IDs but no membership/service ID.
@@ -134,11 +136,11 @@ At the initial audit, the remote ledger had 15 versions and the branch had 25 SQ
 - `20261122125923_service_membership_fk_indexes`
 - `20261122130257_service_student_directory_rpc`
 - `20261122131229_index_remaining_foreign_keys`
-- `20261122160500_students_membership_workflows`
-- `20261122162000_students_update_nullable_date_guard`
-- `20261122162500_student_directory_identity_scope`
+- `20261122140938_students_membership_workflows`
+- `20261122141313_students_update_nullable_date_guard`
+- `20261122141534_student_directory_identity_scope`
 
-The remaining mismatch is 15 branch migration files not represented by the same version in the remote ledger, and 5 remote ledger versions without same-version files in this branch.
+The remaining mismatch is 15 branch migration files not represented by the same version in the remote ledger, and 5 remote ledger versions without same-version files in this branch. The eight expand-phase migrations now match the remote ledger versions exactly after correcting the three Students migration filenames to their applied versions.
 
 ### Branch files absent from remote ledger
 
@@ -192,12 +194,12 @@ The old `students.service_id` and class columns remain in place. No contract/dro
 
 ## 8. Security review baseline
 
-- All 26 public tables have RLS enabled; `FORCE ROW LEVEL SECURITY` is false on them.
+- All 26 public base tables have RLS enabled; `FORCE ROW LEVEL SECURITY` is false on them.
 - The two previously anonymous-executable `SECURITY DEFINER` helpers, `public.is_active_system_admin()` and `public.is_active_service_schedule_leader(text)`, now have execution revoked from `PUBLIC` and `anon`; `authenticated` and `service_role` retain execution for RLS/application use. The anonymous execution finding is cleared.
 - The advisor now flags seven authenticated-executable `SECURITY DEFINER` functions. These include the registration/enrollment RPCs, admin predicates, weekly-preparation review, spiritual-notebook submission, and the service-scoped student directory RPC. The directory RPC explicitly checks service access and returns only the limited identity projection; it does not return sensitive-data rows. They are intentionally callable by authenticated clients; each still needs periodic function-body authorization review. Do not blanket-revoke these or convert them to invoker without testing their RLS dependencies.
 - The weekly-preparation review RPC now resolves the lesson's service before selecting the active reviewer profile and requires the preparer profile to belong to that same service. The previous arbitrary cross-service `LIMIT 1` selection has been removed.
 - Advisor reports leaked-password protection disabled; enable it in Supabase Auth settings after confirming project policy. This setting could not be changed through the available database tools.
-- The advisor now reports **zero unindexed foreign keys**; the membership and remaining creator/reviewer FK indexes were added in the last two index migrations. It still reports 51 multiple-permissive-policy combinations and 30 unused-index notices. The unused-index notices include the newly created FK indexes, which have not yet accumulated workload usage; do not drop FK-covering indexes solely because the workload is currently small. Permissive policies are OR-combined and must be consolidated only after proving the effective authorization logic.
+- The advisor now reports **zero unindexed foreign keys**; the membership and remaining creator/reviewer FK indexes were added in the last two index migrations. It still reports 51 multiple-permissive-policy combinations and 29 unused-index notices. The latest advisor scan confirms 7 authenticated-executable `SECURITY DEFINER` functions, no anonymous execution on those functions, and leaked-password protection disabled. The unused-index notices include the newly created FK indexes, which have not yet accumulated workload usage; do not drop FK-covering indexes solely because the workload is currently small. Permissive policies are OR-combined and must be consolidated only after proving the effective authorization logic.
 
 ## 9. Migration gates and acceptance
 
@@ -221,8 +223,8 @@ The old `students.service_id` and class columns remain in place. No contract/dro
 - Added offline cache, queue, archive, RPC-mapping, and sync-engine tests.
 - Global identity search/verification and confirmed reuse are not yet exposed in the UI. Duplicate matching remains explicit; automatic merging is out of scope.
 - The preceding stable CI baseline passed dependency resolution, Drift generation, Flutter analysis, web build and 189 tests. The current Students membership-first changes are under a new CI regression run; do not treat them as validated until that run passes.
-- The Students feature now reads and mutates service memberships through the new directory/lifecycle RPCs. Attendance, Follow-up, and Spiritual Notebook still require their own UI/repository cutovers.
-- A full on-device upgrade test from an existing v11/v12 database and replay of old queued payloads remains required; CI generation and tests are the current validation gate.
+- The Students feature now reads and mutates service memberships through the new directory/lifecycle RPCs. Attendance and Follow-up still require their UI/repository/sync cutovers. Spiritual Notebook has membership columns and constraints but its RPC, RLS and repository still use the legacy student-owned path.
+- A full on-device upgrade test from existing v11/v12/v13 databases and replay of old queued payloads remains required; CI generation and tests are the current validation gate.
 
 ### Gate C — multi-service isolation
 <badge color="warning">Partially completed</badge>
@@ -245,4 +247,4 @@ The old `students.service_id` and class columns remain in place. No contract/dro
 
 ## 10. Current decision
 
-The live database now has an additive membership expansion and a service-scoped global-identity projection. It is a valid expand-phase foundation, not a completed v2.0 cutover. The existing single-service application remains on its legacy data path. Continue by integrating membership-first reads/writes feature by feature, adding archive semantics and sensitive-data boundaries, then run full two-service end-to-end and offline replay tests before contract migration.
+The live database now has an additive membership expansion and a service-scoped global-identity projection. It is a valid expand-phase foundation, not a completed v2.0 cutover. The Students feature has moved to membership-first access, while Attendance, Follow-up and Spiritual Notebook remain in compatibility mode. Continue by integrating membership-first reads/writes feature by feature, adding archive semantics and sensitive-data boundaries, then run full two-service end-to-end and offline replay tests before contract migration.
