@@ -32,6 +32,7 @@ void main() {
         phone: '01000000000',
         school: 'School',
         grade: 'Grade 5',
+        birthDate: DateTime(2015, 3, 12),
       );
 
       expect(student.serviceId, 'service-1');
@@ -39,22 +40,31 @@ void main() {
       expect(student.proposedClassId, 'class-1');
       expect(student.currentClassId, isNull);
       expect(student.name, 'New Student');
+      expect(student.membershipId, isNotNull);
+      expect(student.membershipStatus, 'pending');
 
       final cached = await local.findById(student.id);
       expect(cached?.approvalStatus, 'pending');
       expect(cached?.proposedClassId, 'class-1');
 
       final pending = await queue.pending();
-      expect(pending.length, 1);
-      expect(pending.single.entityType, 'student');
-      expect(pending.single.operationType, 'insert');
+      expect(pending.length, 2);
+      final studentOperation = pending.firstWhere((op) => op.entityType == 'student');
+      final membershipOperation = pending.firstWhere((op) => op.entityType == 'service_student');
+      expect(studentOperation.operationType, 'insert');
+      expect(membershipOperation.operationType, 'upsert');
 
       final payload =
-          jsonDecode(pending.single.payloadJson) as Map<String, dynamic>;
+          jsonDecode(studentOperation.payloadJson) as Map<String, dynamic>;
+      final membershipPayload =
+          jsonDecode(membershipOperation.payloadJson) as Map<String, dynamic>;
       expect(payload['id'], student.id);
       expect(payload['service_id'], 'service-1');
       expect(payload['proposed_class_id'], 'class-1');
       expect(payload['approval_status'], 'pending');
+      expect(membershipPayload['student_id'], student.id);
+      expect(membershipPayload['id'], student.membershipId);
+      expect(membershipPayload['status'], 'pending');
     },
   );
 }
