@@ -606,10 +606,19 @@ class SupabaseReportRepository {
       }
     }
 
-    final activeCount =
-        scopedStudents.where((s) => s['approval_status'] == 'approved').length;
-    final pendingCount =
-        scopedStudents.where((s) => s['approval_status'] == 'pending').length;
+    final activeCount = scopedStudents
+        .where((s) => s['membership_status'] == 'active')
+        .length;
+    final pendingCount = directoryRows.where((row) {
+      if (row['membership_status'] != 'pending') {
+        return false;
+      }
+      final pendingClass =
+          row['class_id'] as String? ?? row['proposed_class_id'] as String?;
+      return (effectiveClassIds == null ||
+              (pendingClass != null && effectiveClassIds.contains(pendingClass))) &&
+          (studentId == null || row['student_id'] == studentId);
+    }).length;
 
     final studentAnalytics = StudentAnalytics(
       activeStudents: activeCount,
@@ -717,8 +726,9 @@ class SupabaseReportRepository {
         if (prevMeetingIds.isNotEmpty) {
           prevAttendance = await _client
               .from('attendance_records')
-              .select('meeting_id, student_id')
-              .inFilter('meeting_id', prevMeetingIds);
+              .select('meeting_id, student_id, service_student_id')
+              .inFilter('meeting_id', prevMeetingIds)
+              .inFilter('service_student_id', membershipIds.toList());
         }
 
         final prevCounted = <String>{};
@@ -726,7 +736,10 @@ class SupabaseReportRepository {
         for (final r in prevAttendance) {
           final sid = r['student_id'] as String;
           final mid = r['meeting_id'] as String;
-          if (!studentSet.contains(sid)) continue;
+          if (!studentSet.contains(sid) ||
+              !membershipIds.contains(r['service_student_id'])) {
+            continue;
+          }
           if (prevCounted.add('$mid:$sid')) {
             prevPresent++;
           }
@@ -764,7 +777,7 @@ class SupabaseReportRepository {
       scopedClassName: scopedClassName,
       details: {
         'students': scopedStudents
-            .map((r) => r['name'] as String? ?? r['id'] as String)
+            .map((r) => r['student_name'] as String? ?? r['student_id'] as String)
             .toList(),
         'meetings': meetingRows
             .map((r) => '${r['meeting_date']} • ${r['start_time']}')
