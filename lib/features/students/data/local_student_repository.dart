@@ -26,7 +26,7 @@ class LocalStudentRepository {
           ..where((t) => t.serviceId.equals(serviceId))
           ..orderBy([(t) => OrderingTerm(expression: t.name)]))
         .watch()
-        .map((rows) => rows.where((r) => r.membershipStatus != 'inactive').map(_fromRow).toList());
+        .map((rows) => rows.where((r) => r.membershipStatus == 'active' || r.membershipStatus == 'pending').map(_fromRow).toList());
   }
 
   Future<void> cacheStudents(List<Student> students) async {
