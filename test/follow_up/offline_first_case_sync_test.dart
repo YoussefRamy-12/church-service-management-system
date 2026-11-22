@@ -28,6 +28,8 @@ void main() {
     final created = await repo.createCase(
       serviceId: 'service-1',
       studentId: 'student-100',
+
+      serviceStudentId: 'student-100_membership',
       classId: 'class-5a',
       title: 'متابعة أوفلاين',
       description: 'حالة مسجلة بدون اتصال إنترنت',
@@ -60,6 +62,8 @@ void main() {
     final c = await repo.createCase(
       serviceId: 'service-1',
       studentId: 'student-1',
+
+      serviceStudentId: 'student-1_membership',
       classId: 'class-5a',
       title: 'متابعة نشاط',
       priority: CasePriority.medium,
@@ -99,6 +103,8 @@ void main() {
     final c = await repo.createCase(
       serviceId: 'service-1',
       studentId: 'student-1',
+
+      serviceStudentId: 'student-1_membership',
       classId: 'class-5a',
       title: 'متابعة حالة',
       priority: CasePriority.medium,
