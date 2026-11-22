@@ -7,7 +7,7 @@ import 'package:church_service_management_system/features/students/domain/entiti
 void main() {
   group('Drift Student Migration & Compatibility Tests', () {
     test(
-      'Fresh installation initializes schema version 14 with per-service membership and identity ownership cache',
+      'Fresh installation initializes schema version 15 with per-service membership and attendance ownership cache',
       () async {
         final db = AppDatabase.forTesting();
         try {
@@ -77,7 +77,7 @@ void main() {
       () async {
         final db = AppDatabase.forTesting();
         try {
-          expect(db.schemaVersion, 14);
+          expect(db.schemaVersion, 15);
           expect(db.migration.onUpgrade, isNotNull);
 
           final students = await db.select(db.cachedStudents).get();
@@ -94,8 +94,8 @@ void main() {
           );
           expect(await db.select(db.cachedFollowUpActivities).get(), isEmpty);
           expect(await db.select(db.cachedServiceStudents).get(), isEmpty);
-        final attendance = await db.select(db.cachedAttendanceRecords).get();
-        expect(attendance, isEmpty);
+          final attendance = await db.select(db.cachedAttendanceRecords).get();
+          expect(attendance, isEmpty);
         } finally {
           await db.close();
         }
