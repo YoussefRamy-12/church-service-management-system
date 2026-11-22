@@ -325,8 +325,7 @@ class AppDatabase extends _$AppDatabase {
       }
       if (from < 10) {
         await m.createTable(cachedServiceStudents);
-      }
-      if (from < 11) {
+      } else if (from < 11) {
         await m.addColumn(cachedServiceStudents, cachedServiceStudents.studentName);
         await m.addColumn(cachedServiceStudents, cachedServiceStudents.birthDate);
         await m.addColumn(cachedServiceStudents, cachedServiceStudents.phone);
