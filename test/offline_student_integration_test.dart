@@ -28,6 +28,7 @@ Student _student({
     proposedClassId: proposedClassId,
     name: name,
     approvalStatus: approvalStatus,
+    membershipStatus: approvalStatus == 'pending' ? 'pending' : 'active',
     birthDate: DateTime(2014, 5, 10),
     enrollmentAt: DateTime(2026, 9, 1),
   );
