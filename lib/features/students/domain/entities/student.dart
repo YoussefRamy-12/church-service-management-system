@@ -8,6 +8,7 @@ class Student {
     required this.name,
     required this.approvalStatus,
     this.membershipId,
+    this.identityServiceId,
     this.membershipStatus = 'active',
     this.currentClassId,
     this.proposedClassId,
@@ -26,6 +27,7 @@ class Student {
   final String name;
   final String approvalStatus;
   final String? membershipId;
+  final String? identityServiceId;
   final String membershipStatus;
   final String? currentClassId;
   final String? proposedClassId;
@@ -47,6 +49,7 @@ class Student {
     String? name,
     String? approvalStatus,
     String? membershipId,
+    String? identityServiceId,
     String? membershipStatus,
     String? currentClassId,
     String? proposedClassId,
@@ -65,6 +68,7 @@ class Student {
       name: name ?? this.name,
       approvalStatus: approvalStatus ?? this.approvalStatus,
       membershipId: membershipId ?? this.membershipId,
+      identityServiceId: identityServiceId ?? this.identityServiceId,
       membershipStatus: membershipStatus ?? this.membershipStatus,
       currentClassId: currentClassId ?? this.currentClassId,
       proposedClassId: proposedClassId ?? this.proposedClassId,
