@@ -7,11 +7,11 @@ import 'package:church_service_management_system/features/students/domain/entiti
 void main() {
   group('Drift Student Migration & Compatibility Tests', () {
     test(
-      'Fresh installation initializes schema version 13 with identity ownership and service membership lifecycle cache',
+      'Fresh installation initializes schema version 14 with per-service membership and identity ownership cache',
       () async {
         final db = AppDatabase.forTesting();
         try {
-          expect(db.schemaVersion, 13);
+          expect(db.schemaVersion, 14);
 
           final local = LocalStudentRepository(db);
 
@@ -73,7 +73,7 @@ void main() {
     );
 
     test(
-      'Version 13 database exposes student membership identity ownership and lifecycle fields',
+      'Version 14 database exposes per-service membership identity ownership and lifecycle fields',
       () async {
         final db = AppDatabase.forTesting();
         try {
