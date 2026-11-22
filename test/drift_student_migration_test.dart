@@ -11,7 +11,7 @@ void main() {
       () async {
         final db = AppDatabase.forTesting();
         try {
-          expect(db.schemaVersion, 14);
+          expect(db.schemaVersion, 15);
 
           final local = LocalStudentRepository(db);
 
@@ -73,7 +73,7 @@ void main() {
     );
 
     test(
-      'Version 14 database exposes per-service membership identity ownership and lifecycle fields',
+      'Version 15 database exposes student and attendance membership identity fields',
       () async {
         final db = AppDatabase.forTesting();
         try {
@@ -94,6 +94,8 @@ void main() {
           );
           expect(await db.select(db.cachedFollowUpActivities).get(), isEmpty);
           expect(await db.select(db.cachedServiceStudents).get(), isEmpty);
+        final attendance = await db.select(db.cachedAttendanceRecords).get();
+        expect(attendance, isEmpty);
         } finally {
           await db.close();
         }
