@@ -194,7 +194,7 @@ The old `students.service_id` and class columns remain in place. No contract/dro
 ## 9. Migration gates and acceptance
 
 ### Gate A — expand schema
-<badge color="success">Completed</badge>
+**Status: Completed**
 - Added `service_students`, uniqueness, composite service/class constraints and RLS.
 - Backfilled 82 memberships without changing global student UUIDs.
 - Linked 192 attendance rows, 2 legacy follow-up rows and 3 follow-up cases.
@@ -202,7 +202,7 @@ The old `students.service_id` and class columns remain in place. No contract/dro
 - Kept legacy columns and policies in place.
 
 ### Gate B — application and offline dual compatibility
-<badge color="warning">Partially completed</badge>
+**Status: Partially completed**
 - Added the `ServiceStudent` entity, Drift membership cache (schema version 11), offline-first repository, and `service_student` sync handler.
 - Added `get_service_student_directory` for authorized identity projection.
 - Added offline cache, queue, archive, RPC-mapping and sync-engine tests.
@@ -219,7 +219,7 @@ The old `students.service_id` and class columns remain in place. No contract/dro
 - Offline membership queue behavior is covered; cross-service replay of all existing attendance/follow-up queue variants remains outstanding.
 
 ### Gate D — contract / cutover
-<badge color="danger">Blocked</badge>
+**Status: Blocked**
 - Existing application consumers still depend on `students.service_id/current_class_id`.
 - Student hard-delete policies and cascading historical deletes still exist; replace them with membership archival before claiming historical deletion safety.
 - Migration ledger drift has not been repaired; 15 branch migrations and 5 remote ledger versions still need exact catalog diff/reconciliation.
