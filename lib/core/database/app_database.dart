@@ -76,6 +76,24 @@ class CachedStudents extends Table {
   Set<Column<Object>> get primaryKey => {id};
 }
 
+class CachedServiceStudents extends Table {
+  TextColumn get id => text()();
+  TextColumn get studentId => text()();
+  TextColumn get serviceId => text()();
+  TextColumn get classId => text().nullable()();
+  TextColumn get proposedClassId => text().nullable()();
+  TextColumn get enrollmentDate => text()();
+  TextColumn get status => text()();
+  TextColumn get school => text().nullable()();
+  TextColumn get grade => text().nullable()();
+  BoolColumn get isDeacon => boolean().withDefault(const Constant(false))();
+  TextColumn get notes => text().nullable()();
+  DateTimeColumn get cachedAt => dateTime()();
+
+  @override
+  Set<Column<Object>> get primaryKey => {id};
+}
+
 class CachedStudentSensitiveData extends Table {
   TextColumn get studentId => text()();
   TextColumn get fatherJob => text().nullable()();
@@ -234,6 +252,7 @@ class SyncQueueEntries extends Table {
     CachedStages,
     CachedClasses,
     CachedStudents,
+    CachedServiceStudents,
     CachedStudentSensitiveData,
     CachedMeetings,
     CachedAttendanceRecords,
@@ -259,7 +278,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.forTesting() : super(testingDatabaseConnection());
 
   @override
-  int get schemaVersion => 9;
+  int get schemaVersion => 10;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -299,6 +318,9 @@ class AppDatabase extends _$AppDatabase {
         await m.createTable(cachedFollowUpCases);
         await m.createTable(cachedFollowUpCaseAssignments);
         await m.createTable(cachedFollowUpActivities);
+      }
+      if (from < 10) {
+        await m.createTable(cachedServiceStudents);
       }
     },
   );
