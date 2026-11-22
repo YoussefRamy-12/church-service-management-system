@@ -64,41 +64,44 @@ void main() {
       // 4. Students
       // Student 1: Enrolled Sept 1, perfect attendance
       batch.insert(
-        db.cachedStudents,
-        CachedStudentsCompanion.insert(
-          id: 'student-1',
+        db.cachedServiceStudents,
+        CachedServiceStudentsCompanion.insert(
+          id: 'membership-student-1',
+          studentId: 'student-1',
           serviceId: 'service-church-1',
-          name: 'كيرلس أمير',
-          approvalStatus: 'approved',
-          currentClassId: const Value('class-5-1'),
-          enrollmentAt: const Value('2026-09-01'),
+          studentName: const Value('كيرلس أمير'),
+          status: 'active',
+          classId: const Value('class-5-1'),
+          enrollmentDate: '2026-09-01',
           cachedAt: DateTime(2026, 10, 1),
         ),
       );
       // Student 2: Enrolled Sept 1, absent all 3 meetings (Repeated Absence!)
       batch.insert(
-        db.cachedStudents,
-        CachedStudentsCompanion.insert(
-          id: 'student-2',
+        db.cachedServiceStudents,
+        CachedServiceStudentsCompanion.insert(
+          id: 'membership-student-2',
+          studentId: 'student-2',
           serviceId: 'service-church-1',
-          name: 'مينا عادل',
-          approvalStatus: 'approved',
-          currentClassId: const Value('class-5-1'),
-          enrollmentAt: const Value('2026-09-01'),
+          studentName: const Value('مينا عادل'),
+          status: 'active',
+          classId: const Value('class-5-1'),
+          enrollmentDate: '2026-09-01',
           phone: const Value('01220000000'),
           cachedAt: DateTime(2026, 10, 1),
         ),
       );
       // Student 3: Enrolled Oct 10 (eligible only for meeting 2 & 3)
       batch.insert(
-        db.cachedStudents,
-        CachedStudentsCompanion.insert(
-          id: 'student-3',
+        db.cachedServiceStudents,
+        CachedServiceStudentsCompanion.insert(
+          id: 'membership-student-3',
+          studentId: 'student-3',
           serviceId: 'service-church-1',
-          name: 'بيشوي نادر',
-          approvalStatus: 'approved',
-          currentClassId: const Value('class-5-2'),
-          enrollmentAt: const Value('2026-10-10'),
+          studentName: const Value('بيشوي نادر'),
+          status: 'active',
+          classId: const Value('class-5-2'),
+          enrollmentDate: '2026-10-10',
           cachedAt: DateTime(2026, 10, 1),
         ),
       );
@@ -146,6 +149,8 @@ void main() {
           id: 'att-1',
           meetingId: 'meeting-1',
           studentId: 'student-1',
+          serviceId: const Value('service-church-1'),
+          serviceStudentId: const Value('membership-student-1'),
           classIdAtAttendance: 'class-5-1',
           checkedInAt: DateTime(2026, 10, 2, 18, 5),
           recordedBy: 'servant-1',
@@ -160,6 +165,8 @@ void main() {
           id: 'att-2',
           meetingId: 'meeting-2',
           studentId: 'student-1',
+          serviceId: const Value('service-church-1'),
+          serviceStudentId: const Value('membership-student-1'),
           classIdAtAttendance: 'class-5-1',
           checkedInAt: DateTime(2026, 10, 9, 18, 25),
           recordedBy: 'servant-1',
@@ -174,6 +181,8 @@ void main() {
           id: 'att-3',
           meetingId: 'meeting-3',
           studentId: 'student-1',
+          serviceId: const Value('service-church-1'),
+          serviceStudentId: const Value('membership-student-1'),
           classIdAtAttendance: 'class-5-1',
           checkedInAt: DateTime(2026, 10, 16, 17, 55),
           recordedBy: 'servant-1',
@@ -188,6 +197,8 @@ void main() {
           id: 'att-4',
           meetingId: 'meeting-3',
           studentId: 'student-3',
+          serviceId: const Value('service-church-1'),
+          serviceStudentId: const Value('membership-student-3'),
           classIdAtAttendance: 'class-5-2',
           checkedInAt: DateTime(2026, 10, 16, 18, 2),
           recordedBy: 'servant-2',
@@ -203,6 +214,7 @@ void main() {
           id: 'case-1',
           serviceId: 'service-church-1',
           studentId: 'student-2',
+          serviceStudentId: const Value('membership-student-2'),
           classId: 'class-5-1',
           title: 'افتقاد غياب متكرر',
           priority: 'urgent',
