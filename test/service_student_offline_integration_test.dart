@@ -1,10 +1,25 @@
 import 'dart:convert';
 
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:church_service_management_system/core/database/app_database.dart';
 import 'package:church_service_management_system/core/sync/sync_queue_repository.dart';
+import 'package:church_service_management_system/core/sync/sync_engine.dart';
+import 'package:church_service_management_system/core/sync/sync_operation.dart';
 import 'package:church_service_management_system/features/students/data/local_service_student_repository.dart';
 import 'package:church_service_management_system/features/students/domain/entities/service_student.dart';
+
+class _RecordingTransport implements SyncTransport {
+  final List<SyncOperation> applied = [];
+
+  @override
+  Future<void> apply(
+    SyncOperation operation,
+    Map<String, dynamic> payload,
+  ) async {
+    applied.add(operation);
+  }
+}
 
 void main() {
   late AppDatabase db;
@@ -108,6 +123,58 @@ void main() {
     expect(serviceA.map((m) => m.id), ['membership-a-2']);
     expect(serviceB.map((m) => m.id), ['membership-b-2']);
     expect(serviceA.single.studentId, serviceB.single.studentId);
+  });
+
+  test('online sync dispatches queued service membership operations', () async {
+    final membership = ServiceStudent(
+      id: 'membership-sync-1',
+      studentId: 'global-student-sync-1',
+      serviceId: 'service-a',
+      enrollmentDate: DateTime.utc(2026, 11, 20),
+      status: 'active',
+    );
+    await memberships.saveOffline(membership);
+
+    final transport = _RecordingTransport();
+    final engine = SyncEngine(
+      queue: queue,
+      transport: transport,
+      connectivityChecker: () async => [ConnectivityResult.wifi],
+    );
+    try {
+      await engine.syncNow();
+      expect(transport.applied, hasLength(1));
+      expect(transport.applied.single.entityType, 'service_student');
+      expect(await queue.pending(), isEmpty);
+    } finally {
+      engine.dispose();
+    }
+  });
+
+  test('offline sync preserves queued service membership operations', () async {
+    final membership = ServiceStudent(
+      id: 'membership-offline-1',
+      studentId: 'global-student-offline-1',
+      serviceId: 'service-a',
+      enrollmentDate: DateTime.utc(2026, 11, 20),
+      status: 'active',
+    );
+    await memberships.saveOffline(membership);
+
+    final transport = _RecordingTransport();
+    final engine = SyncEngine(
+      queue: queue,
+      transport: transport,
+      connectivityChecker: () async => [ConnectivityResult.none],
+    );
+    try {
+      await engine.syncNow();
+      expect(transport.applied, isEmpty);
+      expect(await queue.pending(), hasLength(1));
+      expect((await queue.pending()).single.entityType, 'service_student');
+    } finally {
+      engine.dispose();
+    }
   });
 
   test('offline archive changes only membership status and queues it', () async {
