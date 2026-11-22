@@ -4,9 +4,31 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:church_service_management_system/features/auth/domain/entities/servant_profile.dart';
 import 'package:church_service_management_system/features/students/domain/entities/sensitive_student_data.dart';
 import 'package:church_service_management_system/features/students/domain/entities/student.dart';
+import 'package:church_service_management_system/core/sync/sync_operation.dart';
+import 'package:church_service_management_system/core/sync/sync_conflict_exception.dart';
+import 'package:church_service_management_system/core/sync/handlers/student_sync_handler.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:church_service_management_system/features/students/domain/student_permissions.dart';
 
 void main() {
+  test('legacy physical student delete is rejected after membership migration', () async {
+    final handler = StudentSyncHandler(
+      SupabaseClient('https://example.supabase.co', 'test-key'),
+    );
+    await expectLater(
+      handler.apply(
+        const SyncOperation(
+          operationId: 'legacy-delete-1',
+          entityType: 'student',
+          operationType: 'delete',
+          payloadJson: '{"id":"student-1"}',
+        ),
+        {'id': 'student-1'},
+      ),
+      throwsA(isA<SyncConflictException>()),
+    );
+  });
+
   test('approval payload moves proposed class to current class', () {
     final payload = <String, dynamic>{
       'approval_status': 'approved',
