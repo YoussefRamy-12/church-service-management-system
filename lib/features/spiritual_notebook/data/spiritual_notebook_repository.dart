@@ -9,12 +9,16 @@ class SpiritualNotebookRepository {
   Future<List<Map<String, dynamic>>> students(
     String serviceId,
   ) async {
-    final rows = List<Map<String, dynamic>>.from(
+    final directoryRows = List<Map<String, dynamic>>.from(
       await _client.rpc(
         'get_service_student_directory',
         params: {'p_service_id': serviceId},
       ),
     );
+    // Notebook submissions are available only for active service memberships.
+    final rows = directoryRows
+        .where((row) => row['membership_status'] == 'active')
+        .toList();
 
     final classIds = rows
         .map((row) => row['class_id'] as String?)
