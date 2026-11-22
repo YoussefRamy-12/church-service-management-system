@@ -18,7 +18,7 @@ class LocalStudentRepository {
           )
           ..orderBy([(t) => OrderingTerm(expression: t.name)]))
         .watch()
-        .map((rows) => rows.map(_fromRow).toList());
+        .map((rows) => rows.where((r) => r.membershipStatus != 'inactive').map(_fromRow).toList());
   }
 
   Stream<List<Student>> watchStudentsForService(String serviceId) {
@@ -49,6 +49,8 @@ class LocalStudentRepository {
             approvalStatus: student.approvalStatus,
             photoPath: Value(student.photoPath),
             notes: Value(student.notes),
+            membershipId: Value(student.membershipId),
+            membershipStatus: Value(student.membershipStatus),
             cachedAt: DateTime.now(),
           ),
           mode: InsertMode.insertOrReplace,
@@ -64,21 +66,13 @@ class LocalStudentRepository {
     return row == null ? null : _fromRow(row);
   }
 
-  Future<void> deleteStudent(String studentId) async {
-    await _db.transaction(() async {
-      await (_db.delete(_db.cachedAttendanceRecords)
-            ..where((t) => t.studentId.equals(studentId)))
-          .go();
-      await (_db.delete(_db.cachedFollowUpRecords)
-            ..where((t) => t.studentId.equals(studentId)))
-          .go();
-      await (_db.delete(_db.cachedStudentSensitiveData)
-            ..where((t) => t.studentId.equals(studentId)))
-          .go();
-      await (_db.delete(
-        _db.cachedStudents,
-      )..where((t) => t.id.equals(studentId))).go();
-    });
+  /// Archive a service membership locally; never delete global identity or history.
+  Future<void> archiveMembership(String studentId) async {
+    final current = await findById(studentId);
+    if (current == null) return;
+    await cacheStudents([
+      current.copyWith(membershipStatus: 'inactive'),
+    ]);
   }
 
   Future<Student> assignClass(String studentId, String classId) async {
@@ -91,6 +85,8 @@ class LocalStudentRepository {
       serviceId: current.serviceId,
       name: current.name,
       approvalStatus: current.approvalStatus,
+      membershipId: current.membershipId,
+      membershipStatus: current.membershipStatus,
       currentClassId: current.isApproved ? classId : current.currentClassId,
       proposedClassId: current.isPending ? classId : current.proposedClassId,
       birthDate: current.birthDate,
@@ -127,6 +123,8 @@ class LocalStudentRepository {
       serviceId: current.serviceId,
       name: name.trim(),
       approvalStatus: current.approvalStatus,
+      membershipId: current.membershipId,
+      membershipStatus: current.membershipStatus,
       currentClassId: current.currentClassId,
       proposedClassId: current.proposedClassId,
       birthDate: birthDate,
@@ -157,6 +155,8 @@ class LocalStudentRepository {
       serviceId: current.serviceId,
       name: current.name,
       approvalStatus: 'approved',
+      membershipId: current.membershipId,
+      membershipStatus: 'active',
       currentClassId: current.proposedClassId,
       proposedClassId: null,
       birthDate: current.birthDate,
@@ -242,6 +242,8 @@ class LocalStudentRepository {
     serviceId: row.serviceId,
     name: row.name,
     approvalStatus: row.approvalStatus,
+    membershipId: row.membershipId,
+    membershipStatus: row.membershipStatus,
     currentClassId: row.currentClassId,
     proposedClassId: row.proposedClassId,
     birthDate: _parse(row.birthDate),
