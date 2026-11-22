@@ -220,6 +220,8 @@ void main() {
     expect(pending, hasLength(1));
     final payload = jsonDecode(pending.single.payloadJson) as Map<String, dynamic>;
     expect(payload['status'], 'inactive');
+    expect(payload['id'], membership.id);
     expect(payload['student_id'], membership.studentId);
+    expect(payload['service_id'], membership.serviceId);
   });
 }
