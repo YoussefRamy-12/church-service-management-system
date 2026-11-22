@@ -28,7 +28,7 @@ class StudentFollowUpProfilePage extends ConsumerWidget {
       studentCasesProvider((serviceId: serviceId, studentId: student.id)),
     );
     final activitiesStream = ref.watch(
-      studentActivitiesProvider(student.id),
+      studentActivitiesProvider((serviceId: serviceId, studentId: student.id)),
     );
 
     return Scaffold(
