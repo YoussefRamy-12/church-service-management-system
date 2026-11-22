@@ -123,6 +123,37 @@ void main() {
     },
   );
 
+  test('secondary service edits membership without changing global identity', () async {
+    await repo.local.cacheStudents([
+      _student(
+        id: 'shared-edit-student',
+        membershipId: 'membership-service-b',
+        identityServiceId: 'service-a',
+      ).copyWith(serviceId: 'service-b'),
+    ]);
+
+    final updated = await repo.updateStudent(
+      studentId: 'shared-edit-student',
+      membershipId: 'membership-service-b',
+      name: 'Name edited in Service B',
+      birthDate: DateTime(2012, 2, 2),
+      phone: '01099999999',
+      school: 'Service B school',
+      grade: 'السادس',
+      notes: 'ملاحظة الخدمة ب',
+    );
+
+    final pending = await queue.pending();
+    final cached = await repo.local.findById('shared-edit-student');
+    expect(updated.name, 'Peter');
+    expect(updated.phone, isNull);
+    expect(updated.birthDate, DateTime(2014, 5, 10));
+    expect(updated.school, 'Service B school');
+    expect(cached?.identityServiceId, 'service-a');
+    expect(pending, hasLength(1));
+    expect(pending.single.entityType, 'service_student');
+  });
+
   test('offline sensitive data is not shared with a different service membership', () async {
     await repo.local.cacheStudents([
       _student(id: 'shared-student', membershipId: 'membership-service-b')
