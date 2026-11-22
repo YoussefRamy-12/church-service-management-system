@@ -1553,9 +1553,9 @@ class SpiritualNotebookStudentPage extends ConsumerStatefulWidget {
   const SpiritualNotebookStudentPage({
     super.key,
     required this.serviceId,
-    required this.studentId,
+    required this.membershipId,
   });
-  final String serviceId, studentId;
+  final String serviceId, membershipId;
 
   @override
   ConsumerState<SpiritualNotebookStudentPage> createState() =>
@@ -1577,30 +1577,31 @@ class _SpiritualNotebookStudentPageState
   }
 
   Future<_StudentFormData> _load() async {
-    final client = Supabase.instance.client;
     final repo = ref.read(spiritualNotebookRepositoryProvider);
     final results = await Future.wait<dynamic>([
-      client
-          .from('students')
-          .select(
-            'id,name,current_class_id,classes!students_current_class_id_fkey(name,stages(name))',
-          )
-          .eq('id', widget.studentId)
-          .single(),
+      repo.students(widget.serviceId),
       repo.activities(widget.serviceId),
       repo.submissions(widget.serviceId),
       repo.settings(widget.serviceId),
     ]);
+    final students = results[0] as List<Map<String, dynamic>>;
+    final student = students
+        .where((row) => row['membership_id'] == widget.membershipId)
+        .firstOrNull;
+    if (student == null) {
+      throw StateError('Active student membership is not available in this service.');
+    }
+
     final period = WeeklyPeriod.containing(DateTime.now());
     final existing = (results[2] as List<Map<String, dynamic>>)
         .where(
-          (r) =>
-              r['student_id'] == widget.studentId &&
-              r['period_start'] == _date(period.start),
+          (row) =>
+              row['student_id'] == widget.membershipId &&
+              row['period_start'] == _date(period.start),
         )
         .firstOrNull;
     return _StudentFormData(
-      results[0] as Map<String, dynamic>,
+      student,
       results[1] as List<Map<String, dynamic>>,
       existing,
       results[3] as Map<String, dynamic>?,
@@ -2281,7 +2282,7 @@ class _SpiritualNotebookStudentPageState
       await ref
           .read(spiritualNotebookRepositoryProvider)
           .submit(
-            studentId: widget.studentId,
+            membershipId: widget.membershipId,
             period: period,
             activityIds: selected.toList(),
             bonusPoints: bonusAllowed ? b : 0,
