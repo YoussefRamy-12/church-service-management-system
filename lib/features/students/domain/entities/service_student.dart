@@ -18,6 +18,7 @@ class ServiceStudent {
     this.birthDate,
     this.phone,
     this.photoPath,
+    this.identityServiceId,
   });
 
   final String id;
@@ -35,6 +36,7 @@ class ServiceStudent {
   final DateTime? birthDate;
   final String? phone;
   final String? photoPath;
+  final String? identityServiceId;
 
   bool get isActive => status == 'active';
   bool get isPending => status == 'pending';
@@ -71,5 +73,6 @@ class ServiceStudent {
         : DateTime.tryParse(row['birth_date'].toString()),
     phone: row['phone'] as String?,
     photoPath: row['photo_path'] as String?,
+    identityServiceId: row['identity_service_id'] as String?,
   );
 }
