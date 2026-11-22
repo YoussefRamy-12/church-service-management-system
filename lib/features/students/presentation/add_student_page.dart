@@ -214,6 +214,23 @@ class _AddStudentPageState extends ConsumerState<AddStudentPage> {
       return;
     }
 
+    if (_birthDate == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('تاريخ الميلاد مطلوب لتسجيل التلميذ.')),
+      );
+      return;
+    }
+    final selectedClass = _stageClasses.values
+        .expand((classes) => classes)
+        .where((item) => item.id == _selectedClassId)
+        .firstOrNull;
+    if (selectedClass == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('تعذر تحديد الصف الدراسي.')),
+      );
+      return;
+    }
+
     setState(() => _saving = true);
 
     try {
@@ -246,6 +263,7 @@ class _AddStudentPageState extends ConsumerState<AddStudentPage> {
                 ? null
                 : _studentPhone.text.trim(),
             school: _school.text.trim().isEmpty ? null : _school.text.trim(),
+            grade: selectedClass.name,
             isDeacon: _isDeacon,
             notes: _generalNotes.text.trim().isEmpty
                 ? null
