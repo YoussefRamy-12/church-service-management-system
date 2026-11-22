@@ -421,6 +421,7 @@ void main() {
           final inputs = [
             const StudentRegistrationInput(
               name: 'فادي ماجد عزيز',
+              birthDate: DateTime(2013, 8, 14),
               grade: 'الابتدائية',
               phone: '01233334444',
               school: 'مدرسة القديس يوسف',
