@@ -21,6 +21,8 @@ void main() {
     final created = await repo.createCase(
       serviceId: 'service-1',
       studentId: 'student-1',
+
+      serviceStudentId: 'student-1_membership',
       classId: 'class-5a',
       title: 'متابعة غياب أسبوعين',
       description: 'غياب بدون إذن',
@@ -50,6 +52,8 @@ void main() {
     await repo.createCase(
       serviceId: 'service-1',
       studentId: 'student-1',
+
+      serviceStudentId: 'student-1_membership',
       classId: 'class-5a',
       title: 'حالة فصل 5أ',
       priority: CasePriority.medium,
@@ -58,6 +62,8 @@ void main() {
     await repo.createCase(
       serviceId: 'service-1',
       studentId: 'student-2',
+
+      serviceStudentId: 'student-2_membership',
       classId: 'class-5b',
       title: 'حالة فصل 5ب',
       priority: CasePriority.medium,
@@ -89,6 +95,8 @@ void main() {
     final c = await repo.createCase(
       serviceId: 'service-1',
       studentId: 'student-1',
+
+      serviceStudentId: 'student-1_membership',
       classId: 'class-5a',
       title: 'حالة متابعة',
       priority: CasePriority.medium,
@@ -128,6 +136,8 @@ void main() {
     final c = await repo.createCase(
       serviceId: 'service-1',
       studentId: 'student-1',
+
+      serviceStudentId: 'student-1_membership',
       classId: 'class-5a',
       title: 'حالة للمتابعة',
       priority: CasePriority.medium,
@@ -158,6 +168,8 @@ void main() {
     final c = await repo.createCase(
       serviceId: 'service-1',
       studentId: 'student-1',
+
+      serviceStudentId: 'student-1_membership',
       classId: 'class-5a',
       title: 'متابعة جديدة',
       priority: CasePriority.low,
@@ -214,6 +226,8 @@ void main() {
     final created = await repo.createCase(
       serviceId: 'service-1',
       studentId: 'student-1',
+
+      serviceStudentId: 'student-1_membership',
       classId: 'class-5a',
       title: 'متابعة فورية',
       priority: CasePriority.medium,
