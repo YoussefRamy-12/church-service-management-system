@@ -11,7 +11,7 @@ void main() {
       () async {
         final db = AppDatabase.forTesting();
         try {
-          expect(db.schemaVersion, 10)
+          expect(db.schemaVersion, 10);
 
           final local = LocalStudentRepository(db);
 
