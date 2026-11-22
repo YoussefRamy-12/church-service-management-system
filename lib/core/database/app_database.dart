@@ -88,7 +88,7 @@ class CachedServiceStudents extends Table {
   TextColumn get grade => text().nullable()();
   BoolColumn get isDeacon => boolean().withDefault(const Constant(false))();
   TextColumn get notes => text().nullable()();
-  TextColumn get studentName => text()();
+  TextColumn get studentName => text().withDefault(const Constant(''))();
   TextColumn get birthDate => text().nullable()();
   TextColumn get phone => text().nullable()();
   TextColumn get photoPath => text().nullable()();
@@ -331,9 +331,6 @@ class AppDatabase extends _$AppDatabase {
         await m.addColumn(cachedServiceStudents, cachedServiceStudents.birthDate);
         await m.addColumn(cachedServiceStudents, cachedServiceStudents.phone);
         await m.addColumn(cachedServiceStudents, cachedServiceStudents.photoPath);
-        await m.customStatement(
-          "UPDATE cached_service_students SET student_name = '' WHERE student_name IS NULL",
-        );
       }
     },
   );
