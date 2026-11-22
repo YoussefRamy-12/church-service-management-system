@@ -70,6 +70,8 @@ class CachedStudents extends Table {
   BoolColumn get isDeacon => boolean().withDefault(const Constant(false))();
   TextColumn get photoPath => text().nullable()();
   TextColumn get notes => text().nullable()();
+  TextColumn get membershipId => text().nullable()();
+  TextColumn get membershipStatus => text().withDefault(const Constant('active'))();
   DateTimeColumn get cachedAt => dateTime()();
 
   @override
@@ -282,7 +284,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.forTesting() : super(testingDatabaseConnection());
 
   @override
-  int get schemaVersion => 11;
+  int get schemaVersion => 12;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -330,6 +332,10 @@ class AppDatabase extends _$AppDatabase {
         await m.addColumn(cachedServiceStudents, cachedServiceStudents.birthDate);
         await m.addColumn(cachedServiceStudents, cachedServiceStudents.phone);
         await m.addColumn(cachedServiceStudents, cachedServiceStudents.photoPath);
+      }
+      if (from < 12) {
+        await m.addColumn(cachedStudents, cachedStudents.membershipId);
+        await m.addColumn(cachedStudents, cachedStudents.membershipStatus);
       }
     },
   );
