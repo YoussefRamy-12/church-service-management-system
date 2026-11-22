@@ -71,6 +71,11 @@ class OfflineFirstStudentRepository implements StudentRepository {
     String? notes,
     SensitiveStudentData? sensitiveData,
   }) async {
+    final current = await local.findById(studentId);
+    if (current == null || current.membershipId == null ||
+        (membershipId != null && current.membershipId != membershipId)) {
+      throw StateError('Student membership is not available locally.');
+    }
     final updated = await local.updateStudent(
       studentId: studentId,
       name: name,
