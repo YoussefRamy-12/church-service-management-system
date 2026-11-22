@@ -18,6 +18,7 @@ abstract interface class FollowUpCaseRepository {
   Future<FollowUpCase> createCase({
     required String serviceId,
     required String studentId,
+    required String serviceStudentId,
     required String classId,
     required String title,
     String? description,
