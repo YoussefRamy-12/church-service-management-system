@@ -31,6 +31,9 @@ void main() {
       status: 'active',
       school: 'مدرسة الخدمة أ',
       grade: 'الخامس',
+      studentName: 'طالب متعدد الخدمات',
+      birthDate: DateTime(2015, 3, 12),
+      phone: '01000000000',
     );
 
     await memberships.saveOffline(membership);
@@ -42,6 +45,9 @@ void main() {
     expect(cached!.studentId, membership.studentId);
     expect(cached.serviceId, 'service-a');
     expect(cached.classId, 'class-a');
+    expect(cached.studentName, 'طالب متعدد الخدمات');
+    expect(cached.birthDate, DateTime(2015, 3, 12));
+    expect(cached.phone, '01000000000');
     expect(pending, hasLength(1));
     expect(pending.single.entityType, 'service_student');
     expect(pending.single.operationType, 'upsert');
