@@ -9,6 +9,7 @@ abstract interface class StudentRepository {
   Future<Student> updateStudent({
     required String studentId,
     required String name,
+    String? membershipId,
     DateTime? birthDate,
     String? phone,
     String? school,
@@ -19,8 +20,8 @@ abstract interface class StudentRepository {
     String? notes,
     SensitiveStudentData? sensitiveData,
   });
-  Future<Student> approvePending(String studentId);
-  Future<void> deleteStudent(String studentId);
-  Future<Student> assignClass(String studentId, String classId);
+  Future<Student> approvePending(String studentId, {String? membershipId});
+  Future<void> deleteStudent(String studentId, {String? membershipId});
+  Future<Student> assignClass(String studentId, String classId, {String? membershipId});
   Future<SensitiveStudentData?> getSensitiveData(String studentId);
 }
