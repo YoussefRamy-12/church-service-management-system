@@ -49,6 +49,7 @@ class LocalServiceStudentRepository {
             birthDate: Value(membership.birthDate?.toIso8601String()),
             phone: Value(membership.phone),
             photoPath: Value(membership.photoPath),
+            identityServiceId: Value(membership.identityServiceId),
             cachedAt: DateTime.now(),
           ),
           mode: InsertMode.insertOrReplace,
@@ -86,6 +87,7 @@ class LocalServiceStudentRepository {
       birthDate: membership.birthDate,
       phone: membership.phone,
       photoPath: membership.photoPath,
+      identityServiceId: membership.identityServiceId,
     );
     await saveOffline(archived);
   }
@@ -108,5 +110,6 @@ class LocalServiceStudentRepository {
         : DateTime.tryParse(row.birthDate!),
     phone: row.phone,
     photoPath: row.photoPath,
+    identityServiceId: row.identityServiceId,
   );
 }
