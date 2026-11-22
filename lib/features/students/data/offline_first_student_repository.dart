@@ -124,13 +124,15 @@ class OfflineFirstStudentRepository implements StudentRepository {
     }
     final updated = await local.approvePending(studentId, membershipId: membershipId);
     await _enqueueMembershipUpdate(updated);
-    await _enqueueUpdate(updated);
+    if (current.serviceId == current.identityServiceId) {
+      await _enqueueUpdate(updated);
+    }
     return updated;
   }
 
   @override
   Future<void> deleteStudent(String studentId, {String? membershipId}) async {
-    final current = await local.findById(studentId);
+    final current = await local.findById(studentId, membershipId: membershipId);
     if (current == null) return;
     final id = membershipId ?? current.membershipId;
     if (id == null) throw StateError('Student membership is required for archival.');
@@ -151,14 +153,16 @@ class OfflineFirstStudentRepository implements StudentRepository {
     String classId, {
     String? membershipId,
   }) async {
-    final current = await local.findById(studentId);
+    final current = await local.findById(studentId, membershipId: membershipId);
     if (current == null || current.membershipId == null ||
         (membershipId != null && current.membershipId != membershipId)) {
       throw StateError('Student membership is not available locally.');
     }
     final updated = await local.assignClass(studentId, classId, membershipId: membershipId);
     await _enqueueMembershipUpdate(updated);
-    await _enqueueUpdate(updated);
+    if (current.serviceId == current.identityServiceId) {
+      await _enqueueUpdate(updated);
+    }
     return updated;
   }
 
