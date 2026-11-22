@@ -330,6 +330,7 @@ void main() {
       expect(report.present, 1);
       expect(report.early, 1);
       expect(report.normal, 0);
+      expect(report.classComparisons.single.presentCount, 1);
     },
   );
 }
