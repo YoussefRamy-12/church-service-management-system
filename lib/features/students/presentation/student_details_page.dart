@@ -142,7 +142,7 @@ class _StudentDetailsPageState extends ConsumerState<StudentDetailsPage> {
     try {
       final updated = await ref
           .read(studentRepositoryProvider)
-          .approvePending(student.id);
+          .approvePending(student.id, membershipId: student.membershipId);
       if (!mounted) return;
       setState(() => student = updated);
       _loadClassDetails();
@@ -180,6 +180,7 @@ class _StudentDetailsPageState extends ConsumerState<StudentDetailsPage> {
           .read(studentRepositoryProvider)
           .updateStudent(
             studentId: student.id,
+            membershipId: student.membershipId,
             name: result.name,
             birthDate: result.birthDate,
             phone: result.phone,
@@ -228,7 +229,7 @@ class _StudentDetailsPageState extends ConsumerState<StudentDetailsPage> {
 
     setState(() => _isDeleting = true);
     try {
-      await ref.read(studentRepositoryProvider).deleteStudent(student.id);
+      await ref.read(studentRepositoryProvider).deleteStudent(student.id, membershipId: student.membershipId);
 
       // Refresh list caches
       if (student.currentClassId != null) {
@@ -319,7 +320,7 @@ class _StudentDetailsPageState extends ConsumerState<StudentDetailsPage> {
     try {
       final updated = await ref
           .read(studentRepositoryProvider)
-          .assignClass(student.id, selected.$1);
+          .assignClass(student.id, selected.$1, membershipId: student.membershipId);
       if (!mounted) return;
       setState(() => student = updated);
       _loadClassDetails();
@@ -390,7 +391,7 @@ class _StudentDetailsPageState extends ConsumerState<StudentDetailsPage> {
             if (canEdit)
               IconButton(
                 key: const Key('student_delete'),
-                tooltip: 'حذف التلميذ',
+                tooltip: 'أرشفة عضوية التلميذ',
                 onPressed: _isDeleting ? null : _delete,
                 icon: _isDeleting
                     ? const SizedBox(
