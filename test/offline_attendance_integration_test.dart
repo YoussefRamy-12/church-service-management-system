@@ -32,6 +32,8 @@ void main() {
       final record = await attendance.checkIn(
         meetingId: 'meeting-1',
         studentId: 'student-1',
+        serviceId: 'service-1',
+        serviceStudentId: 'student-1_membership',
         classIdAtAttendance: 'class-1',
         recordedBy: 'servant-1',
         checkedInAt: checkedInAt,
@@ -42,6 +44,8 @@ void main() {
 
       expect(localRows, hasLength(1));
       expect(localRows.single.studentId, 'student-1');
+      expect(localRows.single.serviceId, 'service-1');
+      expect(localRows.single.serviceStudentId, 'student-1_membership');
       expect(localRows.single.syncState, 'pending');
       expect(localRows.single.clientOperationId, record.clientOperationId);
 
@@ -54,6 +58,8 @@ void main() {
           jsonDecode(pending.single.payloadJson) as Map<String, dynamic>;
       expect(payload['meeting_id'], 'meeting-1');
       expect(payload['student_id'], 'student-1');
+      expect(payload['service_id'], 'service-1');
+      expect(payload['service_student_id'], 'student-1_membership');
       expect(payload['class_id_at_attendance'], 'class-1');
     },
   );
