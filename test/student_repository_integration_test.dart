@@ -209,6 +209,17 @@ void main() {
     expect(serviceB?.identityServiceId, 'service-a');
     expect(await repo.findById('shared-global-student'), isNull);
 
+    final rosterA = await repo
+        .watchStudentsForService('service-a')
+        .firstWhere((items) => items.length == 1);
+    final rosterB = await repo
+        .watchStudentsForService('service-b')
+        .firstWhere((items) => items.length == 1);
+    expect(rosterA.single.membershipId, 'membership-service-a');
+    expect(rosterB.single.membershipId, 'membership-service-b');
+    expect(rosterA.single.school, 'School A');
+    expect(rosterB.single.school, 'School B');
+
     final identities = await db.select(db.cachedStudents).get();
     expect(identities.where((row) => row.id == 'shared-global-student'), hasLength(1));
     expect(identities.single.serviceId, 'service-a');
