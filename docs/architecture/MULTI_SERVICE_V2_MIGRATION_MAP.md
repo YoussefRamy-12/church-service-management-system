@@ -129,7 +129,7 @@ No local cache rows or queued operations may be dropped during the Drift upgrade
 
 ## 7. Migration ledger reconciliation
 
-At the initial audit, the remote ledger had 15 versions and the branch had 25 SQL files. After applying the eleven additive membership, security and performance migrations below, the remote ledger has **26 versions** and the branch has **36 SQL files**. The eleven new versions are aligned exactly:
+At the initial audit, the remote ledger had 15 versions and the branch had 25 SQL files. After applying the twelve additive membership, security and performance migrations below, the remote ledger has **27 versions** and the branch has **37 SQL files**. The twelve new versions are aligned exactly:
 
 - `20261122125142_multi_service_membership_expand`
 - `20261122125643_service_membership_class_scope_write`
@@ -142,8 +142,9 @@ At the initial audit, the remote ledger had 15 versions and the branch had 25 SQ
 - `20261122143825_spiritual_notebook_membership_cutover`
 - `20261122143841_spiritual_notebook_active_membership_roster`
 - `20261122144712_restore_pending_membership_directory`
+- `20261122144842_block_unverified_cross_service_identity_link`
 
-The remaining mismatch is 15 branch migration files not represented by the same version in the remote ledger, and 5 remote ledger versions without same-version files in this branch. The eleven expand-phase migrations now match the remote ledger versions exactly after correcting local filenames to their applied versions.
+The remaining mismatch is 15 branch migration files not represented by the same version in the remote ledger, and 5 remote ledger versions without same-version files in this branch. The twelve expand-phase migrations now match the remote ledger versions exactly after correcting local filenames to their applied versions.
 
 ### Branch files absent from remote ledger
 
@@ -189,7 +190,7 @@ This is evidence that many effects exist in the catalog, not a byte-for-byte pro
 - `20261122162000_students_update_nullable_date_guard`: preserves existing required date values when optional edit fields are omitted.
 - `20261122162500_student_directory_identity_scope`: adds `identity_service_id` to the directory projection so local sensitive-data cache fallback is denied across service boundaries.
 
-The Flutter/Drift branch now has schema version 14, a `CachedServiceStudents` table, membership IDs and identity ownership in `CachedStudents`, a `ServiceStudent` domain entity, an offline-first membership repository, and a `service_student` sync handler. The directory RPC returns the identity-owning service ID for sensitive-data isolation. Spiritual Notebook now reads active membership rosters and submits scores against membership IDs, with a class-at-submission snapshot and per-membership weekly uniqueness. The shared directory RPC still includes pending memberships for Students approval; the notebook repository filters them out locally. Offline tests cover membership cache isolation by service, queued upserts, and archive state changes.
+The Flutter/Drift branch now has schema version 14, a `CachedServiceStudents` table, membership IDs and identity ownership in `CachedStudents`, a `ServiceStudent` domain entity, an offline-first membership repository, and a `service_student` sync handler. The directory RPC returns the identity-owning service ID for sensitive-data isolation. Spiritual Notebook now reads active membership rosters and submits scores against membership IDs, with a class-at-submission snapshot and per-membership weekly uniqueness. The shared directory RPC still includes pending memberships for Students approval; the notebook repository filters them out locally. Cross-service identity linking is now blocked for ordinary service leaders; only a platform super-admin can create a membership referencing an identity owned by another service until an explicit verified-link workflow is implemented. Offline tests cover membership cache isolation by service, queued upserts, and archive state changes.
 
 **Compatibility boundary:** the Students screen now reads its roster through `get_service_student_directory` and routes registration, editing, approval, class assignment, and archival through membership lifecycle RPCs. Legacy `students` columns are dual-written only for the existing owning service while other modules are migrated. Attendance, Follow-up, and Spiritual Notebook still need membership-first application cutovers, so this phase does not yet enable complete second-service operations.
 
@@ -224,7 +225,7 @@ The old `students.service_id` and class columns remain in place. No contract/dro
 - Legacy queued physical student deletes now become sync conflicts instead of deleting global identities.
 - Sensitive data is not read from the local device cache when the active membership belongs to a different service or identity ownership is unknown.
 - Added offline cache, queue, archive, RPC-mapping, and sync-engine tests.
-- Global identity search/verification and confirmed reuse are not yet exposed in the UI. Duplicate matching remains explicit; automatic merging is out of scope.
+- Global identity search/verification and confirmed reuse are not yet exposed in the UI. Cross-service linking is restricted to platform super-admins until that workflow exists. Duplicate matching remains explicit; automatic merging is out of scope.
 - The preceding stable CI baseline passed dependency resolution, Drift generation, Flutter analysis, web build and 189 tests. The current Students membership-first changes are under a new CI regression run; do not treat them as validated until that run passes.
 - The Students feature now reads and mutates service memberships through the new directory/lifecycle RPCs. Attendance and Follow-up still require their UI/repository/sync cutovers. Spiritual Notebook has membership columns and constraints but its RPC, RLS and repository still use the legacy student-owned path.
 - A full on-device upgrade test from existing v11/v12/v13 databases and replay of old queued payloads remains required; CI generation and tests are the current validation gate.
