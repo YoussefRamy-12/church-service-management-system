@@ -88,6 +88,10 @@ class CachedServiceStudents extends Table {
   TextColumn get grade => text().nullable()();
   BoolColumn get isDeacon => boolean().withDefault(const Constant(false))();
   TextColumn get notes => text().nullable()();
+  TextColumn get studentName => text()();
+  TextColumn get birthDate => text().nullable()();
+  TextColumn get phone => text().nullable()();
+  TextColumn get photoPath => text().nullable()();
   DateTimeColumn get cachedAt => dateTime()();
 
   @override
@@ -278,7 +282,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.forTesting() : super(testingDatabaseConnection());
 
   @override
-  int get schemaVersion => 10;
+  int get schemaVersion => 11;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -321,6 +325,15 @@ class AppDatabase extends _$AppDatabase {
       }
       if (from < 10) {
         await m.createTable(cachedServiceStudents);
+      }
+      if (from < 11) {
+        await m.addColumn(cachedServiceStudents, cachedServiceStudents.studentName);
+        await m.addColumn(cachedServiceStudents, cachedServiceStudents.birthDate);
+        await m.addColumn(cachedServiceStudents, cachedServiceStudents.phone);
+        await m.addColumn(cachedServiceStudents, cachedServiceStudents.photoPath);
+        await m.customStatement(
+          "UPDATE cached_service_students SET student_name = '' WHERE student_name IS NULL",
+        );
       }
     },
   );
