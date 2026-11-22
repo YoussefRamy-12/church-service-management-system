@@ -22,6 +22,19 @@ void main() {
 
   tearDown(() async => db.close());
 
+  test('registration without required birth date is rejected before queueing', () async {
+    await expectLater(
+      registration.registerPending(
+        serviceId: 'service-1',
+        proposedClassId: 'class-1',
+        name: 'Missing Birth Date',
+        grade: 'Grade 5',
+      ),
+      throwsArgumentError,
+    );
+    expect(await queue.pending(), isEmpty);
+  });
+
   test(
     'pending registration is immediately cached with proposed class and queued',
     () async {
