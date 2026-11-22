@@ -38,6 +38,7 @@ class OfflineFirstFollowUpCaseRepository implements FollowUpCaseRepository {
   Future<FollowUpCase> createCase({
     required String serviceId,
     required String studentId,
+    required String serviceStudentId,
     required String classId,
     required String title,
     String? description,
@@ -49,6 +50,7 @@ class OfflineFirstFollowUpCaseRepository implements FollowUpCaseRepository {
     final newCase = await local.createCase(
       serviceId: serviceId,
       studentId: studentId,
+      serviceStudentId: serviceStudentId,
       classId: classId,
       title: title,
       description: description,
@@ -68,6 +70,7 @@ class OfflineFirstFollowUpCaseRepository implements FollowUpCaseRepository {
           'id': newCase.id,
           'service_id': newCase.serviceId,
           'student_id': newCase.studentId,
+          'service_student_id': newCase.serviceStudentId,
           'class_id': newCase.classId,
           'title': newCase.title,
           'description': newCase.description,
