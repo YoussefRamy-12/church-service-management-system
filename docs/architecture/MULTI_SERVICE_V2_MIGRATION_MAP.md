@@ -129,7 +129,7 @@ No local cache rows or queued operations may be dropped during the Drift upgrade
 
 ## 7. Migration ledger reconciliation
 
-At the initial audit, the remote ledger had 15 versions and the branch had 25 SQL files. After applying the fourteen additive membership, security and performance migrations below, the remote ledger has **29 versions** and the branch has **39 SQL files**. The fourteen new versions are aligned exactly:
+At the initial audit, the remote ledger had 15 versions and the branch had 25 SQL files. After applying the fifteen additive membership, security and performance migrations below, the remote ledger has **30 versions** and the branch has **40 SQL files**. The fifteen new versions are aligned exactly:
 
 - `20261122125142_multi_service_membership_expand`
 - `20261122125643_service_membership_class_scope_write`
@@ -145,8 +145,9 @@ At the initial audit, the remote ledger had 15 versions and the branch had 25 SQ
 - `20261122144842_block_unverified_cross_service_identity_link`
 - `20261122145224_attendance_membership_snapshot_validation`
 - `20261122150344_follow_up_membership_validation`
+- `20261122150844_preserve_global_student_identity`
 
-The remaining mismatch is 15 branch migration files not represented by the same version in the remote ledger, and 5 remote ledger versions without same-version files in this branch. The fourteen expand-phase migrations now match the remote ledger versions exactly after correcting local filenames to their applied versions.
+The remaining mismatch is 15 branch migration files not represented by the same version in the remote ledger, and 5 remote ledger versions without same-version files in this branch. The fifteen expand-phase migrations now match the remote ledger versions exactly after correcting local filenames to their applied versions.
 
 ### Branch files absent from remote ledger
 
@@ -192,7 +193,7 @@ This is evidence that many effects exist in the catalog, not a byte-for-byte pro
 - `20261122162000_students_update_nullable_date_guard`: preserves existing required date values when optional edit fields are omitted.
 - `20261122162500_student_directory_identity_scope`: adds `identity_service_id` to the directory projection so local sensitive-data cache fallback is denied across service boundaries.
 
-The Flutter/Drift branch now has schema version 16, a `CachedServiceStudents` table, membership IDs and identity ownership in `CachedStudents`, a `ServiceStudent` domain entity, an offline-first membership repository, and a `service_student` sync handler. The directory RPC returns the identity-owning service ID for sensitive-data isolation. Spiritual Notebook now reads active membership rosters and submits scores against membership IDs, with a class-at-submission snapshot and per-membership weekly uniqueness. The shared directory RPC still includes pending memberships for Students approval; the notebook repository filters them out locally. Cross-service identity linking is now blocked for ordinary service leaders; only a platform super-admin can create a membership referencing an identity owned by another service until an explicit verified-link workflow is implemented. Offline tests cover membership cache isolation by service, queued upserts, and archive state changes.
+The Flutter/Drift branch now has schema version 16, a `CachedServiceStudents` table, membership IDs and identity ownership in `CachedStudents`, a `ServiceStudent` domain entity, an offline-first membership repository, and a `service_student` sync handler. The directory RPC returns the identity-owning service ID for sensitive-data isolation. Spiritual Notebook now reads active membership rosters and submits scores against membership IDs, with a class-at-submission snapshot and per-membership weekly uniqueness. The shared directory RPC still includes pending memberships for Students approval; the notebook repository filters them out locally. Cross-service identity linking is now blocked for ordinary service leaders; only a platform super-admin can create a membership referencing an identity owned by another service until an explicit verified-link workflow is implemented. Global identity deletion is also restricted at the database level while any service membership exists. Offline tests cover membership cache isolation by service, queued upserts, and archive state changes.
 
 **Compatibility boundary:** the Students screen now reads its roster through `get_service_student_directory` and routes registration, editing, approval, class assignment, and archival through membership lifecycle RPCs. Legacy `students` columns are dual-written only for the existing owning service while other modules are migrated. Attendance, Follow-up, and Spiritual Notebook still need membership-first application cutovers, so this phase does not yet enable complete second-service operations.
 
@@ -237,6 +238,7 @@ The old `students.service_id` and class columns remain in place. No contract/dro
 - Membership read/write RLS was tested with users from both services, including cross-service denial.
 - In a rolled-back cross-service fixture, a service-B overall leader could read the shared identity's membership projection for service B, while the same query returned zero rows from `student_sensitive_data`; the temporary membership was rolled back and service B still has zero persisted memberships.
 - A non-admin service-B leader was denied when attempting to link a service-A identity into service B; cross-service identity linking is currently limited to platform super-admin pending the verified-link UI.
+- A direct deletion attempt against a global identity with memberships was rejected by the new `ON DELETE RESTRICT` foreign key; the identity remained present.
 - A rolled-back service-B attendance insert for a service-A global identity succeeded only when tied to a service-B membership, service-B meeting, and service-B class snapshot; this exposed and fixed a legacy trigger that previously validated against `students.service_id/current_class_id` instead of membership ownership.
 - A rolled-back service-B follow-up record and case were both readable by the service-B overall leader for a service-A global identity when attached to a valid service-B membership; confidential student data remained invisible.
 - Cross-service class assignment and attendance association were rejected by database constraints/triggers.
