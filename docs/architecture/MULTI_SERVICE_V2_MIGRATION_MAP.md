@@ -127,7 +127,7 @@ No local cache rows or queued operations may be dropped during the Drift upgrade
 
 ## 7. Migration ledger reconciliation
 
-At the initial audit, the remote ledger had 15 versions and the branch had 25 SQL files. After applying the three additive membership migrations below, the remote ledger has **18 versions** and the branch has **28 SQL files**. The two new versions are aligned exactly:
+At the initial audit, the remote ledger had 15 versions and the branch had 25 SQL files. After applying the three additive membership migrations below, the remote ledger has **18 versions** and the branch has **28 SQL files**. The three new versions are aligned exactly:
 
 - `20261122125142_multi_service_membership_expand`
 - `20261122125643_service_membership_class_scope_write`
@@ -165,7 +165,7 @@ The remaining mismatch is 15 branch migration files not represented by the same 
 
 This is evidence that many effects exist in the catalog, not a byte-for-byte proof that each migration's complete intended effect is present. Several migration names differ between branch history and remote history. No manual ledger repair was performed because the available migration-management action does not provide a safe repair operation and direct edits to Supabase's internal migration ledger would be unsafe.
 
-**Do not reset the ledger, mark all 14 branch files applied, or replay historical migrations against production.** Finish a per-object diff against each original migration and then use a reviewed forward reconciliation migration or a supported Supabase migration repair workflow.
+**Do not reset the ledger, mark all 15 branch files applied, or replay historical migrations against production.** Finish a per-object diff against each original migration and then use a reviewed forward reconciliation migration or a supported Supabase migration repair workflow.
 
 ### Newly applied expand migrations
 
@@ -181,12 +181,12 @@ The old `students.service_id` and class columns remain in place. No contract/dro
 
 ## 8. Security review baseline
 
-- All 25 public tables have RLS enabled; `FORCE ROW LEVEL SECURITY` is false on them.
-- The Supabase security advisor identified two anonymous-executable `SECURITY DEFINER` helpers: `public.is_active_system_admin()` and `public.is_active_service_schedule_leader(text)`. Their bodies use `auth.uid()`; anonymous execution is not needed. Revoke execution from `PUBLIC` and `anon`, retaining `authenticated` and `service_role`.
-- Four other `SECURITY DEFINER` RPCs are authenticated-only and include in-function authorization/ownership checks. Review their bodies individually; do not blanket-revoke required application RPCs or convert them to invoker without evaluating RLS dependencies.
-- Advisor reports leaked-password protection disabled; enable it in Supabase Auth settings after confirming project policy.
-- The advisor reports multiple permissive RLS policies and unindexed FK findings. These require per-table review; permissive policies are OR-combined, so deleting a policy by count alone can break admin access or change effective scope.
-- A function review found `review_weekly_preparation` selects an active reviewer profile before resolving the lesson's service and uses `LIMIT 1`. A user with assignments in multiple services may be recorded under the wrong servant profile. Resolve the lesson's service first, then select the reviewer profile in that service.
+- All 26 public tables have RLS enabled; `FORCE ROW LEVEL SECURITY` is false on them.
+- The two previously anonymous-executable `SECURITY DEFINER` helpers, `public.is_active_system_admin()` and `public.is_active_service_schedule_leader(text)`, now have execution revoked from `PUBLIC` and `anon`; `authenticated` and `service_role` retain execution for RLS/application use. The anonymous execution finding is cleared.
+- The advisor still flags six authenticated-executable `SECURITY DEFINER` functions. These include the registration/enrollment RPCs, admin predicates, weekly-preparation review, and spiritual-notebook submission. They are intentionally callable by authenticated clients; each still needs periodic function-body authorization review. Do not blanket-revoke these or convert them to invoker without testing their RLS dependencies.
+- The weekly-preparation review RPC now resolves the lesson's service before selecting the active reviewer profile and requires the preparer profile to belong to that same service. The previous arbitrary cross-service `LIMIT 1` selection has been removed.
+- Advisor reports leaked-password protection disabled; enable it in Supabase Auth settings after confirming project policy. This setting could not be changed through the available database tools.
+- The advisor still reports 51 multiple-permissive-policy combinations and 13 unindexed foreign keys. The new membership FK indexes reduced the unindexed-FK findings from 25 to 13. Remaining findings are mainly existing creator/reviewer foreign keys. Permissive policies are OR-combined; they must be consolidated only after proving the effective authorization logic.
 
 ## 9. Migration gates and acceptance
 
