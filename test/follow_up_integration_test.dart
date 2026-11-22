@@ -62,19 +62,23 @@ void main() {
   test('follow-up history is ordered newest first', () async {
     await repo.create(
       studentId: 'student-1',
+      serviceId: 'service-1',
+      serviceStudentId: 'student-1_membership',
       createdBy: 'servant-1',
       followUpDate: '2026-10-01',
       contactStatus: 'no_answer',
     );
     await repo.create(
       studentId: 'student-1',
+      serviceId: 'service-1',
+      serviceStudentId: 'student-1_membership',
       createdBy: 'servant-1',
       followUpDate: '2026-10-07',
       contactStatus: 'contacted',
     );
 
     final rows = await repo
-        .watchForStudent('student-1')
+        .watchForStudent('student-1', serviceId: 'service-1')
         .firstWhere((items) => items.length == 2);
 
     expect(rows.map((item) => item.followUpDate), ['2026-10-07', '2026-10-01']);
@@ -83,19 +87,23 @@ void main() {
   test('follow-up records for another student are excluded', () async {
     await repo.create(
       studentId: 'student-1',
+      serviceId: 'service-1',
+      serviceStudentId: 'student-1_membership',
       createdBy: 'servant-1',
       followUpDate: '2026-10-07',
       contactStatus: 'contacted',
     );
     await repo.create(
       studentId: 'student-2',
+      serviceId: 'service-1',
+      serviceStudentId: 'student-2_membership',
       createdBy: 'servant-1',
       followUpDate: '2026-10-07',
       contactStatus: 'contacted',
     );
 
     final rows = await repo
-        .watchForStudent('student-1')
+        .watchForStudent('student-1', serviceId: 'service-1')
         .firstWhere((items) => items.length == 1);
 
     expect(rows.single.studentId, 'student-1');
