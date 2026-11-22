@@ -46,6 +46,7 @@ final studentRegistrationProvider = Provider<StudentRegistration>((
   return OfflineFirstStudentRegistration(
     ref.watch(localStudentRepositoryProvider),
     ref.watch(syncQueueRepositoryProvider),
+    ref.watch(appDatabaseProvider),
   );
 });
 
