@@ -26,8 +26,8 @@ void main() {
 
     expect(find.text('أسرة تلاميذ المسيح'), findsOneWidget);
     expect(find.text('خدمة 5 و6 ابتدائي بنين'), findsOneWidget);
-    expect(find.text('البريد الإلكتروني'), findsOneWidget);
-    expect(find.text('كلمة المرور'), findsOneWidget);
+    expect(find.byKey(const Key('login_email')), findsOneWidget);
+    expect(find.byKey(const Key('login_password')), findsOneWidget);
     expect(find.text('تسجيل الدخول'), findsOneWidget);
     expect(find.byType(TextFormField), findsNWidgets(2));
   });
@@ -37,7 +37,9 @@ void main() {
     (tester) async {
       await tester.pumpWidget(buildSubject());
 
-      await tester.tap(find.text('تسجيل الدخول'));
+      await tester.ensureVisible(find.byKey(const Key('login_submit')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key('login_submit')));
       await tester.pump();
 
       expect(find.text('أدخل البريد الإلكتروني'), findsOneWidget);
@@ -51,9 +53,10 @@ void main() {
     (tester) async {
       await tester.pumpWidget(buildSubject());
 
-      final fields = find.byType(TextFormField);
-      await tester.enterText(fields.at(0), 'servant@example.com');
-      await tester.tap(find.text('تسجيل الدخول'));
+      await tester.enterText(find.byKey(const Key('login_email')), 'servant@example.com');
+      await tester.ensureVisible(find.byKey(const Key('login_submit')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key('login_submit')));
       await tester.pump();
 
       expect(find.text('أدخل البريد الإلكتروني'), findsNothing);
