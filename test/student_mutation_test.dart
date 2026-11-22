@@ -110,6 +110,7 @@ void main() {
   test('Student entity default isDeacon is false and copyWith works', () {
     const student = Student(
       id: 'st-1',
+      membershipId: 'membership-1',
       serviceId: 'srv-1',
       name: 'جورج رامي',
       approvalStatus: 'approved',
