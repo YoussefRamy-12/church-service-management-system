@@ -124,6 +124,7 @@ void main() {
   group('canEditOrDeleteStudent permissions', () {
     const student = Student(
       id: 'st-1',
+      membershipId: 'membership-1',
       serviceId: 'srv-1',
       currentClassId: 'cls-1',
       proposedClassId: 'cls-pending',
