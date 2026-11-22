@@ -18,6 +18,7 @@ Student _student({
 }) {
   return Student(
     id: id,
+    membershipId: '${id}_membership',
     serviceId: 'service-1',
     currentClassId: currentClassId,
     proposedClassId: proposedClassId,
@@ -65,20 +66,24 @@ void main() {
       );
 
       final pending = await queue.pending();
-      final payload =
-          jsonDecode(pending.single.payloadJson) as Map<String, dynamic>;
+      final membershipOp = pending.firstWhere((op) => op.entityType == 'service_student');
+      final studentOp = pending.firstWhere((op) => op.entityType == 'student');
+      final payload = jsonDecode(studentOp.payloadJson) as Map<String, dynamic>;
+      final membershipPayload = jsonDecode(membershipOp.payloadJson) as Map<String, dynamic>;
 
       expect(updated.name, 'Peter Updated');
       expect(await repo.local.findById('student-1'), isNotNull);
-      expect(pending, hasLength(1));
-      expect(pending.single.entityType, 'student');
-      expect(pending.single.operationType, 'update');
+      expect(pending, hasLength(2));
+      expect(studentOp.operationType, 'update');
       expect(payload['id'], 'student-1');
       expect(payload['name'], 'Peter Updated');
       expect(payload['current_class_id'], 'class-1');
       expect(payload['approval_status'], 'approved');
       expect(payload['phone'], '01000000000');
       expect(payload['notes'], 'Needs follow-up');
+      expect(membershipOp.operationType, 'upsert');
+      expect(membershipPayload['id'], 'student-1_membership');
+      expect(membershipPayload['student_id'], 'student-1');
     },
   );
 
@@ -96,16 +101,21 @@ void main() {
       final approved = await repo.approvePending('student-1');
 
       final pending = await queue.pending();
-      final payload =
-          jsonDecode(pending.single.payloadJson) as Map<String, dynamic>;
+      final studentOp = pending.firstWhere((op) => op.entityType == 'student');
+      final membershipOp = pending.firstWhere((op) => op.entityType == 'service_student');
+      final payload = jsonDecode(studentOp.payloadJson) as Map<String, dynamic>;
+      final membershipPayload = jsonDecode(membershipOp.payloadJson) as Map<String, dynamic>;
 
       expect(approved.approvalStatus, 'approved');
+      expect(approved.membershipStatus, 'active');
       expect(approved.currentClassId, 'class-2');
       expect(approved.proposedClassId, isNull);
-      expect(pending, hasLength(1));
+      expect(pending, hasLength(2));
       expect(payload['approval_status'], 'approved');
       expect(payload['current_class_id'], 'class-2');
       expect(payload['proposed_class_id'], isNull);
+      expect(membershipPayload['status'], 'active');
+      expect(membershipPayload['class_id'], 'class-2');
     },
   );
 
@@ -122,10 +132,11 @@ void main() {
 
       final pending = await queue.pending();
 
-      expect(pending, hasLength(2));
-      expect(pending.map((op) => op.operationId).toSet(), hasLength(2));
+      expect(pending, hasLength(4));
+      expect(pending.map((op) => op.operationId).toSet(), hasLength(4));
 
       final names = pending
+          .where((op) => op.entityType == 'student')
           .map(
             (op) =>
                 (jsonDecode(op.payloadJson) as Map<String, dynamic>)['name'],
