@@ -7,11 +7,11 @@ import 'package:church_service_management_system/features/students/domain/entiti
 void main() {
   group('Drift Student Migration & Compatibility Tests', () {
     test(
-      'Fresh installation initializes schema version 15 with per-service membership and attendance ownership cache',
+      'Fresh installation initializes schema version 16 with per-service membership, attendance and follow-up ownership cache',
       () async {
         final db = AppDatabase.forTesting();
         try {
-          expect(db.schemaVersion, 15);
+          expect(db.schemaVersion, 16);
 
           final local = LocalStudentRepository(db);
 
@@ -73,7 +73,7 @@ void main() {
     );
 
     test(
-      'Version 15 database exposes student and attendance membership identity fields',
+      'Version 16 database exposes membership identity fields for attendance and follow-up',
       () async {
         final db = AppDatabase.forTesting();
         try {
