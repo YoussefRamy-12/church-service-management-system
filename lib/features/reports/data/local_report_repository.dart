@@ -48,28 +48,36 @@ class LocalReportRepository {
         (stageId != null ? classesInStages.map((c) => c.id).toSet() : null);
 
     // 3. Query Students in scope
-    final students = await (_db.select(_db.cachedStudents)
+    final memberships = await (_db.select(_db.cachedServiceStudents)
           ..where((t) => t.serviceId.equals(serviceId)))
         .get();
 
-    final scopedStudents = students.where((row) {
-      if (studentId != null && row.id != studentId) return false;
-      if (row.currentClassId == null) return false;
+    final scopedMemberships = memberships.where((row) {
+      if (studentId != null && row.studentId != studentId) return false;
+      final membershipClassId = row.classId ?? row.proposedClassId;
       if (effectiveClassIds != null &&
-          !effectiveClassIds.contains(row.currentClassId)) {
+          (membershipClassId == null ||
+              !effectiveClassIds.contains(membershipClassId))) {
         return false;
       }
       return true;
     }).toList();
+    final scopedStudents = scopedMemberships
+        .where((row) => row.status != 'pending' && row.status != 'rejected')
+        .where((row) => row.classId != null)
+        .toList();
 
-    final studentIds = scopedStudents.map((row) => row.id).toSet();
-    final studentNames = {for (final row in scopedStudents) row.id: row.name};
+    final studentIds = scopedStudents.map((row) => row.studentId).toSet();
+    final membershipIds = scopedStudents.map((row) => row.id).toSet();
+    final studentNames = {
+      for (final row in scopedStudents) row.studentId: row.studentName,
+    };
     final studentClassMap = {
-      for (final row in scopedStudents) row.id: row.currentClassId,
+      for (final row in scopedStudents) row.studentId: row.classId,
     };
     final studentEnrollment = <String, DateTime?>{
-      for (final s in scopedStudents)
-        s.id: s.enrollmentAt == null ? null : DateTime.tryParse(s.enrollmentAt!),
+      for (final row in scopedStudents)
+        row.studentId: DateTime.tryParse(row.enrollmentDate),
     };
 
     // 4. Query Meetings in period
@@ -89,10 +97,12 @@ class LocalReportRepository {
     final meetingIds = meetings.map((row) => row.id).toSet();
 
     // 5. Query Attendance records
-    final attendanceRecords = meetingIds.isEmpty
+    final attendanceRecords = meetingIds.isEmpty || membershipIds.isEmpty
         ? <CachedAttendanceRecord>[]
         : await (_db.select(_db.cachedAttendanceRecords)
-              ..where((t) => t.meetingId.isIn(meetingIds)))
+              ..where((t) =>
+                  t.meetingId.isIn(meetingIds) &
+                  t.serviceStudentId.isIn(membershipIds)))
             .get();
 
     // Deduplicate attendance records (meetingId:studentId)
@@ -112,7 +122,10 @@ class LocalReportRepository {
     final studentAttendedMeetings = <String, Set<String>>{}; // studentId -> meetingIds
 
     for (final row in attendanceRecords) {
-      if (!studentIds.contains(row.studentId)) continue;
+      if (!studentIds.contains(row.studentId) ||
+          !membershipIds.contains(row.serviceStudentId)) {
+        continue;
+      }
       final key = '${row.meetingId}:${row.studentId}';
       if (!countedKeys.add(key)) continue;
 
@@ -236,10 +249,12 @@ class LocalReportRepository {
         .get();
 
     final pastMeetingIds = allPastMeetings.map((m) => m.id).toSet();
-    final pastAttendance = pastMeetingIds.isEmpty
+    final pastAttendance = pastMeetingIds.isEmpty || membershipIds.isEmpty
         ? <CachedAttendanceRecord>[]
         : await (_db.select(_db.cachedAttendanceRecords)
-              ..where((t) => t.meetingId.isIn(pastMeetingIds)))
+              ..where((t) =>
+                  t.meetingId.isIn(pastMeetingIds) &
+                  t.serviceStudentId.isIn(membershipIds)))
             .get();
 
     final pastStudentAttended = <String, Set<String>>{};
@@ -272,12 +287,12 @@ class LocalReportRepository {
       }
 
       if (consecutiveMissed >= 2) {
-        final c = classMap[student.currentClassId];
+        final c = classMap[student.classId];
         repeatedAbsences.add(
           RepeatedAbsenceRecord(
-            studentId: student.id,
-            studentName: student.name,
-            classId: student.currentClassId ?? '',
+            studentId: student.studentId,
+            studentName: student.studentName,
+            classId: student.classId ?? '',
             className: c?.name ?? 'فصل غير محدد',
             consecutiveMissedMeetings: consecutiveMissed,
             lastAttendedDate: lastAttended,
@@ -293,9 +308,13 @@ class LocalReportRepository {
     );
 
     // 9. Follow-Up Analytics (Cases and Activities)
-    final followUpCases = await (_db.select(_db.cachedFollowUpCases)
-          ..where((t) => t.serviceId.equals(serviceId)))
-        .get();
+    final followUpCases = membershipIds.isEmpty
+        ? <CachedFollowUpCase>[]
+        : await (_db.select(_db.cachedFollowUpCases)
+              ..where((t) =>
+                  t.serviceId.equals(serviceId) &
+                  t.serviceStudentId.isIn(membershipIds)))
+            .get();
 
     final scopedCases = followUpCases.where((c) {
       if (effectiveClassIds != null && !effectiveClassIds.contains(c.classId)) {
@@ -368,14 +387,17 @@ class LocalReportRepository {
     );
 
     // Legacy follow-up records
-    final legacyFollowUps = await (_db.select(_db.cachedFollowUpRecords)
-          ..where(
-            (t) =>
-                t.studentId.isIn(studentIds) &
-                t.followUpDate.isBiggerOrEqualValue(startDateStr) &
-                t.followUpDate.isSmallerOrEqualValue(endDateStr),
-          ))
-        .get();
+    final legacyFollowUps = membershipIds.isEmpty
+        ? <CachedFollowUpRecord>[]
+        : await (_db.select(_db.cachedFollowUpRecords)
+              ..where(
+                (t) =>
+                    t.serviceId.equals(serviceId) &
+                    t.serviceStudentId.isIn(membershipIds) &
+                    t.followUpDate.isBiggerOrEqualValue(startDateStr) &
+                    t.followUpDate.isSmallerOrEqualValue(endDateStr),
+              ))
+            .get();
 
     // 10. Class Comparisons
     final relevantClasses = classesInStages.where((c) {
@@ -388,7 +410,7 @@ class LocalReportRepository {
     final classComparisons = <ClassComparisonMetric>[];
     for (final c in relevantClasses) {
       final classStudents =
-          scopedStudents.where((s) => s.currentClassId == c.id).toList();
+          scopedStudents.where((s) => s.classId == c.id).toList();
       var cExpected = 0;
       var cPresent = 0;
       var cEarly = 0;
@@ -520,10 +542,9 @@ class LocalReportRepository {
       }
     }
 
-    final activeCount =
-        scopedStudents.where((s) => s.approvalStatus == 'approved').length;
+    final activeCount = scopedStudents.where((s) => s.status == 'active').length;
     final pendingCount =
-        scopedStudents.where((s) => s.approvalStatus == 'pending').length;
+        scopedMemberships.where((s) => s.status == 'pending').length;
 
     final studentAnalytics = StudentAnalytics(
       activeStudents: activeCount,
@@ -625,14 +646,21 @@ class LocalReportRepository {
         }
 
         final prevMeetingIds = prevMeetings.map((m) => m.id).toSet();
-        final prevAttendance = await (_db.select(_db.cachedAttendanceRecords)
-              ..where((t) => t.meetingId.isIn(prevMeetingIds)))
-            .get();
+        final prevAttendance = membershipIds.isEmpty
+            ? <CachedAttendanceRecord>[]
+            : await (_db.select(_db.cachedAttendanceRecords)
+                  ..where((t) =>
+                      t.meetingId.isIn(prevMeetingIds) &
+                      t.serviceStudentId.isIn(membershipIds)))
+                .get();
 
         final prevCounted = <String>{};
         var prevPresent = 0;
         for (final r in prevAttendance) {
-          if (!studentIds.contains(r.studentId)) continue;
+          if (!studentIds.contains(r.studentId) ||
+              !membershipIds.contains(r.serviceStudentId)) {
+            continue;
+          }
           if (prevCounted.add('${r.meetingId}:${r.studentId}')) {
             prevPresent++;
           }
@@ -669,7 +697,7 @@ class LocalReportRepository {
       scopedStageName: scopedStageName,
       scopedClassName: scopedClassName,
       details: {
-        'students': scopedStudents.map((r) => r.name).toList(),
+        'students': scopedStudents.map((r) => r.studentName).toList(),
         'meetings': meetings.map((r) => '${r.meetingDate} • ${r.startTime}').toList(),
         'early': earlyItems,
         'before': beforeItems,
