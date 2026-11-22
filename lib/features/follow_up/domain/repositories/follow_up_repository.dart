@@ -4,7 +4,7 @@ import '../entities/follow_up_record.dart';
 abstract interface class FollowUpRepository {
   Stream<List<FollowUpRecord>> watchForStudent(
     String studentId, {
-    String? serviceId,
+    required String serviceId,
   });
   Future<FollowUpRecord> create({
     required String studentId,
