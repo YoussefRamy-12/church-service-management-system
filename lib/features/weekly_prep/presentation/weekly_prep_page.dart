@@ -217,7 +217,7 @@ class _WeeklyPrepPageState extends ConsumerState<WeeklyPrepPage> {
                         children: [
                           LeadershipPrepDashboard(
                             serviceId: widget.serviceId,
-                            currentLeader: profile!,
+                            currentLeader: profile,
                             stages: allowedStages,
                             weeks: weeks,
                             lessons: lessons,
@@ -245,7 +245,7 @@ class _WeeklyPrepPageState extends ConsumerState<WeeklyPrepPage> {
                       children: [
                         ServantPrepView(
                           serviceId: widget.serviceId,
-                          profile: profile!,
+                          profile: profile,
                           lessons: lessons,
                           stages: allowedStages,
                           initialStageId: profile.stageId ?? _classStageId,
