@@ -120,6 +120,7 @@ class LocalStudentRepository {
     DateTime? enrollmentAt,
     String? photoPath,
     String? notes,
+    bool updateGlobalIdentity = true,
   }) async {
     final current = await findById(studentId);
     if (current == null) {
@@ -128,20 +129,20 @@ class LocalStudentRepository {
     final updated = Student(
       id: current.id,
       serviceId: current.serviceId,
-      name: name.trim(),
+      name: updateGlobalIdentity ? name.trim() : current.name,
       approvalStatus: current.approvalStatus,
       membershipId: current.membershipId,
       identityServiceId: current.identityServiceId,
       membershipStatus: current.membershipStatus,
       currentClassId: current.currentClassId,
       proposedClassId: current.proposedClassId,
-      birthDate: birthDate,
-      phone: _clean(phone),
+      birthDate: updateGlobalIdentity ? birthDate : current.birthDate,
+      phone: updateGlobalIdentity ? _clean(phone) : current.phone,
       school: _clean(school),
       grade: _clean(grade),
       isDeacon: isDeacon ?? current.isDeacon,
       enrollmentAt: enrollmentAt,
-      photoPath: _clean(photoPath),
+      photoPath: updateGlobalIdentity ? _clean(photoPath) : current.photoPath,
       notes: _clean(notes),
     );
     await cacheStudents([updated]);
