@@ -56,6 +56,7 @@ void main() {
     expect(payload['id'], created.id);
     expect(payload['title'], 'متابعة أوفلاين');
     expect(payload['created_by'], 'servant-offline-1');
+    expect(payload['service_student_id'], 'student-100_membership');
   });
 
   test('Activity created offline is immediately available and queued with author attribution', () async {
