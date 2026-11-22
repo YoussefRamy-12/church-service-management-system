@@ -121,6 +121,20 @@ class LocalStudentRepository {
               ? InsertMode.insertOrReplace
               : InsertMode.insertOrIgnore,
         );
+        if (student.serviceId == identityOwner) {
+          batch.update(
+            _db.cachedServiceStudents,
+            CachedServiceStudentsCompanion(
+              studentName: Value(student.name),
+              birthDate: Value(student.birthDate?.toIso8601String()),
+              phone: Value(student.phone),
+              photoPath: Value(student.photoPath),
+              identityServiceId: Value(identityOwner),
+              cachedAt: Value(DateTime.now()),
+            ),
+            where: (table) => table.studentId.equals(student.id),
+          );
+        }
       }
     });
   }
