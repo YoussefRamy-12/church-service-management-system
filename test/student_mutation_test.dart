@@ -132,6 +132,23 @@ void main() {
       approvalStatus: 'approved',
     );
 
+    test('students without a membership ID remain read-only', () {
+      const legacyStudent = Student(
+        id: 'legacy-student',
+        serviceId: 'srv-1',
+        name: 'طالب قديم',
+        approvalStatus: 'approved',
+      );
+      expect(
+        canEditOrDeleteStudent(
+          student: legacyStudent,
+          profile: null,
+          isSuperAdmin: true,
+        ),
+        isFalse,
+      );
+    });
+
     test('super admin always has edit/delete permission', () {
       expect(
         canEditOrDeleteStudent(
