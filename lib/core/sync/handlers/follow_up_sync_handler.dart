@@ -34,6 +34,7 @@ class FollowUpSyncHandler implements EntitySyncHandler {
     }
 
     var serviceStudentId = payload['service_student_id'] as String?;
+    if (serviceStudentId?.isEmpty == true) serviceStudentId = null;
     if (serviceStudentId == null) {
       // Resolve old queued records using the creator's service, never the
       // global identity's legacy owner-service field.
