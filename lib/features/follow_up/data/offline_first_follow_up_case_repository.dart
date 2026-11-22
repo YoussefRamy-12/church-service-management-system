@@ -258,8 +258,13 @@ class OfflineFirstFollowUpCaseRepository implements FollowUpCaseRepository {
       );
 
   @override
-  Stream<List<FollowUpActivity>> watchActivitiesForStudent(String studentId) =>
-      local.watchActivitiesForStudent(studentId);
+  Stream<List<FollowUpActivity>> watchActivitiesForStudent({
+    required String serviceId,
+    required String studentId,
+  }) => local.watchActivitiesForStudent(
+    serviceId: serviceId,
+    studentId: studentId,
+  );
 
   @override
   Future<FollowUpActivity> recordActivity({
