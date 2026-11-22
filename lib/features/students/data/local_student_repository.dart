@@ -87,7 +87,7 @@ class LocalStudentRepository {
             birthDate: Value(student.birthDate?.toIso8601String()),
             phone: Value(student.phone),
             photoPath: Value(student.photoPath),
-            identityServiceId: Value(student.identityServiceId),
+            identityServiceId: Value(student.identityServiceId ?? student.serviceId),
             cachedAt: DateTime.now(),
           ),
           mode: InsertMode.insertOrReplace,
