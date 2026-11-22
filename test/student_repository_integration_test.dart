@@ -212,6 +212,18 @@ void main() {
     final identities = await db.select(db.cachedStudents).get();
     expect(identities.where((row) => row.id == 'shared-global-student'), hasLength(1));
     expect(identities.single.serviceId, 'service-a');
+
+    await repo.cacheStudents([
+      serviceA!.copyWith(name: 'Global identity updated', phone: '01011111111'),
+    ]);
+    final refreshedB = await repo.findById(
+      'shared-global-student',
+      membershipId: 'membership-service-b',
+    );
+    expect(refreshedB?.name, 'Global identity updated');
+    expect(refreshedB?.phone, '01011111111');
+    expect(refreshedB?.school, 'School B');
+    expect(refreshedB?.currentClassId, 'class-b');
   });
 
   test('cacheStudents replaces an existing student by id', () async {
