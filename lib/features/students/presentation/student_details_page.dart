@@ -252,8 +252,8 @@ class _StudentDetailsPageState extends ConsumerState<StudentDetailsPage> {
         SnackBar(
           content: Text(
             isOffline
-                ? 'تم حذف التلميذ محليًا وستتم مزامنة الحذف.'
-                : 'تم حذف التلميذ بنجاح.',
+                ? 'تمت أرشفة عضوية التلميذ محليًا وستتم مزامنتها.'
+                : 'تمت أرشفة عضوية التلميذ بنجاح.',
           ),
           backgroundColor: const Color(0xFF10B981),
         ),
@@ -263,8 +263,8 @@ class _StudentDetailsPageState extends ConsumerState<StudentDetailsPage> {
       final message = error is StateError
           ? error.message
           : (error is PostgrestException && error.code == '23503'
-              ? 'تعذر حذف التلميذ لوجود سجلات مرتبطة به (مثل الحضور أو الافتقاد).'
-              : 'تعذر حذف التلميذ: ${NetworkErrorFormatter.format(error)}');
+              ? 'تعذر أرشفة عضوية التلميذ بسبب وجود تعارض في السجلات المرتبطة.'
+              : 'تعذر أرشفة العضوية: ${NetworkErrorFormatter.format(error)}');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(message),
