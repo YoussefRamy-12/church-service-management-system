@@ -401,9 +401,15 @@ class AppDatabase extends _$AppDatabase {
         await m.addColumn(cachedFollowUpRecords, cachedFollowUpRecords.serviceStudentId);
         await customStatement('''
           UPDATE cached_follow_up_records
-          SET service_id = (
-            SELECT service_id FROM cached_profiles
-            WHERE cached_profiles.id = cached_follow_up_records.created_by
+          SET service_id = COALESCE(
+            (
+              SELECT service_id FROM cached_profiles
+              WHERE cached_profiles.id = cached_follow_up_records.created_by
+            ),
+            (
+              SELECT service_id FROM cached_students
+              WHERE cached_students.id = cached_follow_up_records.student_id
+            )
           )
           WHERE service_id IS NULL;
         ''');
