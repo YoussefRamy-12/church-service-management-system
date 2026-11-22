@@ -129,7 +129,7 @@ No local cache rows or queued operations may be dropped during the Drift upgrade
 
 ## 7. Migration ledger reconciliation
 
-At the initial audit, the remote ledger had 15 versions and the branch had 25 SQL files. After applying the twelve additive membership, security and performance migrations below, the remote ledger has **27 versions** and the branch has **37 SQL files**. The twelve new versions are aligned exactly:
+At the initial audit, the remote ledger had 15 versions and the branch had 25 SQL files. After applying the thirteen additive membership, security and performance migrations below, the remote ledger has **28 versions** and the branch has **38 SQL files**. The thirteen new versions are aligned exactly:
 
 - `20261122125142_multi_service_membership_expand`
 - `20261122125643_service_membership_class_scope_write`
@@ -143,8 +143,9 @@ At the initial audit, the remote ledger had 15 versions and the branch had 25 SQ
 - `20261122143841_spiritual_notebook_active_membership_roster`
 - `20261122144712_restore_pending_membership_directory`
 - `20261122144842_block_unverified_cross_service_identity_link`
+- `20261122145224_attendance_membership_snapshot_validation`
 
-The remaining mismatch is 15 branch migration files not represented by the same version in the remote ledger, and 5 remote ledger versions without same-version files in this branch. The twelve expand-phase migrations now match the remote ledger versions exactly after correcting local filenames to their applied versions.
+The remaining mismatch is 15 branch migration files not represented by the same version in the remote ledger, and 5 remote ledger versions without same-version files in this branch. The thirteen expand-phase migrations now match the remote ledger versions exactly after correcting local filenames to their applied versions.
 
 ### Branch files absent from remote ledger
 
@@ -227,7 +228,7 @@ The old `students.service_id` and class columns remain in place. No contract/dro
 - Added offline cache, queue, archive, RPC-mapping, and sync-engine tests.
 - Global identity search/verification and confirmed reuse are not yet exposed in the UI. Cross-service linking is restricted to platform super-admins until that workflow exists. Duplicate matching remains explicit; automatic merging is out of scope.
 - The preceding stable CI baseline passed dependency resolution, Drift generation, Flutter analysis, web build and 189 tests. The current Students membership-first changes are under a new CI regression run; do not treat them as validated until that run passes.
-- The Students feature now reads and mutates service memberships through the new directory/lifecycle RPCs. Attendance and Follow-up still require their UI/repository/sync cutovers. Spiritual Notebook has membership columns and constraints but its RPC, RLS and repository still use the legacy student-owned path.
+- The Students feature now reads and mutates service memberships through the new directory/lifecycle RPCs. Attendance database validation now uses service membership for class snapshots, but its Flutter repository, Drift cache, and sync payload still need membership IDs. Follow-up still requires its UI/repository/sync cutover. Spiritual Notebook has membership columns and constraints but its RPC, RLS and repository still use the legacy student-owned path.
 - A full on-device upgrade test from existing v11/v12/v13 databases and replay of old queued payloads remains required; CI generation and tests are the current validation gate.
 
 ### Gate C — multi-service isolation
@@ -235,6 +236,7 @@ The old `students.service_id` and class columns remain in place. No contract/dro
 - Membership read/write RLS was tested with users from both services, including cross-service denial.
 - In a rolled-back cross-service fixture, a service-B overall leader could read the shared identity's membership projection for service B, while the same query returned zero rows from `student_sensitive_data`; the temporary membership was rolled back and service B still has zero persisted memberships.
 - A non-admin service-B leader was denied when attempting to link a service-A identity into service B; cross-service identity linking is currently limited to platform super-admin pending the verified-link UI.
+- A rolled-back service-B attendance insert for a service-A global identity succeeded only when tied to a service-B membership, service-B meeting, and service-B class snapshot; this exposed and fixed a legacy trigger that previously validated against `students.service_id/current_class_id` instead of membership ownership.
 - Cross-service class assignment and attendance association were rejected by database constraints/triggers.
 - The identity projection RPC was tested for authorized service access and cross-service denial.
 - Cross-service reads of `student_sensitive_data` returned zero rows; the directory RPC does not expose that table.
