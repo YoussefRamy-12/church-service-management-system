@@ -21,6 +21,32 @@ void main() {
     await db.close();
   });
 
+  test('service directory RPC maps membership and global identity fields', () {
+    final membership = ServiceStudent.fromMap({
+      'membership_id': 'membership-rpc-1',
+      'student_id': 'global-student-rpc-1',
+      'service_id': 'service-b',
+      'class_id': 'class-b',
+      'proposed_class_id': null,
+      'enrollment_date': '2026-11-20T00:00:00.000Z',
+      'membership_status': 'active',
+      'school': 'مدرسة',
+      'grade': 'السادس',
+      'is_deacon': false,
+      'membership_notes': 'ملاحظة خاصة بالخدمة',
+      'student_name': 'تلميذ مشترك',
+      'birth_date': '2015-03-12',
+      'phone': '01000000000',
+      'photo_path': null,
+    });
+
+    expect(membership.id, 'membership-rpc-1');
+    expect(membership.status, 'active');
+    expect(membership.studentName, 'تلميذ مشترك');
+    expect(membership.birthDate, DateTime(2015, 3, 12));
+    expect(membership.notes, 'ملاحظة خاصة بالخدمة');
+  });
+
   test('membership remains available offline and queues an idempotent sync payload', () async {
     final membership = ServiceStudent(
       id: 'membership-a-1',
