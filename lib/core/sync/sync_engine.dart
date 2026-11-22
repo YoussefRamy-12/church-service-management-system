@@ -15,6 +15,7 @@ import 'handlers/meeting_sync_handler.dart';
 import 'handlers/reporting_period_sync_handler.dart';
 import 'handlers/servant_sync_handler.dart';
 import 'handlers/service_sync_handler.dart';
+import 'handlers/service_student_sync_handler.dart';
 import 'handlers/student_sync_handler.dart';
 import 'handlers/weekly_preparation_sync_handler.dart';
 import 'sync_conflict_exception.dart';
@@ -52,6 +53,7 @@ class SupabaseSyncTransport implements SyncTransport {
       FollowUpActivitySyncHandler(client),
       ServantSyncHandler(client),
       ServiceSyncHandler(client),
+      ServiceStudentSyncHandler(client),
       ReportingPeriodSyncHandler(client),
       WeeklyPreparationSyncHandler(client),
     ];
