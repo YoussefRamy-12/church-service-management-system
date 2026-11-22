@@ -129,7 +129,7 @@ No local cache rows or queued operations may be dropped during the Drift upgrade
 
 ## 7. Migration ledger reconciliation
 
-At the initial audit, the remote ledger had 15 versions and the branch had 25 SQL files. After applying the fifteen additive membership, security and performance migrations below, the remote ledger has **30 versions** and the branch has **40 SQL files**. The fifteen new versions are aligned exactly:
+At the initial audit, the remote ledger had 15 versions and the branch had 25 SQL files. After applying the sixteen additive membership, security and performance migrations below, the remote ledger has **31 versions** and the branch has **41 SQL files**. The sixteen new versions are aligned exactly:
 
 - `20261122125142_multi_service_membership_expand`
 - `20261122125643_service_membership_class_scope_write`
@@ -146,8 +146,9 @@ At the initial audit, the remote ledger had 15 versions and the branch had 25 SQ
 - `20261122145224_attendance_membership_snapshot_validation`
 - `20261122150344_follow_up_membership_validation`
 - `20261122150844_preserve_global_student_identity`
+- `20261122151135_index_notebook_class_membership_fk`
 
-The remaining mismatch is 15 branch migration files not represented by the same version in the remote ledger, and 5 remote ledger versions without same-version files in this branch. The fifteen expand-phase migrations now match the remote ledger versions exactly after correcting local filenames to their applied versions.
+The remaining mismatch is 15 branch migration files not represented by the same version in the remote ledger, and 5 remote ledger versions without same-version files in this branch. The sixteen expand-phase migrations now match the remote ledger versions exactly after correcting local filenames to their applied versions.
 
 ### Branch files absent from remote ledger
 
@@ -206,7 +207,7 @@ The old `students.service_id` and class columns remain in place. No contract/dro
 - The advisor now flags seven authenticated-executable `SECURITY DEFINER` functions. These include the registration/enrollment RPCs, admin predicates, weekly-preparation review, spiritual-notebook submission, and the service-scoped student directory RPC. The directory RPC explicitly checks service access and returns only the limited identity projection; it does not return sensitive-data rows. They are intentionally callable by authenticated clients; each still needs periodic function-body authorization review. Do not blanket-revoke these or convert them to invoker without testing their RLS dependencies.
 - The weekly-preparation review RPC now resolves the lesson's service before selecting the active reviewer profile and requires the preparer profile to belong to that same service. The previous arbitrary cross-service `LIMIT 1` selection has been removed.
 - Advisor reports leaked-password protection disabled; enable it in Supabase Auth settings after confirming project policy. This setting could not be changed through the available database tools.
-- The advisor now reports **zero unindexed foreign keys**; the membership and remaining creator/reviewer FK indexes were added in the last two index migrations. It still reports 51 multiple-permissive-policy combinations and 29 unused-index notices. The latest advisor scan confirms 7 authenticated-executable `SECURITY DEFINER` functions, no anonymous execution on those functions, and leaked-password protection disabled. The unused-index notices include the newly created FK indexes, which have not yet accumulated workload usage; do not drop FK-covering indexes solely because the workload is currently small. Permissive policies are OR-combined and must be consolidated only after proving the effective authorization logic.
+- The advisor now reports **zero unindexed foreign keys** after adding the notebook class/service FK index. It still reports 51 multiple-permissive-policy combinations and 29 unused-index notices (including new indexes not yet exercised by production traffic). The security advisor reports 7 authenticated-executable `SECURITY DEFINER` functions with no anonymous execution, plus leaked-password protection disabled. The latest advisor scan confirms 7 authenticated-executable `SECURITY DEFINER` functions, no anonymous execution on those functions, and leaked-password protection disabled. The unused-index notices include the newly created FK indexes, which have not yet accumulated workload usage; do not drop FK-covering indexes solely because the workload is currently small. Permissive policies are OR-combined and must be consolidated only after proving the effective authorization logic.
 
 ## 9. Migration gates and acceptance
 
