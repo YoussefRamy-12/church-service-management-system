@@ -45,6 +45,10 @@ class LocalServiceStudentRepository {
             grade: Value(membership.grade),
             isDeacon: Value(membership.isDeacon),
             notes: Value(membership.notes),
+            studentName: membership.studentName,
+            birthDate: Value(membership.birthDate?.toIso8601String()),
+            phone: Value(membership.phone),
+            photoPath: Value(membership.photoPath),
             cachedAt: DateTime.now(),
           ),
           mode: InsertMode.insertOrReplace,
@@ -78,6 +82,10 @@ class LocalServiceStudentRepository {
       grade: membership.grade,
       isDeacon: membership.isDeacon,
       notes: membership.notes,
+      studentName: membership.studentName,
+      birthDate: membership.birthDate,
+      phone: membership.phone,
+      photoPath: membership.photoPath,
     );
     await saveOffline(archived);
   }
@@ -94,5 +102,11 @@ class LocalServiceStudentRepository {
     grade: row.grade,
     isDeacon: row.isDeacon,
     notes: row.notes,
+    studentName: row.studentName,
+    birthDate: row.birthDate == null
+        ? null
+        : DateTime.tryParse(row.birthDate!),
+    phone: row.phone,
+    photoPath: row.photoPath,
   );
 }
