@@ -80,10 +80,6 @@ class SupabaseReportRepository {
     final membershipIds = scopedStudents
         .map((row) => row['membership_id'] as String)
         .toSet();
-    final membershipByStudent = {
-      for (final row in scopedStudents)
-        row['student_id'] as String: row['membership_id'] as String,
-    };
     final studentNames = {
       for (final row in scopedStudents)
         row['student_id'] as String:
@@ -293,7 +289,7 @@ class SupabaseReportRepository {
 
     final repeatedAbsences = <RepeatedAbsenceRecord>[];
     for (final s in scopedStudents) {
-      final sid = s['id'] as String;
+      final sid = s['student_id'] as String;
       final enrolledAt = studentEnrollment[sid];
       final attendedSet = pastStudentAttended[sid] ?? <String>{};
       var consecutiveMissed = 0;
@@ -447,7 +443,7 @@ class SupabaseReportRepository {
       var cNormal = 0;
 
       for (final s in classStudents) {
-        final sid = s['id'] as String;
+        final sid = s['student_id'] as String;
         final enrolledAt = studentEnrollment[sid];
         for (final m in meetingRows) {
           final mDate = DateTime.parse(m['meeting_date'] as String);
