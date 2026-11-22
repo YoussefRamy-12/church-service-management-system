@@ -10,11 +10,11 @@ class LocalFollowUpRepository {
 
   Stream<List<FollowUpRecord>> watchForStudent(
     String studentId, {
-    String? serviceId,
+    required String serviceId,
   }) =>
       (db.select(db.cachedFollowUpRecords)
             ..where((t) => t.studentId.equals(studentId))
-            ..where((t) => serviceId == null || t.serviceId.equals(serviceId))
+            ..where((t) => t.serviceId.equals(serviceId))
             ..orderBy([
               (t) => OrderingTerm(
                 expression: t.followUpDate,
