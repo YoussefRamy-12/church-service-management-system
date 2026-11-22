@@ -18,7 +18,7 @@ class LocalStudentRepository {
           )
           ..orderBy([(t) => OrderingTerm(expression: t.name)]))
         .watch()
-        .map((rows) => rows.where((r) => r.membershipStatus != 'inactive').map(_fromRow).toList());
+        .map((rows) => rows.where((r) => r.membershipStatus == 'active' || r.membershipStatus == 'pending').map(_fromRow).toList());
   }
 
   Stream<List<Student>> watchStudentsForService(String serviceId) {
@@ -73,6 +73,11 @@ class LocalStudentRepository {
     await cacheStudents([
       current.copyWith(membershipStatus: 'inactive'),
     ]);
+    if (current.membershipId != null) {
+      await (_db.update(_db.cachedServiceStudents)
+            ..where((t) => t.id.equals(current.membershipId!)))
+          .write(const CachedServiceStudentsCompanion(status: Value('inactive')));
+    }
   }
 
   Future<Student> assignClass(String studentId, String classId) async {
