@@ -20,11 +20,24 @@ class FollowUpSyncHandler implements EntitySyncHandler {
   ) async {
     final studentId = payload['student_id'] as String;
     final createdBy = payload['created_by'] as String;
+    final authUserId = client.auth.currentUser?.id;
+    if (authUserId == null) {
+      throw StateError('A signed-in account is required to sync follow-up.');
+    }
     final profile = await client
         .from('servant_profiles')
         .select('service_id')
         .eq('id', createdBy)
-        .single();
+        .eq('auth_user_id', authUserId)
+        .maybeSingle();
+    if (profile == null) {
+      // The queue may belong to a different account on a shared device.
+      // Defer it instead of replaying it as the newly signed-in user or
+      // converting a temporary account mismatch into a permanent conflict.
+      throw StateError(
+        'Queued follow-up belongs to another account; sync it after that account signs in.',
+      );
+    }
     final profileServiceId = profile['service_id'] as String;
     final serviceId = payload['service_id'] as String? ?? profileServiceId;
     if (serviceId != profileServiceId) {
