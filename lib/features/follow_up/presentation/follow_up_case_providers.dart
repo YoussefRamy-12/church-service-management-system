@@ -108,9 +108,12 @@ final followUpActivitiesInScopeProvider =
 // --- Student Activities Stream ---
 
 final studentActivitiesProvider =
-    StreamProvider.family<List<FollowUpActivity>, String>((ref, studentId) {
+    StreamProvider.family<List<FollowUpActivity>, ({String serviceId, String studentId})>((ref, params) {
   final repo = ref.watch(followUpCaseRepositoryProvider);
-  return repo.watchActivitiesForStudent(studentId);
+  return repo.watchActivitiesForStudent(
+    serviceId: params.serviceId,
+    studentId: params.studentId,
+  );
 });
 
 // --- Student Cases Stream ---
@@ -144,7 +147,9 @@ void invalidateFollowUpCaseData(
     ref.invalidate(
       studentCasesProvider((serviceId: serviceId, studentId: studentId)),
     );
-    ref.invalidate(studentActivitiesProvider(studentId));
+    ref.invalidate(
+        studentActivitiesProvider((serviceId: serviceId, studentId: studentId)),
+      );
   }
 
   if (caseId != null) {
