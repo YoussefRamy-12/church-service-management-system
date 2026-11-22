@@ -181,6 +181,7 @@ class OfflineFirstStudentRegistration implements StudentRegistration {
         birthDate: student.birthDate,
         phone: student.phone,
         photoPath: student.photoPath,
+        identityServiceId: student.identityServiceId,
       );
       await _memberships?.cache([membership]);
       operations.add(
