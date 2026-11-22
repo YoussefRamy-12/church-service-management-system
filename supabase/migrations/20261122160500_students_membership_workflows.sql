@@ -115,21 +115,21 @@ BEGIN
   -- during the compatibility window. Other memberships edit their own fields.
   UPDATE public.students s
   SET name = btrim(p_name),
-      birth_date = p_birth_date,
+      birth_date = coalesce(p_birth_date, s.birth_date),
       phone = nullif(btrim(coalesce(p_phone, '')), ''),
       photo_path = nullif(btrim(coalesce(p_photo_path, '')), ''),
       updated_at = now()
   WHERE s.id = v_student_id
     AND s.service_id = (SELECT ss.service_id FROM public.service_students ss WHERE ss.id = p_membership_id);
 
-  UPDATE public.service_students
+  UPDATE public.service_students ss
   SET school = nullif(btrim(p_school), ''),
       grade = nullif(btrim(p_grade), ''),
       is_deacon = coalesce(p_is_deacon, false),
-      enrollment_date = p_enrollment_date,
+      enrollment_date = coalesce(p_enrollment_date, ss.enrollment_date),
       notes = nullif(btrim(coalesce(p_notes, '')), ''),
       updated_at = now()
-  WHERE id = p_membership_id;
+  WHERE ss.id = p_membership_id;
   IF NOT FOUND THEN
     RAISE EXCEPTION 'membership_update_not_authorized' USING ERRCODE = '42501';
   END IF;
