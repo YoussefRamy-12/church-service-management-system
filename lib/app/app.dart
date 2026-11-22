@@ -230,10 +230,10 @@ class _ChurchServiceAppState extends ConsumerState<ChurchServiceApp> {
                 ),
                 routes: [
                   GoRoute(
-                    path: 'student/:studentId',
+                    path: 'student/:membershipId',
                     builder: (context, state) => SpiritualNotebookStudentPage(
                       serviceId: state.pathParameters['serviceId']!,
-                      studentId: state.pathParameters['studentId']!,
+                      membershipId: state.pathParameters['membershipId']!,
                     ),
                   ),
                 ],
