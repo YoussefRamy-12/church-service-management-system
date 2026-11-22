@@ -14,7 +14,6 @@ class SupabaseStudentRepository {
     );
     return (rows as List)
         .map((row) => _fromMembershipRow(Map<String, dynamic>.from(row as Map)))
-        .where((student) => student.membershipStatus == 'active' || student.membershipStatus == 'pending')
         .toList();
   }
 
@@ -32,8 +31,7 @@ class SupabaseStudentRepository {
     return (rows as List)
         .map((row) => _fromMembershipRow(Map<String, dynamic>.from(row as Map)))
         .where((student) =>
-            (student.membershipStatus == 'active' || student.membershipStatus == 'pending') &&
-            (student.currentClassId == classId || student.proposedClassId == classId))
+            student.currentClassId == classId || student.proposedClassId == classId)
         .toList();
   }
 
