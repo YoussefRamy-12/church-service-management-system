@@ -132,7 +132,7 @@ At the initial audit, the remote ledger had 15 versions and the branch had 25 SQ
 - `20261122125142_multi_service_membership_expand`
 - `20261122125643_service_membership_class_scope_write`
 
-The remaining mismatch is 14 branch migration files not represented by the same version in the remote ledger, and 5 remote ledger versions without same-version files in this branch.
+The remaining mismatch is 15 branch migration files not represented by the same version in the remote ledger, and 5 remote ledger versions without same-version files in this branch.
 
 ### Branch files absent from remote ledger
 
