@@ -127,12 +127,13 @@ No local cache rows or queued operations may be dropped during the Drift upgrade
 
 ## 7. Migration ledger reconciliation
 
-At the initial audit, the remote ledger had 15 versions and the branch had 25 SQL files. After applying the four additive membership migrations below, the remote ledger has **19 versions** and the branch has **29 SQL files**. The four new versions are aligned exactly:
+At the initial audit, the remote ledger had 15 versions and the branch had 25 SQL files. After applying the four additive membership migrations below, the remote ledger has **20 versions** and the branch has **30 SQL files**. The five new versions are aligned exactly:
 
 - `20261122125142_multi_service_membership_expand`
 - `20261122125643_service_membership_class_scope_write`
 - `20261122125923_service_membership_fk_indexes`
 - `20261122130257_service_student_directory_rpc`
+- `20261122131229_index_remaining_foreign_keys`
 
 The remaining mismatch is 15 branch migration files not represented by the same version in the remote ledger, and 5 remote ledger versions without same-version files in this branch.
 
@@ -189,7 +190,7 @@ The old `students.service_id` and class columns remain in place. No contract/dro
 - The advisor now flags seven authenticated-executable `SECURITY DEFINER` functions. These include the registration/enrollment RPCs, admin predicates, weekly-preparation review, spiritual-notebook submission, and the new service-scoped student directory RPC. They are intentionally callable by authenticated clients; each still needs periodic function-body authorization review. Do not blanket-revoke these or convert them to invoker without testing their RLS dependencies.
 - The weekly-preparation review RPC now resolves the lesson's service before selecting the active reviewer profile and requires the preparer profile to belong to that same service. The previous arbitrary cross-service `LIMIT 1` selection has been removed.
 - Advisor reports leaked-password protection disabled; enable it in Supabase Auth settings after confirming project policy. This setting could not be changed through the available database tools.
-- The advisor still reports 51 multiple-permissive-policy combinations and 13 unindexed foreign keys. The new membership FK indexes reduced the unindexed-FK findings from 25 to 13. Remaining findings are mainly existing creator/reviewer foreign keys. Permissive policies are OR-combined; they must be consolidated only after proving the effective authorization logic.
+- The advisor now reports **zero unindexed foreign keys**; the membership and remaining creator/reviewer FK indexes were added in the last two index migrations. It still reports 51 multiple-permissive-policy combinations and 30 unused-index notices. The unused-index notices include the newly created FK indexes, which have not yet accumulated workload usage; do not drop FK-covering indexes solely because the workload is currently small. Permissive policies are OR-combined and must be consolidated only after proving the effective authorization logic.
 
 ## 9. Migration gates and acceptance
 
