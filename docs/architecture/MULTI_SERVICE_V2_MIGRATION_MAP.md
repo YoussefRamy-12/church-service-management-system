@@ -107,9 +107,9 @@ For attendance, enforce that meeting, membership and service are consistent at t
 
 ## 6. Drift and offline synchronization mapping
 
-Current Drift schema version is 9. `CachedStudents` has a primary key on student ID and includes service-specific fields. The local schema currently has:
-- `CachedStudents` with `serviceId`, class IDs, approval status, school, grade, enrollment, deacon flag.
-- `CachedStudentSensitiveData` keyed by student ID.
+Current Drift schema version is 13. `CachedStudents` remains keyed by global student ID for compatibility, but now also stores the active membership ID, membership status, and identity-owning service ID. The local schema currently has:
+- `CachedStudents` with global identity fields, service membership fields, membership ID/status, and identity owner metadata.
+- `CachedStudentSensitiveData` keyed by global student ID; offline reads are denied unless the current service is the identity-owning service.
 - `CachedAttendanceRecords` with meeting and student IDs but no membership/service ID.
 - `CachedFollowUpRecords` with student ID but no service/membership ID.
 - `CachedFollowUpCases` with service and student IDs.
