@@ -154,6 +154,7 @@ class OnlineStudentRepository implements StudentRepository {
       membershipId: row['membership_id'] as String,
       membershipStatus: status,
       serviceId: row['service_id'] as String,
+      identityServiceId: row['identity_service_id'] as String?,
       name: row['student_name'] as String? ?? '',
       approvalStatus: status == 'pending' ? 'pending' : 'approved',
       currentClassId: row['class_id'] as String?,
