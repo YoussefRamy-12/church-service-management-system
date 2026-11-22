@@ -5,6 +5,9 @@ import 'package:church_service_management_system/features/students/domain/entiti
 
 Student _student({
   String id = 'student-1',
+  String? membershipId,
+  String serviceId = 'service-1',
+  String? identityServiceId,
   String name = '  Peter  ',
   String approvalStatus = 'approved',
   String? currentClassId = 'class-1',
@@ -14,9 +17,9 @@ Student _student({
 }) {
   return Student(
     id: id,
-    membershipId: '${id}_membership',
-    identityServiceId: 'service-1',
-    serviceId: 'service-1',
+    membershipId: membershipId ?? '${id}_membership',
+    identityServiceId: identityServiceId ?? serviceId,
+    serviceId: serviceId,
     currentClassId: currentClassId,
     proposedClassId: proposedClassId,
     name: name,
@@ -162,6 +165,52 @@ void main() {
       expect(rows.map((s) => s.id), isNot(contains('other')));
     },
   );
+
+  test('one global identity keeps independent offline memberships per service', () async {
+    await repo.cacheStudents([
+      _student(
+        id: 'shared-global-student',
+        membershipId: 'membership-service-a',
+        serviceId: 'service-a',
+        identityServiceId: 'service-a',
+        currentClassId: 'class-a',
+        school: 'School A',
+        grade: 'الخامس',
+      ),
+      _student(
+        id: 'shared-global-student',
+        membershipId: 'membership-service-b',
+        serviceId: 'service-b',
+        identityServiceId: 'service-a',
+        currentClassId: 'class-b',
+        school: 'School B',
+        grade: 'السادس',
+      ),
+    ]);
+
+    final serviceA = await repo.findById(
+      'shared-global-student',
+      membershipId: 'membership-service-a',
+    );
+    final serviceB = await repo.findById(
+      'shared-global-student',
+      membershipId: 'membership-service-b',
+    );
+
+    expect(serviceA?.name, '  Peter  ');
+    expect(serviceA?.serviceId, 'service-a');
+    expect(serviceA?.currentClassId, 'class-a');
+    expect(serviceA?.school, 'School A');
+    expect(serviceB?.serviceId, 'service-b');
+    expect(serviceB?.currentClassId, 'class-b');
+    expect(serviceB?.school, 'School B');
+    expect(serviceB?.identityServiceId, 'service-a');
+    expect(await repo.findById('shared-global-student'), isNull);
+
+    final identities = await db.select(db.cachedStudents).get();
+    expect(identities.where((row) => row.id == 'shared-global-student'), hasLength(1));
+    expect(identities.single.serviceId, 'service-a');
+  });
 
   test('cacheStudents replaces an existing student by id', () async {
     final stream = repo.watchStudentsForClass('class-1');
