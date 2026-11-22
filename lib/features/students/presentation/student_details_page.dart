@@ -1164,6 +1164,10 @@ class _StudentEditDialogState extends State<StudentEditDialog> {
   String _date(DateTime? value) =>
       value == null ? 'غير محدد' : value.toLocal().toString().split(' ').first;
 
+  bool get _canEditGlobalIdentity =>
+      widget.student.identityServiceId != null &&
+      widget.student.serviceId == widget.student.identityServiceId;
+
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
@@ -1178,6 +1182,14 @@ class _StudentEditDialogState extends State<StudentEditDialog> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              if (!_canEditGlobalIdentity)
+                const Padding(
+                  padding: EdgeInsets.only(bottom: 12),
+                  child: Text(
+                    'البيانات الشخصية والحساسة مشتركة وتُدار من الخدمة المالكة للهوية. يمكنك تعديل بيانات العضوية الخاصة بهذه الخدمة فقط.',
+                    style: TextStyle(color: Colors.blueGrey),
+                  ),
+                ),
               const Text(
                 'البيانات الأساسية',
                 style: TextStyle(fontWeight: FontWeight.w800),
@@ -1185,6 +1197,7 @@ class _StudentEditDialogState extends State<StudentEditDialog> {
               const SizedBox(height: 8),
               TextField(
                 controller: name,
+                readOnly: !_canEditGlobalIdentity,
                 decoration: const InputDecoration(
                   labelText: 'الاسم الكامل للطالب *',
                 ),
@@ -1195,11 +1208,12 @@ class _StudentEditDialogState extends State<StudentEditDialog> {
                 title: Text('تاريخ الميلاد: ${_date(birthDate)}'),
                 trailing: IconButton(
                   icon: const Icon(Icons.calendar_month),
-                  onPressed: _pickBirthDate,
+                  onPressed: _canEditGlobalIdentity ? _pickBirthDate : null,
                 ),
               ),
               TextField(
                 controller: phone,
+                readOnly: !_canEditGlobalIdentity,
                 decoration: const InputDecoration(labelText: 'تليفون الطالب'),
                 keyboardType: TextInputType.phone,
               ),
@@ -1227,6 +1241,7 @@ class _StudentEditDialogState extends State<StudentEditDialog> {
                   Expanded(
                     child: TextField(
                       controller: addressBuilding,
+                      readOnly: !_canEditGlobalIdentity,
                       decoration: const InputDecoration(
                         labelText: 'رقم العقار',
                       ),
@@ -1237,6 +1252,7 @@ class _StudentEditDialogState extends State<StudentEditDialog> {
                     flex: 2,
                     child: TextField(
                       controller: addressStreet,
+                      readOnly: !_canEditGlobalIdentity,
                       decoration: const InputDecoration(labelText: 'شارع'),
                     ),
                   ),
@@ -1248,6 +1264,7 @@ class _StudentEditDialogState extends State<StudentEditDialog> {
                   Expanded(
                     child: TextField(
                       controller: addressFloor,
+                      readOnly: !_canEditGlobalIdentity,
                       decoration: const InputDecoration(labelText: 'دور'),
                     ),
                   ),
@@ -1255,6 +1272,7 @@ class _StudentEditDialogState extends State<StudentEditDialog> {
                   Expanded(
                     child: TextField(
                       controller: addressApartment,
+                      readOnly: !_canEditGlobalIdentity,
                       decoration: const InputDecoration(labelText: 'شقة'),
                     ),
                   ),
@@ -1272,6 +1290,7 @@ class _StudentEditDialogState extends State<StudentEditDialog> {
                   Expanded(
                     child: TextField(
                       controller: fatherJob,
+                      readOnly: !_canEditGlobalIdentity,
                       decoration: const InputDecoration(
                         labelText: 'وظيفة الأب',
                       ),
@@ -1281,6 +1300,7 @@ class _StudentEditDialogState extends State<StudentEditDialog> {
                   Expanded(
                     child: TextField(
                       controller: fatherPhone,
+                      readOnly: !_canEditGlobalIdentity,
                       decoration: const InputDecoration(
                         labelText: 'تليفون الأب',
                       ),
@@ -1295,6 +1315,7 @@ class _StudentEditDialogState extends State<StudentEditDialog> {
                   Expanded(
                     child: TextField(
                       controller: motherName,
+                      readOnly: !_canEditGlobalIdentity,
                       decoration: const InputDecoration(labelText: 'اسم الأم'),
                     ),
                   ),
@@ -1302,6 +1323,7 @@ class _StudentEditDialogState extends State<StudentEditDialog> {
                   Expanded(
                     child: TextField(
                       controller: motherJob,
+                      readOnly: !_canEditGlobalIdentity,
                       decoration: const InputDecoration(
                         labelText: 'وظيفة الأم',
                       ),
@@ -1312,6 +1334,7 @@ class _StudentEditDialogState extends State<StudentEditDialog> {
               const SizedBox(height: 8),
               TextField(
                 controller: motherPhone,
+                      readOnly: !_canEditGlobalIdentity,
                 decoration: const InputDecoration(labelText: 'تليفون الأم'),
                 keyboardType: TextInputType.phone,
               ),
@@ -1321,6 +1344,7 @@ class _StudentEditDialogState extends State<StudentEditDialog> {
                   Expanded(
                     child: TextField(
                       controller: familySize,
+                      readOnly: !_canEditGlobalIdentity,
                       decoration: const InputDecoration(
                         labelText: 'عدد أفراد الأسرة',
                       ),
@@ -1331,6 +1355,7 @@ class _StudentEditDialogState extends State<StudentEditDialog> {
                   Expanded(
                     child: TextField(
                       controller: birthOrder,
+                      readOnly: !_canEditGlobalIdentity,
                       decoration: const InputDecoration(
                         labelText: 'ترتيب الطالب بين إخوته',
                       ),
@@ -1348,11 +1373,13 @@ class _StudentEditDialogState extends State<StudentEditDialog> {
               const SizedBox(height: 8),
               TextField(
                 controller: confessor,
+                      readOnly: !_canEditGlobalIdentity,
                 decoration: const InputDecoration(labelText: 'أب الاعتراف'),
               ),
               const SizedBox(height: 8),
               TextField(
                 controller: medicalNotes,
+                      readOnly: !_canEditGlobalIdentity,
                 decoration: const InputDecoration(
                   labelText: 'ملاحظات صحية أو حساسية',
                 ),
@@ -1378,7 +1405,9 @@ class _StudentEditDialogState extends State<StudentEditDialog> {
                     child: Text(FinancialStatus.hiddenFamily),
                   ),
                 ],
-                onChanged: (val) => setState(() => financialStatus = val),
+                onChanged: _canEditGlobalIdentity
+                    ? (val) => setState(() => financialStatus = val)
+                    : null,
               ),
               const SizedBox(height: 12),
               TextField(
@@ -1393,14 +1422,14 @@ class _StudentEditDialogState extends State<StudentEditDialog> {
       actions: [
         if (widget.onDelete != null)
           TextButton.icon(
-            key: const Key('student_dialog_delete'),
+            key: const Key('student_dialog_archive'),
             onPressed: () {
               Navigator.pop(context);
               widget.onDelete!();
             },
             icon: const Icon(Icons.delete_outline, color: Color(0xFFDC2626)),
             label: const Text(
-              'حذف التلميذ',
+              'أرشفة عضوية التلميذ',
               style: TextStyle(color: Color(0xFFDC2626)),
             ),
           ),
