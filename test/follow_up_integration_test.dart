@@ -55,6 +55,8 @@ void main() {
       expect(pending.single.operationType, 'insert');
       expect(payload['client_operation_id'], record.clientOperationId);
       expect(payload['student_id'], 'student-1');
+      expect(payload['service_id'], 'service-1');
+      expect(payload['service_student_id'], 'student-1_membership');
       expect(payload['contact_method'], 'phone');
     },
   );
@@ -82,6 +84,37 @@ void main() {
         .firstWhere((items) => items.length == 2);
 
     expect(rows.map((item) => item.followUpDate), ['2026-10-07', '2026-10-01']);
+  });
+
+  test('same global identity has isolated follow-up histories per service', () async {
+    await repo.create(
+      studentId: 'shared-student',
+      serviceId: 'service-a',
+      serviceStudentId: 'shared-student-service-a',
+      createdBy: 'servant-a',
+      followUpDate: '2026-11-01',
+      contactStatus: 'contacted',
+    );
+    await repo.create(
+      studentId: 'shared-student',
+      serviceId: 'service-b',
+      serviceStudentId: 'shared-student-service-b',
+      createdBy: 'servant-b',
+      followUpDate: '2026-11-02',
+      contactStatus: 'contacted',
+    );
+
+    final serviceA = await repo
+        .watchForStudent('shared-student', serviceId: 'service-a')
+        .firstWhere((rows) => rows.isNotEmpty);
+    final serviceB = await repo
+        .watchForStudent('shared-student', serviceId: 'service-b')
+        .firstWhere((rows) => rows.isNotEmpty);
+
+    expect(serviceA, hasLength(1));
+    expect(serviceA.single.serviceStudentId, 'shared-student-service-a');
+    expect(serviceB, hasLength(1));
+    expect(serviceB.single.serviceStudentId, 'shared-student-service-b');
   });
 
   test('follow-up records for another student are excluded', () async {
