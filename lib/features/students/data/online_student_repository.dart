@@ -26,8 +26,9 @@ class OnlineStudentRepository implements StudentRepository {
     );
     yield (rows as List)
         .map((row) => _fromMembershipRow(Map<String, dynamic>.from(row as Map)))
-        .where((student) => student.currentClassId == classId ||
-            student.proposedClassId == classId)
+        .where((student) =>
+            (student.membershipStatus == 'active' || student.membershipStatus == 'pending') &&
+            (student.currentClassId == classId || student.proposedClassId == classId))
         .toList();
   }
 
@@ -39,6 +40,7 @@ class OnlineStudentRepository implements StudentRepository {
     );
     yield (rows as List)
         .map((row) => _fromMembershipRow(Map<String, dynamic>.from(row as Map)))
+        .where((student) => student.membershipStatus == 'active' || student.membershipStatus == 'pending')
         .toList();
   }
 
