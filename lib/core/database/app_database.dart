@@ -342,7 +342,7 @@ class AppDatabase extends _$AppDatabase {
       if (from < 13) {
         await m.addColumn(cachedStudents, cachedStudents.identityServiceId);
       }
-      if (from < 14) {
+      if (from >= 10 && from < 14) {
         await m.addColumn(cachedServiceStudents, cachedServiceStudents.identityServiceId);
       }
       if (from < 14) {
