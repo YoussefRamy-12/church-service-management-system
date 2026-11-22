@@ -71,6 +71,13 @@ class OnlineStudentRepository implements StudentRepository {
   }) async {
     final id = membershipId;
     if (id == null) throw StateError('Student membership is required for editing.');
+    final current = await _fetchMembership(id);
+    final ownsIdentity = current.serviceId == current.identityServiceId;
+    if (!ownsIdentity && _hasSensitiveData(sensitiveData)) {
+      throw StateError(
+        'Confidential student data can only be changed by the identity-owning service.',
+      );
+    }
     await _client.rpc('update_service_student', params: {
       'p_membership_id': id,
       'p_name': name.trim(),
@@ -83,7 +90,7 @@ class OnlineStudentRepository implements StudentRepository {
       'p_enrollment_date': enrollmentAt?.toIso8601String(),
       'p_notes': notes,
     });
-    if (sensitiveData != null) {
+    if (sensitiveData != null && ownsIdentity) {
       final map = sensitiveData.toMap();
       if (map.values.any((v) => v != null && v.toString().trim().isNotEmpty)) {
         await _safeUpsertSensitiveData(studentId, map);
@@ -153,6 +160,12 @@ class OnlineStudentRepository implements StudentRepository {
     if (row == null) return null;
     return SensitiveStudentData.fromMap(row, studentId: studentId);
   }
+
+  bool _hasSensitiveData(SensitiveStudentData? data) =>
+      data != null &&
+      data.toMap().values.any(
+        (value) => value != null && value.toString().trim().isNotEmpty,
+      );
 
   Student _fromMembershipRow(Map<String, dynamic> row) {
     final status = row['membership_status'] as String;
