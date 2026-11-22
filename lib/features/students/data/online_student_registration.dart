@@ -61,6 +61,7 @@ class OnlineStudentRegistration implements StudentRegistration {
 
     for (final input in inputs) {
       final studentId = _uuid.v4();
+      final membershipId = _uuid.v4();
       final effectiveCurrentClassId = input.currentClassId ??
           (input.proposedClassId != null || proposedClassId != null
               ? null
@@ -82,6 +83,7 @@ class OnlineStudentRegistration implements StudentRegistration {
         serviceId: serviceId,
         name: input.name.trim(),
         approvalStatus: effectiveApprovalStatus,
+        membershipId: membershipId,
         currentClassId: effectiveCurrentClassId,
         proposedClassId: effectiveProposedClassId,
         birthDate: input.birthDate,
@@ -118,8 +120,25 @@ class OnlineStudentRegistration implements StudentRegistration {
         'notes': student.notes,
       };
 
-      // Directly insert to Supabase
-      await _client.from('students').insert(studentPayload);
+      // One transactional RPC creates the global identity (or reuses the
+      // explicitly supplied UUID) and its service membership atomically.
+      await _client.rpc('register_service_student', params: {
+        'p_student_id': student.id,
+        'p_membership_id': membershipId,
+        'p_service_id': serviceId,
+        'p_name': student.name,
+        'p_birth_date': student.birthDate?.toIso8601String().split('T').first,
+        'p_phone': student.phone,
+        'p_photo_path': student.photoPath,
+        'p_school': student.school,
+        'p_grade': student.grade,
+        'p_is_deacon': student.isDeacon,
+        'p_enrollment_date': student.enrollmentAt?.toIso8601String(),
+        'p_status': effectiveApprovalStatus == 'approved' ? 'active' : 'pending',
+        'p_class_id': effectiveCurrentClassId,
+        'p_proposed_class_id': effectiveProposedClassId,
+        'p_notes': student.notes,
+      });
 
       final cleanedSensitiveData = <String, dynamic>{};
       for (final entry in input.sensitiveData.entries) {
