@@ -127,13 +127,52 @@ No local cache rows or queued operations may be dropped during the Drift upgrade
 
 ## 7. Migration ledger reconciliation
 
-The remote Supabase migration ledger contains 15 versions. The branch migration directory contains 25 SQL files. These sets are not equivalent:
-- The remote ledger has entries not represented by same-version files in this branch (including early October administrator migrations and `20261022202810`).
-- The branch has later migrations absent from the remote ledger, including weekly-preparation, follow-up, and student-model migrations.
+At the initial audit, the remote ledger had 15 versions and the branch had 25 SQL files. After applying the two additive membership migrations below, the remote ledger has **17 versions** and the branch has **27 SQL files**. The two new versions are aligned exactly:
 
-This is migration-history drift, not proof that every absent migration's schema effect is absent. Some effects may have been applied manually, folded into later migrations, or represented by migrations that were renamed. The catalog must be compared by object definition, constraints, policies, indexes, triggers and function bodies before any ledger repair.
+- `20261122125142_multi_service_membership_expand`
+- `20261122125643_service_membership_class_scope_write`
 
-**Do not blindly mark all missing files applied, reset the ledger, or replay historical migrations against production.** First create a per-migration evidence matrix: intended objects, current catalog match, data effect, safe action (already present / needs forward migration / ledger-only reconciliation / obsolete).
+The remaining mismatch is 14 branch migration files not represented by the same version in the remote ledger, and 5 remote ledger versions without same-version files in this branch.
+
+### Branch files absent from remote ledger
+
+| Version | Migration file | Catalog evidence / disposition |
+|---|---|---|
+| 20261010150000 | allow_active_system_admin_create_services | Service creation policies exist; exact original migration effect needs diff review. |
+| 20261010151000 | allow_active_system_admin_manage_students | Student admin policies exist; partly superseded by current scoped policies. |
+| 20261010152000 | grant_active_system_admin_full_public_access | Broad admin policies exist on several tables; must not be replayed blindly. |
+| 20261010153000 | add_service_meeting_schedule | `services` schedule columns and `meeting_schedules` exist. |
+| 20261021234500 | revise_student_data_model | `is_deacon` and `student_sensitive_data` columns exist; exact historical backfill already appears represented in live data. |
+| 20261022222202 | weekly_stage_prep_lessons | `weekly_lessons` exists with stage/service relationships. |
+| 20261022230000 | allow_class_servant_import_current_class | Current student insert/update policies include class-scoped access; exact policy body should be diffed. |
+| 20261022233000 | ensure_student_sensitive_data_columns | The expanded sensitive-data columns are present. |
+| 20261023120000 | allow_student_hard_delete | Student delete policies and cascade FKs exist; this is a destructive behavior and should be retired only after archive semantics are implemented. |
+| 20261023130000 | add_early_attendance_minutes | `services.early_attendance_minutes` exists. |
+| 20261030090000 | weekly_lesson_servant_preparation | `weekly_lesson_preparations` exists. |
+| 20261030100000 | named_attendance_meeting_schedules | `meeting_schedules` and `meetings.schedule_id/name` exist. |
+| 20261110220000 | follow_up_cases_redesign | Case, assignment and activity tables and policies exist; 3 cases and 14 activities were present at audit. |
+| 20261111230000 / 20261112010000 | weekly prep review and hardening | Review-history table, status columns, review RPC and write-guard trigger exist. |
+
+### Remote ledger versions without same-version branch files
+
+| Version | Ledger name | Evidence |
+|---|---|---|
+| 20261005115918 | add_system_super_admin | `system_administrators` and administrator authorization exist. |
+| 20261005115940 | wire_super_admin_authorization | Active-system-admin helper and admin RLS policies exist. |
+| 20261006152800 | fix_servant_profiles_admin_select_pending | Servant profile administrative policies exist. |
+| 20261006152824 | allow_overall_admin_manage_all_servant_statuses | Current profile management policies include overall-admin access. |
+| 20261022202810 | allow_student_delete_for_edit_roles | `students_delete` policy exists. |
+
+This is evidence that many effects exist in the catalog, not a byte-for-byte proof that each migration's complete intended effect is present. Several migration names differ between branch history and remote history. No manual ledger repair was performed because the available migration-management action does not provide a safe repair operation and direct edits to Supabase's internal migration ledger would be unsafe.
+
+**Do not reset the ledger, mark all 14 branch files applied, or replay historical migrations against production.** Finish a per-object diff against each original migration and then use a reviewed forward reconciliation migration or a supported Supabase migration repair workflow.
+
+### Newly applied expand migrations
+
+- `20261122125142_multi_service_membership_expand`: added `service_students`, added service ownership to classes, backfilled 82 memberships, and linked 192 attendance rows, 2 legacy follow-up rows, and 3 follow-up cases. Notebook submissions currently number zero.
+- `20261122125643_service_membership_class_scope_write`: permits authenticated users to create/update memberships only within their service and class authorization scope.
+
+The old `students.service_id` and class columns remain in place. No contract/drop migration has been applied.
 
 ## 8. Security review baseline
 
