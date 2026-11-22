@@ -419,7 +419,7 @@ void main() {
 
         try {
           final inputs = [
-            const StudentRegistrationInput(
+            StudentRegistrationInput(
               name: 'فادي ماجد عزيز',
               birthDate: DateTime(2013, 8, 14),
               grade: 'الابتدائية',
