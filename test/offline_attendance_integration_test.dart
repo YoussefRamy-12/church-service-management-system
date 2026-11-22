@@ -136,6 +136,8 @@ void main() {
     await attendance.checkIn(
       meetingId: 'meeting-1',
       studentId: 'student-1',
+      serviceId: 'service-1',
+      serviceStudentId: 'student-1_membership',
       classIdAtAttendance: 'class-1',
       recordedBy: 'servant-1',
       checkedInAt: DateTime(2026, 10, 7, 10, 30),
