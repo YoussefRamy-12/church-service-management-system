@@ -14,6 +14,10 @@ class ServiceStudent {
     this.grade,
     this.isDeacon = false,
     this.notes,
+    this.studentName = '',
+    this.birthDate,
+    this.phone,
+    this.photoPath,
   });
 
   final String id;
@@ -27,6 +31,10 @@ class ServiceStudent {
   final String? grade;
   final bool isDeacon;
   final String? notes;
+  final String studentName;
+  final DateTime? birthDate;
+  final String? phone;
+  final String? photoPath;
 
   bool get isActive => status == 'active';
   bool get isPending => status == 'pending';
@@ -56,6 +64,12 @@ class ServiceStudent {
     school: row['school'] as String?,
     grade: row['grade'] as String?,
     isDeacon: row['is_deacon'] as bool? ?? false,
-    notes: row['notes'] as String?,
+    notes: (row['membership_notes'] ?? row['notes']) as String?,
+    studentName: (row['student_name'] ?? '') as String,
+    birthDate: row['birth_date'] == null
+        ? null
+        : DateTime.tryParse(row['birth_date'].toString()),
+    phone: row['phone'] as String?,
+    photoPath: row['photo_path'] as String?,
   );
 }
