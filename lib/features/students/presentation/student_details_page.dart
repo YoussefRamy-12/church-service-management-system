@@ -977,7 +977,10 @@ class _StudentFollowUpTab extends ConsumerWidget {
           ),
           const SizedBox(height: 8),
           StreamBuilder(
-            stream: ref.watch(followUpRepositoryProvider).watchForStudent(student.id),
+            stream: ref.watch(followUpRepositoryProvider).watchForStudent(
+              student.id,
+              serviceId: student.serviceId,
+            ),
             builder: (context, snapshot) {
               if (snapshot.hasError) {
                 return const Text('تعذر تحميل السجل السابق.');
