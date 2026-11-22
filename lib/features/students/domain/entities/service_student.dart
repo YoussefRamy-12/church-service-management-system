@@ -60,7 +60,7 @@ class ServiceStudent {
     classId: row['class_id'] as String?,
     proposedClassId: row['proposed_class_id'] as String?,
     enrollmentDate: DateTime.parse(row['enrollment_date'] as String).toLocal(),
-    status: row['status'] as String,
+    status: (row['membership_status'] ?? row['status']) as String,
     school: row['school'] as String?,
     grade: row['grade'] as String?,
     isDeacon: row['is_deacon'] as bool? ?? false,
