@@ -47,7 +47,3 @@ $function$;
 
 REVOKE ALL ON FUNCTION public.get_service_student_directory(uuid) FROM PUBLIC, anon;
 GRANT EXECUTE ON FUNCTION public.get_service_student_directory(uuid) TO authenticated, service_role;
-
-
-REVOKE ALL ON FUNCTION public.get_service_student_directory(uuid) FROM PUBLIC, anon;
-GRANT EXECUTE ON FUNCTION public.get_service_student_directory(uuid) TO authenticated, service_role;
