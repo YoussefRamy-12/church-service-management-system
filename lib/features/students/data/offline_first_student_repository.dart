@@ -60,6 +60,7 @@ class OfflineFirstStudentRepository implements StudentRepository {
   Future<Student> updateStudent({
     required String studentId,
     required String name,
+    String? membershipId,
     DateTime? birthDate,
     String? phone,
     String? school,
@@ -85,37 +86,85 @@ class OfflineFirstStudentRepository implements StudentRepository {
     if (sensitiveData != null) {
       await local.cacheSensitiveData(sensitiveData);
     }
+    await _enqueueMembershipUpdate(updated);
     await _enqueueUpdate(updated, sensitiveData: sensitiveData);
     return updated;
   }
 
   @override
-  Future<Student> approvePending(String studentId) async {
+  Future<Student> approvePending(String studentId, {String? membershipId}) async {
+    final current = await local.findById(studentId);
+    if (current == null || current.membershipId == null ||
+        (membershipId != null && current.membershipId != membershipId)) {
+      throw StateError('Student membership is not available locally.');
+    }
     final updated = await local.approvePending(studentId);
+    await _enqueueMembershipUpdate(updated);
     await _enqueueUpdate(updated);
     return updated;
   }
 
   @override
-  Future<void> deleteStudent(String studentId) async {
+  Future<void> deleteStudent(String studentId, {String? membershipId}) async {
     final current = await local.findById(studentId);
     if (current == null) return;
-    await local.deleteStudent(studentId);
+    final id = membershipId ?? current.membershipId;
+    if (id == null) throw StateError('Student membership is required for archival.');
+    await local.archiveMembership(studentId);
     await queue.enqueue(
       SyncOperation(
         operationId: const Uuid().v4(),
-        entityType: 'student',
+        entityType: 'service_student',
         operationType: 'delete',
-        payloadJson: jsonEncode({'id': studentId}),
+        payloadJson: jsonEncode({'id': id}),
       ),
     );
   }
 
   @override
-  Future<Student> assignClass(String studentId, String classId) async {
+  Future<Student> assignClass(
+    String studentId,
+    String classId, {
+    String? membershipId,
+  }) async {
+    final current = await local.findById(studentId);
+    if (current == null || current.membershipId == null ||
+        (membershipId != null && current.membershipId != membershipId)) {
+      throw StateError('Student membership is not available locally.');
+    }
     final updated = await local.assignClass(studentId, classId);
+    await _enqueueMembershipUpdate(updated);
     await _enqueueUpdate(updated);
     return updated;
+  }
+
+  Future<void> _enqueueMembershipUpdate(Student student) async {
+    final membershipId = student.membershipId;
+    if (membershipId == null) {
+      throw StateError('Student membership is required for synchronization.');
+    }
+    await queue.enqueue(
+      SyncOperation(
+        operationId: const Uuid().v4(),
+        entityType: 'service_student',
+        operationType: 'upsert',
+        payloadJson: jsonEncode({
+          'id': membershipId,
+          'student_id': student.id,
+          'service_id': student.serviceId,
+          'class_id': student.currentClassId,
+          'proposed_class_id': student.proposedClassId,
+          'enrollment_date': student.enrollmentAt?.toUtc().toIso8601String(),
+          'status': student.membershipStatus == 'inactive'
+              ? 'inactive'
+              : (student.isPending ? 'pending' : 'active'),
+          'school': student.school,
+          'grade': student.grade,
+          'is_deacon': student.isDeacon,
+          'notes': student.notes,
+        }),
+      ),
+    );
   }
 
   Future<void> _enqueueUpdate(
