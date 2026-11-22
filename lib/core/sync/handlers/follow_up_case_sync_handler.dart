@@ -22,6 +22,7 @@ class FollowUpCaseSyncHandler implements EntitySyncHandler {
       final serviceId = payload['service_id'] as String;
       final studentId = payload['student_id'] as String;
       var membershipId = payload['service_student_id'] as String?;
+      if (membershipId?.isEmpty == true) membershipId = null;
       if (membershipId == null) {
         // Resolve case creation queued by older clients against its service.
         final membership = await client
