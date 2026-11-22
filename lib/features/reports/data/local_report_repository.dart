@@ -417,7 +417,7 @@ class LocalReportRepository {
       var cNormal = 0;
 
       for (final s in classStudents) {
-        final enrollment = studentEnrollment[s.id];
+        final enrollment = studentEnrollment[s.studentId];
         for (final m in meetings) {
           final mDate = DateTime.parse(m.meetingDate);
           if (enrollment == null || !mDate.isBefore(enrollment)) {
@@ -521,7 +521,7 @@ class LocalReportRepository {
     // 12. Student Analytics & Attendance Tiers
     final tierCounts = {'90-100%': 0, '75-89%': 0, '50-74%': 0, '<50%': 0};
     for (final s in scopedStudents) {
-      final enrollment = studentEnrollment[s.id];
+      final enrollment = studentEnrollment[s.studentId];
       var sExp = 0;
       for (final m in meetings) {
         final mDate = DateTime.parse(m.meetingDate);
@@ -529,7 +529,7 @@ class LocalReportRepository {
           sExp++;
         }
       }
-      final attended = (studentAttendedMeetings[s.id] ?? <String>{}).length;
+      final attended = (studentAttendedMeetings[s.studentId] ?? <String>{}).length;
       final rate = sExp == 0 ? 0.0 : (attended * 100.0) / sExp;
       if (rate >= 90) {
         tierCounts['90-100%'] = (tierCounts['90-100%'] ?? 0) + 1;
