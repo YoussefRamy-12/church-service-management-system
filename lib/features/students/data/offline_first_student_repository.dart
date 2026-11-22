@@ -80,7 +80,7 @@ class OfflineFirstStudentRepository implements StudentRepository {
     String? notes,
     SensitiveStudentData? sensitiveData,
   }) async {
-    final current = await local.findById(studentId);
+    final current = await local.findById(studentId, membershipId: membershipId);
     if (current == null || current.membershipId == null ||
         (membershipId != null && current.membershipId != membershipId)) {
       throw StateError('Student membership is not available locally.');
@@ -93,6 +93,7 @@ class OfflineFirstStudentRepository implements StudentRepository {
     }
     final updated = await local.updateStudent(
       studentId: studentId,
+      membershipId: membershipId,
       name: name,
       birthDate: birthDate,
       phone: phone,
@@ -116,12 +117,12 @@ class OfflineFirstStudentRepository implements StudentRepository {
 
   @override
   Future<Student> approvePending(String studentId, {String? membershipId}) async {
-    final current = await local.findById(studentId);
+    final current = await local.findById(studentId, membershipId: membershipId);
     if (current == null || current.membershipId == null ||
         (membershipId != null && current.membershipId != membershipId)) {
       throw StateError('Student membership is not available locally.');
     }
-    final updated = await local.approvePending(studentId);
+    final updated = await local.approvePending(studentId, membershipId: membershipId);
     await _enqueueMembershipUpdate(updated);
     await _enqueueUpdate(updated);
     return updated;
@@ -133,7 +134,7 @@ class OfflineFirstStudentRepository implements StudentRepository {
     if (current == null) return;
     final id = membershipId ?? current.membershipId;
     if (id == null) throw StateError('Student membership is required for archival.');
-    await local.archiveMembership(studentId);
+    await local.archiveMembership(studentId, membershipId: id);
     await queue.enqueue(
       SyncOperation(
         operationId: const Uuid().v4(),
@@ -155,7 +156,7 @@ class OfflineFirstStudentRepository implements StudentRepository {
         (membershipId != null && current.membershipId != membershipId)) {
       throw StateError('Student membership is not available locally.');
     }
-    final updated = await local.assignClass(studentId, classId);
+    final updated = await local.assignClass(studentId, classId, membershipId: membershipId);
     await _enqueueMembershipUpdate(updated);
     await _enqueueUpdate(updated);
     return updated;
