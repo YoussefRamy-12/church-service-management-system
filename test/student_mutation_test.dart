@@ -29,6 +29,28 @@ void main() {
     );
   });
 
+  test('Student.copyWith can explicitly clear nullable membership fields', () {
+    const student = Student(
+      id: 'copy-student',
+      serviceId: 'service-a',
+      membershipId: 'membership-a',
+      name: 'Student',
+      approvalStatus: 'pending',
+      proposedClassId: 'class-a',
+      notes: 'old note',
+    );
+    final updated = student.copyWith(
+      approvalStatus: 'approved',
+      membershipStatus: 'active',
+      currentClassId: 'class-a',
+      proposedClassId: null,
+      notes: null,
+    );
+    expect(updated.proposedClassId, isNull);
+    expect(updated.notes, isNull);
+    expect(updated.currentClassId, 'class-a');
+  });
+
   test('approval payload moves proposed class to current class', () {
     final payload = <String, dynamic>{
       'approval_status': 'approved',
