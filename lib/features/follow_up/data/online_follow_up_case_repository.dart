@@ -342,11 +342,15 @@ class OnlineFollowUpCaseRepository implements FollowUpCaseRepository {
   }
 
   @override
-  Stream<List<FollowUpActivity>> watchActivitiesForStudent(String studentId) async* {
+  Stream<List<FollowUpActivity>> watchActivitiesForStudent({
+    required String serviceId,
+    required String studentId,
+  }) async* {
     final cases = await _client
         .from('follow_up_cases')
         .select('id, title, student:students(name)')
-        .eq('student_id', studentId);
+        .eq('student_id', studentId)
+        .eq('service_id', serviceId);
 
     final caseIds = (cases as List).map((c) => c['id'] as String).toList();
     if (caseIds.isEmpty) {
