@@ -415,6 +415,7 @@ class LocalReportRepository {
       var cPresent = 0;
       var cEarly = 0;
       var cNormal = 0;
+      final classCountedKeys = <String>{};
 
       for (final s in classStudents) {
         final enrollment = studentEnrollment[s.studentId];
@@ -427,8 +428,12 @@ class LocalReportRepository {
       }
 
       for (final row in attendanceRecords) {
+        final attendanceKey = '${row.meetingId}:${row.studentId}';
         if (studentClassMap[row.studentId] != c.id) continue;
-        if (!countedKeys.contains('${row.meetingId}:${row.studentId}')) continue;
+        if (!countedKeys.contains(attendanceKey) ||
+            !classCountedKeys.add(attendanceKey)) {
+          continue;
+        }
         cPresent++;
         final meeting = meetings.firstWhere((item) => item.id == row.meetingId);
         final parts = meeting.startTime.split(':');
