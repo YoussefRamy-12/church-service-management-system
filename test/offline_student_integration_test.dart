@@ -120,6 +120,27 @@ void main() {
     },
   );
 
+  test('offline sensitive data is not shared with a different service membership', () async {
+    await repo.local.cacheStudents([
+      _student(id: 'shared-student', membershipId: 'membership-service-b')
+          .copyWith(serviceId: 'service-b', identityServiceId: 'service-a'),
+    ]);
+    await repo.local.cacheSensitiveData(
+      const SensitiveStudentData(
+        studentId: 'shared-student',
+        fatherJob: 'محاسب',
+      ),
+    );
+
+    final data = await repo.getSensitiveData(
+      'shared-student',
+      serviceId: 'service-b',
+      identityServiceId: 'service-a',
+    );
+
+    expect(data, isNull);
+  });
+
   test('offline student deletion archives membership and preserves identity cache', () async {
     await repo.local.cacheStudents([_student()]);
     const sensitive = SensitiveStudentData(
