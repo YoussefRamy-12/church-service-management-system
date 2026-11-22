@@ -222,7 +222,10 @@ class SupabaseReportRepository {
       var mNormal = 0;
 
       final mRecords =
-          attendanceRes.where((r) => r['meeting_id'] == mId && studentSet.contains(r['student_id']));
+          attendanceRes.where((r) =>
+              r['meeting_id'] == mId &&
+              studentSet.contains(r['student_id']) &&
+              membershipIds.contains(r['service_student_id']));
       final mCounted = <String>{};
       final parts = (m['start_time'] as String).split(':');
       final dateParts = (m['meeting_date'] as String).split('-');
@@ -280,13 +283,16 @@ class SupabaseReportRepository {
     if (pastMeetingIds.isNotEmpty && studentIds.isNotEmpty) {
       pastAttendanceRes = await _client
           .from('attendance_records')
-          .select('meeting_id, student_id')
+          .select('meeting_id, student_id, service_student_id')
           .inFilter('meeting_id', pastMeetingIds)
-          .inFilter('student_id', studentIds);
+          .inFilter('service_student_id', membershipIds.toList());
     }
 
     final pastStudentAttended = <String, Set<String>>{};
     for (final r in pastAttendanceRes) {
+      if (!membershipIds.contains(r['service_student_id'])) {
+        continue;
+      }
       final sid = r['student_id'] as String;
       final mid = r['meeting_id'] as String;
       pastStudentAttended
@@ -317,12 +323,12 @@ class SupabaseReportRepository {
       }
 
       if (consecutiveMissed >= 2) {
-        final currentClassId = s['current_class_id'] as String?;
+        final currentClassId = s['class_id'] as String?;
         final c = classMap[currentClassId];
         repeatedAbsences.add(
           RepeatedAbsenceRecord(
             studentId: sid,
-            studentName: s['name'] as String? ?? sid,
+            studentName: s['student_name'] as String? ?? sid,
             classId: currentClassId ?? '',
             className: c != null ? (c['name'] as String) : 'فصل غير محدد',
             consecutiveMissedMeetings: consecutiveMissed,
@@ -443,7 +449,7 @@ class SupabaseReportRepository {
     for (final c in relevantClasses) {
       final cid = c['id'] as String;
       final classStudents =
-          scopedStudents.where((s) => s['current_class_id'] == cid).toList();
+          scopedStudents.where((s) => s['class_id'] == cid).toList();
       var cExpected = 0;
       var cPresent = 0;
       var cEarly = 0;
