@@ -7,7 +7,7 @@ import 'package:church_service_management_system/features/students/domain/entiti
 void main() {
   group('Drift Student Migration & Compatibility Tests', () {
     test(
-      'Fresh installation initializes schema version 10 with service membership cache',
+      'Fresh installation initializes schema version 12 with service membership lifecycle cache',
       () async {
         final db = AppDatabase.forTesting();
         try {
@@ -77,7 +77,7 @@ void main() {
       () async {
         final db = AppDatabase.forTesting();
         try {
-          expect(db.schemaVersion, 11);
+          expect(db.schemaVersion, 12);
           expect(db.migration.onUpgrade, isNotNull);
 
           final students = await db.select(db.cachedStudents).get();
@@ -101,33 +101,32 @@ void main() {
     );
 
     test(
-      'Student delete removes both student record and associated sensitive record',
+      'Archiving a membership preserves global identity and sensitive history',
       () async {
         final db = AppDatabase.forTesting();
         final local = LocalStudentRepository(db);
         try {
           const student = Student(
-            id: 'del-student-1',
+            id: 'archive-student-1',
+            membershipId: 'archive-membership-1',
             serviceId: 'srv-1',
-            name: 'تلميذ للحذف',
+            name: 'تلميذ للأرشفة',
             approvalStatus: 'approved',
           );
           const sensitive = SensitiveStudentData(
-            studentId: 'del-student-1',
+            studentId: 'archive-student-1',
             fatherJob: 'وظيفة',
             financialStatus: FinancialStatus.brothersOfLord,
           );
 
           await local.cacheStudents([student]);
           await local.cacheSensitiveData(sensitive);
+          await local.archiveMembership(student.id);
 
-          expect(await local.findById('del-student-1'), isNotNull);
-          expect(await local.findSensitiveData('del-student-1'), isNotNull);
-
-          await local.deleteStudent('del-student-1');
-
-          expect(await local.findById('del-student-1'), isNull);
-          expect(await local.findSensitiveData('del-student-1'), isNull);
+          final archived = await local.findById(student.id);
+          expect(archived, isNotNull);
+          expect(archived!.membershipStatus, 'inactive');
+          expect(await local.findSensitiveData(student.id), isNotNull);
         } finally {
           await db.close();
         }
