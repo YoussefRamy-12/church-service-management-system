@@ -216,6 +216,9 @@ The old `students.service_id` and class columns remain in place. No contract/dro
 - Membership read/write RLS was tested with users from both services, including cross-service denial.
 - Cross-service class assignment and attendance association were rejected by database constraints/triggers.
 - The identity projection RPC was tested for authorized service access and cross-service denial.
+- Cross-service reads of `student_sensitive_data` returned zero rows; the directory RPC does not expose that table.
+- Legacy-shaped attendance, follow-up and spiritual-notebook writes were tested in temporary transactions; the database triggers attached the correct membership automatically, and all temporary rows were removed.
+- Cross-service follow-up association was rejected by the hierarchy validator.
 - End-to-end second-service attendance, follow-up, notebook, and sensitive-data workflows are not yet enabled because their UI/repositories/RPCs have not all moved to membership IDs.
 - Sensitive student data remains on the legacy student-keyed model and needs an explicit per-service confidentiality design.
 - Offline membership queue behavior is covered; cross-service replay of all existing attendance/follow-up queue variants remains outstanding.
