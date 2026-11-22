@@ -17,6 +17,15 @@ void main() {
   Future<void> seedBaseData() async {
     await db.batch((batch) {
       batch.insert(
+        db.cachedStages,
+        CachedStagesCompanion.insert(
+          id: 'stage-1',
+          serviceId: 'service-1',
+          name: 'Stage 1',
+          cachedAt: DateTime(2026, 10, 1),
+        ),
+      );
+      batch.insert(
         db.cachedClasses,
         CachedClassesCompanion.insert(
           id: 'class-1',
