@@ -27,6 +27,8 @@ void main() {
     () async {
       final record = await repo.create(
         studentId: 'student-1',
+        serviceId: 'service-1',
+        serviceStudentId: 'student-1_membership',
         createdBy: 'servant-1',
         followUpDate: '2026-10-07',
         contactStatus: 'contacted',
@@ -38,7 +40,7 @@ void main() {
       );
 
       final local = await repo
-          .watchForStudent('student-1')
+          .watchForStudent('student-1', serviceId: 'service-1')
           .firstWhere((items) => items.isNotEmpty);
       final pending = await queue.pending();
       final payload =
