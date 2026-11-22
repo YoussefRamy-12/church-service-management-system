@@ -220,16 +220,17 @@ class _AddStudentPageState extends ConsumerState<AddStudentPage> {
       );
       return;
     }
-    final selectedClass = _stageClasses.values
+    final matchingClasses = _stageClasses.values
         .expand((classes) => classes)
         .where((item) => item.id == _selectedClassId)
-        .firstOrNull;
-    if (selectedClass == null) {
+        .toList();
+    if (matchingClasses.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('تعذر تحديد الصف الدراسي.')),
       );
       return;
     }
+    final selectedClass = matchingClasses.first;
 
     setState(() => _saving = true);
 
