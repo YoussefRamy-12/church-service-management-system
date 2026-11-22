@@ -17,13 +17,13 @@ class OnlineFollowUpRepository implements FollowUpRepository {
   @override
   Stream<List<FollowUpRecord>> watchForStudent(
     String id, {
-    String? serviceId,
+    required String serviceId,
   }) async* {
     final rows = await _client
         .from('follow_up_records')
         .select()
         .eq('student_id', id)
-        .eq('service_id', serviceId ?? '')
+        .eq('service_id', serviceId)
         .order('follow_up_date', ascending: true);
 
     yield rows
