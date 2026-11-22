@@ -142,7 +142,7 @@ class OnlineStudentRepository implements StudentRepository {
     String? serviceId,
     String? identityServiceId,
   }) async {
-    if (serviceId != null && identityServiceId != null && serviceId != identityServiceId) {
+    if (serviceId != null && serviceId != identityServiceId) {
       return null;
     }
     final row = await _client
