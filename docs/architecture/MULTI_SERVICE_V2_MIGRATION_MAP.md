@@ -171,6 +171,11 @@ This is evidence that many effects exist in the catalog, not a byte-for-byte pro
 
 - `20261122125142_multi_service_membership_expand`: added `service_students`, added service ownership to classes, backfilled 82 memberships, and linked 192 attendance rows, 2 legacy follow-up rows, and 3 follow-up cases. Notebook submissions currently number zero.
 - `20261122125643_service_membership_class_scope_write`: permits authenticated users to create/update memberships only within their service and class authorization scope.
+- `20261122125923_service_membership_fk_indexes`: indexes the new composite foreign keys and adds the membership `updated_at` trigger.
+
+The Flutter/Drift branch now has schema version 10 with a `CachedServiceStudents` table, a `ServiceStudent` domain entity, an offline-first membership repository, and a `service_student` sync handler. Offline tests cover membership cache isolation by service, queued upserts, and archive state changes.
+
+**Compatibility boundary:** the existing student screens and legacy student repositories still read/write `students.service_id/current_class_id`. The new membership repository and sync handler are additive foundations; the student UI, global identity projection, and all existing workflows have not yet been switched to membership-first reads/writes. Therefore this expansion does not yet enable end-to-end second-service student workflows.
 
 The old `students.service_id` and class columns remain in place. No contract/drop migration has been applied.
 
