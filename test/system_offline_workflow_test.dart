@@ -27,6 +27,8 @@ class _NoopTransport implements SyncTransport {
 
 Student _student() => Student(
   id: 'student-1',
+  membershipId: 'student-1_membership',
+  identityServiceId: 'service-1',
   serviceId: 'service-1',
   currentClassId: 'class-1',
   name: 'Peter',
