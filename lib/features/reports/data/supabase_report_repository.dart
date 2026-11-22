@@ -58,39 +58,46 @@ class SupabaseReportRepository {
             ? classesRes.map((c) => c['id'] as String).toSet()
             : null);
 
-    // 3. Query Students
-    var studentQuery = _client
-        .from('students')
-        .select('id, name, phone, current_class_id, proposed_class_id, enrollment_at, approval_status')
-        .eq('service_id', serviceId);
-
-    if (studentId != null) {
-      studentQuery = studentQuery.eq('id', studentId);
-    }
-
-    final studentsRes = await studentQuery;
-    final scopedStudents = (studentsRes as List).where((row) {
-      final currentClass = row['current_class_id'] as String?;
+    // 3. Query the service roster through the membership-scoped directory.
+    // Global identity rows are never used as a service roster source.
+    final directoryRows = List<Map<String, dynamic>>.from(
+      await _client.rpc(
+        'get_service_student_directory',
+        params: {'p_service_id': serviceId},
+      ),
+    );
+    final scopedStudents = directoryRows.where((row) {
+      if (row['membership_status'] != 'active') return false;
+      final currentClass = row['class_id'] as String?;
       return currentClass != null &&
-          (effectiveClassIds == null || effectiveClassIds.contains(currentClass));
+          (effectiveClassIds == null || effectiveClassIds.contains(currentClass)) &&
+          (studentId == null || row['student_id'] == studentId);
     }).toList();
 
     final studentIds =
-        scopedStudents.map((row) => row['id'] as String).toList();
+        scopedStudents.map((row) => row['student_id'] as String).toList();
     final studentSet = studentIds.toSet();
+    final membershipIds = scopedStudents
+        .map((row) => row['membership_id'] as String)
+        .toSet();
+    final membershipByStudent = {
+      for (final row in scopedStudents)
+        row['student_id'] as String: row['membership_id'] as String,
+    };
     final studentNames = {
       for (final row in scopedStudents)
-        row['id'] as String: row['name'] as String? ?? row['id'] as String,
+        row['student_id'] as String:
+            row['student_name'] as String? ?? row['student_id'] as String,
     };
     final studentClassMap = {
       for (final row in scopedStudents)
-        row['id'] as String: row['current_class_id'] as String?,
+        row['student_id'] as String: row['class_id'] as String?,
     };
     final studentEnrollment = <String, DateTime?>{
       for (final row in scopedStudents)
-        row['id'] as String: row['enrollment_at'] == null
+        row['student_id'] as String: row['enrollment_date'] == null
             ? null
-            : DateTime.tryParse(row['enrollment_at'] as String),
+            : DateTime.tryParse(row['enrollment_date'].toString()),
     };
 
     // 4. Query Meetings in period
@@ -115,7 +122,7 @@ class SupabaseReportRepository {
       attendanceRes = await _client
           .from('attendance_records')
           .select(
-            'meeting_id, student_id, checked_in_at, created_at, updated_at',
+            'meeting_id, student_id, service_student_id, checked_in_at, created_at, updated_at',
           )
           .inFilter('meeting_id', meetingIds);
     }
@@ -138,7 +145,8 @@ class SupabaseReportRepository {
     for (final row in attendanceRes) {
       final sId = row['student_id'] as String;
       final mId = row['meeting_id'] as String;
-      if (!studentSet.contains(sId)) continue;
+      if (!studentSet.contains(sId) ||
+          !membershipIds.contains(row['service_student_id'])) continue;
       final key = '$mId:$sId';
       if (!countedKeys.add(key)) continue;
 
@@ -414,8 +422,9 @@ class SupabaseReportRepository {
       try {
         legacyFollowUps = await _client
             .from('follow_up_records')
-            .select('id, student_id, follow_up_date')
-            .inFilter('student_id', studentIds)
+            .select('id, student_id, service_student_id, follow_up_date')
+            .eq('service_id', serviceId)
+            .inFilter('service_student_id', membershipIds.toList())
             .gte('follow_up_date', startDateStr)
             .lte('follow_up_date', endDateStr);
       } catch (_) {}
