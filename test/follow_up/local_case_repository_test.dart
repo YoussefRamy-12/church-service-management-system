@@ -48,6 +48,59 @@ void main() {
     expect(activities.first.description, contains('تم فتح حالة المتابعة'));
   });
 
+  test('Student activity history is isolated by service membership', () async {
+    final serviceACase = await repo.createCase(
+      serviceId: 'service-a',
+      studentId: 'shared-student',
+      serviceStudentId: 'shared-student-service-a',
+      classId: 'class-a',
+      title: 'Service A case',
+      priority: CasePriority.medium,
+      createdBy: 'servant-a',
+    );
+    final serviceBCase = await repo.createCase(
+      serviceId: 'service-b',
+      studentId: 'shared-student',
+      serviceStudentId: 'shared-student-service-b',
+      classId: 'class-b',
+      title: 'Service B case',
+      priority: CasePriority.medium,
+      createdBy: 'servant-b',
+    );
+    await repo.recordActivity(
+      caseId: serviceACase.id,
+      activityType: ActivityType.note,
+      description: 'Service A activity',
+      createdBy: 'servant-a',
+      activityDate: '2026-11-01',
+    );
+    await repo.recordActivity(
+      caseId: serviceBCase.id,
+      activityType: ActivityType.note,
+      description: 'Service B activity',
+      createdBy: 'servant-b',
+      activityDate: '2026-11-02',
+    );
+
+    final serviceAActivities = await repo
+        .watchActivitiesForStudent(
+          serviceId: 'service-a',
+          studentId: 'shared-student',
+        )
+        .firstWhere((rows) => rows.isNotEmpty);
+    final serviceBActivities = await repo
+        .watchActivitiesForStudent(
+          serviceId: 'service-b',
+          studentId: 'shared-student',
+        )
+        .firstWhere((rows) => rows.isNotEmpty);
+
+    expect(serviceAActivities, hasLength(1));
+    expect(serviceAActivities.single.description, 'Service A activity');
+    expect(serviceBActivities, hasLength(1));
+    expect(serviceBActivities.single.description, 'Service B activity');
+  });
+
   test('Scoped query isolates cases by class', () async {
     await repo.createCase(
       serviceId: 'service-1',
