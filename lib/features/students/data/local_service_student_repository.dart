@@ -45,7 +45,7 @@ class LocalServiceStudentRepository {
             grade: Value(membership.grade),
             isDeacon: Value(membership.isDeacon),
             notes: Value(membership.notes),
-            studentName: membership.studentName,
+            studentName: Value(membership.studentName),
             birthDate: Value(membership.birthDate?.toIso8601String()),
             phone: Value(membership.phone),
             photoPath: Value(membership.photoPath),
