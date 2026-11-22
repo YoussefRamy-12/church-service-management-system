@@ -127,10 +127,12 @@ No local cache rows or queued operations may be dropped during the Drift upgrade
 
 ## 7. Migration ledger reconciliation
 
-At the initial audit, the remote ledger had 15 versions and the branch had 25 SQL files. After applying the four additive membership migrations below, the remote ledger has **19 versions** and the branch has **29 SQL files**. The three new versions are aligned exactly:
+At the initial audit, the remote ledger had 15 versions and the branch had 25 SQL files. After applying the four additive membership migrations below, the remote ledger has **19 versions** and the branch has **29 SQL files**. The four new versions are aligned exactly:
 
 - `20261122125142_multi_service_membership_expand`
 - `20261122125643_service_membership_class_scope_write`
+- `20261122125923_service_membership_fk_indexes`
+- `20261122130257_service_student_directory_rpc`
 
 The remaining mismatch is 15 branch migration files not represented by the same version in the remote ledger, and 5 remote ledger versions without same-version files in this branch.
 
@@ -174,9 +176,9 @@ This is evidence that many effects exist in the catalog, not a byte-for-byte pro
 - `20261122125923_service_membership_fk_indexes`: indexes the new composite foreign keys and adds the membership `updated_at` trigger.
 - `20261122130257_service_student_directory_rpc`: exposes a service-scoped, authorization-checked identity projection so a second service can read only the global identity fields for its own memberships without broadening direct access to the legacy `students` table.
 
-The Flutter/Drift branch now has schema version 10 with a `CachedServiceStudents` table, a `ServiceStudent` domain entity, an offline-first membership repository, and a `service_student` sync handler, and the `get_service_student_directory` RPC projection. Offline tests cover membership cache isolation by service, queued upserts, and archive state changes.
+The Flutter/Drift branch now has schema version 11 with a `CachedServiceStudents` table, a `ServiceStudent` domain entity, an offline-first membership repository, and a `service_student` sync handler, and the `get_service_student_directory` RPC projection. Offline tests cover membership cache isolation by service, queued upserts, and archive state changes.
 
-**Compatibility boundary:** the existing student screens and legacy student repositories still read/write `students.service_id/current_class_id`. The new membership repository and sync handler are additive foundations; the student UI, global identity projection, and all existing workflows have not yet been switched to membership-first reads/writes. Therefore this expansion does not yet enable end-to-end second-service student workflows.
+**Compatibility boundary:** the existing student screens and legacy student repositories still read/write `students.service_id/current_class_id`. The new membership repository and sync handler are additive foundations; the student UI and existing workflows have not yet been switched to membership-first reads/writes or to consume the new identity projection. Therefore this expansion does not yet enable end-to-end second-service student workflows.
 
 The old `students.service_id` and class columns remain in place. No contract/drop migration has been applied.
 
