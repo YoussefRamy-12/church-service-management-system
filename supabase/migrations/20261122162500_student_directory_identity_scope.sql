@@ -1,5 +1,7 @@
 -- Expose the owning service identifier as metadata only, so the client
 -- can prevent offline sensitive-data cache leakage across service memberships.
+DROP FUNCTION IF EXISTS public.get_service_student_directory(uuid);
+
 CREATE OR REPLACE FUNCTION public.get_service_student_directory(p_service_id uuid)
 RETURNS TABLE (
   membership_id uuid,
@@ -42,6 +44,10 @@ BEGIN
     );
 END;
 $function$;
+
+REVOKE ALL ON FUNCTION public.get_service_student_directory(uuid) FROM PUBLIC, anon;
+GRANT EXECUTE ON FUNCTION public.get_service_student_directory(uuid) TO authenticated, service_role;
+
 
 REVOKE ALL ON FUNCTION public.get_service_student_directory(uuid) FROM PUBLIC, anon;
 GRANT EXECUTE ON FUNCTION public.get_service_student_directory(uuid) TO authenticated, service_role;
