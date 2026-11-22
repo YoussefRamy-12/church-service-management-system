@@ -571,7 +571,7 @@ class SupabaseReportRepository {
     // 12. Student Analytics & Tiers
     final tierCounts = {'90-100%': 0, '75-89%': 0, '50-74%': 0, '<50%': 0};
     for (final s in scopedStudents) {
-      final sid = s['id'] as String;
+      final sid = s['student_id'] as String;
       final enrolledAt = studentEnrollment[sid];
       var sExp = 0;
       for (final m in meetingRows) {
