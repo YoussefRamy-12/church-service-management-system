@@ -190,15 +190,20 @@ class AttendancePage extends ConsumerWidget {
                                 ),
                                 icon: const Icon(Icons.how_to_reg_rounded, size: 18),
                                 label: const Text('تسجيل'),
-                                onPressed: () async {
-                                  await repository.checkIn(
-                                    meetingId: meetingId,
-                                    studentId: student.id,
-                                    classIdAtAttendance: classId,
-                                    recordedBy: recordedBy,
-                                    checkedInAt: DateTime.now(),
-                                  );
-                                },
+                                onPressed: student.membershipId == null ||
+                                        student.serviceId != serviceId
+                                    ? null
+                                    : () async {
+                                        await repository.checkIn(
+                                          meetingId: meetingId,
+                                          studentId: student.id,
+                                          serviceId: student.serviceId,
+                                          serviceStudentId: student.membershipId!,
+                                          classIdAtAttendance: classId,
+                                          recordedBy: recordedBy,
+                                          checkedInAt: DateTime.now(),
+                                        );
+                                      },
                               ),
                           ],
                         ),
