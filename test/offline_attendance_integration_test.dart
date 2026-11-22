@@ -64,6 +64,38 @@ void main() {
     },
   );
 
+  test('queued check-ins retain their original service after a service switch', () async {
+    await attendance.checkIn(
+      meetingId: 'meeting-service-a',
+      studentId: 'shared-student',
+      serviceId: 'service-a',
+      serviceStudentId: 'membership-a',
+      classIdAtAttendance: 'class-a',
+      recordedBy: 'servant-a',
+      checkedInAt: DateTime(2026, 10, 7, 10, 30),
+    );
+    await attendance.checkIn(
+      meetingId: 'meeting-service-b',
+      studentId: 'shared-student',
+      serviceId: 'service-b',
+      serviceStudentId: 'membership-b',
+      classIdAtAttendance: 'class-b',
+      recordedBy: 'servant-b',
+      checkedInAt: DateTime(2026, 10, 7, 10, 35),
+    );
+
+    // Changing the active service does not rewrite previously queued payloads.
+    final payloads = (await queue.pending())
+        .map((operation) => queue.decode(operation.payloadJson))
+        .toList();
+
+    expect(payloads, hasLength(2));
+    expect(payloads.map((payload) => payload['service_id']),
+        ['service-a', 'service-b']);
+    expect(payloads.map((payload) => payload['service_student_id']),
+        ['membership-a', 'membership-b']);
+  });
+
   test(
     'duplicate check-in does not create a second attendance record or sync operation',
     () async {
