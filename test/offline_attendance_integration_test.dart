@@ -114,7 +114,7 @@ void main() {
       expect(localRows.single.checkedInAt, updatedAt);
       expect(pending, hasLength(1));
       expect(pending.single.operationId, original.clientOperationId);
-      expect(payload['checked_in_at'], updatedAt.toIso8601String());
+      expect(payload['checked_in_at'], updatedAt.toUtc().toIso8601String());
     },
   );
 
