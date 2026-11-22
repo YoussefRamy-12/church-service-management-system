@@ -346,7 +346,7 @@ class AppDatabase extends _$AppDatabase {
         await m.addColumn(cachedServiceStudents, cachedServiceStudents.identityServiceId);
       }
       if (from < 14) {
-        await m.customStatement('''
+        await m.issueCustomQuery('''
           INSERT OR IGNORE INTO cached_service_students (
             id, student_id, service_id, class_id, proposed_class_id,
             enrollment_date, status, school, grade, is_deacon, notes,
