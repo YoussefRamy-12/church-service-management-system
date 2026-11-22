@@ -15,7 +15,7 @@ class OfflineFirstFollowUpRepository implements FollowUpRepository {
   @override
   Stream<List<FollowUpRecord>> watchForStudent(
     String id, {
-    String? serviceId,
+    required String serviceId,
   }) => local.watchForStudent(id, serviceId: serviceId);
 
   @override
