@@ -322,8 +322,8 @@ void main() {
       expect(class2.expectedAttendance, 1);
       expect(class2.presentCount, 1);
 
-      expect(report.studentAnalytics.attendanceTiers['90-100%'], 2);
-      expect(report.studentAnalytics.attendanceTiers['<50%'], 1);
+      expect(report.studentAnalytics!.attendanceTiers['90-100%'], 2);
+      expect(report.studentAnalytics!.attendanceTiers['<50%'], 1);
     });
 
     test('handles zero expected attendance without division by zero', () {
