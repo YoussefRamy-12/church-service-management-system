@@ -103,10 +103,10 @@ void main() {
 
       final pending = await queue.pending();
 
-      expect(pending, hasLength(3));
+      expect(pending, hasLength(4));
       expect(
         pending.map((item) => item.entityType).toSet(),
-        containsAll(<String>['attendance', 'follow_up', 'student']),
+        containsAll(<String>['attendance', 'follow_up', 'student', 'service_student']),
       );
       expect(
         pending.map((item) => item.operationId).toSet(),
@@ -137,10 +137,19 @@ void main() {
                     .payloadJson,
               )
               as Map<String, dynamic>;
+      final membershipPayload =
+          jsonDecode(
+                pending
+                    .firstWhere((item) => item.entityType == 'service_student')
+                    .payloadJson,
+              )
+              as Map<String, dynamic>;
 
       expect(attendancePayload['student_id'], 'student-1');
       expect(followUpPayload['student_id'], 'student-1');
       expect(studentPayload['name'], 'Peter Updated');
+      expect(membershipPayload['student_id'], 'student-1');
+      expect(membershipPayload['id'], 'student-1_membership');
 
       final cachedStudent = await students.local.findById('student-1');
       expect(cachedStudent?.name, 'Peter Updated');
