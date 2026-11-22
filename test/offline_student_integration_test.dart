@@ -8,6 +8,7 @@ import 'package:church_service_management_system/features/students/data/local_st
 import 'package:church_service_management_system/features/students/data/offline_first_student_repository.dart';
 import 'package:church_service_management_system/features/students/data/supabase_student_repository.dart';
 import 'package:church_service_management_system/features/students/domain/entities/student.dart';
+import 'package:church_service_management_system/features/students/domain/entities/sensitive_student_data.dart';
 
 Student _student({
   String id = 'student-1',
@@ -118,6 +119,30 @@ void main() {
       expect(membershipPayload['class_id'], 'class-2');
     },
   );
+
+  test('offline student deletion archives membership and preserves identity cache', () async {
+    await repo.local.cacheStudents([_student()]);
+    const sensitive = SensitiveStudentData(
+      studentId: 'student-1',
+      fatherJob: 'محاسب',
+    );
+    await repo.local.cacheSensitiveData(sensitive);
+
+    await repo.deleteStudent('student-1', membershipId: 'student-1_membership');
+
+    final archived = await repo.local.findById('student-1');
+    final pending = await queue.pending();
+    expect(archived, isNotNull);
+    expect(archived!.membershipStatus, 'inactive');
+    expect(await repo.local.findSensitiveData('student-1'), isNotNull);
+    expect(pending, hasLength(1));
+    expect(pending.single.entityType, 'service_student');
+    expect(pending.single.operationType, 'delete');
+    expect(
+      (jsonDecode(pending.single.payloadJson) as Map<String, dynamic>)['id'],
+      'student-1_membership',
+    );
+  });
 
   test(
     'multiple offline student edits create independently retryable operations',
