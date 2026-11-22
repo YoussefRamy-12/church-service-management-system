@@ -23,5 +23,9 @@ abstract interface class StudentRepository {
   Future<Student> approvePending(String studentId, {String? membershipId});
   Future<void> deleteStudent(String studentId, {String? membershipId});
   Future<Student> assignClass(String studentId, String classId, {String? membershipId});
-  Future<SensitiveStudentData?> getSensitiveData(String studentId);
+  Future<SensitiveStudentData?> getSensitiveData(
+    String studentId, {
+    String? serviceId,
+    String? identityServiceId,
+  });
 }
