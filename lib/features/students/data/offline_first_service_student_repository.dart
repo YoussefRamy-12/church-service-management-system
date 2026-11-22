@@ -24,13 +24,10 @@ class OfflineFirstServiceStudentRepository {
       local.watchForService(serviceId);
 
   Future<void> refresh(String serviceId) async {
-    final rows = await _client
-        .from('service_students')
-        .select(
-          'id,student_id,service_id,class_id,proposed_class_id,enrollment_date,status,school,grade,is_deacon,notes',
-        )
-        .eq('service_id', serviceId)
-        .order('enrollment_date');
+    final rows = await _client.rpc(
+      'get_service_student_directory',
+      params: {'p_service_id': serviceId},
+    );
     await local.cache(
       rows.map((row) => ServiceStudent.fromMap(row)).toList(),
     );
