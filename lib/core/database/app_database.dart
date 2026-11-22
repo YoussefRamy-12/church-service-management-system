@@ -345,6 +345,29 @@ class AppDatabase extends _$AppDatabase {
       if (from < 14) {
         await m.addColumn(cachedServiceStudents, cachedServiceStudents.identityServiceId);
       }
+      if (from < 14) {
+        await m.customStatement('''
+          INSERT OR IGNORE INTO cached_service_students (
+            id, student_id, service_id, class_id, proposed_class_id,
+            enrollment_date, status, school, grade, is_deacon, notes,
+            student_name, birth_date, phone, photo_path,
+            identity_service_id, cached_at
+          )
+          SELECT
+            membership_id, id, service_id, current_class_id, proposed_class_id,
+            COALESCE(enrollment_at, datetime(cached_at / 1000, 'unixepoch')),
+            CASE
+              WHEN membership_status = 'pending' THEN 'pending'
+              WHEN membership_status = 'inactive' THEN 'inactive'
+              WHEN approval_status = 'pending' THEN 'pending'
+              ELSE 'active'
+            END,
+            school, grade, is_deacon, notes, name, birth_date, phone, photo_path,
+            COALESCE(identity_service_id, service_id), cached_at
+          FROM cached_students
+          WHERE membership_id IS NOT NULL;
+        ''');
+      }
     },
   );
 }
