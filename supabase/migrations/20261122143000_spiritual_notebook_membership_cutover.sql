@@ -84,6 +84,8 @@ USING (
   )
 );
 
+DROP FUNCTION IF EXISTS public.submit_spiritual_notebook(uuid,date,uuid[],integer,text,uuid);
+
 CREATE OR REPLACE FUNCTION public.submit_spiritual_notebook(
   p_service_student_id uuid,
   p_period_start date,
