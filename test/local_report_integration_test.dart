@@ -81,6 +81,46 @@ void main() {
     expect(report.present, 0);
   });
 
+  test('report isolates attendance to the selected service membership', () async {
+    await seedBaseData();
+
+    await db.into(db.cachedServiceStudents).insert(
+      CachedServiceStudentsCompanion.insert(
+        id: 'membership-service-2',
+        studentId: 'student-1',
+        serviceId: 'service-2',
+        studentName: const Value('Peter'),
+        status: 'active',
+        classId: const Value('class-1'),
+        enrollmentDate: '2026-09-01',
+        cachedAt: DateTime(2026, 10, 1),
+      ),
+    );
+    await db.into(db.cachedAttendanceRecords).insert(
+      CachedAttendanceRecordsCompanion.insert(
+        id: 'attendance-service-2',
+        meetingId: 'meeting-1',
+        studentId: 'student-1',
+        serviceId: const Value('service-2'),
+        serviceStudentId: const Value('membership-service-2'),
+        classIdAtAttendance: 'class-1',
+        checkedInAt: DateTime(2026, 10, 5, 10, 10),
+        recordedBy: 'servant-2',
+        clientOperationId: 'op-service-2',
+        syncState: const Value('synced'),
+      ),
+    );
+
+    final report = await repo.fetch(
+      serviceId: 'service-1',
+      start: DateTime(2026, 10, 1),
+      end: DateTime(2026, 10, 31),
+    );
+
+    expect(report.students, 2);
+    expect(report.present, 0);
+  });
+
   test('report separates early and normal attendance', () async {
     await seedBaseData();
 
