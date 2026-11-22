@@ -77,7 +77,7 @@ void main() {
       () async {
         final db = AppDatabase.forTesting();
         try {
-          expect(db.schemaVersion, 15);
+          expect(db.schemaVersion, 16);
           expect(db.migration.onUpgrade, isNotNull);
 
           final students = await db.select(db.cachedStudents).get();
