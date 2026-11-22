@@ -71,6 +71,11 @@ class OnlineStudentRegistration implements StudentRegistration {
       final effectiveApprovalStatus = input.approvalStatus ??
           (effectiveCurrentClassId != null ? 'approved' : 'pending');
 
+      if (input.birthDate == null) {
+        throw ArgumentError(
+          'Student "${input.name}" is missing a required birth date.',
+        );
+      }
       final effectiveGrade = input.grade?.trim();
       if (effectiveGrade == null || effectiveGrade.isEmpty) {
         throw ArgumentError(
