@@ -28,6 +28,16 @@ class StudentSyncHandler implements EntitySyncHandler {
     }
 
     if (operation.operationType == 'insert') {
+      final existing = await client
+          .from('students')
+          .select('service_id')
+          .eq('id', payload['id'] as String)
+          .maybeSingle();
+      if (existing != null && existing['service_id'] != payload['service_id']) {
+        throw const SyncConflictException(
+          'A service membership cannot overwrite a global identity owned by another service.',
+        );
+      }
       final sensitiveData = payload.remove('sensitive_data');
       await client.from('students').upsert(payload, onConflict: 'id');
       if (sensitiveData is Map<String, dynamic> &&
@@ -44,6 +54,16 @@ class StudentSyncHandler implements EntitySyncHandler {
     }
 
     if (operation.operationType == 'update') {
+      final existing = await client
+          .from('students')
+          .select('service_id')
+          .eq('id', payload['id'] as String)
+          .maybeSingle();
+      if (existing == null || existing['service_id'] != payload['service_id']) {
+        throw const SyncConflictException(
+          'Global identity updates are restricted to the identity-owning service.',
+        );
+      }
       final sensitiveData = payload.remove('sensitive_data');
       final rows = await client
           .from('students')
