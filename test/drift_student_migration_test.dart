@@ -7,11 +7,11 @@ import 'package:church_service_management_system/features/students/domain/entiti
 void main() {
   group('Drift Student Migration & Compatibility Tests', () {
     test(
-      'Fresh installation initializes schema version 9 with student and follow-up caches',
+      'Fresh installation initializes schema version 10 with service membership cache',
       () async {
         final db = AppDatabase.forTesting();
         try {
-          expect(db.schemaVersion, 9);
+          expect(db.schemaVersion, 10)
 
           final local = LocalStudentRepository(db);
 
@@ -73,7 +73,7 @@ void main() {
     );
 
     test(
-      'Version 9 database exposes student and follow-up cache tables',
+      'Version 10 database exposes student, follow-up and membership cache tables',
       () async {
         final db = AppDatabase.forTesting();
         try {
@@ -93,6 +93,7 @@ void main() {
             isEmpty,
           );
           expect(await db.select(db.cachedFollowUpActivities).get(), isEmpty);
+          expect(await db.select(db.cachedServiceStudents).get(), isEmpty);
         } finally {
           await db.close();
         }
