@@ -8,6 +8,7 @@ class FollowUpCase {
     required this.id,
     required this.serviceId,
     required this.studentId,
+    required this.serviceStudentId,
     required this.classId,
     required this.title,
     required this.priority,
@@ -32,6 +33,7 @@ class FollowUpCase {
   final String id;
   final String serviceId;
   final String studentId;
+  final String serviceStudentId;
   final String classId;
   final String title;
   final String? description;
@@ -62,6 +64,7 @@ class FollowUpCase {
     String? id,
     String? serviceId,
     String? studentId,
+    String? serviceStudentId,
     String? classId,
     String? title,
     String? description,
@@ -86,6 +89,7 @@ class FollowUpCase {
       id: id ?? this.id,
       serviceId: serviceId ?? this.serviceId,
       studentId: studentId ?? this.studentId,
+      serviceStudentId: serviceStudentId ?? this.serviceStudentId,
       classId: classId ?? this.classId,
       title: title ?? this.title,
       description: description ?? this.description,
