@@ -129,7 +129,7 @@ No local cache rows or queued operations may be dropped during the Drift upgrade
 
 ## 7. Migration ledger reconciliation
 
-At the initial audit, the remote ledger had 15 versions and the branch had 25 SQL files. After applying the eight additive membership, security and performance migrations below, the remote ledger has **23 versions** and the branch has **33 SQL files**. The eight new versions are aligned exactly:
+At the initial audit, the remote ledger had 15 versions and the branch had 25 SQL files. After applying the ten additive membership, security and performance migrations below, the remote ledger has **25 versions** and the branch has **35 SQL files**. The ten new versions are aligned exactly:
 
 - `20261122125142_multi_service_membership_expand`
 - `20261122125643_service_membership_class_scope_write`
@@ -139,8 +139,10 @@ At the initial audit, the remote ledger had 15 versions and the branch had 25 SQ
 - `20261122140938_students_membership_workflows`
 - `20261122141313_students_update_nullable_date_guard`
 - `20261122141534_student_directory_identity_scope`
+- `20261122143825_spiritual_notebook_membership_cutover`
+- `20261122143841_spiritual_notebook_active_membership_roster`
 
-The remaining mismatch is 15 branch migration files not represented by the same version in the remote ledger, and 5 remote ledger versions without same-version files in this branch. The eight expand-phase migrations now match the remote ledger versions exactly after correcting the three Students migration filenames to their applied versions.
+The remaining mismatch is 15 branch migration files not represented by the same version in the remote ledger, and 5 remote ledger versions without same-version files in this branch. The ten expand-phase migrations now match the remote ledger versions exactly after correcting local filenames to their applied versions.
 
 ### Branch files absent from remote ledger
 
@@ -186,7 +188,7 @@ This is evidence that many effects exist in the catalog, not a byte-for-byte pro
 - `20261122162000_students_update_nullable_date_guard`: preserves existing required date values when optional edit fields are omitted.
 - `20261122162500_student_directory_identity_scope`: adds `identity_service_id` to the directory projection so local sensitive-data cache fallback is denied across service boundaries.
 
-The Flutter/Drift branch now has schema version 14, a `CachedServiceStudents` table, membership IDs and identity ownership in `CachedStudents`, a `ServiceStudent` domain entity, an offline-first membership repository, and a `service_student` sync handler. The directory RPC returns the identity-owning service ID for sensitive-data isolation. Offline tests cover membership cache isolation by service, queued upserts, and archive state changes.
+The Flutter/Drift branch now has schema version 14, a `CachedServiceStudents` table, membership IDs and identity ownership in `CachedStudents`, a `ServiceStudent` domain entity, an offline-first membership repository, and a `service_student` sync handler. The directory RPC returns the identity-owning service ID for sensitive-data isolation. Spiritual Notebook now reads active membership rosters and submits scores against membership IDs, with a class-at-submission snapshot and per-membership weekly uniqueness. Offline tests cover membership cache isolation by service, queued upserts, and archive state changes.
 
 **Compatibility boundary:** the Students screen now reads its roster through `get_service_student_directory` and routes registration, editing, approval, class assignment, and archival through membership lifecycle RPCs. Legacy `students` columns are dual-written only for the existing owning service while other modules are migrated. Attendance, Follow-up, and Spiritual Notebook still need membership-first application cutovers, so this phase does not yet enable complete second-service operations.
 
@@ -234,7 +236,7 @@ The old `students.service_id` and class columns remain in place. No contract/dro
 - Cross-service reads of `student_sensitive_data` returned zero rows; the directory RPC does not expose that table.
 - Legacy-shaped attendance, follow-up and spiritual-notebook writes were tested in temporary transactions; the database triggers attached the correct membership automatically, and all temporary rows were removed.
 - Cross-service follow-up association was rejected by the hierarchy validator.
-- End-to-end second-service attendance, follow-up, notebook, and sensitive-data workflows are not yet enabled because their UI/repositories/RPCs have not all moved to membership IDs.
+- End-to-end second-service attendance and follow-up workflows are not yet enabled because their UI/repositories/RPCs have not all moved to membership IDs. Spiritual Notebook now uses membership IDs, but a real second-service membership and submission test remains outstanding.
 - Sensitive student data remains on the legacy student-keyed model and needs an explicit per-service confidentiality design.
 - Offline membership queue behavior is covered; cross-service replay of all existing attendance/follow-up queue variants remains outstanding.
 
