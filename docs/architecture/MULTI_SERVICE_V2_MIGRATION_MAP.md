@@ -107,7 +107,7 @@ For attendance, enforce that meeting, membership and service are consistent at t
 
 ## 6. Drift and offline synchronization mapping
 
-Current Drift schema version is 13. `CachedStudents` remains keyed by global student ID for compatibility, but now also stores the active membership ID, membership status, and identity-owning service ID. The local schema currently has:
+Current Drift schema version is 13. `CachedStudents` remains the global identity cache keyed by student ID. `CachedServiceStudents` is the per-membership offline roster cache keyed by membership ID and now stores the identity-owning service ID. The local schema currently has:
 - `CachedStudents` with global identity fields, service membership fields, membership ID/status, and identity owner metadata.
 - `CachedStudentSensitiveData` keyed by global student ID; offline reads are denied unless the current service is the identity-owning service.
 - `CachedAttendanceRecords` with meeting and student IDs but no membership/service ID.
@@ -184,7 +184,7 @@ This is evidence that many effects exist in the catalog, not a byte-for-byte pro
 - `20261122162000_students_update_nullable_date_guard`: preserves existing required date values when optional edit fields are omitted.
 - `20261122162500_student_directory_identity_scope`: adds `identity_service_id` to the directory projection so local sensitive-data cache fallback is denied across service boundaries.
 
-The Flutter/Drift branch now has schema version 13, a `CachedServiceStudents` table, membership IDs and identity ownership in `CachedStudents`, a `ServiceStudent` domain entity, an offline-first membership repository, and a `service_student` sync handler. The directory RPC returns the identity-owning service ID for sensitive-data isolation. Offline tests cover membership cache isolation by service, queued upserts, and archive state changes.
+The Flutter/Drift branch now has schema version 14, a `CachedServiceStudents` table, membership IDs and identity ownership in `CachedStudents`, a `ServiceStudent` domain entity, an offline-first membership repository, and a `service_student` sync handler. The directory RPC returns the identity-owning service ID for sensitive-data isolation. Offline tests cover membership cache isolation by service, queued upserts, and archive state changes.
 
 **Compatibility boundary:** the Students screen now reads its roster through `get_service_student_directory` and routes registration, editing, approval, class assignment, and archival through membership lifecycle RPCs. Legacy `students` columns are dual-written only for the existing owning service while other modules are migrated. Attendance, Follow-up, and Spiritual Notebook still need membership-first application cutovers, so this phase does not yet enable complete second-service operations.
 
@@ -214,7 +214,7 @@ The old `students.service_id` and class columns remain in place. No contract/dro
 - Added the `ServiceStudent` entity, Drift membership cache (schema version 13), offline-first repository, and `service_student` sync handler.
 - Added `get_service_student_directory` for authorized identity projection, including the identity-owning service identifier used to isolate sensitive data.
 - Implemented Students membership-backed reads and registration, editing, approval, class assignment, and membership archival through transactional/authorized RPCs.
-- Drift now uses schema version 13 and caches membership ID, membership status, and identity ownership.
+- Drift now uses schema version 14 and caches membership ID, membership status, and identity ownership.
 - Offline registration queues the global student insert before its service membership upsert; membership edits/approval/class changes sync separately.
 - Legacy queued physical student deletes now become sync conflicts instead of deleting global identities.
 - Sensitive data is not read from the local device cache when the active membership belongs to a different service or identity ownership is unknown.
