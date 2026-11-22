@@ -40,6 +40,29 @@ class ServiceStudentSyncHandler implements EntitySyncHandler {
     if (operation.operationType == 'insert' ||
         operation.operationType == 'update' ||
         operation.operationType == 'upsert') {
+      final studentId = payload['student_id'] as String?;
+      final serviceId = payload['service_id'] as String?;
+      if (membershipId == null || studentId == null || serviceId == null) {
+        throw const SyncConflictException(
+          'Membership ID, student ID, and service ID are required.',
+        );
+      }
+
+      // The unique student/service pair is the logical membership identity.
+      // Reject a stale or mismatched local ID instead of allowing an upsert
+      // to overwrite the primary key of another service membership.
+      final existing = await client
+          .from('service_students')
+          .select('id')
+          .eq('student_id', studentId)
+          .eq('service_id', serviceId)
+          .maybeSingle();
+      if (existing != null && existing['id'] != membershipId) {
+        throw const SyncConflictException(
+          'The student already has a different membership ID in this service.',
+        );
+      }
+
       final rows = await client
           .from('service_students')
           .upsert(payload, onConflict: 'student_id,service_id')
