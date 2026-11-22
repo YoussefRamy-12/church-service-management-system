@@ -127,13 +127,16 @@ No local cache rows or queued operations may be dropped during the Drift upgrade
 
 ## 7. Migration ledger reconciliation
 
-At the initial audit, the remote ledger had 15 versions and the branch had 25 SQL files. After applying the five additive membership, security and performance migrations below, the remote ledger has **20 versions** and the branch has **30 SQL files**. The five new versions are aligned exactly:
+At the initial audit, the remote ledger had 15 versions and the branch had 25 SQL files. After applying the five additive membership, security and performance migrations below, the remote ledger has **23 versions** and the branch has **33 SQL files**. The eight new versions are aligned exactly:
 
 - `20261122125142_multi_service_membership_expand`
 - `20261122125643_service_membership_class_scope_write`
 - `20261122125923_service_membership_fk_indexes`
 - `20261122130257_service_student_directory_rpc`
 - `20261122131229_index_remaining_foreign_keys`
+- `20261122160500_students_membership_workflows`
+- `20261122162000_students_update_nullable_date_guard`
+- `20261122162500_student_directory_identity_scope`
 
 The remaining mismatch is 15 branch migration files not represented by the same version in the remote ledger, and 5 remote ledger versions without same-version files in this branch.
 
@@ -205,11 +208,17 @@ The old `students.service_id` and class columns remain in place. No contract/dro
 ### Gate B — application and offline dual compatibility
 **Status: Partially completed**
 - Added the `ServiceStudent` entity, Drift membership cache (schema version 11), offline-first repository, and `service_student` sync handler.
-- Added `get_service_student_directory` for authorized identity projection.
-- Added offline cache, queue, archive, RPC-mapping and sync-engine tests.
+- Added `get_service_student_directory` for authorized identity projection, including the identity-owning service identifier used to isolate sensitive data.
+- Implemented Students membership-backed reads and registration, editing, approval, class assignment, and membership archival through transactional/authorized RPCs.
+- Drift now uses schema version 13 and caches membership ID, membership status, and identity ownership.
+- Offline registration queues the global student insert before its service membership upsert; membership edits/approval/class changes sync separately.
+- Legacy queued physical student deletes now become sync conflicts instead of deleting global identities.
+- Sensitive data is not read from the local device cache when the active membership belongs to a different service or identity ownership is unknown.
+- Added offline cache, queue, archive, RPC-mapping, and sync-engine tests.
+- Global identity search/verification and confirmed reuse are not yet exposed in the UI. Duplicate matching remains explicit; automatic merging is out of scope.
 - Latest CI run **#353** passed dependency resolution, Drift generation, Flutter analysis, web build and the full `flutter test` suite: **189 tests passed**. The suite includes attendance, students, follow-up, weekly preparation and spiritual notebook coverage.
-- The existing student UI, attendance UI, follow-up UI and spiritual-notebook UI still use legacy student/service fields. The membership path is not yet wired through every feature or provider.
-- A full on-device upgrade test from an existing v10 database and replay of old queued payloads remains required.
+- The Students feature now reads and mutates service memberships through the new directory/lifecycle RPCs. Attendance, Follow-up, and Spiritual Notebook still require their own UI/repository cutovers.
+- A full on-device upgrade test from an existing v11/v12 database and replay of old queued payloads remains required; CI generation and tests are the current validation gate.
 
 ### Gate C — multi-service isolation
 <badge color="warning">Partially completed</badge>
