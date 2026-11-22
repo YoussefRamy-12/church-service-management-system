@@ -16,7 +16,7 @@ class AttendancePage extends ConsumerWidget {
   final String meetingId;
   final String classId;
   final String recordedBy;
-  final List<({String id, String name})> students;
+  final List<({String id, String name, String serviceId, String serviceStudentId})> students;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -190,15 +190,12 @@ class AttendancePage extends ConsumerWidget {
                                 ),
                                 icon: const Icon(Icons.how_to_reg_rounded, size: 18),
                                 label: const Text('تسجيل'),
-                                onPressed: student.membershipId == null ||
-                                        student.serviceId != serviceId
-                                    ? null
-                                    : () async {
+                                onPressed: () async {
                                         await repository.checkIn(
                                           meetingId: meetingId,
                                           studentId: student.id,
                                           serviceId: student.serviceId,
-                                          serviceStudentId: student.membershipId!,
+                                          serviceStudentId: student.serviceStudentId,
                                           classIdAtAttendance: classId,
                                           recordedBy: recordedBy,
                                           checkedInAt: DateTime.now(),
