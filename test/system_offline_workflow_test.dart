@@ -86,6 +86,8 @@ void main() {
 
       final followUpRecord = await followUp.create(
         studentId: 'student-1',
+        serviceId: 'service-1',
+        serviceStudentId: 'student-1_membership',
         createdBy: 'servant-1',
         followUpDate: '2026-10-07',
         contactStatus: 'contacted',
@@ -161,7 +163,7 @@ void main() {
       expect(attendanceRows.single.studentId, 'student-1');
 
       final followUpRows = await followUp
-          .watchForStudent('student-1')
+          .watchForStudent('student-1', serviceId: 'service-1')
           .firstWhere((rows) => rows.isNotEmpty);
       expect(followUpRows.single.id, followUpRecord.id);
     },
