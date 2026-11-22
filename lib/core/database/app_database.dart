@@ -157,6 +157,8 @@ class CachedAttendanceRecords extends Table {
 class CachedFollowUpRecords extends Table {
   TextColumn get id => text()();
   TextColumn get studentId => text()();
+  TextColumn get serviceId => text().nullable()();
+  TextColumn get serviceStudentId => text().nullable()();
   TextColumn get createdBy => text()();
   TextColumn get followUpDate => text()();
   TextColumn get contactStatus => text()();
@@ -179,6 +181,7 @@ class CachedFollowUpCases extends Table {
   TextColumn get id => text()();
   TextColumn get serviceId => text()();
   TextColumn get studentId => text()();
+  TextColumn get serviceStudentId => text().nullable()();
   TextColumn get classId => text()();
   TextColumn get title => text()();
   TextColumn get description => text().nullable()();
@@ -288,7 +291,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.forTesting() : super(testingDatabaseConnection());
 
   @override
-  int get schemaVersion => 15;
+  int get schemaVersion => 16;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -388,6 +391,41 @@ class AppDatabase extends _$AppDatabase {
             FROM cached_service_students css
             WHERE css.student_id = cached_attendance_records.student_id
               AND css.service_id = cached_attendance_records.service_id
+            LIMIT 1
+          )
+          WHERE service_student_id IS NULL;
+        ''');
+      }
+      if (from >= 4 && from < 16) {
+        await m.addColumn(cachedFollowUpRecords, cachedFollowUpRecords.serviceId);
+        await m.addColumn(cachedFollowUpRecords, cachedFollowUpRecords.serviceStudentId);
+        await customStatement('''
+          UPDATE cached_follow_up_records
+          SET service_id = (
+            SELECT service_id FROM cached_profiles
+            WHERE cached_profiles.id = cached_follow_up_records.created_by
+          )
+          WHERE service_id IS NULL;
+        ''');
+        await customStatement('''
+          UPDATE cached_follow_up_records
+          SET service_student_id = (
+            SELECT css.id FROM cached_service_students css
+            WHERE css.student_id = cached_follow_up_records.student_id
+              AND css.service_id = cached_follow_up_records.service_id
+            LIMIT 1
+          )
+          WHERE service_student_id IS NULL;
+        ''');
+      }
+      if (from >= 9 && from < 16) {
+        await m.addColumn(cachedFollowUpCases, cachedFollowUpCases.serviceStudentId);
+        await customStatement('''
+          UPDATE cached_follow_up_cases
+          SET service_student_id = (
+            SELECT css.id FROM cached_service_students css
+            WHERE css.student_id = cached_follow_up_cases.student_id
+              AND css.service_id = cached_follow_up_cases.service_id
             LIMIT 1
           )
           WHERE service_student_id IS NULL;
