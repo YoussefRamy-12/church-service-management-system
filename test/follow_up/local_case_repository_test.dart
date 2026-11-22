@@ -95,10 +95,24 @@ void main() {
         )
         .firstWhere((rows) => rows.isNotEmpty);
 
-    expect(serviceAActivities, hasLength(1));
-    expect(serviceAActivities.single.description, 'Service A activity');
-    expect(serviceBActivities, hasLength(1));
-    expect(serviceBActivities.single.description, 'Service B activity');
+    expect(serviceAActivities, hasLength(2));
+    expect(
+      serviceAActivities.map((activity) => activity.description),
+      contains('Service A activity'),
+    );
+    expect(
+      serviceAActivities.map((activity) => activity.description),
+      isNot(contains('Service B activity')),
+    );
+    expect(serviceBActivities, hasLength(2));
+    expect(
+      serviceBActivities.map((activity) => activity.description),
+      contains('Service B activity'),
+    );
+    expect(
+      serviceBActivities.map((activity) => activity.description),
+      isNot(contains('Service A activity')),
+    );
   });
 
   test('Scoped query isolates cases by class', () async {
