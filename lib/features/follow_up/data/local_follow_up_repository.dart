@@ -8,9 +8,13 @@ class LocalFollowUpRepository {
   final AppDatabase db;
   final _uuid = const Uuid();
 
-  Stream<List<FollowUpRecord>> watchForStudent(String studentId) =>
+  Stream<List<FollowUpRecord>> watchForStudent(
+    String studentId, {
+    String? serviceId,
+  }) =>
       (db.select(db.cachedFollowUpRecords)
             ..where((t) => t.studentId.equals(studentId))
+            ..where((t) => serviceId == null || t.serviceId.equals(serviceId))
             ..orderBy([
               (t) => OrderingTerm(
                 expression: t.followUpDate,
@@ -22,6 +26,8 @@ class LocalFollowUpRepository {
 
   Future<FollowUpRecord> create({
     required String studentId,
+    required String serviceId,
+    required String serviceStudentId,
     required String createdBy,
     required String followUpDate,
     required String contactStatus,
@@ -41,6 +47,8 @@ class LocalFollowUpRepository {
           CachedFollowUpRecordsCompanion.insert(
             id: id,
             studentId: studentId,
+            serviceId: Value(serviceId),
+            serviceStudentId: Value(serviceStudentId),
             createdBy: createdBy,
             followUpDate: followUpDate,
             contactStatus: contactStatus,
@@ -59,6 +67,8 @@ class LocalFollowUpRepository {
     return FollowUpRecord(
       id: id,
       studentId: studentId,
+      serviceId: serviceId,
+      serviceStudentId: serviceStudentId,
       createdBy: createdBy,
       followUpDate: followUpDate,
       contactStatus: contactStatus,
@@ -77,6 +87,8 @@ class LocalFollowUpRepository {
   FollowUpRecord _map(CachedFollowUpRecord r) => FollowUpRecord(
     id: r.id,
     studentId: r.studentId,
+    serviceId: r.serviceId ?? '',
+    serviceStudentId: r.serviceStudentId ?? '',
     createdBy: r.createdBy,
     followUpDate: r.followUpDate,
     contactStatus: r.contactStatus,
