@@ -161,6 +161,14 @@ class _AttendanceSessionPageState extends ConsumerState<AttendanceSessionPage> {
       );
       return;
     }
+    if (student.membershipId == null || student.serviceId != widget.serviceId) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('لا يمكن تسجيل الحضور بدون عضوية صحيحة في هذه الخدمة.'),
+        ),
+      );
+      return;
+    }
     setState(() => busyStudentId = student.id);
     try {
       await ref
@@ -168,6 +176,8 @@ class _AttendanceSessionPageState extends ConsumerState<AttendanceSessionPage> {
           .checkIn(
             meetingId: widget.meetingId,
             studentId: student.id,
+            serviceId: student.serviceId,
+            serviceStudentId: student.membershipId!,
             classIdAtAttendance: classId,
             recordedBy: widget.recordedBy,
             checkedInAt: DateTime.now(),
