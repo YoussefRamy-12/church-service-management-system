@@ -58,6 +58,7 @@ class OnlineFollowUpCaseRepository implements FollowUpCaseRepository {
   Future<FollowUpCase> createCase({
     required String serviceId,
     required String studentId,
+    required String serviceStudentId,
     required String classId,
     required String title,
     String? description,
@@ -77,6 +78,7 @@ class OnlineFollowUpCaseRepository implements FollowUpCaseRepository {
       'id': id,
       'service_id': serviceId,
       'student_id': studentId,
+      'service_student_id': serviceStudentId,
       'class_id': classId,
       'title': title,
       'description': description,
@@ -421,6 +423,7 @@ class OnlineFollowUpCaseRepository implements FollowUpCaseRepository {
       id: r['id'] as String,
       serviceId: r['service_id'] as String,
       studentId: r['student_id'] as String,
+      serviceStudentId: r['service_student_id'] as String,
       classId: r['class_id'] as String,
       title: r['title'] as String,
       description: r['description'] as String?,
