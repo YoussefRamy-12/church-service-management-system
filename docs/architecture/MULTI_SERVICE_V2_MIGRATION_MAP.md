@@ -127,7 +127,7 @@ No local cache rows or queued operations may be dropped during the Drift upgrade
 
 ## 7. Migration ledger reconciliation
 
-At the initial audit, the remote ledger had 15 versions and the branch had 25 SQL files. After applying the four additive membership migrations below, the remote ledger has **20 versions** and the branch has **30 SQL files**. The five new versions are aligned exactly:
+At the initial audit, the remote ledger had 15 versions and the branch had 25 SQL files. After applying the five additive membership, security and performance migrations below, the remote ledger has **20 versions** and the branch has **30 SQL files**. The five new versions are aligned exactly:
 
 - `20261122125142_multi_service_membership_expand`
 - `20261122125643_service_membership_class_scope_write`
