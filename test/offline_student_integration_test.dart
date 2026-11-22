@@ -12,6 +12,8 @@ import 'package:church_service_management_system/features/students/domain/entiti
 
 Student _student({
   String id = 'student-1',
+  String? membershipId,
+  String? identityServiceId,
   String name = 'Peter',
   String approvalStatus = 'approved',
   String? currentClassId = 'class-1',
@@ -19,7 +21,8 @@ Student _student({
 }) {
   return Student(
     id: id,
-    membershipId: '${id}_membership',
+    membershipId: membershipId ?? '${id}_membership',
+    identityServiceId: identityServiceId ?? 'service-1',
     serviceId: 'service-1',
     currentClassId: currentClassId,
     proposedClassId: proposedClassId,
