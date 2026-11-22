@@ -51,6 +51,8 @@ BEGIN
     RETURN p_membership_id;
   END IF;
 
+  -- The client supplies a previously verified global identity ID when reusing
+  -- an existing person. ON CONFLICT never overwrites shared identity fields.
   INSERT INTO public.students (
     id, service_id, current_class_id, proposed_class_id, name, birth_date,
     phone, school, grade, enrollment_at, approval_status, photo_path, notes, is_deacon
@@ -64,7 +66,8 @@ BEGIN
     nullif(btrim(coalesce(p_photo_path, '')), ''),
     nullif(btrim(coalesce(p_notes, '')), ''),
     coalesce(p_is_deacon, false)
-  );
+  )
+  ON CONFLICT (id) DO NOTHING;
 
   INSERT INTO public.service_students (
     id, student_id, service_id, class_id, proposed_class_id, enrollment_date,
@@ -108,21 +111,16 @@ BEGIN
     RAISE EXCEPTION 'membership_not_found_or_not_authorized' USING ERRCODE = '42501';
   END IF;
 
-  UPDATE public.students
+  -- Shared identity edits are allowed only through the legacy owning service
+  -- during the compatibility window. Other memberships edit their own fields.
+  UPDATE public.students s
   SET name = btrim(p_name),
       birth_date = p_birth_date,
       phone = nullif(btrim(coalesce(p_phone, '')), ''),
       photo_path = nullif(btrim(coalesce(p_photo_path, '')), ''),
-      school = coalesce(nullif(btrim(p_school), ''), ''),
-      grade = coalesce(nullif(btrim(p_grade), ''), ''),
-      is_deacon = coalesce(p_is_deacon, false),
-      enrollment_at = p_enrollment_date,
-      notes = nullif(btrim(coalesce(p_notes, '')), ''),
       updated_at = now()
-  WHERE id = v_student_id;
-  IF NOT FOUND THEN
-    RAISE EXCEPTION 'global_identity_update_not_authorized' USING ERRCODE = '42501';
-  END IF;
+  WHERE s.id = v_student_id
+    AND s.service_id = (SELECT ss.service_id FROM public.service_students ss WHERE ss.id = p_membership_id);
 
   UPDATE public.service_students
   SET school = nullif(btrim(p_school), ''),
@@ -167,10 +165,10 @@ BEGIN
   SET status = 'active', class_id = v_class_id, proposed_class_id = NULL, updated_at = now()
   WHERE id = p_membership_id;
 
-  UPDATE public.students
+  UPDATE public.students s
   SET approval_status = 'approved'::public.student_approval_status,
       current_class_id = v_class_id, proposed_class_id = NULL, updated_at = now()
-  WHERE id = v_student_id;
+  WHERE s.id = v_student_id AND s.service_id = v_service_id;
 END;
 $function$;
 
@@ -201,16 +199,18 @@ BEGIN
     UPDATE public.service_students
     SET proposed_class_id = p_class_id, class_id = NULL, updated_at = now()
     WHERE id = p_membership_id;
-    UPDATE public.students
+    UPDATE public.students s
     SET proposed_class_id = p_class_id, current_class_id = NULL, updated_at = now()
-    WHERE id = v_student_id;
+    WHERE s.id = v_student_id
+      AND s.service_id = (SELECT ss.service_id FROM public.service_students ss WHERE ss.id = p_membership_id);
   ELSE
     UPDATE public.service_students
     SET class_id = p_class_id, proposed_class_id = NULL, updated_at = now()
     WHERE id = p_membership_id;
-    UPDATE public.students
+    UPDATE public.students s
     SET current_class_id = p_class_id, proposed_class_id = NULL, updated_at = now()
-    WHERE id = v_student_id;
+    WHERE s.id = v_student_id
+      AND s.service_id = (SELECT ss.service_id FROM public.service_students ss WHERE ss.id = p_membership_id);
   END IF;
 END;
 $function$;
