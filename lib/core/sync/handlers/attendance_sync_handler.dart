@@ -35,19 +35,25 @@ class AttendanceSyncHandler implements EntitySyncHandler {
     }
 
     var serviceStudentId = payload['service_student_id'] as String?;
-    if (serviceStudentId == null) {
-      // Compatibility for operations queued by older app versions.
-      final membership = await client
-          .from('service_students')
-          .select('id')
-          .eq('student_id', studentId)
-          .eq('service_id', serviceId)
-          .maybeSingle();
-      serviceStudentId = membership?['id'] as String?;
-    }
+    if (serviceStudentId?.isEmpty == true) serviceStudentId = null;
+
+    // Validate the exact membership even when the queue already contains an
+    // ID. Never trust a stale/corrupt payload to pair another service's
+    // membership with this meeting and global student identity.
+    final membershipQuery = client
+        .from('service_students')
+        .select('id')
+        .eq('student_id', studentId)
+        .eq('service_id', serviceId);
+    final membership = serviceStudentId == null
+        // Compatibility for operations queued by older app versions.
+        ? await membershipQuery.maybeSingle()
+        : await membershipQuery.eq('id', serviceStudentId).maybeSingle();
+    serviceStudentId = membership?['id'] as String?;
+
     if (serviceStudentId == null) {
       throw const SyncConflictException(
-        'Attendance cannot sync because the service student membership no longer exists.',
+        'Attendance cannot sync because its membership does not belong to the meeting service and student.',
       );
     }
 
