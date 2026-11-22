@@ -233,6 +233,8 @@ The old `students.service_id` and class columns remain in place. No contract/dro
 ### Gate C — multi-service isolation
 <badge color="warning">Partially completed</badge>
 - Membership read/write RLS was tested with users from both services, including cross-service denial.
+- In a rolled-back cross-service fixture, a service-B overall leader could read the shared identity's membership projection for service B, while the same query returned zero rows from `student_sensitive_data`; the temporary membership was rolled back and service B still has zero persisted memberships.
+- A non-admin service-B leader was denied when attempting to link a service-A identity into service B; cross-service identity linking is currently limited to platform super-admin pending the verified-link UI.
 - Cross-service class assignment and attendance association were rejected by database constraints/triggers.
 - The identity projection RPC was tested for authorized service access and cross-service denial.
 - Cross-service reads of `student_sensitive_data` returned zero rows; the directory RPC does not expose that table.
