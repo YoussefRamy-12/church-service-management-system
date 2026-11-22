@@ -62,6 +62,30 @@ void main() {
     expect(membership.notes, 'ملاحظة خاصة بالخدمة');
   });
 
+  test('directory projection maps inactive membership without changing global identity', () {
+    final membership = ServiceStudent.fromMap({
+      'membership_id': 'membership-inactive-1',
+      'student_id': 'global-student-1',
+      'service_id': 'service-a',
+      'class_id': null,
+      'proposed_class_id': null,
+      'enrollment_date': '2026-11-20T00:00:00.000Z',
+      'membership_status': 'inactive',
+      'school': null,
+      'grade': null,
+      'is_deacon': false,
+      'membership_notes': null,
+      'student_name': 'تلميذ مؤرشف',
+      'birth_date': '2015-03-12',
+      'phone': null,
+      'photo_path': null,
+    });
+    expect(membership.id, 'membership-inactive-1');
+    expect(membership.studentId, 'global-student-1');
+    expect(membership.status, 'inactive');
+    expect(membership.studentName, 'تلميذ مؤرشف');
+  });
+
   test('membership remains available offline and queues an idempotent sync payload', () async {
     final membership = ServiceStudent(
       id: 'membership-a-1',
