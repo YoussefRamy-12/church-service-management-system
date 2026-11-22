@@ -54,7 +54,7 @@ class ServiceStudent {
   };
 
   factory ServiceStudent.fromMap(Map<String, dynamic> row) => ServiceStudent(
-    id: row['id'] as String,
+    id: (row['membership_id'] ?? row['id']) as String,
     studentId: row['student_id'] as String,
     serviceId: row['service_id'] as String,
     classId: row['class_id'] as String?,
