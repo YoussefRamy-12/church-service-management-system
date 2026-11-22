@@ -35,20 +35,22 @@ class FollowUpSyncHandler implements EntitySyncHandler {
 
     var serviceStudentId = payload['service_student_id'] as String?;
     if (serviceStudentId?.isEmpty == true) serviceStudentId = null;
-    if (serviceStudentId == null) {
-      // Resolve old queued records using the creator's service, never the
-      // global identity's legacy owner-service field.
-      final membership = await client
-          .from('service_students')
-          .select('id')
-          .eq('student_id', studentId)
-          .eq('service_id', serviceId)
-          .maybeSingle();
-      serviceStudentId = membership?['id'] as String?;
-    }
+
+    // Resolve legacy queue items by student + creator service. For current
+    // items, validate the supplied membership ID against both dimensions.
+    final membershipQuery = client
+        .from('service_students')
+        .select('id')
+        .eq('student_id', studentId)
+        .eq('service_id', serviceId);
+    final membership = serviceStudentId == null
+        ? await membershipQuery.maybeSingle()
+        : await membershipQuery.eq('id', serviceStudentId).maybeSingle();
+    serviceStudentId = membership?['id'] as String?;
+
     if (serviceStudentId == null) {
       throw const SyncConflictException(
-        'Follow-up cannot sync because the service student membership no longer exists.',
+        'Follow-up cannot sync because its membership does not belong to the creator service and student.',
       );
     }
 
