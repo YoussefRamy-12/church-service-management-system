@@ -89,6 +89,7 @@ class OnlineStudentRegistration implements StudentRegistration {
         name: input.name.trim(),
         approvalStatus: effectiveApprovalStatus,
         membershipId: membershipId,
+        identityServiceId: serviceId,
         membershipStatus: effectiveApprovalStatus == 'approved' ? 'active' : 'pending',
         currentClassId: effectiveCurrentClassId,
         proposedClassId: effectiveProposedClassId,
