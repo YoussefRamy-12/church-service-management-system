@@ -14,6 +14,8 @@ Student _student({
 }) {
   return Student(
     id: id,
+    membershipId: '${id}_membership',
+    identityServiceId: 'service-1',
     serviceId: 'service-1',
     currentClassId: currentClassId,
     proposedClassId: proposedClassId,
