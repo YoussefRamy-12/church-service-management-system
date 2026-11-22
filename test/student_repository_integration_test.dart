@@ -26,6 +26,7 @@ Student _student({
     proposedClassId: proposedClassId,
     name: name,
     approvalStatus: approvalStatus,
+    membershipStatus: approvalStatus == 'pending' ? 'pending' : 'active',
     phone: phone,
     notes: notes,
     birthDate: DateTime(2014, 5, 10),
