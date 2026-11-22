@@ -474,7 +474,10 @@ class LocalFollowUpCaseRepository implements FollowUpCaseRepository {
   }
 
   @override
-  Stream<List<FollowUpActivity>> watchActivitiesForStudent(String studentId) {
+  Stream<List<FollowUpActivity>> watchActivitiesForStudent({
+    required String serviceId,
+    required String studentId,
+  }) {
     final query = _db.select(_db.cachedFollowUpActivities).join([
       innerJoin(
         _db.cachedFollowUpCases,
@@ -482,7 +485,10 @@ class LocalFollowUpCaseRepository implements FollowUpCaseRepository {
           _db.cachedFollowUpActivities.caseId,
         ),
       ),
-    ])..where(_db.cachedFollowUpCases.studentId.equals(studentId));
+    ])..where(
+      _db.cachedFollowUpCases.studentId.equals(studentId) &
+          _db.cachedFollowUpCases.serviceId.equals(serviceId),
+    );
 
     query.orderBy([
       OrderingTerm(
