@@ -95,6 +95,7 @@ class CachedServiceStudents extends Table {
   TextColumn get birthDate => text().nullable()();
   TextColumn get phone => text().nullable()();
   TextColumn get photoPath => text().nullable()();
+  TextColumn get identityServiceId => text().nullable()();
   DateTimeColumn get cachedAt => dateTime()();
 
   @override
@@ -285,7 +286,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.forTesting() : super(testingDatabaseConnection());
 
   @override
-  int get schemaVersion => 13;
+  int get schemaVersion => 14;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -340,6 +341,9 @@ class AppDatabase extends _$AppDatabase {
       }
       if (from < 13) {
         await m.addColumn(cachedStudents, cachedStudents.identityServiceId);
+      }
+      if (from < 14) {
+        await m.addColumn(cachedServiceStudents, cachedServiceStudents.identityServiceId);
       }
     },
   );
