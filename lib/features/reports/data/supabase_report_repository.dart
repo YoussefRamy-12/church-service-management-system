@@ -70,7 +70,9 @@ class SupabaseReportRepository {
       // Keep inactive/graduated memberships for historical reports; exclude
       // pending/rejected enrollments from attendance expectations.
       if (row['membership_status'] == 'pending' ||
-          row['membership_status'] == 'rejected') return false;
+          row['membership_status'] == 'rejected') {
+        return false;
+      }
       final currentClass = row['class_id'] as String?;
       return currentClass != null &&
           (effectiveClassIds == null || effectiveClassIds.contains(currentClass)) &&
@@ -145,7 +147,9 @@ class SupabaseReportRepository {
       final sId = row['student_id'] as String;
       final mId = row['meeting_id'] as String;
       if (!studentSet.contains(sId) ||
-          !membershipIds.contains(row['service_student_id'])) continue;
+          !membershipIds.contains(row['service_student_id'])) {
+        continue;
+      }
       final key = '$mId:$sId';
       if (!countedKeys.add(key)) continue;
 
