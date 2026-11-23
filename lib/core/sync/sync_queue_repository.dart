@@ -35,23 +35,12 @@ class SyncQueueRepository {
         'Offline sync is disabled. Mutations cannot be queued.',
       );
     }
-    await _db.transaction(() => _enqueue(operation));
+    await _enqueue(operation);
   }
 
-  /// Serializes queue timestamps so FIFO ordering remains deterministic even
-  /// when multiple mutations are enqueued within the same clock millisecond.
+  /// Inserts one queue row. SQLite's implicit rowid is the authoritative
+  /// insertion sequence; DateTime precision is not sufficient for FIFO order.
   Future<void> _enqueue(SyncOperation operation) async {
-    final latest = await (_db.select(_db.syncQueueEntries)
-          ..orderBy([(t) => OrderingTerm.desc(t.createdAt)])
-          ..limit(1))
-        .getSingleOrNull();
-    final now = DateTime.now();
-    final latestAt = latest?.createdAt;
-    final minimumNextAt = latestAt?.add(const Duration(milliseconds: 1));
-    final createdAt = minimumNextAt == null || now.isAfter(minimumNextAt)
-        ? now
-        : minimumNextAt;
-
     await _db
         .into(_db.syncQueueEntries)
         .insertOnConflictUpdate(
@@ -60,7 +49,7 @@ class SyncQueueRepository {
             entityType: operation.entityType,
             operationType: operation.operationType,
             payloadJson: operation.payloadJson,
-            createdAt: createdAt,
+            createdAt: DateTime.now(),
           ),
         );
   }
@@ -171,18 +160,21 @@ class SyncQueueRepository {
     if (!_enabled) {
       return const [];
     }
-    final rows =
-        await (_db.select(_db.syncQueueEntries)
-              ..where((t) => t.status.equals('pending'))
-              ..orderBy([(t) => OrderingTerm(expression: t.createdAt)]))
-            .get();
+    final rows = await _db
+        .customSelect(
+          'SELECT operation_id, entity_type, operation_type, payload_json '
+          'FROM sync_queue_entries WHERE status = ? ORDER BY rowid ASC',
+          variables: [Variable.withString('pending')],
+          readsFrom: {_db.syncQueueEntries},
+        )
+        .get();
     return rows
         .map(
           (row) => SyncOperation(
-            operationId: row.operationId,
-            entityType: row.entityType,
-            operationType: row.operationType,
-            payloadJson: row.payloadJson,
+            operationId: row.read<String>('operation_id'),
+            entityType: row.read<String>('entity_type'),
+            operationType: row.read<String>('operation_type'),
+            payloadJson: row.read<String>('payload_json'),
           ),
         )
         .toList();
