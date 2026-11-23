@@ -167,7 +167,7 @@ class SolidCard extends StatelessWidget {
   const SolidCard({
     super.key,
     required this.child,
-    this.borderRadius = 16,
+    this.borderRadius = 12,
     this.color,
     this.border,
     this.padding = const EdgeInsets.all(16),
@@ -185,16 +185,9 @@ class SolidCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
-    final surfaceColor =
-        color ?? (isDark ? const Color(0xFF131D33) : Colors.white);
-    final borderColor =
-        border ??
-        Border.all(
-          color: isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0),
-          width: 1.2,
-        );
+    final scheme = Theme.of(context).colorScheme;
+    final surfaceColor = color ?? scheme.surface;
+    final borderColor = border ?? Border.all(color: scheme.outlineVariant);
 
     return Container(
       margin: margin,
@@ -205,11 +198,9 @@ class SolidCard extends StatelessWidget {
         boxShadow: elevation > 0
             ? [
                 BoxShadow(
-                  color: isDark
-                      ? Colors.black.withValues(alpha: 0.3)
-                      : const Color(0x0F0F172A),
-                  blurRadius: elevation * 4,
-                  offset: Offset(0, elevation * 1.5),
+                  color: scheme.shadow,
+                  blurRadius: 8,
+                  offset: const Offset(0, 2),
                 ),
               ]
             : null,
@@ -313,12 +304,13 @@ class GlassBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.08),
+        color: scheme.surfaceContainerLow,
         borderRadius: BorderRadius.circular(999),
-        border: Border.all(color: color.withValues(alpha: 0.25), width: 1),
+        border: Border.all(color: scheme.outlineVariant, width: 1),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -490,11 +482,10 @@ class StatusBanner extends StatelessWidget {
       StatusTone.error => scheme.error,
       StatusTone.neutral => scheme.primary,
     };
-    return GlassContainer(
-      borderRadius: 16,
-      opacity: 0.85,
-      color: color.withValues(alpha: 0.06),
-      border: Border.all(color: color.withValues(alpha: 0.25), width: 1.2),
+    return AppSurface(
+      borderRadius: 12,
+      color: scheme.surfaceContainerLow,
+      border: Border.all(color: scheme.outlineVariant),
       padding: const EdgeInsets.all(16),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -502,7 +493,7 @@ class StatusBanner extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: color.withValues(alpha: 0.15),
+              color: scheme.surfaceContainerHigh,
               borderRadius: BorderRadius.circular(10),
             ),
             child: Icon(icon, size: 20, color: color),
@@ -660,12 +651,17 @@ class _SkeletonLineState extends State<_SkeletonLine>
     return AnimatedBuilder(
       animation: _controller,
       builder: (context, _) {
-        final opacity = 0.45 + _controller.value * 0.35;
+        final scheme = Theme.of(context).colorScheme;
+        final fill = Color.lerp(
+          scheme.surfaceContainerLow,
+          scheme.surfaceContainerHigh,
+          _controller.value,
+        )!;
         return Container(
           width: widget.width,
           height: widget.height,
           decoration: BoxDecoration(
-            color: const Color(0xFF818CF8).withValues(alpha: opacity * 0.25),
+            color: fill,
             borderRadius: BorderRadius.circular(widget.round ? 99 : 8),
           ),
         );
@@ -850,21 +846,13 @@ class ModernMetricCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
 
     final content = SolidCard(
-      borderRadius: 14,
+      borderRadius: 12,
       elevation: 0,
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-      border: Border.all(
-        color: isDark
-            ? color.withValues(alpha: 0.25)
-            : color.withValues(alpha: 0.15),
-        width: 1.0,
-      ),
-      color: isDark
-          ? color.withValues(alpha: 0.08)
-          : color.withValues(alpha: 0.04),
+      border: Border.all(color: theme.colorScheme.outlineVariant),
+      color: theme.colorScheme.surface,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
@@ -872,7 +860,7 @@ class ModernMetricCard extends StatelessWidget {
             width: 44,
             height: 44,
             decoration: BoxDecoration(
-              color: color.withValues(alpha: isDark ? 0.20 : 0.12),
+              color: theme.colorScheme.surfaceContainerLow,
               borderRadius: BorderRadius.circular(10),
             ),
             child: Icon(icon, color: color, size: 22),
@@ -923,7 +911,7 @@ class ModernMetricCard extends StatelessWidget {
     if (onTap == null) return content;
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(14),
+      borderRadius: BorderRadius.circular(12),
       child: content,
     );
   }
