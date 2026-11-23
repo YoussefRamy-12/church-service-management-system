@@ -16,13 +16,16 @@ void main() {
     expect(dark.scaffoldBackgroundColor, AppDesignColors.darkCanvas);
   });
 
-  test('all semantic foreground/background pairs meet WCAG AA', () {
-    for (final palette in [AppColors.light, AppColors.dark]) {
+  test('semantic pairs and their theme-surface text meet WCAG AA', () {
+    final themes = [
+      (AppColors.light, AppDesignColors.lightCanvas, AppDesignColors.lightSurface),
+      (AppColors.dark, AppDesignColors.darkCanvas, AppDesignColors.darkSurface),
+    ];
+    for (final (palette, canvas, surface) in themes) {
       for (final semantic in palette.semanticColors) {
-        expect(
-          AppColors.contrastRatio(semantic.foreground, semantic.background),
-          greaterThanOrEqualTo(4.5),
-        );
+        expect(AppColors.contrastRatio(semantic.foreground, semantic.background), greaterThanOrEqualTo(4.5));
+        expect(AppColors.contrastRatio(semantic.foreground, canvas), greaterThanOrEqualTo(4.5));
+        expect(AppColors.contrastRatio(semantic.foreground, surface), greaterThanOrEqualTo(4.5));
       }
     }
   });

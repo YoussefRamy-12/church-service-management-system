@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../theme.dart';
+import '../design/app_colors.dart';
 import 'responsive.dart';
 export 'role_labels.dart';
 
@@ -483,9 +483,10 @@ class StatusBanner extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
+    final semanticColors = AppColors.of(context);
     final color = switch (tone) {
-      StatusTone.success => appSuccess,
-      StatusTone.warning => appWarning,
+      StatusTone.success => semanticColors.present.foreground,
+      StatusTone.warning => semanticColors.warning.foreground,
       StatusTone.error => scheme.error,
       StatusTone.neutral => scheme.primary,
     };
@@ -889,7 +890,7 @@ class ModernMetricCard extends StatelessWidget {
                   style: theme.textTheme.bodyMedium?.copyWith(
                     fontWeight: FontWeight.w600,
                     fontSize: 13,
-                    color: isDark ? const Color(0xFF94A3B8) : appMutedInk,
+                    color: theme.colorScheme.onSurfaceVariant,
                   ),
                 ),
                 const SizedBox(height: 3),
@@ -897,7 +898,7 @@ class ModernMetricCard extends StatelessWidget {
                   value,
                   style: theme.textTheme.titleLarge?.copyWith(
                     fontWeight: FontWeight.w800,
-                    color: isDark ? Colors.white : appInk,
+                    color: theme.colorScheme.onSurface,
                     letterSpacing: -0.3,
                   ),
                 ),
@@ -908,7 +909,7 @@ class ModernMetricCard extends StatelessWidget {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: theme.textTheme.labelSmall?.copyWith(
-                      color: isDark ? const Color(0xFF64748B) : appMutedInk,
+                      color: theme.colorScheme.onSurfaceVariant,
                     ),
                   ),
                 ],
