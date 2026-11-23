@@ -52,6 +52,11 @@ Semantic foreground/background pairs (present, absent, lateArrival, excused, pen
 BuildContext exposes isMobile, isTablet, isDesktop and adaptivePagePadding.
 MaxWidthContainer centers content and applies the 16 / 24 / 32px horizontal page padding.
 
+## Implementation notes
+
+- The requested responsive helper uses mobile below 600px, tablet from 600px through 1099px, and desktop from 1100px. The approved DESIGN.md currently lists mobile below 768px; reconcile that source-document breakpoint before feature-screen migration.
+- IBM Plex Sans Arabic is bundled in all four requested weights. Cairo is referenced for headings but no Cairo font binary currently exists in assets/fonts; headings fall back to IBM Plex Sans Arabic and then Arial when Cairo is unavailable on the host.
+
 ## Shared components
 
 Import package:church_service_management_system/app/ui/components/app_components.dart.
