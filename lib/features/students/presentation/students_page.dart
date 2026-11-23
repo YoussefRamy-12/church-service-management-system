@@ -62,7 +62,7 @@ class _StudentsPageState extends ConsumerState<StudentsPage> {
           IconButton(
             key: const Key('students_import_excel'),
             tooltip: 'استيراد الطلاب من Excel',
-            onPressed: () => Navigator.of(context).push(
+            onPressed: () => Navigator.of(context, rootNavigator: true).push(
               MaterialPageRoute(
                 builder: (_) => ImportStudentsExcelPage(
                   serviceId: widget.serviceId,
@@ -153,7 +153,7 @@ class _StudentsPageState extends ConsumerState<StudentsPage> {
         profile?.classId != null;
 
     if (!mounted) return;
-    await Navigator.of(context).push(
+    await Navigator.of(context, rootNavigator: true).push(
       MaterialPageRoute(
         builder: (_) => AddStudentPage(
           serviceId: widget.serviceId,
