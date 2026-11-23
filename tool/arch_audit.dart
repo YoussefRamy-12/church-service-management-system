@@ -118,6 +118,16 @@ void main() {
     ruleCounts[rule] = (ruleCounts[rule] ?? 0) + 1;
   }
 
+  final reciprocalPairs = <String>[];
+  for (final pair in pairCounts.keys) {
+    final parts = pair.split('|');
+    if (parts[0].compareTo(parts[1]) < 0 &&
+        pairCounts.containsKey('${parts[1]}|${parts[0]}')) {
+      reciprocalPairs.add('RECIPROCAL_PAIR|${parts[0]}|${parts[1]}');
+    }
+  }
+  reciprocalPairs.sort();
+
   stdout.writeln('SUMMARY');
   stdout.writeln('FILES|${files.length}');
   for (final rule in <String>[
@@ -134,15 +144,6 @@ void main() {
     stdout.writeln('FEATURE_PAIR|${parts[0]}|${parts[1]}|${entry.value}');
   }
 
-  final reciprocalPairs = <String>[];
-  for (final pair in pairCounts.keys) {
-    final parts = pair.split('|');
-    if (parts[0].compareTo(parts[1]) < 0 &&
-        pairCounts.containsKey('${parts[1]}|${parts[0]}')) {
-      reciprocalPairs.add('RECIPROCAL_PAIR|${parts[0]}|${parts[1]}');
-    }
-  }
-  reciprocalPairs.sort();
   for (final pair in reciprocalPairs) {
     stdout.writeln(pair);
   }
