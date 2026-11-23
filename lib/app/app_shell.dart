@@ -6,7 +6,6 @@ import '../core/sync/sync_engine_provider.dart';
 import '../features/auth/domain/entities/session_identity.dart';
 import '../features/auth/presentation/auth_providers.dart';
 import '../features/follow_up/presentation/follow_up_case_providers.dart';
-import '../features/auth/domain/entities/servant_profile.dart';
 import 'design/app_colors.dart';
 import 'design/app_radii.dart';
 import 'design/app_spacing.dart';
@@ -200,7 +199,7 @@ class AppShell extends ConsumerWidget {
     final bySegment = {for (final item in visibleItems) item.segment: item};
     return [
       for (final segment in _primarySegments)
-        if (bySegment[segment] case final item?) item,
+        if (bySegment.containsKey(segment)) bySegment[segment]!,
     ];
   }
 
@@ -403,7 +402,6 @@ class _MobileNavigationBar extends StatelessWidget {
           selectedIcon: _DestinationIcon(
             icon: item.icon,
             badgeCount: item.segment == 'follow-up' ? followUpCount : null,
-            selected: true,
           ),
           label: AppShell._primaryLabels[item.segment] ?? item.label,
         ),
@@ -480,12 +478,10 @@ class _DestinationIcon extends StatelessWidget {
   const _DestinationIcon({
     required this.icon,
     this.badgeCount,
-    this.selected = false,
   });
 
   final IconData icon;
   final int? badgeCount;
-  final bool selected;
 
   @override
   Widget build(BuildContext context) {
