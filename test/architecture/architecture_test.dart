@@ -14,7 +14,7 @@ void main() {
     expect(
       result.exitCode,
       0,
-      reason: 'The live architecture audit failed:\n\${result.stderr}',
+      reason: 'The live architecture audit failed:\n${result.stderr}',
     );
     final output = (result.stdout as String).split('\n');
     liveContractLines = _contractLines(output).toSet();
@@ -49,8 +49,8 @@ void main() {
       addedMembers,
       isEmpty,
       reason: 'New feature(s) joined the known cycle: '
-          '\${addedMembers.join(', ')}\n'
-          '\${_allowlistDiffMessage(liveContractLines, allowlistLines)}',
+          '${addedMembers.join(', ')}\n'
+          '${_allowlistDiffMessage(liveContractLines, allowlistLines)}',
     );
   });
 
@@ -66,16 +66,16 @@ void main() {
 
     final script = File('tool/arch_audit.dart').absolute;
     final fixtureTool = Directory(
-      '\${fixtureRoot.path}\${Platform.pathSeparator}tool',
+      '${fixtureRoot.path}${Platform.pathSeparator}tool',
     )..createSync(recursive: true);
     script.copySync(
-      '\${fixtureTool.path}\${Platform.pathSeparator}arch_audit.dart',
+      '${fixtureTool.path}${Platform.pathSeparator}arch_audit.dart',
     );
 
     void writeFixture(String relativePath, String contents) {
       final file = File(
-        '\${fixtureRoot.path}\${Platform.pathSeparator}'
-        '\${relativePath.replaceAll('/', Platform.pathSeparator)}',
+        '${fixtureRoot.path}${Platform.pathSeparator}'
+        '${relativePath.replaceAll('/', Platform.pathSeparator)}',
       );
       file.parent.createSync(recursive: true);
       file.writeAsStringSync(contents);
@@ -113,7 +113,7 @@ void main() {
     expect(
       result.exitCode,
       0,
-      reason: 'Fixture audit process failed:\n\${result.stderr}',
+      reason: 'Fixture audit process failed:\n${result.stderr}',
     );
 
     final output = (result.stdout as String).split('\n');
