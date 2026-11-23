@@ -27,7 +27,6 @@ void main() {
         payloadJson: '{"id":"student-1"}',
       ),
     );
-    await Future<void>.delayed(const Duration(milliseconds: 2));
     await queue.enqueue(
       const SyncOperation(
         operationId: 'op-2',
@@ -40,6 +39,11 @@ void main() {
     final pending = await queue.pending();
 
     expect(pending.map((e) => e.operationId).toList(), ['op-1', 'op-2']);
+    final rows = await (db.select(db.syncQueueEntries)
+          ..orderBy([(t) => OrderingTerm.asc(t.createdAt)]))
+        .get();
+    expect(rows, hasLength(2));
+    expect(rows.first.createdAt.isBefore(rows.last.createdAt), isTrue);
   });
 
   test('retry increments attempts and keeps operation pending', () async {
