@@ -49,7 +49,6 @@ class AppShell extends ConsumerWidget {
     'follow-up': 'المتابعة',
   };
 
-
   bool _canSeeManagement(String? role) =>
       role == 'overall_leader' ||
       role == 'overall_helper' ||
@@ -717,7 +716,7 @@ class _DesktopSidebar extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
               child: _ShellSyncBadge(onTap: onSyncTap),
             ),
-            AppSurfaceAccount(
+            _SidebarAccount(
               profileName: profileName,
               profileRole: profileRole,
               onLogout: onLogout,
@@ -732,12 +731,12 @@ class _DesktopSidebar extends StatelessWidget {
     final parts = path.split('/').where((part) => part.isNotEmpty).toList();
     final current = parts.length > 2 ? parts[2] : '';
     if (segment == 'dashboard') return current == 'dashboard' || current == 'stage';
-    return current == segment || (current == 'settings' && segment == 'settings');
+    return current == segment;
   }
 }
 
-class AppSurfaceAccount extends StatelessWidget {
-  const AppSurfaceAccount({
+class _SidebarAccount extends StatelessWidget {
+  const _SidebarAccount({
     super.key,
     required this.profileName,
     required this.profileRole,
