@@ -21,7 +21,7 @@ void main() {
         reason: _allowlistDiffMessage(_contractLines(audit), allowlist),
       );
     },
-    timeout: Timeout(Duration(seconds: 60)),
+    timeout: const Timeout(Duration(seconds: 60)),
   );
 
   test(
@@ -38,7 +38,7 @@ void main() {
         reason: _allowlistDiffMessage(liveRecords, allowlist),
       );
     },
-    timeout: Timeout(Duration(seconds: 60)),
+    timeout: const Timeout(Duration(seconds: 60)),
   );
 
   test(
@@ -58,7 +58,7 @@ void main() {
             '${_allowlistDiffMessage(_contractLines(audit), _readAllowlist())}',
       );
     },
-    timeout: Timeout(Duration(seconds: 60)),
+    timeout: const Timeout(Duration(seconds: 60)),
   );
 
   test(
@@ -118,7 +118,7 @@ void main() {
       );
 
       final audit = collectAudit(libDir);
-      const expectedViolations = <String>[
+      final expectedViolations = <String>[
         'VIOLATION|R1|lib/features/a/data/a.dart|'
             'lib/features/b/domain/b.dart',
         'VIOLATION|R1|lib/features/b/domain/b.dart|'
@@ -130,7 +130,7 @@ void main() {
             'package:flutter/material.dart',
         'VIOLATION|R10|lib/features/d/presentation/page.dart|'
             'package:supabase_flutter/supabase_flutter.dart',
-      ];
+      ]..sort();
       const expectedReciprocalPairs = <String>[
         'RECIPROCAL_PAIR|a|b',
       ];
@@ -178,7 +178,7 @@ void main() {
         <String, int>{'R1': 2, 'R3': 2, 'R5': 1, 'R10': 1},
       );
     },
-    timeout: Timeout(Duration(seconds: 60)),
+    timeout: const Timeout(Duration(seconds: 60)),
   );
 
   test(
@@ -205,7 +205,7 @@ RECIPROCAL_PAIR|alpha|beta
         reason: _allowlistDiffMessage(actual, expected),
       );
     },
-    timeout: Timeout(Duration(seconds: 60)),
+    timeout: const Timeout(Duration(seconds: 60)),
   );
 }
 
