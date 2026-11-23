@@ -62,7 +62,7 @@ class SupabaseReportRepository {
     // Global identity rows are never used as a service roster source.
     final directoryRows = List<Map<String, dynamic>>.from(
       await _client.rpc(
-        'get_service_student_directory',
+        'get_service_student_report_directory',
         params: {'p_service_id': serviceId},
       ),
     );
