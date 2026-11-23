@@ -14,7 +14,7 @@ class _Violation implements Comparable<_Violation> {
   final String source;
   final String target;
 
-  String get line => 'VIOLATION|' + rule + '|' + source + '|' + target;
+  String get line => 'VIOLATION|$rule|$source|$target';
 
   @override
   int compareTo(_Violation other) => line.compareTo(other.line);
@@ -40,21 +40,22 @@ void main() {
       if (sourceFeature != null &&
           targetFeature != null &&
           sourceFeature != targetFeature) {
+        final targetPath = resolved;
+        if (targetPath == null) continue;
         featureEdges.putIfAbsent(sourceFeature, () => <String>{})
-          ..add(targetFeature);
-        final pair = sourceFeature + '|' + targetFeature;
+            .add(targetFeature);
+        final pair = '$sourceFeature|$targetFeature';
         pairCounts[pair] = (pairCounts[pair] ?? 0) + 1;
 
-        if (resolved != 'lib/features/' + targetFeature + '/' +
-            targetFeature + '.dart') {
-          violations.add(_Violation('R1', source, resolved));
+        if (targetPath != 'lib/features/$targetFeature/$targetFeature.dart') {
+          violations.add(_Violation('R1', source, targetPath));
         }
         if (_isPresentation(source) &&
-            (_isPresentation(resolved) || _isData(resolved))) {
-          violations.add(_Violation('R7', source, resolved));
+            (_isPresentation(targetPath) || _isData(targetPath))) {
+          violations.add(_Violation('R7', source, targetPath));
         }
-        if (_isData(source) && _isData(resolved)) {
-          violations.add(_Violation('R8-X', source, resolved));
+        if (_isData(source) && _isData(targetPath)) {
+          violations.add(_Violation('R8-X', source, targetPath));
         }
       }
 
@@ -108,7 +109,7 @@ void main() {
     ..sort((a, b) => a.join(',').compareTo(b.join(',')));
 
   for (final cycle in cycles) {
-    stdout.writeln('CYCLE|' + cycle.join(','));
+    stdout.writeln('CYCLE|${cycle.join(',')}');
   }
 
   final ruleCounts = SplayTreeMap<String, int>();
@@ -118,19 +119,18 @@ void main() {
   }
 
   stdout.writeln('SUMMARY');
-  stdout.writeln('FILES|' + files.length.toString());
+  stdout.writeln('FILES|${files.length}');
   for (final rule in <String>[
     'R1', 'R2', 'R3', 'R4', 'R5', 'R5-SOFT', 'R7', 'R8-X', 'R10',
   ]) {
-    stdout.writeln('RULE_COUNT|' + rule + '|' +
-        (ruleCounts[rule] ?? 0).toString());
+    final count = rule == 'R2' ? cycles.length : (ruleCounts[rule] ?? 0);
+    stdout.writeln('RULE_COUNT|$rule|$count');
   }
-  stdout.writeln('CYCLE_COUNT|' + cycles.length.toString());
+  stdout.writeln('CYCLE_COUNT|${cycles.length}');
 
   for (final entry in SplayTreeMap<String, int>.from(pairCounts).entries) {
     final parts = entry.key.split('|');
-    stdout.writeln('FEATURE_PAIR|' + parts[0] + '|' + parts[1] + '|' +
-        entry.value.toString());
+    stdout.writeln('FEATURE_PAIR|${parts[0]}|${parts[1]}|${entry.value}');
   }
 
   final fanIn = <String, Set<String>>{};
@@ -146,10 +146,8 @@ void main() {
     }
   }
   for (final feature in featureNames.toList()..sort()) {
-    stdout.writeln('FEATURE_FAN_IN|' + feature + '|' +
-        (fanIn[feature]?.length ?? 0).toString());
-    stdout.writeln('FEATURE_FAN_OUT|' + feature + '|' +
-        (fanOut[feature]?.length ?? 0).toString());
+    stdout.writeln('FEATURE_FAN_IN|$feature|${fanIn[feature]?.length ?? 0}');
+    stdout.writeln('FEATURE_FAN_OUT|$feature|${fanOut[feature]?.length ?? 0}');
   }
 }
 
@@ -185,10 +183,12 @@ Iterable<_Directive> _directives(String source) sync* {
   );
   final uriPattern = RegExp(r'''['"]([^'"]+)['"]''');
   for (final directive in directivePattern.allMatches(source)) {
-    final body = directive.group(1) ?? '';
+    final body = directive.group(1);
+    if (body == null) continue;
     for (final match in uriPattern.allMatches(body)) {
       final uri = match.group(1);
-      if (uri != null) yield _Directive(uri);
+      if (uri == null) continue;
+      yield _Directive(uri);
     }
   }
 }
@@ -201,11 +201,11 @@ String? _resolveImport(String source, String uri) {
     if (slash < 0 || remainder.substring(0, slash) != _packageName) {
       return null;
     }
-    return _normalizePath('lib/' + remainder.substring(slash + 1));
+    return _normalizePath('lib/${remainder.substring(slash + 1)}');
   }
   if (uri.startsWith('/') || uri.contains('://')) return null;
   final sourceDirectory = source.substring(0, source.lastIndexOf('/') + 1);
-  return _normalizePath(sourceDirectory + uri);
+  return _normalizePath('$sourceDirectory$uri');
 }
 
 String _normalizePath(String path) {
