@@ -210,7 +210,7 @@ void main() {
       status: 'active',
     );
 
-    await memberships.cache([membership]);
+    await memberships.saveOffline(membership);
     await memberships.archiveOffline(membership);
 
     final archived = await memberships.findById(membership.id);
@@ -218,6 +218,7 @@ void main() {
 
     expect(archived?.status, 'inactive');
     expect(pending, hasLength(1));
+    expect(pending.single.operationId, membership.id);
     final payload = jsonDecode(pending.single.payloadJson) as Map<String, dynamic>;
     expect(payload['status'], 'inactive');
     expect(payload['id'], membership.id);
