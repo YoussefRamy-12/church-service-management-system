@@ -8,6 +8,8 @@ import '../features/auth/presentation/auth_providers.dart';
 import '../features/follow_up/presentation/follow_up_case_providers.dart';
 import 'design/app_radii.dart';
 import 'design/app_spacing.dart';
+import 'ui/app_ui.dart';
+import 'ui/components/app_section_header.dart';
 import 'ui/components/sync_badge.dart';
 import 'ui/responsive.dart';
 import 'ui/role_labels.dart';
@@ -712,14 +714,10 @@ class AppSurfaceAccount extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    return Container(
+    return AppCard(
       margin: const EdgeInsets.all(AppSpacing.md),
       padding: const EdgeInsets.all(AppSpacing.md),
-      decoration: BoxDecoration(
-        color: scheme.surfaceContainerLow,
-        borderRadius: BorderRadius.circular(AppRadii.card),
-        border: Border.all(color: scheme.outlineVariant),
-      ),
+      color: scheme.surfaceContainerLow,
       child: Row(
         children: [
           CircleAvatar(
@@ -821,10 +819,7 @@ class _MoreSection extends StatelessWidget {
               start: AppSpacing.md,
               bottom: AppSpacing.xs,
             ),
-            child: Text(
-              title,
-              style: Theme.of(context).textTheme.labelLarge,
-            ),
+            child: AppSectionHeader(title: title),
           ),
           for (final item in items)
             ListTile(
