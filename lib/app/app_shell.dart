@@ -107,6 +107,7 @@ class AppShell extends ConsumerWidget {
           bottom: false,
           child: _ShellTopBar(
             title: pageTitle,
+            showSyncBadge: !isDesktop,
             onSyncTap: () => context.go('/sync'),
           ),
         ),
@@ -507,9 +508,14 @@ class _DestinationIcon extends StatelessWidget {
 }
 
 class _ShellTopBar extends StatelessWidget {
-  const _ShellTopBar({required this.title, required this.onSyncTap});
+  const _ShellTopBar({
+    required this.title,
+    required this.showSyncBadge,
+    required this.onSyncTap,
+  });
 
   final String title;
+  final bool showSyncBadge;
   final VoidCallback onSyncTap;
 
   @override
@@ -538,8 +544,10 @@ class _ShellTopBar extends StatelessWidget {
               style: Theme.of(context).textTheme.titleLarge,
             ),
           ),
-          const SizedBox(width: AppSpacing.sm),
-          _ShellSyncBadge(onTap: onSyncTap),
+          if (showSyncBadge) ...[
+            const SizedBox(width: AppSpacing.sm),
+            _ShellSyncBadge(onTap: onSyncTap),
+          ],
         ],
       ),
     );
