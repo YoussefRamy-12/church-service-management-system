@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
@@ -18,6 +19,24 @@ class _RecordingTransport implements SyncTransport {
     Map<String, dynamic> payload,
   ) async {
     applied.add(operation);
+  }
+}
+
+class _BlockingTransport implements SyncTransport {
+  final Completer<void> firstApplyStarted = Completer<void>();
+  final Completer<void> releaseFirstApply = Completer<void>();
+  int calls = 0;
+
+  @override
+  Future<void> apply(
+    SyncOperation operation,
+    Map<String, dynamic> payload,
+  ) async {
+    calls++;
+    if (calls == 1) {
+      firstApplyStarted.complete();
+      await releaseFirstApply.future;
+    }
   }
 }
 
@@ -200,6 +219,63 @@ void main() {
       engine.dispose();
     }
   });
+
+  test(
+    'archive during an in-flight membership upload preserves the newer snapshot',
+    () async {
+      final membership = ServiceStudent(
+        id: 'membership-race-1',
+        studentId: 'global-student-race-1',
+        serviceId: 'service-a',
+        enrollmentDate: DateTime.utc(2026, 11, 20),
+        status: 'active',
+      );
+      await memberships.saveOffline(membership);
+      final originalOperation = (await queue.pending()).single;
+
+      final transport = _BlockingTransport();
+      final engine = SyncEngine(
+        queue: queue,
+        transport: transport,
+        connectivityChecker: () async => [ConnectivityResult.wifi],
+      );
+      try {
+        final firstSync = engine.syncNow();
+        await transport.firstApplyStarted.future;
+
+        await memberships.archiveOffline(membership);
+        final replacement = (await queue.pending()).single;
+        final replacementPayload =
+            jsonDecode(replacement.payloadJson) as Map<String, dynamic>;
+
+        expect(replacement.operationId, isNot(originalOperation.operationId));
+        expect(replacementPayload['status'], 'inactive');
+
+        transport.releaseFirstApply.complete();
+        await firstSync;
+
+        // Completing the older in-flight operation must not delete the
+        // replacement operation that carries the archived membership.
+        final stillPending = await queue.pending();
+        expect(stillPending, hasLength(1));
+        expect(stillPending.single.operationId, replacement.operationId);
+        expect(
+          (jsonDecode(stillPending.single.payloadJson)
+              as Map<String, dynamic>)['status'],
+          'inactive',
+        );
+
+        await engine.syncNow();
+        expect(await queue.pending(), isEmpty);
+        expect(transport.calls, 2);
+      } finally {
+        if (!transport.releaseFirstApply.isCompleted) {
+          transport.releaseFirstApply.complete();
+        }
+        engine.dispose();
+      }
+    },
+  );
 
   test('offline archive changes only membership status and queues it', () async {
     final membership = ServiceStudent(
