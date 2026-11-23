@@ -1907,6 +1907,41 @@ class $CachedStudentsTable extends CachedStudents
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _membershipIdMeta = const VerificationMeta(
+    'membershipId',
+  );
+  @override
+  late final GeneratedColumn<String> membershipId = GeneratedColumn<String>(
+    'membership_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _identityServiceIdMeta = const VerificationMeta(
+    'identityServiceId',
+  );
+  @override
+  late final GeneratedColumn<String> identityServiceId =
+      GeneratedColumn<String>(
+        'identity_service_id',
+        aliasedName,
+        true,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+      );
+  static const VerificationMeta _membershipStatusMeta = const VerificationMeta(
+    'membershipStatus',
+  );
+  @override
+  late final GeneratedColumn<String> membershipStatus = GeneratedColumn<String>(
+    'membership_status',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant('active'),
+  );
   static const VerificationMeta _cachedAtMeta = const VerificationMeta(
     'cachedAt',
   );
@@ -1934,6 +1969,9 @@ class $CachedStudentsTable extends CachedStudents
     isDeacon,
     photoPath,
     notes,
+    membershipId,
+    identityServiceId,
+    membershipStatus,
     cachedAt,
   ];
   @override
@@ -2049,6 +2087,33 @@ class $CachedStudentsTable extends CachedStudents
         notes.isAcceptableOrUnknown(data['notes']!, _notesMeta),
       );
     }
+    if (data.containsKey('membership_id')) {
+      context.handle(
+        _membershipIdMeta,
+        membershipId.isAcceptableOrUnknown(
+          data['membership_id']!,
+          _membershipIdMeta,
+        ),
+      );
+    }
+    if (data.containsKey('identity_service_id')) {
+      context.handle(
+        _identityServiceIdMeta,
+        identityServiceId.isAcceptableOrUnknown(
+          data['identity_service_id']!,
+          _identityServiceIdMeta,
+        ),
+      );
+    }
+    if (data.containsKey('membership_status')) {
+      context.handle(
+        _membershipStatusMeta,
+        membershipStatus.isAcceptableOrUnknown(
+          data['membership_status']!,
+          _membershipStatusMeta,
+        ),
+      );
+    }
     if (data.containsKey('cached_at')) {
       context.handle(
         _cachedAtMeta,
@@ -2122,6 +2187,18 @@ class $CachedStudentsTable extends CachedStudents
         DriftSqlType.string,
         data['${effectivePrefix}notes'],
       ),
+      membershipId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}membership_id'],
+      ),
+      identityServiceId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}identity_service_id'],
+      ),
+      membershipStatus: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}membership_status'],
+      )!,
       cachedAt: attachedDatabase.typeMapping.read(
         DriftSqlType.dateTime,
         data['${effectivePrefix}cached_at'],
@@ -2150,6 +2227,9 @@ class CachedStudent extends DataClass implements Insertable<CachedStudent> {
   final bool isDeacon;
   final String? photoPath;
   final String? notes;
+  final String? membershipId;
+  final String? identityServiceId;
+  final String membershipStatus;
   final DateTime cachedAt;
   const CachedStudent({
     required this.id,
@@ -2166,6 +2246,9 @@ class CachedStudent extends DataClass implements Insertable<CachedStudent> {
     required this.isDeacon,
     this.photoPath,
     this.notes,
+    this.membershipId,
+    this.identityServiceId,
+    required this.membershipStatus,
     required this.cachedAt,
   });
   @override
@@ -2203,6 +2286,13 @@ class CachedStudent extends DataClass implements Insertable<CachedStudent> {
     if (!nullToAbsent || notes != null) {
       map['notes'] = Variable<String>(notes);
     }
+    if (!nullToAbsent || membershipId != null) {
+      map['membership_id'] = Variable<String>(membershipId);
+    }
+    if (!nullToAbsent || identityServiceId != null) {
+      map['identity_service_id'] = Variable<String>(identityServiceId);
+    }
+    map['membership_status'] = Variable<String>(membershipStatus);
     map['cached_at'] = Variable<DateTime>(cachedAt);
     return map;
   }
@@ -2241,6 +2331,13 @@ class CachedStudent extends DataClass implements Insertable<CachedStudent> {
       notes: notes == null && nullToAbsent
           ? const Value.absent()
           : Value(notes),
+      membershipId: membershipId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(membershipId),
+      identityServiceId: identityServiceId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(identityServiceId),
+      membershipStatus: Value(membershipStatus),
       cachedAt: Value(cachedAt),
     );
   }
@@ -2265,6 +2362,11 @@ class CachedStudent extends DataClass implements Insertable<CachedStudent> {
       isDeacon: serializer.fromJson<bool>(json['isDeacon']),
       photoPath: serializer.fromJson<String?>(json['photoPath']),
       notes: serializer.fromJson<String?>(json['notes']),
+      membershipId: serializer.fromJson<String?>(json['membershipId']),
+      identityServiceId: serializer.fromJson<String?>(
+        json['identityServiceId'],
+      ),
+      membershipStatus: serializer.fromJson<String>(json['membershipStatus']),
       cachedAt: serializer.fromJson<DateTime>(json['cachedAt']),
     );
   }
@@ -2286,6 +2388,9 @@ class CachedStudent extends DataClass implements Insertable<CachedStudent> {
       'isDeacon': serializer.toJson<bool>(isDeacon),
       'photoPath': serializer.toJson<String?>(photoPath),
       'notes': serializer.toJson<String?>(notes),
+      'membershipId': serializer.toJson<String?>(membershipId),
+      'identityServiceId': serializer.toJson<String?>(identityServiceId),
+      'membershipStatus': serializer.toJson<String>(membershipStatus),
       'cachedAt': serializer.toJson<DateTime>(cachedAt),
     };
   }
@@ -2305,6 +2410,9 @@ class CachedStudent extends DataClass implements Insertable<CachedStudent> {
     bool? isDeacon,
     Value<String?> photoPath = const Value.absent(),
     Value<String?> notes = const Value.absent(),
+    Value<String?> membershipId = const Value.absent(),
+    Value<String?> identityServiceId = const Value.absent(),
+    String? membershipStatus,
     DateTime? cachedAt,
   }) => CachedStudent(
     id: id ?? this.id,
@@ -2325,6 +2433,11 @@ class CachedStudent extends DataClass implements Insertable<CachedStudent> {
     isDeacon: isDeacon ?? this.isDeacon,
     photoPath: photoPath.present ? photoPath.value : this.photoPath,
     notes: notes.present ? notes.value : this.notes,
+    membershipId: membershipId.present ? membershipId.value : this.membershipId,
+    identityServiceId: identityServiceId.present
+        ? identityServiceId.value
+        : this.identityServiceId,
+    membershipStatus: membershipStatus ?? this.membershipStatus,
     cachedAt: cachedAt ?? this.cachedAt,
   );
   CachedStudent copyWithCompanion(CachedStudentsCompanion data) {
@@ -2351,6 +2464,15 @@ class CachedStudent extends DataClass implements Insertable<CachedStudent> {
       isDeacon: data.isDeacon.present ? data.isDeacon.value : this.isDeacon,
       photoPath: data.photoPath.present ? data.photoPath.value : this.photoPath,
       notes: data.notes.present ? data.notes.value : this.notes,
+      membershipId: data.membershipId.present
+          ? data.membershipId.value
+          : this.membershipId,
+      identityServiceId: data.identityServiceId.present
+          ? data.identityServiceId.value
+          : this.identityServiceId,
+      membershipStatus: data.membershipStatus.present
+          ? data.membershipStatus.value
+          : this.membershipStatus,
       cachedAt: data.cachedAt.present ? data.cachedAt.value : this.cachedAt,
     );
   }
@@ -2372,6 +2494,9 @@ class CachedStudent extends DataClass implements Insertable<CachedStudent> {
           ..write('isDeacon: $isDeacon, ')
           ..write('photoPath: $photoPath, ')
           ..write('notes: $notes, ')
+          ..write('membershipId: $membershipId, ')
+          ..write('identityServiceId: $identityServiceId, ')
+          ..write('membershipStatus: $membershipStatus, ')
           ..write('cachedAt: $cachedAt')
           ..write(')'))
         .toString();
@@ -2393,6 +2518,9 @@ class CachedStudent extends DataClass implements Insertable<CachedStudent> {
     isDeacon,
     photoPath,
     notes,
+    membershipId,
+    identityServiceId,
+    membershipStatus,
     cachedAt,
   );
   @override
@@ -2413,6 +2541,9 @@ class CachedStudent extends DataClass implements Insertable<CachedStudent> {
           other.isDeacon == this.isDeacon &&
           other.photoPath == this.photoPath &&
           other.notes == this.notes &&
+          other.membershipId == this.membershipId &&
+          other.identityServiceId == this.identityServiceId &&
+          other.membershipStatus == this.membershipStatus &&
           other.cachedAt == this.cachedAt);
 }
 
@@ -2431,6 +2562,9 @@ class CachedStudentsCompanion extends UpdateCompanion<CachedStudent> {
   final Value<bool> isDeacon;
   final Value<String?> photoPath;
   final Value<String?> notes;
+  final Value<String?> membershipId;
+  final Value<String?> identityServiceId;
+  final Value<String> membershipStatus;
   final Value<DateTime> cachedAt;
   final Value<int> rowid;
   const CachedStudentsCompanion({
@@ -2448,6 +2582,9 @@ class CachedStudentsCompanion extends UpdateCompanion<CachedStudent> {
     this.isDeacon = const Value.absent(),
     this.photoPath = const Value.absent(),
     this.notes = const Value.absent(),
+    this.membershipId = const Value.absent(),
+    this.identityServiceId = const Value.absent(),
+    this.membershipStatus = const Value.absent(),
     this.cachedAt = const Value.absent(),
     this.rowid = const Value.absent(),
   });
@@ -2466,6 +2603,9 @@ class CachedStudentsCompanion extends UpdateCompanion<CachedStudent> {
     this.isDeacon = const Value.absent(),
     this.photoPath = const Value.absent(),
     this.notes = const Value.absent(),
+    this.membershipId = const Value.absent(),
+    this.identityServiceId = const Value.absent(),
+    this.membershipStatus = const Value.absent(),
     required DateTime cachedAt,
     this.rowid = const Value.absent(),
   }) : id = Value(id),
@@ -2488,6 +2628,9 @@ class CachedStudentsCompanion extends UpdateCompanion<CachedStudent> {
     Expression<bool>? isDeacon,
     Expression<String>? photoPath,
     Expression<String>? notes,
+    Expression<String>? membershipId,
+    Expression<String>? identityServiceId,
+    Expression<String>? membershipStatus,
     Expression<DateTime>? cachedAt,
     Expression<int>? rowid,
   }) {
@@ -2506,6 +2649,9 @@ class CachedStudentsCompanion extends UpdateCompanion<CachedStudent> {
       if (isDeacon != null) 'is_deacon': isDeacon,
       if (photoPath != null) 'photo_path': photoPath,
       if (notes != null) 'notes': notes,
+      if (membershipId != null) 'membership_id': membershipId,
+      if (identityServiceId != null) 'identity_service_id': identityServiceId,
+      if (membershipStatus != null) 'membership_status': membershipStatus,
       if (cachedAt != null) 'cached_at': cachedAt,
       if (rowid != null) 'rowid': rowid,
     });
@@ -2526,6 +2672,9 @@ class CachedStudentsCompanion extends UpdateCompanion<CachedStudent> {
     Value<bool>? isDeacon,
     Value<String?>? photoPath,
     Value<String?>? notes,
+    Value<String?>? membershipId,
+    Value<String?>? identityServiceId,
+    Value<String>? membershipStatus,
     Value<DateTime>? cachedAt,
     Value<int>? rowid,
   }) {
@@ -2544,6 +2693,9 @@ class CachedStudentsCompanion extends UpdateCompanion<CachedStudent> {
       isDeacon: isDeacon ?? this.isDeacon,
       photoPath: photoPath ?? this.photoPath,
       notes: notes ?? this.notes,
+      membershipId: membershipId ?? this.membershipId,
+      identityServiceId: identityServiceId ?? this.identityServiceId,
+      membershipStatus: membershipStatus ?? this.membershipStatus,
       cachedAt: cachedAt ?? this.cachedAt,
       rowid: rowid ?? this.rowid,
     );
@@ -2594,6 +2746,15 @@ class CachedStudentsCompanion extends UpdateCompanion<CachedStudent> {
     if (notes.present) {
       map['notes'] = Variable<String>(notes.value);
     }
+    if (membershipId.present) {
+      map['membership_id'] = Variable<String>(membershipId.value);
+    }
+    if (identityServiceId.present) {
+      map['identity_service_id'] = Variable<String>(identityServiceId.value);
+    }
+    if (membershipStatus.present) {
+      map['membership_status'] = Variable<String>(membershipStatus.value);
+    }
     if (cachedAt.present) {
       map['cached_at'] = Variable<DateTime>(cachedAt.value);
     }
@@ -2620,6 +2781,980 @@ class CachedStudentsCompanion extends UpdateCompanion<CachedStudent> {
           ..write('isDeacon: $isDeacon, ')
           ..write('photoPath: $photoPath, ')
           ..write('notes: $notes, ')
+          ..write('membershipId: $membershipId, ')
+          ..write('identityServiceId: $identityServiceId, ')
+          ..write('membershipStatus: $membershipStatus, ')
+          ..write('cachedAt: $cachedAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $CachedServiceStudentsTable extends CachedServiceStudents
+    with TableInfo<$CachedServiceStudentsTable, CachedServiceStudent> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $CachedServiceStudentsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _studentIdMeta = const VerificationMeta(
+    'studentId',
+  );
+  @override
+  late final GeneratedColumn<String> studentId = GeneratedColumn<String>(
+    'student_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _serviceIdMeta = const VerificationMeta(
+    'serviceId',
+  );
+  @override
+  late final GeneratedColumn<String> serviceId = GeneratedColumn<String>(
+    'service_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _classIdMeta = const VerificationMeta(
+    'classId',
+  );
+  @override
+  late final GeneratedColumn<String> classId = GeneratedColumn<String>(
+    'class_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _proposedClassIdMeta = const VerificationMeta(
+    'proposedClassId',
+  );
+  @override
+  late final GeneratedColumn<String> proposedClassId = GeneratedColumn<String>(
+    'proposed_class_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _enrollmentDateMeta = const VerificationMeta(
+    'enrollmentDate',
+  );
+  @override
+  late final GeneratedColumn<String> enrollmentDate = GeneratedColumn<String>(
+    'enrollment_date',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _statusMeta = const VerificationMeta('status');
+  @override
+  late final GeneratedColumn<String> status = GeneratedColumn<String>(
+    'status',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _schoolMeta = const VerificationMeta('school');
+  @override
+  late final GeneratedColumn<String> school = GeneratedColumn<String>(
+    'school',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _gradeMeta = const VerificationMeta('grade');
+  @override
+  late final GeneratedColumn<String> grade = GeneratedColumn<String>(
+    'grade',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _isDeaconMeta = const VerificationMeta(
+    'isDeacon',
+  );
+  @override
+  late final GeneratedColumn<bool> isDeacon = GeneratedColumn<bool>(
+    'is_deacon',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("is_deacon" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  static const VerificationMeta _notesMeta = const VerificationMeta('notes');
+  @override
+  late final GeneratedColumn<String> notes = GeneratedColumn<String>(
+    'notes',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _studentNameMeta = const VerificationMeta(
+    'studentName',
+  );
+  @override
+  late final GeneratedColumn<String> studentName = GeneratedColumn<String>(
+    'student_name',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(''),
+  );
+  static const VerificationMeta _birthDateMeta = const VerificationMeta(
+    'birthDate',
+  );
+  @override
+  late final GeneratedColumn<String> birthDate = GeneratedColumn<String>(
+    'birth_date',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _phoneMeta = const VerificationMeta('phone');
+  @override
+  late final GeneratedColumn<String> phone = GeneratedColumn<String>(
+    'phone',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _photoPathMeta = const VerificationMeta(
+    'photoPath',
+  );
+  @override
+  late final GeneratedColumn<String> photoPath = GeneratedColumn<String>(
+    'photo_path',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _identityServiceIdMeta = const VerificationMeta(
+    'identityServiceId',
+  );
+  @override
+  late final GeneratedColumn<String> identityServiceId =
+      GeneratedColumn<String>(
+        'identity_service_id',
+        aliasedName,
+        true,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+      );
+  static const VerificationMeta _cachedAtMeta = const VerificationMeta(
+    'cachedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> cachedAt = GeneratedColumn<DateTime>(
+    'cached_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    studentId,
+    serviceId,
+    classId,
+    proposedClassId,
+    enrollmentDate,
+    status,
+    school,
+    grade,
+    isDeacon,
+    notes,
+    studentName,
+    birthDate,
+    phone,
+    photoPath,
+    identityServiceId,
+    cachedAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'cached_service_students';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<CachedServiceStudent> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('student_id')) {
+      context.handle(
+        _studentIdMeta,
+        studentId.isAcceptableOrUnknown(data['student_id']!, _studentIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_studentIdMeta);
+    }
+    if (data.containsKey('service_id')) {
+      context.handle(
+        _serviceIdMeta,
+        serviceId.isAcceptableOrUnknown(data['service_id']!, _serviceIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_serviceIdMeta);
+    }
+    if (data.containsKey('class_id')) {
+      context.handle(
+        _classIdMeta,
+        classId.isAcceptableOrUnknown(data['class_id']!, _classIdMeta),
+      );
+    }
+    if (data.containsKey('proposed_class_id')) {
+      context.handle(
+        _proposedClassIdMeta,
+        proposedClassId.isAcceptableOrUnknown(
+          data['proposed_class_id']!,
+          _proposedClassIdMeta,
+        ),
+      );
+    }
+    if (data.containsKey('enrollment_date')) {
+      context.handle(
+        _enrollmentDateMeta,
+        enrollmentDate.isAcceptableOrUnknown(
+          data['enrollment_date']!,
+          _enrollmentDateMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_enrollmentDateMeta);
+    }
+    if (data.containsKey('status')) {
+      context.handle(
+        _statusMeta,
+        status.isAcceptableOrUnknown(data['status']!, _statusMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_statusMeta);
+    }
+    if (data.containsKey('school')) {
+      context.handle(
+        _schoolMeta,
+        school.isAcceptableOrUnknown(data['school']!, _schoolMeta),
+      );
+    }
+    if (data.containsKey('grade')) {
+      context.handle(
+        _gradeMeta,
+        grade.isAcceptableOrUnknown(data['grade']!, _gradeMeta),
+      );
+    }
+    if (data.containsKey('is_deacon')) {
+      context.handle(
+        _isDeaconMeta,
+        isDeacon.isAcceptableOrUnknown(data['is_deacon']!, _isDeaconMeta),
+      );
+    }
+    if (data.containsKey('notes')) {
+      context.handle(
+        _notesMeta,
+        notes.isAcceptableOrUnknown(data['notes']!, _notesMeta),
+      );
+    }
+    if (data.containsKey('student_name')) {
+      context.handle(
+        _studentNameMeta,
+        studentName.isAcceptableOrUnknown(
+          data['student_name']!,
+          _studentNameMeta,
+        ),
+      );
+    }
+    if (data.containsKey('birth_date')) {
+      context.handle(
+        _birthDateMeta,
+        birthDate.isAcceptableOrUnknown(data['birth_date']!, _birthDateMeta),
+      );
+    }
+    if (data.containsKey('phone')) {
+      context.handle(
+        _phoneMeta,
+        phone.isAcceptableOrUnknown(data['phone']!, _phoneMeta),
+      );
+    }
+    if (data.containsKey('photo_path')) {
+      context.handle(
+        _photoPathMeta,
+        photoPath.isAcceptableOrUnknown(data['photo_path']!, _photoPathMeta),
+      );
+    }
+    if (data.containsKey('identity_service_id')) {
+      context.handle(
+        _identityServiceIdMeta,
+        identityServiceId.isAcceptableOrUnknown(
+          data['identity_service_id']!,
+          _identityServiceIdMeta,
+        ),
+      );
+    }
+    if (data.containsKey('cached_at')) {
+      context.handle(
+        _cachedAtMeta,
+        cachedAt.isAcceptableOrUnknown(data['cached_at']!, _cachedAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_cachedAtMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  CachedServiceStudent map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return CachedServiceStudent(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      studentId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}student_id'],
+      )!,
+      serviceId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}service_id'],
+      )!,
+      classId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}class_id'],
+      ),
+      proposedClassId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}proposed_class_id'],
+      ),
+      enrollmentDate: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}enrollment_date'],
+      )!,
+      status: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}status'],
+      )!,
+      school: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}school'],
+      ),
+      grade: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}grade'],
+      ),
+      isDeacon: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}is_deacon'],
+      )!,
+      notes: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}notes'],
+      ),
+      studentName: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}student_name'],
+      )!,
+      birthDate: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}birth_date'],
+      ),
+      phone: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}phone'],
+      ),
+      photoPath: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}photo_path'],
+      ),
+      identityServiceId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}identity_service_id'],
+      ),
+      cachedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}cached_at'],
+      )!,
+    );
+  }
+
+  @override
+  $CachedServiceStudentsTable createAlias(String alias) {
+    return $CachedServiceStudentsTable(attachedDatabase, alias);
+  }
+}
+
+class CachedServiceStudent extends DataClass
+    implements Insertable<CachedServiceStudent> {
+  final String id;
+  final String studentId;
+  final String serviceId;
+  final String? classId;
+  final String? proposedClassId;
+  final String enrollmentDate;
+  final String status;
+  final String? school;
+  final String? grade;
+  final bool isDeacon;
+  final String? notes;
+  final String studentName;
+  final String? birthDate;
+  final String? phone;
+  final String? photoPath;
+  final String? identityServiceId;
+  final DateTime cachedAt;
+  const CachedServiceStudent({
+    required this.id,
+    required this.studentId,
+    required this.serviceId,
+    this.classId,
+    this.proposedClassId,
+    required this.enrollmentDate,
+    required this.status,
+    this.school,
+    this.grade,
+    required this.isDeacon,
+    this.notes,
+    required this.studentName,
+    this.birthDate,
+    this.phone,
+    this.photoPath,
+    this.identityServiceId,
+    required this.cachedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['student_id'] = Variable<String>(studentId);
+    map['service_id'] = Variable<String>(serviceId);
+    if (!nullToAbsent || classId != null) {
+      map['class_id'] = Variable<String>(classId);
+    }
+    if (!nullToAbsent || proposedClassId != null) {
+      map['proposed_class_id'] = Variable<String>(proposedClassId);
+    }
+    map['enrollment_date'] = Variable<String>(enrollmentDate);
+    map['status'] = Variable<String>(status);
+    if (!nullToAbsent || school != null) {
+      map['school'] = Variable<String>(school);
+    }
+    if (!nullToAbsent || grade != null) {
+      map['grade'] = Variable<String>(grade);
+    }
+    map['is_deacon'] = Variable<bool>(isDeacon);
+    if (!nullToAbsent || notes != null) {
+      map['notes'] = Variable<String>(notes);
+    }
+    map['student_name'] = Variable<String>(studentName);
+    if (!nullToAbsent || birthDate != null) {
+      map['birth_date'] = Variable<String>(birthDate);
+    }
+    if (!nullToAbsent || phone != null) {
+      map['phone'] = Variable<String>(phone);
+    }
+    if (!nullToAbsent || photoPath != null) {
+      map['photo_path'] = Variable<String>(photoPath);
+    }
+    if (!nullToAbsent || identityServiceId != null) {
+      map['identity_service_id'] = Variable<String>(identityServiceId);
+    }
+    map['cached_at'] = Variable<DateTime>(cachedAt);
+    return map;
+  }
+
+  CachedServiceStudentsCompanion toCompanion(bool nullToAbsent) {
+    return CachedServiceStudentsCompanion(
+      id: Value(id),
+      studentId: Value(studentId),
+      serviceId: Value(serviceId),
+      classId: classId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(classId),
+      proposedClassId: proposedClassId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(proposedClassId),
+      enrollmentDate: Value(enrollmentDate),
+      status: Value(status),
+      school: school == null && nullToAbsent
+          ? const Value.absent()
+          : Value(school),
+      grade: grade == null && nullToAbsent
+          ? const Value.absent()
+          : Value(grade),
+      isDeacon: Value(isDeacon),
+      notes: notes == null && nullToAbsent
+          ? const Value.absent()
+          : Value(notes),
+      studentName: Value(studentName),
+      birthDate: birthDate == null && nullToAbsent
+          ? const Value.absent()
+          : Value(birthDate),
+      phone: phone == null && nullToAbsent
+          ? const Value.absent()
+          : Value(phone),
+      photoPath: photoPath == null && nullToAbsent
+          ? const Value.absent()
+          : Value(photoPath),
+      identityServiceId: identityServiceId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(identityServiceId),
+      cachedAt: Value(cachedAt),
+    );
+  }
+
+  factory CachedServiceStudent.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return CachedServiceStudent(
+      id: serializer.fromJson<String>(json['id']),
+      studentId: serializer.fromJson<String>(json['studentId']),
+      serviceId: serializer.fromJson<String>(json['serviceId']),
+      classId: serializer.fromJson<String?>(json['classId']),
+      proposedClassId: serializer.fromJson<String?>(json['proposedClassId']),
+      enrollmentDate: serializer.fromJson<String>(json['enrollmentDate']),
+      status: serializer.fromJson<String>(json['status']),
+      school: serializer.fromJson<String?>(json['school']),
+      grade: serializer.fromJson<String?>(json['grade']),
+      isDeacon: serializer.fromJson<bool>(json['isDeacon']),
+      notes: serializer.fromJson<String?>(json['notes']),
+      studentName: serializer.fromJson<String>(json['studentName']),
+      birthDate: serializer.fromJson<String?>(json['birthDate']),
+      phone: serializer.fromJson<String?>(json['phone']),
+      photoPath: serializer.fromJson<String?>(json['photoPath']),
+      identityServiceId: serializer.fromJson<String?>(
+        json['identityServiceId'],
+      ),
+      cachedAt: serializer.fromJson<DateTime>(json['cachedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'studentId': serializer.toJson<String>(studentId),
+      'serviceId': serializer.toJson<String>(serviceId),
+      'classId': serializer.toJson<String?>(classId),
+      'proposedClassId': serializer.toJson<String?>(proposedClassId),
+      'enrollmentDate': serializer.toJson<String>(enrollmentDate),
+      'status': serializer.toJson<String>(status),
+      'school': serializer.toJson<String?>(school),
+      'grade': serializer.toJson<String?>(grade),
+      'isDeacon': serializer.toJson<bool>(isDeacon),
+      'notes': serializer.toJson<String?>(notes),
+      'studentName': serializer.toJson<String>(studentName),
+      'birthDate': serializer.toJson<String?>(birthDate),
+      'phone': serializer.toJson<String?>(phone),
+      'photoPath': serializer.toJson<String?>(photoPath),
+      'identityServiceId': serializer.toJson<String?>(identityServiceId),
+      'cachedAt': serializer.toJson<DateTime>(cachedAt),
+    };
+  }
+
+  CachedServiceStudent copyWith({
+    String? id,
+    String? studentId,
+    String? serviceId,
+    Value<String?> classId = const Value.absent(),
+    Value<String?> proposedClassId = const Value.absent(),
+    String? enrollmentDate,
+    String? status,
+    Value<String?> school = const Value.absent(),
+    Value<String?> grade = const Value.absent(),
+    bool? isDeacon,
+    Value<String?> notes = const Value.absent(),
+    String? studentName,
+    Value<String?> birthDate = const Value.absent(),
+    Value<String?> phone = const Value.absent(),
+    Value<String?> photoPath = const Value.absent(),
+    Value<String?> identityServiceId = const Value.absent(),
+    DateTime? cachedAt,
+  }) => CachedServiceStudent(
+    id: id ?? this.id,
+    studentId: studentId ?? this.studentId,
+    serviceId: serviceId ?? this.serviceId,
+    classId: classId.present ? classId.value : this.classId,
+    proposedClassId: proposedClassId.present
+        ? proposedClassId.value
+        : this.proposedClassId,
+    enrollmentDate: enrollmentDate ?? this.enrollmentDate,
+    status: status ?? this.status,
+    school: school.present ? school.value : this.school,
+    grade: grade.present ? grade.value : this.grade,
+    isDeacon: isDeacon ?? this.isDeacon,
+    notes: notes.present ? notes.value : this.notes,
+    studentName: studentName ?? this.studentName,
+    birthDate: birthDate.present ? birthDate.value : this.birthDate,
+    phone: phone.present ? phone.value : this.phone,
+    photoPath: photoPath.present ? photoPath.value : this.photoPath,
+    identityServiceId: identityServiceId.present
+        ? identityServiceId.value
+        : this.identityServiceId,
+    cachedAt: cachedAt ?? this.cachedAt,
+  );
+  CachedServiceStudent copyWithCompanion(CachedServiceStudentsCompanion data) {
+    return CachedServiceStudent(
+      id: data.id.present ? data.id.value : this.id,
+      studentId: data.studentId.present ? data.studentId.value : this.studentId,
+      serviceId: data.serviceId.present ? data.serviceId.value : this.serviceId,
+      classId: data.classId.present ? data.classId.value : this.classId,
+      proposedClassId: data.proposedClassId.present
+          ? data.proposedClassId.value
+          : this.proposedClassId,
+      enrollmentDate: data.enrollmentDate.present
+          ? data.enrollmentDate.value
+          : this.enrollmentDate,
+      status: data.status.present ? data.status.value : this.status,
+      school: data.school.present ? data.school.value : this.school,
+      grade: data.grade.present ? data.grade.value : this.grade,
+      isDeacon: data.isDeacon.present ? data.isDeacon.value : this.isDeacon,
+      notes: data.notes.present ? data.notes.value : this.notes,
+      studentName: data.studentName.present
+          ? data.studentName.value
+          : this.studentName,
+      birthDate: data.birthDate.present ? data.birthDate.value : this.birthDate,
+      phone: data.phone.present ? data.phone.value : this.phone,
+      photoPath: data.photoPath.present ? data.photoPath.value : this.photoPath,
+      identityServiceId: data.identityServiceId.present
+          ? data.identityServiceId.value
+          : this.identityServiceId,
+      cachedAt: data.cachedAt.present ? data.cachedAt.value : this.cachedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CachedServiceStudent(')
+          ..write('id: $id, ')
+          ..write('studentId: $studentId, ')
+          ..write('serviceId: $serviceId, ')
+          ..write('classId: $classId, ')
+          ..write('proposedClassId: $proposedClassId, ')
+          ..write('enrollmentDate: $enrollmentDate, ')
+          ..write('status: $status, ')
+          ..write('school: $school, ')
+          ..write('grade: $grade, ')
+          ..write('isDeacon: $isDeacon, ')
+          ..write('notes: $notes, ')
+          ..write('studentName: $studentName, ')
+          ..write('birthDate: $birthDate, ')
+          ..write('phone: $phone, ')
+          ..write('photoPath: $photoPath, ')
+          ..write('identityServiceId: $identityServiceId, ')
+          ..write('cachedAt: $cachedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    studentId,
+    serviceId,
+    classId,
+    proposedClassId,
+    enrollmentDate,
+    status,
+    school,
+    grade,
+    isDeacon,
+    notes,
+    studentName,
+    birthDate,
+    phone,
+    photoPath,
+    identityServiceId,
+    cachedAt,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is CachedServiceStudent &&
+          other.id == this.id &&
+          other.studentId == this.studentId &&
+          other.serviceId == this.serviceId &&
+          other.classId == this.classId &&
+          other.proposedClassId == this.proposedClassId &&
+          other.enrollmentDate == this.enrollmentDate &&
+          other.status == this.status &&
+          other.school == this.school &&
+          other.grade == this.grade &&
+          other.isDeacon == this.isDeacon &&
+          other.notes == this.notes &&
+          other.studentName == this.studentName &&
+          other.birthDate == this.birthDate &&
+          other.phone == this.phone &&
+          other.photoPath == this.photoPath &&
+          other.identityServiceId == this.identityServiceId &&
+          other.cachedAt == this.cachedAt);
+}
+
+class CachedServiceStudentsCompanion
+    extends UpdateCompanion<CachedServiceStudent> {
+  final Value<String> id;
+  final Value<String> studentId;
+  final Value<String> serviceId;
+  final Value<String?> classId;
+  final Value<String?> proposedClassId;
+  final Value<String> enrollmentDate;
+  final Value<String> status;
+  final Value<String?> school;
+  final Value<String?> grade;
+  final Value<bool> isDeacon;
+  final Value<String?> notes;
+  final Value<String> studentName;
+  final Value<String?> birthDate;
+  final Value<String?> phone;
+  final Value<String?> photoPath;
+  final Value<String?> identityServiceId;
+  final Value<DateTime> cachedAt;
+  final Value<int> rowid;
+  const CachedServiceStudentsCompanion({
+    this.id = const Value.absent(),
+    this.studentId = const Value.absent(),
+    this.serviceId = const Value.absent(),
+    this.classId = const Value.absent(),
+    this.proposedClassId = const Value.absent(),
+    this.enrollmentDate = const Value.absent(),
+    this.status = const Value.absent(),
+    this.school = const Value.absent(),
+    this.grade = const Value.absent(),
+    this.isDeacon = const Value.absent(),
+    this.notes = const Value.absent(),
+    this.studentName = const Value.absent(),
+    this.birthDate = const Value.absent(),
+    this.phone = const Value.absent(),
+    this.photoPath = const Value.absent(),
+    this.identityServiceId = const Value.absent(),
+    this.cachedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  CachedServiceStudentsCompanion.insert({
+    required String id,
+    required String studentId,
+    required String serviceId,
+    this.classId = const Value.absent(),
+    this.proposedClassId = const Value.absent(),
+    required String enrollmentDate,
+    required String status,
+    this.school = const Value.absent(),
+    this.grade = const Value.absent(),
+    this.isDeacon = const Value.absent(),
+    this.notes = const Value.absent(),
+    this.studentName = const Value.absent(),
+    this.birthDate = const Value.absent(),
+    this.phone = const Value.absent(),
+    this.photoPath = const Value.absent(),
+    this.identityServiceId = const Value.absent(),
+    required DateTime cachedAt,
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       studentId = Value(studentId),
+       serviceId = Value(serviceId),
+       enrollmentDate = Value(enrollmentDate),
+       status = Value(status),
+       cachedAt = Value(cachedAt);
+  static Insertable<CachedServiceStudent> custom({
+    Expression<String>? id,
+    Expression<String>? studentId,
+    Expression<String>? serviceId,
+    Expression<String>? classId,
+    Expression<String>? proposedClassId,
+    Expression<String>? enrollmentDate,
+    Expression<String>? status,
+    Expression<String>? school,
+    Expression<String>? grade,
+    Expression<bool>? isDeacon,
+    Expression<String>? notes,
+    Expression<String>? studentName,
+    Expression<String>? birthDate,
+    Expression<String>? phone,
+    Expression<String>? photoPath,
+    Expression<String>? identityServiceId,
+    Expression<DateTime>? cachedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (studentId != null) 'student_id': studentId,
+      if (serviceId != null) 'service_id': serviceId,
+      if (classId != null) 'class_id': classId,
+      if (proposedClassId != null) 'proposed_class_id': proposedClassId,
+      if (enrollmentDate != null) 'enrollment_date': enrollmentDate,
+      if (status != null) 'status': status,
+      if (school != null) 'school': school,
+      if (grade != null) 'grade': grade,
+      if (isDeacon != null) 'is_deacon': isDeacon,
+      if (notes != null) 'notes': notes,
+      if (studentName != null) 'student_name': studentName,
+      if (birthDate != null) 'birth_date': birthDate,
+      if (phone != null) 'phone': phone,
+      if (photoPath != null) 'photo_path': photoPath,
+      if (identityServiceId != null) 'identity_service_id': identityServiceId,
+      if (cachedAt != null) 'cached_at': cachedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  CachedServiceStudentsCompanion copyWith({
+    Value<String>? id,
+    Value<String>? studentId,
+    Value<String>? serviceId,
+    Value<String?>? classId,
+    Value<String?>? proposedClassId,
+    Value<String>? enrollmentDate,
+    Value<String>? status,
+    Value<String?>? school,
+    Value<String?>? grade,
+    Value<bool>? isDeacon,
+    Value<String?>? notes,
+    Value<String>? studentName,
+    Value<String?>? birthDate,
+    Value<String?>? phone,
+    Value<String?>? photoPath,
+    Value<String?>? identityServiceId,
+    Value<DateTime>? cachedAt,
+    Value<int>? rowid,
+  }) {
+    return CachedServiceStudentsCompanion(
+      id: id ?? this.id,
+      studentId: studentId ?? this.studentId,
+      serviceId: serviceId ?? this.serviceId,
+      classId: classId ?? this.classId,
+      proposedClassId: proposedClassId ?? this.proposedClassId,
+      enrollmentDate: enrollmentDate ?? this.enrollmentDate,
+      status: status ?? this.status,
+      school: school ?? this.school,
+      grade: grade ?? this.grade,
+      isDeacon: isDeacon ?? this.isDeacon,
+      notes: notes ?? this.notes,
+      studentName: studentName ?? this.studentName,
+      birthDate: birthDate ?? this.birthDate,
+      phone: phone ?? this.phone,
+      photoPath: photoPath ?? this.photoPath,
+      identityServiceId: identityServiceId ?? this.identityServiceId,
+      cachedAt: cachedAt ?? this.cachedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (studentId.present) {
+      map['student_id'] = Variable<String>(studentId.value);
+    }
+    if (serviceId.present) {
+      map['service_id'] = Variable<String>(serviceId.value);
+    }
+    if (classId.present) {
+      map['class_id'] = Variable<String>(classId.value);
+    }
+    if (proposedClassId.present) {
+      map['proposed_class_id'] = Variable<String>(proposedClassId.value);
+    }
+    if (enrollmentDate.present) {
+      map['enrollment_date'] = Variable<String>(enrollmentDate.value);
+    }
+    if (status.present) {
+      map['status'] = Variable<String>(status.value);
+    }
+    if (school.present) {
+      map['school'] = Variable<String>(school.value);
+    }
+    if (grade.present) {
+      map['grade'] = Variable<String>(grade.value);
+    }
+    if (isDeacon.present) {
+      map['is_deacon'] = Variable<bool>(isDeacon.value);
+    }
+    if (notes.present) {
+      map['notes'] = Variable<String>(notes.value);
+    }
+    if (studentName.present) {
+      map['student_name'] = Variable<String>(studentName.value);
+    }
+    if (birthDate.present) {
+      map['birth_date'] = Variable<String>(birthDate.value);
+    }
+    if (phone.present) {
+      map['phone'] = Variable<String>(phone.value);
+    }
+    if (photoPath.present) {
+      map['photo_path'] = Variable<String>(photoPath.value);
+    }
+    if (identityServiceId.present) {
+      map['identity_service_id'] = Variable<String>(identityServiceId.value);
+    }
+    if (cachedAt.present) {
+      map['cached_at'] = Variable<DateTime>(cachedAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CachedServiceStudentsCompanion(')
+          ..write('id: $id, ')
+          ..write('studentId: $studentId, ')
+          ..write('serviceId: $serviceId, ')
+          ..write('classId: $classId, ')
+          ..write('proposedClassId: $proposedClassId, ')
+          ..write('enrollmentDate: $enrollmentDate, ')
+          ..write('status: $status, ')
+          ..write('school: $school, ')
+          ..write('grade: $grade, ')
+          ..write('isDeacon: $isDeacon, ')
+          ..write('notes: $notes, ')
+          ..write('studentName: $studentName, ')
+          ..write('birthDate: $birthDate, ')
+          ..write('phone: $phone, ')
+          ..write('photoPath: $photoPath, ')
+          ..write('identityServiceId: $identityServiceId, ')
           ..write('cachedAt: $cachedAt, ')
           ..write('rowid: $rowid')
           ..write(')'))
@@ -4269,6 +5404,28 @@ class $CachedAttendanceRecordsTable extends CachedAttendanceRecords
     type: DriftSqlType.string,
     requiredDuringInsert: true,
   );
+  static const VerificationMeta _serviceIdMeta = const VerificationMeta(
+    'serviceId',
+  );
+  @override
+  late final GeneratedColumn<String> serviceId = GeneratedColumn<String>(
+    'service_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _serviceStudentIdMeta = const VerificationMeta(
+    'serviceStudentId',
+  );
+  @override
+  late final GeneratedColumn<String> serviceStudentId = GeneratedColumn<String>(
+    'service_student_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _classIdAtAttendanceMeta =
       const VerificationMeta('classIdAtAttendance');
   @override
@@ -4331,6 +5488,8 @@ class $CachedAttendanceRecordsTable extends CachedAttendanceRecords
     id,
     meetingId,
     studentId,
+    serviceId,
+    serviceStudentId,
     classIdAtAttendance,
     checkedInAt,
     recordedBy,
@@ -4369,6 +5528,21 @@ class $CachedAttendanceRecordsTable extends CachedAttendanceRecords
       );
     } else if (isInserting) {
       context.missing(_studentIdMeta);
+    }
+    if (data.containsKey('service_id')) {
+      context.handle(
+        _serviceIdMeta,
+        serviceId.isAcceptableOrUnknown(data['service_id']!, _serviceIdMeta),
+      );
+    }
+    if (data.containsKey('service_student_id')) {
+      context.handle(
+        _serviceStudentIdMeta,
+        serviceStudentId.isAcceptableOrUnknown(
+          data['service_student_id']!,
+          _serviceStudentIdMeta,
+        ),
+      );
     }
     if (data.containsKey('class_id_at_attendance')) {
       context.handle(
@@ -4438,6 +5612,14 @@ class $CachedAttendanceRecordsTable extends CachedAttendanceRecords
         DriftSqlType.string,
         data['${effectivePrefix}student_id'],
       )!,
+      serviceId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}service_id'],
+      ),
+      serviceStudentId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}service_student_id'],
+      ),
       classIdAtAttendance: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}class_id_at_attendance'],
@@ -4472,6 +5654,8 @@ class CachedAttendanceRecord extends DataClass
   final String id;
   final String meetingId;
   final String studentId;
+  final String? serviceId;
+  final String? serviceStudentId;
   final String classIdAtAttendance;
   final DateTime checkedInAt;
   final String recordedBy;
@@ -4481,6 +5665,8 @@ class CachedAttendanceRecord extends DataClass
     required this.id,
     required this.meetingId,
     required this.studentId,
+    this.serviceId,
+    this.serviceStudentId,
     required this.classIdAtAttendance,
     required this.checkedInAt,
     required this.recordedBy,
@@ -4493,6 +5679,12 @@ class CachedAttendanceRecord extends DataClass
     map['id'] = Variable<String>(id);
     map['meeting_id'] = Variable<String>(meetingId);
     map['student_id'] = Variable<String>(studentId);
+    if (!nullToAbsent || serviceId != null) {
+      map['service_id'] = Variable<String>(serviceId);
+    }
+    if (!nullToAbsent || serviceStudentId != null) {
+      map['service_student_id'] = Variable<String>(serviceStudentId);
+    }
     map['class_id_at_attendance'] = Variable<String>(classIdAtAttendance);
     map['checked_in_at'] = Variable<DateTime>(checkedInAt);
     map['recorded_by'] = Variable<String>(recordedBy);
@@ -4506,6 +5698,12 @@ class CachedAttendanceRecord extends DataClass
       id: Value(id),
       meetingId: Value(meetingId),
       studentId: Value(studentId),
+      serviceId: serviceId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(serviceId),
+      serviceStudentId: serviceStudentId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(serviceStudentId),
       classIdAtAttendance: Value(classIdAtAttendance),
       checkedInAt: Value(checkedInAt),
       recordedBy: Value(recordedBy),
@@ -4523,6 +5721,8 @@ class CachedAttendanceRecord extends DataClass
       id: serializer.fromJson<String>(json['id']),
       meetingId: serializer.fromJson<String>(json['meetingId']),
       studentId: serializer.fromJson<String>(json['studentId']),
+      serviceId: serializer.fromJson<String?>(json['serviceId']),
+      serviceStudentId: serializer.fromJson<String?>(json['serviceStudentId']),
       classIdAtAttendance: serializer.fromJson<String>(
         json['classIdAtAttendance'],
       ),
@@ -4539,6 +5739,8 @@ class CachedAttendanceRecord extends DataClass
       'id': serializer.toJson<String>(id),
       'meetingId': serializer.toJson<String>(meetingId),
       'studentId': serializer.toJson<String>(studentId),
+      'serviceId': serializer.toJson<String?>(serviceId),
+      'serviceStudentId': serializer.toJson<String?>(serviceStudentId),
       'classIdAtAttendance': serializer.toJson<String>(classIdAtAttendance),
       'checkedInAt': serializer.toJson<DateTime>(checkedInAt),
       'recordedBy': serializer.toJson<String>(recordedBy),
@@ -4551,6 +5753,8 @@ class CachedAttendanceRecord extends DataClass
     String? id,
     String? meetingId,
     String? studentId,
+    Value<String?> serviceId = const Value.absent(),
+    Value<String?> serviceStudentId = const Value.absent(),
     String? classIdAtAttendance,
     DateTime? checkedInAt,
     String? recordedBy,
@@ -4560,6 +5764,10 @@ class CachedAttendanceRecord extends DataClass
     id: id ?? this.id,
     meetingId: meetingId ?? this.meetingId,
     studentId: studentId ?? this.studentId,
+    serviceId: serviceId.present ? serviceId.value : this.serviceId,
+    serviceStudentId: serviceStudentId.present
+        ? serviceStudentId.value
+        : this.serviceStudentId,
     classIdAtAttendance: classIdAtAttendance ?? this.classIdAtAttendance,
     checkedInAt: checkedInAt ?? this.checkedInAt,
     recordedBy: recordedBy ?? this.recordedBy,
@@ -4573,6 +5781,10 @@ class CachedAttendanceRecord extends DataClass
       id: data.id.present ? data.id.value : this.id,
       meetingId: data.meetingId.present ? data.meetingId.value : this.meetingId,
       studentId: data.studentId.present ? data.studentId.value : this.studentId,
+      serviceId: data.serviceId.present ? data.serviceId.value : this.serviceId,
+      serviceStudentId: data.serviceStudentId.present
+          ? data.serviceStudentId.value
+          : this.serviceStudentId,
       classIdAtAttendance: data.classIdAtAttendance.present
           ? data.classIdAtAttendance.value
           : this.classIdAtAttendance,
@@ -4595,6 +5807,8 @@ class CachedAttendanceRecord extends DataClass
           ..write('id: $id, ')
           ..write('meetingId: $meetingId, ')
           ..write('studentId: $studentId, ')
+          ..write('serviceId: $serviceId, ')
+          ..write('serviceStudentId: $serviceStudentId, ')
           ..write('classIdAtAttendance: $classIdAtAttendance, ')
           ..write('checkedInAt: $checkedInAt, ')
           ..write('recordedBy: $recordedBy, ')
@@ -4609,6 +5823,8 @@ class CachedAttendanceRecord extends DataClass
     id,
     meetingId,
     studentId,
+    serviceId,
+    serviceStudentId,
     classIdAtAttendance,
     checkedInAt,
     recordedBy,
@@ -4622,6 +5838,8 @@ class CachedAttendanceRecord extends DataClass
           other.id == this.id &&
           other.meetingId == this.meetingId &&
           other.studentId == this.studentId &&
+          other.serviceId == this.serviceId &&
+          other.serviceStudentId == this.serviceStudentId &&
           other.classIdAtAttendance == this.classIdAtAttendance &&
           other.checkedInAt == this.checkedInAt &&
           other.recordedBy == this.recordedBy &&
@@ -4634,6 +5852,8 @@ class CachedAttendanceRecordsCompanion
   final Value<String> id;
   final Value<String> meetingId;
   final Value<String> studentId;
+  final Value<String?> serviceId;
+  final Value<String?> serviceStudentId;
   final Value<String> classIdAtAttendance;
   final Value<DateTime> checkedInAt;
   final Value<String> recordedBy;
@@ -4644,6 +5864,8 @@ class CachedAttendanceRecordsCompanion
     this.id = const Value.absent(),
     this.meetingId = const Value.absent(),
     this.studentId = const Value.absent(),
+    this.serviceId = const Value.absent(),
+    this.serviceStudentId = const Value.absent(),
     this.classIdAtAttendance = const Value.absent(),
     this.checkedInAt = const Value.absent(),
     this.recordedBy = const Value.absent(),
@@ -4655,6 +5877,8 @@ class CachedAttendanceRecordsCompanion
     required String id,
     required String meetingId,
     required String studentId,
+    this.serviceId = const Value.absent(),
+    this.serviceStudentId = const Value.absent(),
     required String classIdAtAttendance,
     required DateTime checkedInAt,
     required String recordedBy,
@@ -4672,6 +5896,8 @@ class CachedAttendanceRecordsCompanion
     Expression<String>? id,
     Expression<String>? meetingId,
     Expression<String>? studentId,
+    Expression<String>? serviceId,
+    Expression<String>? serviceStudentId,
     Expression<String>? classIdAtAttendance,
     Expression<DateTime>? checkedInAt,
     Expression<String>? recordedBy,
@@ -4683,6 +5909,8 @@ class CachedAttendanceRecordsCompanion
       if (id != null) 'id': id,
       if (meetingId != null) 'meeting_id': meetingId,
       if (studentId != null) 'student_id': studentId,
+      if (serviceId != null) 'service_id': serviceId,
+      if (serviceStudentId != null) 'service_student_id': serviceStudentId,
       if (classIdAtAttendance != null)
         'class_id_at_attendance': classIdAtAttendance,
       if (checkedInAt != null) 'checked_in_at': checkedInAt,
@@ -4697,6 +5925,8 @@ class CachedAttendanceRecordsCompanion
     Value<String>? id,
     Value<String>? meetingId,
     Value<String>? studentId,
+    Value<String?>? serviceId,
+    Value<String?>? serviceStudentId,
     Value<String>? classIdAtAttendance,
     Value<DateTime>? checkedInAt,
     Value<String>? recordedBy,
@@ -4708,6 +5938,8 @@ class CachedAttendanceRecordsCompanion
       id: id ?? this.id,
       meetingId: meetingId ?? this.meetingId,
       studentId: studentId ?? this.studentId,
+      serviceId: serviceId ?? this.serviceId,
+      serviceStudentId: serviceStudentId ?? this.serviceStudentId,
       classIdAtAttendance: classIdAtAttendance ?? this.classIdAtAttendance,
       checkedInAt: checkedInAt ?? this.checkedInAt,
       recordedBy: recordedBy ?? this.recordedBy,
@@ -4728,6 +5960,12 @@ class CachedAttendanceRecordsCompanion
     }
     if (studentId.present) {
       map['student_id'] = Variable<String>(studentId.value);
+    }
+    if (serviceId.present) {
+      map['service_id'] = Variable<String>(serviceId.value);
+    }
+    if (serviceStudentId.present) {
+      map['service_student_id'] = Variable<String>(serviceStudentId.value);
     }
     if (classIdAtAttendance.present) {
       map['class_id_at_attendance'] = Variable<String>(
@@ -4758,6 +5996,8 @@ class CachedAttendanceRecordsCompanion
           ..write('id: $id, ')
           ..write('meetingId: $meetingId, ')
           ..write('studentId: $studentId, ')
+          ..write('serviceId: $serviceId, ')
+          ..write('serviceStudentId: $serviceStudentId, ')
           ..write('classIdAtAttendance: $classIdAtAttendance, ')
           ..write('checkedInAt: $checkedInAt, ')
           ..write('recordedBy: $recordedBy, ')
@@ -4794,6 +6034,28 @@ class $CachedFollowUpRecordsTable extends CachedFollowUpRecords
     false,
     type: DriftSqlType.string,
     requiredDuringInsert: true,
+  );
+  static const VerificationMeta _serviceIdMeta = const VerificationMeta(
+    'serviceId',
+  );
+  @override
+  late final GeneratedColumn<String> serviceId = GeneratedColumn<String>(
+    'service_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _serviceStudentIdMeta = const VerificationMeta(
+    'serviceStudentId',
+  );
+  @override
+  late final GeneratedColumn<String> serviceStudentId = GeneratedColumn<String>(
+    'service_student_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
   );
   static const VerificationMeta _createdByMeta = const VerificationMeta(
     'createdBy',
@@ -4945,6 +6207,8 @@ class $CachedFollowUpRecordsTable extends CachedFollowUpRecords
   List<GeneratedColumn> get $columns => [
     id,
     studentId,
+    serviceId,
+    serviceStudentId,
     createdBy,
     followUpDate,
     contactStatus,
@@ -4983,6 +6247,21 @@ class $CachedFollowUpRecordsTable extends CachedFollowUpRecords
       );
     } else if (isInserting) {
       context.missing(_studentIdMeta);
+    }
+    if (data.containsKey('service_id')) {
+      context.handle(
+        _serviceIdMeta,
+        serviceId.isAcceptableOrUnknown(data['service_id']!, _serviceIdMeta),
+      );
+    }
+    if (data.containsKey('service_student_id')) {
+      context.handle(
+        _serviceStudentIdMeta,
+        serviceStudentId.isAcceptableOrUnknown(
+          data['service_student_id']!,
+          _serviceStudentIdMeta,
+        ),
+      );
     }
     if (data.containsKey('created_by')) {
       context.handle(
@@ -5119,6 +6398,14 @@ class $CachedFollowUpRecordsTable extends CachedFollowUpRecords
         DriftSqlType.string,
         data['${effectivePrefix}student_id'],
       )!,
+      serviceId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}service_id'],
+      ),
+      serviceStudentId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}service_student_id'],
+      ),
       createdBy: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}created_by'],
@@ -5184,6 +6471,8 @@ class CachedFollowUpRecord extends DataClass
     implements Insertable<CachedFollowUpRecord> {
   final String id;
   final String studentId;
+  final String? serviceId;
+  final String? serviceStudentId;
   final String createdBy;
   final String followUpDate;
   final String contactStatus;
@@ -5200,6 +6489,8 @@ class CachedFollowUpRecord extends DataClass
   const CachedFollowUpRecord({
     required this.id,
     required this.studentId,
+    this.serviceId,
+    this.serviceStudentId,
     required this.createdBy,
     required this.followUpDate,
     required this.contactStatus,
@@ -5219,6 +6510,12 @@ class CachedFollowUpRecord extends DataClass
     final map = <String, Expression>{};
     map['id'] = Variable<String>(id);
     map['student_id'] = Variable<String>(studentId);
+    if (!nullToAbsent || serviceId != null) {
+      map['service_id'] = Variable<String>(serviceId);
+    }
+    if (!nullToAbsent || serviceStudentId != null) {
+      map['service_student_id'] = Variable<String>(serviceStudentId);
+    }
     map['created_by'] = Variable<String>(createdBy);
     map['follow_up_date'] = Variable<String>(followUpDate);
     map['contact_status'] = Variable<String>(contactStatus);
@@ -5253,6 +6550,12 @@ class CachedFollowUpRecord extends DataClass
     return CachedFollowUpRecordsCompanion(
       id: Value(id),
       studentId: Value(studentId),
+      serviceId: serviceId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(serviceId),
+      serviceStudentId: serviceStudentId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(serviceStudentId),
       createdBy: Value(createdBy),
       followUpDate: Value(followUpDate),
       contactStatus: Value(contactStatus),
@@ -5291,6 +6594,8 @@ class CachedFollowUpRecord extends DataClass
     return CachedFollowUpRecord(
       id: serializer.fromJson<String>(json['id']),
       studentId: serializer.fromJson<String>(json['studentId']),
+      serviceId: serializer.fromJson<String?>(json['serviceId']),
+      serviceStudentId: serializer.fromJson<String?>(json['serviceStudentId']),
       createdBy: serializer.fromJson<String>(json['createdBy']),
       followUpDate: serializer.fromJson<String>(json['followUpDate']),
       contactStatus: serializer.fromJson<String>(json['contactStatus']),
@@ -5314,6 +6619,8 @@ class CachedFollowUpRecord extends DataClass
     return <String, dynamic>{
       'id': serializer.toJson<String>(id),
       'studentId': serializer.toJson<String>(studentId),
+      'serviceId': serializer.toJson<String?>(serviceId),
+      'serviceStudentId': serializer.toJson<String?>(serviceStudentId),
       'createdBy': serializer.toJson<String>(createdBy),
       'followUpDate': serializer.toJson<String>(followUpDate),
       'contactStatus': serializer.toJson<String>(contactStatus),
@@ -5333,6 +6640,8 @@ class CachedFollowUpRecord extends DataClass
   CachedFollowUpRecord copyWith({
     String? id,
     String? studentId,
+    Value<String?> serviceId = const Value.absent(),
+    Value<String?> serviceStudentId = const Value.absent(),
     String? createdBy,
     String? followUpDate,
     String? contactStatus,
@@ -5349,6 +6658,10 @@ class CachedFollowUpRecord extends DataClass
   }) => CachedFollowUpRecord(
     id: id ?? this.id,
     studentId: studentId ?? this.studentId,
+    serviceId: serviceId.present ? serviceId.value : this.serviceId,
+    serviceStudentId: serviceStudentId.present
+        ? serviceStudentId.value
+        : this.serviceStudentId,
     createdBy: createdBy ?? this.createdBy,
     followUpDate: followUpDate ?? this.followUpDate,
     contactStatus: contactStatus ?? this.contactStatus,
@@ -5379,6 +6692,10 @@ class CachedFollowUpRecord extends DataClass
     return CachedFollowUpRecord(
       id: data.id.present ? data.id.value : this.id,
       studentId: data.studentId.present ? data.studentId.value : this.studentId,
+      serviceId: data.serviceId.present ? data.serviceId.value : this.serviceId,
+      serviceStudentId: data.serviceStudentId.present
+          ? data.serviceStudentId.value
+          : this.serviceStudentId,
       createdBy: data.createdBy.present ? data.createdBy.value : this.createdBy,
       followUpDate: data.followUpDate.present
           ? data.followUpDate.value
@@ -5420,6 +6737,8 @@ class CachedFollowUpRecord extends DataClass
     return (StringBuffer('CachedFollowUpRecord(')
           ..write('id: $id, ')
           ..write('studentId: $studentId, ')
+          ..write('serviceId: $serviceId, ')
+          ..write('serviceStudentId: $serviceStudentId, ')
           ..write('createdBy: $createdBy, ')
           ..write('followUpDate: $followUpDate, ')
           ..write('contactStatus: $contactStatus, ')
@@ -5441,6 +6760,8 @@ class CachedFollowUpRecord extends DataClass
   int get hashCode => Object.hash(
     id,
     studentId,
+    serviceId,
+    serviceStudentId,
     createdBy,
     followUpDate,
     contactStatus,
@@ -5461,6 +6782,8 @@ class CachedFollowUpRecord extends DataClass
       (other is CachedFollowUpRecord &&
           other.id == this.id &&
           other.studentId == this.studentId &&
+          other.serviceId == this.serviceId &&
+          other.serviceStudentId == this.serviceStudentId &&
           other.createdBy == this.createdBy &&
           other.followUpDate == this.followUpDate &&
           other.contactStatus == this.contactStatus &&
@@ -5480,6 +6803,8 @@ class CachedFollowUpRecordsCompanion
     extends UpdateCompanion<CachedFollowUpRecord> {
   final Value<String> id;
   final Value<String> studentId;
+  final Value<String?> serviceId;
+  final Value<String?> serviceStudentId;
   final Value<String> createdBy;
   final Value<String> followUpDate;
   final Value<String> contactStatus;
@@ -5497,6 +6822,8 @@ class CachedFollowUpRecordsCompanion
   const CachedFollowUpRecordsCompanion({
     this.id = const Value.absent(),
     this.studentId = const Value.absent(),
+    this.serviceId = const Value.absent(),
+    this.serviceStudentId = const Value.absent(),
     this.createdBy = const Value.absent(),
     this.followUpDate = const Value.absent(),
     this.contactStatus = const Value.absent(),
@@ -5515,6 +6842,8 @@ class CachedFollowUpRecordsCompanion
   CachedFollowUpRecordsCompanion.insert({
     required String id,
     required String studentId,
+    this.serviceId = const Value.absent(),
+    this.serviceStudentId = const Value.absent(),
     required String createdBy,
     required String followUpDate,
     required String contactStatus,
@@ -5539,6 +6868,8 @@ class CachedFollowUpRecordsCompanion
   static Insertable<CachedFollowUpRecord> custom({
     Expression<String>? id,
     Expression<String>? studentId,
+    Expression<String>? serviceId,
+    Expression<String>? serviceStudentId,
     Expression<String>? createdBy,
     Expression<String>? followUpDate,
     Expression<String>? contactStatus,
@@ -5557,6 +6888,8 @@ class CachedFollowUpRecordsCompanion
     return RawValuesInsertable({
       if (id != null) 'id': id,
       if (studentId != null) 'student_id': studentId,
+      if (serviceId != null) 'service_id': serviceId,
+      if (serviceStudentId != null) 'service_student_id': serviceStudentId,
       if (createdBy != null) 'created_by': createdBy,
       if (followUpDate != null) 'follow_up_date': followUpDate,
       if (contactStatus != null) 'contact_status': contactStatus,
@@ -5578,6 +6911,8 @@ class CachedFollowUpRecordsCompanion
   CachedFollowUpRecordsCompanion copyWith({
     Value<String>? id,
     Value<String>? studentId,
+    Value<String?>? serviceId,
+    Value<String?>? serviceStudentId,
     Value<String>? createdBy,
     Value<String>? followUpDate,
     Value<String>? contactStatus,
@@ -5596,6 +6931,8 @@ class CachedFollowUpRecordsCompanion
     return CachedFollowUpRecordsCompanion(
       id: id ?? this.id,
       studentId: studentId ?? this.studentId,
+      serviceId: serviceId ?? this.serviceId,
+      serviceStudentId: serviceStudentId ?? this.serviceStudentId,
       createdBy: createdBy ?? this.createdBy,
       followUpDate: followUpDate ?? this.followUpDate,
       contactStatus: contactStatus ?? this.contactStatus,
@@ -5622,6 +6959,12 @@ class CachedFollowUpRecordsCompanion
     }
     if (studentId.present) {
       map['student_id'] = Variable<String>(studentId.value);
+    }
+    if (serviceId.present) {
+      map['service_id'] = Variable<String>(serviceId.value);
+    }
+    if (serviceStudentId.present) {
+      map['service_student_id'] = Variable<String>(serviceStudentId.value);
     }
     if (createdBy.present) {
       map['created_by'] = Variable<String>(createdBy.value);
@@ -5675,6 +7018,8 @@ class CachedFollowUpRecordsCompanion
     return (StringBuffer('CachedFollowUpRecordsCompanion(')
           ..write('id: $id, ')
           ..write('studentId: $studentId, ')
+          ..write('serviceId: $serviceId, ')
+          ..write('serviceStudentId: $serviceStudentId, ')
           ..write('createdBy: $createdBy, ')
           ..write('followUpDate: $followUpDate, ')
           ..write('contactStatus: $contactStatus, ')
@@ -6188,6 +7533,17 @@ class $CachedFollowUpCasesTable extends CachedFollowUpCases
     type: DriftSqlType.string,
     requiredDuringInsert: true,
   );
+  static const VerificationMeta _serviceStudentIdMeta = const VerificationMeta(
+    'serviceStudentId',
+  );
+  @override
+  late final GeneratedColumn<String> serviceStudentId = GeneratedColumn<String>(
+    'service_student_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _classIdMeta = const VerificationMeta(
     'classId',
   );
@@ -6334,6 +7690,7 @@ class $CachedFollowUpCasesTable extends CachedFollowUpCases
     id,
     serviceId,
     studentId,
+    serviceStudentId,
     classId,
     title,
     description,
@@ -6380,6 +7737,15 @@ class $CachedFollowUpCasesTable extends CachedFollowUpCases
       );
     } else if (isInserting) {
       context.missing(_studentIdMeta);
+    }
+    if (data.containsKey('service_student_id')) {
+      context.handle(
+        _serviceStudentIdMeta,
+        serviceStudentId.isAcceptableOrUnknown(
+          data['service_student_id']!,
+          _serviceStudentIdMeta,
+        ),
+      );
     }
     if (data.containsKey('class_id')) {
       context.handle(
@@ -6504,6 +7870,10 @@ class $CachedFollowUpCasesTable extends CachedFollowUpCases
         DriftSqlType.string,
         data['${effectivePrefix}student_id'],
       )!,
+      serviceStudentId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}service_student_id'],
+      ),
       classId: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}class_id'],
@@ -6570,6 +7940,7 @@ class CachedFollowUpCase extends DataClass
   final String id;
   final String serviceId;
   final String studentId;
+  final String? serviceStudentId;
   final String classId;
   final String title;
   final String? description;
@@ -6587,6 +7958,7 @@ class CachedFollowUpCase extends DataClass
     required this.id,
     required this.serviceId,
     required this.studentId,
+    this.serviceStudentId,
     required this.classId,
     required this.title,
     this.description,
@@ -6607,6 +7979,9 @@ class CachedFollowUpCase extends DataClass
     map['id'] = Variable<String>(id);
     map['service_id'] = Variable<String>(serviceId);
     map['student_id'] = Variable<String>(studentId);
+    if (!nullToAbsent || serviceStudentId != null) {
+      map['service_student_id'] = Variable<String>(serviceStudentId);
+    }
     map['class_id'] = Variable<String>(classId);
     map['title'] = Variable<String>(title);
     if (!nullToAbsent || description != null) {
@@ -6634,6 +8009,9 @@ class CachedFollowUpCase extends DataClass
       id: Value(id),
       serviceId: Value(serviceId),
       studentId: Value(studentId),
+      serviceStudentId: serviceStudentId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(serviceStudentId),
       classId: Value(classId),
       title: Value(title),
       description: description == null && nullToAbsent
@@ -6665,6 +8043,7 @@ class CachedFollowUpCase extends DataClass
       id: serializer.fromJson<String>(json['id']),
       serviceId: serializer.fromJson<String>(json['serviceId']),
       studentId: serializer.fromJson<String>(json['studentId']),
+      serviceStudentId: serializer.fromJson<String?>(json['serviceStudentId']),
       classId: serializer.fromJson<String>(json['classId']),
       title: serializer.fromJson<String>(json['title']),
       description: serializer.fromJson<String?>(json['description']),
@@ -6687,6 +8066,7 @@ class CachedFollowUpCase extends DataClass
       'id': serializer.toJson<String>(id),
       'serviceId': serializer.toJson<String>(serviceId),
       'studentId': serializer.toJson<String>(studentId),
+      'serviceStudentId': serializer.toJson<String?>(serviceStudentId),
       'classId': serializer.toJson<String>(classId),
       'title': serializer.toJson<String>(title),
       'description': serializer.toJson<String?>(description),
@@ -6707,6 +8087,7 @@ class CachedFollowUpCase extends DataClass
     String? id,
     String? serviceId,
     String? studentId,
+    Value<String?> serviceStudentId = const Value.absent(),
     String? classId,
     String? title,
     Value<String?> description = const Value.absent(),
@@ -6724,6 +8105,9 @@ class CachedFollowUpCase extends DataClass
     id: id ?? this.id,
     serviceId: serviceId ?? this.serviceId,
     studentId: studentId ?? this.studentId,
+    serviceStudentId: serviceStudentId.present
+        ? serviceStudentId.value
+        : this.serviceStudentId,
     classId: classId ?? this.classId,
     title: title ?? this.title,
     description: description.present ? description.value : this.description,
@@ -6743,6 +8127,9 @@ class CachedFollowUpCase extends DataClass
       id: data.id.present ? data.id.value : this.id,
       serviceId: data.serviceId.present ? data.serviceId.value : this.serviceId,
       studentId: data.studentId.present ? data.studentId.value : this.studentId,
+      serviceStudentId: data.serviceStudentId.present
+          ? data.serviceStudentId.value
+          : this.serviceStudentId,
       classId: data.classId.present ? data.classId.value : this.classId,
       title: data.title.present ? data.title.value : this.title,
       description: data.description.present
@@ -6771,6 +8158,7 @@ class CachedFollowUpCase extends DataClass
           ..write('id: $id, ')
           ..write('serviceId: $serviceId, ')
           ..write('studentId: $studentId, ')
+          ..write('serviceStudentId: $serviceStudentId, ')
           ..write('classId: $classId, ')
           ..write('title: $title, ')
           ..write('description: $description, ')
@@ -6793,6 +8181,7 @@ class CachedFollowUpCase extends DataClass
     id,
     serviceId,
     studentId,
+    serviceStudentId,
     classId,
     title,
     description,
@@ -6814,6 +8203,7 @@ class CachedFollowUpCase extends DataClass
           other.id == this.id &&
           other.serviceId == this.serviceId &&
           other.studentId == this.studentId &&
+          other.serviceStudentId == this.serviceStudentId &&
           other.classId == this.classId &&
           other.title == this.title &&
           other.description == this.description &&
@@ -6833,6 +8223,7 @@ class CachedFollowUpCasesCompanion extends UpdateCompanion<CachedFollowUpCase> {
   final Value<String> id;
   final Value<String> serviceId;
   final Value<String> studentId;
+  final Value<String?> serviceStudentId;
   final Value<String> classId;
   final Value<String> title;
   final Value<String?> description;
@@ -6851,6 +8242,7 @@ class CachedFollowUpCasesCompanion extends UpdateCompanion<CachedFollowUpCase> {
     this.id = const Value.absent(),
     this.serviceId = const Value.absent(),
     this.studentId = const Value.absent(),
+    this.serviceStudentId = const Value.absent(),
     this.classId = const Value.absent(),
     this.title = const Value.absent(),
     this.description = const Value.absent(),
@@ -6870,6 +8262,7 @@ class CachedFollowUpCasesCompanion extends UpdateCompanion<CachedFollowUpCase> {
     required String id,
     required String serviceId,
     required String studentId,
+    this.serviceStudentId = const Value.absent(),
     required String classId,
     required String title,
     this.description = const Value.absent(),
@@ -6900,6 +8293,7 @@ class CachedFollowUpCasesCompanion extends UpdateCompanion<CachedFollowUpCase> {
     Expression<String>? id,
     Expression<String>? serviceId,
     Expression<String>? studentId,
+    Expression<String>? serviceStudentId,
     Expression<String>? classId,
     Expression<String>? title,
     Expression<String>? description,
@@ -6919,6 +8313,7 @@ class CachedFollowUpCasesCompanion extends UpdateCompanion<CachedFollowUpCase> {
       if (id != null) 'id': id,
       if (serviceId != null) 'service_id': serviceId,
       if (studentId != null) 'student_id': studentId,
+      if (serviceStudentId != null) 'service_student_id': serviceStudentId,
       if (classId != null) 'class_id': classId,
       if (title != null) 'title': title,
       if (description != null) 'description': description,
@@ -6940,6 +8335,7 @@ class CachedFollowUpCasesCompanion extends UpdateCompanion<CachedFollowUpCase> {
     Value<String>? id,
     Value<String>? serviceId,
     Value<String>? studentId,
+    Value<String?>? serviceStudentId,
     Value<String>? classId,
     Value<String>? title,
     Value<String?>? description,
@@ -6959,6 +8355,7 @@ class CachedFollowUpCasesCompanion extends UpdateCompanion<CachedFollowUpCase> {
       id: id ?? this.id,
       serviceId: serviceId ?? this.serviceId,
       studentId: studentId ?? this.studentId,
+      serviceStudentId: serviceStudentId ?? this.serviceStudentId,
       classId: classId ?? this.classId,
       title: title ?? this.title,
       description: description ?? this.description,
@@ -6987,6 +8384,9 @@ class CachedFollowUpCasesCompanion extends UpdateCompanion<CachedFollowUpCase> {
     }
     if (studentId.present) {
       map['student_id'] = Variable<String>(studentId.value);
+    }
+    if (serviceStudentId.present) {
+      map['service_student_id'] = Variable<String>(serviceStudentId.value);
     }
     if (classId.present) {
       map['class_id'] = Variable<String>(classId.value);
@@ -7039,6 +8439,7 @@ class CachedFollowUpCasesCompanion extends UpdateCompanion<CachedFollowUpCase> {
           ..write('id: $id, ')
           ..write('serviceId: $serviceId, ')
           ..write('studentId: $studentId, ')
+          ..write('serviceStudentId: $serviceStudentId, ')
           ..write('classId: $classId, ')
           ..write('title: $title, ')
           ..write('description: $description, ')
@@ -8769,6 +10170,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $CachedStagesTable cachedStages = $CachedStagesTable(this);
   late final $CachedClassesTable cachedClasses = $CachedClassesTable(this);
   late final $CachedStudentsTable cachedStudents = $CachedStudentsTable(this);
+  late final $CachedServiceStudentsTable cachedServiceStudents =
+      $CachedServiceStudentsTable(this);
   late final $CachedStudentSensitiveDataTable cachedStudentSensitiveData =
       $CachedStudentSensitiveDataTable(this);
   late final $CachedMeetingsTable cachedMeetings = $CachedMeetingsTable(this);
@@ -8797,6 +10200,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     cachedStages,
     cachedClasses,
     cachedStudents,
+    cachedServiceStudents,
     cachedStudentSensitiveData,
     cachedMeetings,
     cachedAttendanceRecords,
@@ -9793,6 +11197,9 @@ typedef $$CachedStudentsTableCreateCompanionBuilder =
       Value<bool> isDeacon,
       Value<String?> photoPath,
       Value<String?> notes,
+      Value<String?> membershipId,
+      Value<String?> identityServiceId,
+      Value<String> membershipStatus,
       required DateTime cachedAt,
       Value<int> rowid,
     });
@@ -9812,6 +11219,9 @@ typedef $$CachedStudentsTableUpdateCompanionBuilder =
       Value<bool> isDeacon,
       Value<String?> photoPath,
       Value<String?> notes,
+      Value<String?> membershipId,
+      Value<String?> identityServiceId,
+      Value<String> membershipStatus,
       Value<DateTime> cachedAt,
       Value<int> rowid,
     });
@@ -9892,6 +11302,21 @@ class $$CachedStudentsTableFilterComposer
 
   ColumnFilters<String> get notes => $composableBuilder(
     column: $table.notes,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get membershipId => $composableBuilder(
+    column: $table.membershipId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get identityServiceId => $composableBuilder(
+    column: $table.identityServiceId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get membershipStatus => $composableBuilder(
+    column: $table.membershipStatus,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -9980,6 +11405,21 @@ class $$CachedStudentsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get membershipId => $composableBuilder(
+    column: $table.membershipId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get identityServiceId => $composableBuilder(
+    column: $table.identityServiceId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get membershipStatus => $composableBuilder(
+    column: $table.membershipStatus,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<DateTime> get cachedAt => $composableBuilder(
     column: $table.cachedAt,
     builder: (column) => ColumnOrderings(column),
@@ -10045,6 +11485,21 @@ class $$CachedStudentsTableAnnotationComposer
   GeneratedColumn<String> get notes =>
       $composableBuilder(column: $table.notes, builder: (column) => column);
 
+  GeneratedColumn<String> get membershipId => $composableBuilder(
+    column: $table.membershipId,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get identityServiceId => $composableBuilder(
+    column: $table.identityServiceId,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get membershipStatus => $composableBuilder(
+    column: $table.membershipStatus,
+    builder: (column) => column,
+  );
+
   GeneratedColumn<DateTime> get cachedAt =>
       $composableBuilder(column: $table.cachedAt, builder: (column) => column);
 }
@@ -10096,6 +11551,9 @@ class $$CachedStudentsTableTableManager
                 Value<bool> isDeacon = const Value.absent(),
                 Value<String?> photoPath = const Value.absent(),
                 Value<String?> notes = const Value.absent(),
+                Value<String?> membershipId = const Value.absent(),
+                Value<String?> identityServiceId = const Value.absent(),
+                Value<String> membershipStatus = const Value.absent(),
                 Value<DateTime> cachedAt = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => CachedStudentsCompanion(
@@ -10113,6 +11571,9 @@ class $$CachedStudentsTableTableManager
                 isDeacon: isDeacon,
                 photoPath: photoPath,
                 notes: notes,
+                membershipId: membershipId,
+                identityServiceId: identityServiceId,
+                membershipStatus: membershipStatus,
                 cachedAt: cachedAt,
                 rowid: rowid,
               ),
@@ -10132,6 +11593,9 @@ class $$CachedStudentsTableTableManager
                 Value<bool> isDeacon = const Value.absent(),
                 Value<String?> photoPath = const Value.absent(),
                 Value<String?> notes = const Value.absent(),
+                Value<String?> membershipId = const Value.absent(),
+                Value<String?> identityServiceId = const Value.absent(),
+                Value<String> membershipStatus = const Value.absent(),
                 required DateTime cachedAt,
                 Value<int> rowid = const Value.absent(),
               }) => CachedStudentsCompanion.insert(
@@ -10149,6 +11613,9 @@ class $$CachedStudentsTableTableManager
                 isDeacon: isDeacon,
                 photoPath: photoPath,
                 notes: notes,
+                membershipId: membershipId,
+                identityServiceId: identityServiceId,
+                membershipStatus: membershipStatus,
                 cachedAt: cachedAt,
                 rowid: rowid,
               ),
@@ -10184,6 +11651,473 @@ typedef $$CachedStudentsTableProcessedTableManager =
         BaseReferences<_$AppDatabase, $CachedStudentsTable, CachedStudent>,
       ),
       CachedStudent,
+      PrefetchHooks Function()
+    >;
+typedef $$CachedServiceStudentsTableCreateCompanionBuilder =
+    CachedServiceStudentsCompanion Function({
+      required String id,
+      required String studentId,
+      required String serviceId,
+      Value<String?> classId,
+      Value<String?> proposedClassId,
+      required String enrollmentDate,
+      required String status,
+      Value<String?> school,
+      Value<String?> grade,
+      Value<bool> isDeacon,
+      Value<String?> notes,
+      Value<String> studentName,
+      Value<String?> birthDate,
+      Value<String?> phone,
+      Value<String?> photoPath,
+      Value<String?> identityServiceId,
+      required DateTime cachedAt,
+      Value<int> rowid,
+    });
+typedef $$CachedServiceStudentsTableUpdateCompanionBuilder =
+    CachedServiceStudentsCompanion Function({
+      Value<String> id,
+      Value<String> studentId,
+      Value<String> serviceId,
+      Value<String?> classId,
+      Value<String?> proposedClassId,
+      Value<String> enrollmentDate,
+      Value<String> status,
+      Value<String?> school,
+      Value<String?> grade,
+      Value<bool> isDeacon,
+      Value<String?> notes,
+      Value<String> studentName,
+      Value<String?> birthDate,
+      Value<String?> phone,
+      Value<String?> photoPath,
+      Value<String?> identityServiceId,
+      Value<DateTime> cachedAt,
+      Value<int> rowid,
+    });
+
+class $$CachedServiceStudentsTableFilterComposer
+    extends Composer<_$AppDatabase, $CachedServiceStudentsTable> {
+  $$CachedServiceStudentsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get studentId => $composableBuilder(
+    column: $table.studentId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get serviceId => $composableBuilder(
+    column: $table.serviceId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get classId => $composableBuilder(
+    column: $table.classId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get proposedClassId => $composableBuilder(
+    column: $table.proposedClassId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get enrollmentDate => $composableBuilder(
+    column: $table.enrollmentDate,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get status => $composableBuilder(
+    column: $table.status,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get school => $composableBuilder(
+    column: $table.school,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get grade => $composableBuilder(
+    column: $table.grade,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get isDeacon => $composableBuilder(
+    column: $table.isDeacon,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get notes => $composableBuilder(
+    column: $table.notes,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get studentName => $composableBuilder(
+    column: $table.studentName,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get birthDate => $composableBuilder(
+    column: $table.birthDate,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get phone => $composableBuilder(
+    column: $table.phone,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get photoPath => $composableBuilder(
+    column: $table.photoPath,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get identityServiceId => $composableBuilder(
+    column: $table.identityServiceId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get cachedAt => $composableBuilder(
+    column: $table.cachedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$CachedServiceStudentsTableOrderingComposer
+    extends Composer<_$AppDatabase, $CachedServiceStudentsTable> {
+  $$CachedServiceStudentsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get studentId => $composableBuilder(
+    column: $table.studentId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get serviceId => $composableBuilder(
+    column: $table.serviceId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get classId => $composableBuilder(
+    column: $table.classId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get proposedClassId => $composableBuilder(
+    column: $table.proposedClassId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get enrollmentDate => $composableBuilder(
+    column: $table.enrollmentDate,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get status => $composableBuilder(
+    column: $table.status,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get school => $composableBuilder(
+    column: $table.school,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get grade => $composableBuilder(
+    column: $table.grade,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get isDeacon => $composableBuilder(
+    column: $table.isDeacon,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get notes => $composableBuilder(
+    column: $table.notes,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get studentName => $composableBuilder(
+    column: $table.studentName,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get birthDate => $composableBuilder(
+    column: $table.birthDate,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get phone => $composableBuilder(
+    column: $table.phone,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get photoPath => $composableBuilder(
+    column: $table.photoPath,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get identityServiceId => $composableBuilder(
+    column: $table.identityServiceId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get cachedAt => $composableBuilder(
+    column: $table.cachedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$CachedServiceStudentsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $CachedServiceStudentsTable> {
+  $$CachedServiceStudentsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get studentId =>
+      $composableBuilder(column: $table.studentId, builder: (column) => column);
+
+  GeneratedColumn<String> get serviceId =>
+      $composableBuilder(column: $table.serviceId, builder: (column) => column);
+
+  GeneratedColumn<String> get classId =>
+      $composableBuilder(column: $table.classId, builder: (column) => column);
+
+  GeneratedColumn<String> get proposedClassId => $composableBuilder(
+    column: $table.proposedClassId,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get enrollmentDate => $composableBuilder(
+    column: $table.enrollmentDate,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get status =>
+      $composableBuilder(column: $table.status, builder: (column) => column);
+
+  GeneratedColumn<String> get school =>
+      $composableBuilder(column: $table.school, builder: (column) => column);
+
+  GeneratedColumn<String> get grade =>
+      $composableBuilder(column: $table.grade, builder: (column) => column);
+
+  GeneratedColumn<bool> get isDeacon =>
+      $composableBuilder(column: $table.isDeacon, builder: (column) => column);
+
+  GeneratedColumn<String> get notes =>
+      $composableBuilder(column: $table.notes, builder: (column) => column);
+
+  GeneratedColumn<String> get studentName => $composableBuilder(
+    column: $table.studentName,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get birthDate =>
+      $composableBuilder(column: $table.birthDate, builder: (column) => column);
+
+  GeneratedColumn<String> get phone =>
+      $composableBuilder(column: $table.phone, builder: (column) => column);
+
+  GeneratedColumn<String> get photoPath =>
+      $composableBuilder(column: $table.photoPath, builder: (column) => column);
+
+  GeneratedColumn<String> get identityServiceId => $composableBuilder(
+    column: $table.identityServiceId,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get cachedAt =>
+      $composableBuilder(column: $table.cachedAt, builder: (column) => column);
+}
+
+class $$CachedServiceStudentsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $CachedServiceStudentsTable,
+          CachedServiceStudent,
+          $$CachedServiceStudentsTableFilterComposer,
+          $$CachedServiceStudentsTableOrderingComposer,
+          $$CachedServiceStudentsTableAnnotationComposer,
+          $$CachedServiceStudentsTableCreateCompanionBuilder,
+          $$CachedServiceStudentsTableUpdateCompanionBuilder,
+          (
+            CachedServiceStudent,
+            BaseReferences<
+              _$AppDatabase,
+              $CachedServiceStudentsTable,
+              CachedServiceStudent
+            >,
+          ),
+          CachedServiceStudent,
+          PrefetchHooks Function()
+        > {
+  $$CachedServiceStudentsTableTableManager(
+    _$AppDatabase db,
+    $CachedServiceStudentsTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$CachedServiceStudentsTableFilterComposer(
+                $db: db,
+                $table: table,
+              ),
+          createOrderingComposer: () =>
+              $$CachedServiceStudentsTableOrderingComposer(
+                $db: db,
+                $table: table,
+              ),
+          createComputedFieldComposer: () =>
+              $$CachedServiceStudentsTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String> studentId = const Value.absent(),
+                Value<String> serviceId = const Value.absent(),
+                Value<String?> classId = const Value.absent(),
+                Value<String?> proposedClassId = const Value.absent(),
+                Value<String> enrollmentDate = const Value.absent(),
+                Value<String> status = const Value.absent(),
+                Value<String?> school = const Value.absent(),
+                Value<String?> grade = const Value.absent(),
+                Value<bool> isDeacon = const Value.absent(),
+                Value<String?> notes = const Value.absent(),
+                Value<String> studentName = const Value.absent(),
+                Value<String?> birthDate = const Value.absent(),
+                Value<String?> phone = const Value.absent(),
+                Value<String?> photoPath = const Value.absent(),
+                Value<String?> identityServiceId = const Value.absent(),
+                Value<DateTime> cachedAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => CachedServiceStudentsCompanion(
+                id: id,
+                studentId: studentId,
+                serviceId: serviceId,
+                classId: classId,
+                proposedClassId: proposedClassId,
+                enrollmentDate: enrollmentDate,
+                status: status,
+                school: school,
+                grade: grade,
+                isDeacon: isDeacon,
+                notes: notes,
+                studentName: studentName,
+                birthDate: birthDate,
+                phone: phone,
+                photoPath: photoPath,
+                identityServiceId: identityServiceId,
+                cachedAt: cachedAt,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required String studentId,
+                required String serviceId,
+                Value<String?> classId = const Value.absent(),
+                Value<String?> proposedClassId = const Value.absent(),
+                required String enrollmentDate,
+                required String status,
+                Value<String?> school = const Value.absent(),
+                Value<String?> grade = const Value.absent(),
+                Value<bool> isDeacon = const Value.absent(),
+                Value<String?> notes = const Value.absent(),
+                Value<String> studentName = const Value.absent(),
+                Value<String?> birthDate = const Value.absent(),
+                Value<String?> phone = const Value.absent(),
+                Value<String?> photoPath = const Value.absent(),
+                Value<String?> identityServiceId = const Value.absent(),
+                required DateTime cachedAt,
+                Value<int> rowid = const Value.absent(),
+              }) => CachedServiceStudentsCompanion.insert(
+                id: id,
+                studentId: studentId,
+                serviceId: serviceId,
+                classId: classId,
+                proposedClassId: proposedClassId,
+                enrollmentDate: enrollmentDate,
+                status: status,
+                school: school,
+                grade: grade,
+                isDeacon: isDeacon,
+                notes: notes,
+                studentName: studentName,
+                birthDate: birthDate,
+                phone: phone,
+                photoPath: photoPath,
+                identityServiceId: identityServiceId,
+                cachedAt: cachedAt,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable<
+                    $CachedServiceStudentsTable,
+                    CachedServiceStudent
+                  >(table),
+                  BaseReferences<
+                    _$AppDatabase,
+                    $CachedServiceStudentsTable,
+                    CachedServiceStudent
+                  >(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$CachedServiceStudentsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $CachedServiceStudentsTable,
+      CachedServiceStudent,
+      $$CachedServiceStudentsTableFilterComposer,
+      $$CachedServiceStudentsTableOrderingComposer,
+      $$CachedServiceStudentsTableAnnotationComposer,
+      $$CachedServiceStudentsTableCreateCompanionBuilder,
+      $$CachedServiceStudentsTableUpdateCompanionBuilder,
+      (
+        CachedServiceStudent,
+        BaseReferences<
+          _$AppDatabase,
+          $CachedServiceStudentsTable,
+          CachedServiceStudent
+        >,
+      ),
+      CachedServiceStudent,
       PrefetchHooks Function()
     >;
 typedef $$CachedStudentSensitiveDataTableCreateCompanionBuilder =
@@ -10965,6 +12899,8 @@ typedef $$CachedAttendanceRecordsTableCreateCompanionBuilder =
       required String id,
       required String meetingId,
       required String studentId,
+      Value<String?> serviceId,
+      Value<String?> serviceStudentId,
       required String classIdAtAttendance,
       required DateTime checkedInAt,
       required String recordedBy,
@@ -10977,6 +12913,8 @@ typedef $$CachedAttendanceRecordsTableUpdateCompanionBuilder =
       Value<String> id,
       Value<String> meetingId,
       Value<String> studentId,
+      Value<String?> serviceId,
+      Value<String?> serviceStudentId,
       Value<String> classIdAtAttendance,
       Value<DateTime> checkedInAt,
       Value<String> recordedBy,
@@ -11006,6 +12944,16 @@ class $$CachedAttendanceRecordsTableFilterComposer
 
   ColumnFilters<String> get studentId => $composableBuilder(
     column: $table.studentId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get serviceId => $composableBuilder(
+    column: $table.serviceId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get serviceStudentId => $composableBuilder(
+    column: $table.serviceStudentId,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -11059,6 +13007,16 @@ class $$CachedAttendanceRecordsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get serviceId => $composableBuilder(
+    column: $table.serviceId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get serviceStudentId => $composableBuilder(
+    column: $table.serviceStudentId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<String> get classIdAtAttendance => $composableBuilder(
     column: $table.classIdAtAttendance,
     builder: (column) => ColumnOrderings(column),
@@ -11102,6 +13060,14 @@ class $$CachedAttendanceRecordsTableAnnotationComposer
 
   GeneratedColumn<String> get studentId =>
       $composableBuilder(column: $table.studentId, builder: (column) => column);
+
+  GeneratedColumn<String> get serviceId =>
+      $composableBuilder(column: $table.serviceId, builder: (column) => column);
+
+  GeneratedColumn<String> get serviceStudentId => $composableBuilder(
+    column: $table.serviceStudentId,
+    builder: (column) => column,
+  );
 
   GeneratedColumn<String> get classIdAtAttendance => $composableBuilder(
     column: $table.classIdAtAttendance,
@@ -11176,6 +13142,8 @@ class $$CachedAttendanceRecordsTableTableManager
                 Value<String> id = const Value.absent(),
                 Value<String> meetingId = const Value.absent(),
                 Value<String> studentId = const Value.absent(),
+                Value<String?> serviceId = const Value.absent(),
+                Value<String?> serviceStudentId = const Value.absent(),
                 Value<String> classIdAtAttendance = const Value.absent(),
                 Value<DateTime> checkedInAt = const Value.absent(),
                 Value<String> recordedBy = const Value.absent(),
@@ -11186,6 +13154,8 @@ class $$CachedAttendanceRecordsTableTableManager
                 id: id,
                 meetingId: meetingId,
                 studentId: studentId,
+                serviceId: serviceId,
+                serviceStudentId: serviceStudentId,
                 classIdAtAttendance: classIdAtAttendance,
                 checkedInAt: checkedInAt,
                 recordedBy: recordedBy,
@@ -11198,6 +13168,8 @@ class $$CachedAttendanceRecordsTableTableManager
                 required String id,
                 required String meetingId,
                 required String studentId,
+                Value<String?> serviceId = const Value.absent(),
+                Value<String?> serviceStudentId = const Value.absent(),
                 required String classIdAtAttendance,
                 required DateTime checkedInAt,
                 required String recordedBy,
@@ -11208,6 +13180,8 @@ class $$CachedAttendanceRecordsTableTableManager
                 id: id,
                 meetingId: meetingId,
                 studentId: studentId,
+                serviceId: serviceId,
+                serviceStudentId: serviceStudentId,
                 classIdAtAttendance: classIdAtAttendance,
                 checkedInAt: checkedInAt,
                 recordedBy: recordedBy,
@@ -11260,6 +13234,8 @@ typedef $$CachedFollowUpRecordsTableCreateCompanionBuilder =
     CachedFollowUpRecordsCompanion Function({
       required String id,
       required String studentId,
+      Value<String?> serviceId,
+      Value<String?> serviceStudentId,
       required String createdBy,
       required String followUpDate,
       required String contactStatus,
@@ -11279,6 +13255,8 @@ typedef $$CachedFollowUpRecordsTableUpdateCompanionBuilder =
     CachedFollowUpRecordsCompanion Function({
       Value<String> id,
       Value<String> studentId,
+      Value<String?> serviceId,
+      Value<String?> serviceStudentId,
       Value<String> createdBy,
       Value<String> followUpDate,
       Value<String> contactStatus,
@@ -11311,6 +13289,16 @@ class $$CachedFollowUpRecordsTableFilterComposer
 
   ColumnFilters<String> get studentId => $composableBuilder(
     column: $table.studentId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get serviceId => $composableBuilder(
+    column: $table.serviceId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get serviceStudentId => $composableBuilder(
+    column: $table.serviceStudentId,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -11399,6 +13387,16 @@ class $$CachedFollowUpRecordsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get serviceId => $composableBuilder(
+    column: $table.serviceId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get serviceStudentId => $composableBuilder(
+    column: $table.serviceStudentId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<String> get createdBy => $composableBuilder(
     column: $table.createdBy,
     builder: (column) => ColumnOrderings(column),
@@ -11479,6 +13477,14 @@ class $$CachedFollowUpRecordsTableAnnotationComposer
 
   GeneratedColumn<String> get studentId =>
       $composableBuilder(column: $table.studentId, builder: (column) => column);
+
+  GeneratedColumn<String> get serviceId =>
+      $composableBuilder(column: $table.serviceId, builder: (column) => column);
+
+  GeneratedColumn<String> get serviceStudentId => $composableBuilder(
+    column: $table.serviceStudentId,
+    builder: (column) => column,
+  );
 
   GeneratedColumn<String> get createdBy =>
       $composableBuilder(column: $table.createdBy, builder: (column) => column);
@@ -11588,6 +13594,8 @@ class $$CachedFollowUpRecordsTableTableManager
               ({
                 Value<String> id = const Value.absent(),
                 Value<String> studentId = const Value.absent(),
+                Value<String?> serviceId = const Value.absent(),
+                Value<String?> serviceStudentId = const Value.absent(),
                 Value<String> createdBy = const Value.absent(),
                 Value<String> followUpDate = const Value.absent(),
                 Value<String> contactStatus = const Value.absent(),
@@ -11605,6 +13613,8 @@ class $$CachedFollowUpRecordsTableTableManager
               }) => CachedFollowUpRecordsCompanion(
                 id: id,
                 studentId: studentId,
+                serviceId: serviceId,
+                serviceStudentId: serviceStudentId,
                 createdBy: createdBy,
                 followUpDate: followUpDate,
                 contactStatus: contactStatus,
@@ -11624,6 +13634,8 @@ class $$CachedFollowUpRecordsTableTableManager
               ({
                 required String id,
                 required String studentId,
+                Value<String?> serviceId = const Value.absent(),
+                Value<String?> serviceStudentId = const Value.absent(),
                 required String createdBy,
                 required String followUpDate,
                 required String contactStatus,
@@ -11641,6 +13653,8 @@ class $$CachedFollowUpRecordsTableTableManager
               }) => CachedFollowUpRecordsCompanion.insert(
                 id: id,
                 studentId: studentId,
+                serviceId: serviceId,
+                serviceStudentId: serviceStudentId,
                 createdBy: createdBy,
                 followUpDate: followUpDate,
                 contactStatus: contactStatus,
@@ -11971,6 +13985,7 @@ typedef $$CachedFollowUpCasesTableCreateCompanionBuilder =
       required String id,
       required String serviceId,
       required String studentId,
+      Value<String?> serviceStudentId,
       required String classId,
       required String title,
       Value<String?> description,
@@ -11991,6 +14006,7 @@ typedef $$CachedFollowUpCasesTableUpdateCompanionBuilder =
       Value<String> id,
       Value<String> serviceId,
       Value<String> studentId,
+      Value<String?> serviceStudentId,
       Value<String> classId,
       Value<String> title,
       Value<String?> description,
@@ -12028,6 +14044,11 @@ class $$CachedFollowUpCasesTableFilterComposer
 
   ColumnFilters<String> get studentId => $composableBuilder(
     column: $table.studentId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get serviceStudentId => $composableBuilder(
+    column: $table.serviceStudentId,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -12121,6 +14142,11 @@ class $$CachedFollowUpCasesTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get serviceStudentId => $composableBuilder(
+    column: $table.serviceStudentId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<String> get classId => $composableBuilder(
     column: $table.classId,
     builder: (column) => ColumnOrderings(column),
@@ -12204,6 +14230,11 @@ class $$CachedFollowUpCasesTableAnnotationComposer
 
   GeneratedColumn<String> get studentId =>
       $composableBuilder(column: $table.studentId, builder: (column) => column);
+
+  GeneratedColumn<String> get serviceStudentId => $composableBuilder(
+    column: $table.serviceStudentId,
+    builder: (column) => column,
+  );
 
   GeneratedColumn<String> get classId =>
       $composableBuilder(column: $table.classId, builder: (column) => column);
@@ -12297,6 +14328,7 @@ class $$CachedFollowUpCasesTableTableManager
                 Value<String> id = const Value.absent(),
                 Value<String> serviceId = const Value.absent(),
                 Value<String> studentId = const Value.absent(),
+                Value<String?> serviceStudentId = const Value.absent(),
                 Value<String> classId = const Value.absent(),
                 Value<String> title = const Value.absent(),
                 Value<String?> description = const Value.absent(),
@@ -12315,6 +14347,7 @@ class $$CachedFollowUpCasesTableTableManager
                 id: id,
                 serviceId: serviceId,
                 studentId: studentId,
+                serviceStudentId: serviceStudentId,
                 classId: classId,
                 title: title,
                 description: description,
@@ -12335,6 +14368,7 @@ class $$CachedFollowUpCasesTableTableManager
                 required String id,
                 required String serviceId,
                 required String studentId,
+                Value<String?> serviceStudentId = const Value.absent(),
                 required String classId,
                 required String title,
                 Value<String?> description = const Value.absent(),
@@ -12353,6 +14387,7 @@ class $$CachedFollowUpCasesTableTableManager
                 id: id,
                 serviceId: serviceId,
                 studentId: studentId,
+                serviceStudentId: serviceStudentId,
                 classId: classId,
                 title: title,
                 description: description,
@@ -13334,6 +15369,8 @@ class $AppDatabaseManager {
       $$CachedClassesTableTableManager(_db, _db.cachedClasses);
   $$CachedStudentsTableTableManager get cachedStudents =>
       $$CachedStudentsTableTableManager(_db, _db.cachedStudents);
+  $$CachedServiceStudentsTableTableManager get cachedServiceStudents =>
+      $$CachedServiceStudentsTableTableManager(_db, _db.cachedServiceStudents);
   $$CachedStudentSensitiveDataTableTableManager
   get cachedStudentSensitiveData =>
       $$CachedStudentSensitiveDataTableTableManager(

@@ -164,8 +164,22 @@ void main() {
     await tester.pumpAndSettle();
   }
 
+  void testShell(
+    String description,
+    Future<void> Function(WidgetTester tester) callback,
+  ) {
+    testWidgets(description, (tester) async {
+      try {
+        await callback(tester);
+      } finally {
+        await tester.pumpWidget(const SizedBox.shrink());
+        await tester.pumpAndSettle();
+      }
+    });
+  }
+
   group('responsive navigation layouts', () {
-    testWidgets('390px uses bottom navigation', (tester) async {
+    testShell('390px uses bottom navigation', (tester) async {
       await pumpShell(
         tester,
         width: 390,
@@ -177,7 +191,7 @@ void main() {
       expect(find.byKey(const Key('app_shell_desktop_sidebar')), findsNothing);
     });
 
-    testWidgets('keyboard and 1.3 text scale hide the mobile bar without overflow',
+    testShell('keyboard and 1.3 text scale hide the mobile bar without overflow',
         (tester) async {
       await pumpShell(
         tester,
@@ -191,7 +205,7 @@ void main() {
       expect(tester.takeException(), isNull);
     });
 
-    testWidgets('800px uses a right-side NavigationRail', (tester) async {
+    testShell('800px uses a right-side NavigationRail', (tester) async {
       await pumpShell(
         tester,
         width: 800,
@@ -207,7 +221,7 @@ void main() {
       );
     });
 
-    testWidgets('1280px keeps the 288px desktop sidebar', (tester) async {
+    testShell('1280px keeps the 288px desktop sidebar', (tester) async {
       await pumpShell(
         tester,
         width: 1280,
@@ -225,7 +239,7 @@ void main() {
   });
 
   group('nested route selection', () {
-    testWidgets('attendance session keeps Attendance selected', (tester) async {
+    testShell('attendance session keeps Attendance selected', (tester) async {
       await pumpShell(
         tester,
         width: 800,
@@ -238,7 +252,7 @@ void main() {
       expect(rail.selectedIndex, 1);
     });
 
-    testWidgets('attendance session hides the mobile bottom bar', (tester) async {
+    testShell('attendance session hides the mobile bottom bar', (tester) async {
       await pumpShell(
         tester,
         width: 390,
@@ -248,7 +262,7 @@ void main() {
       expect(find.byKey(const Key('app_shell_bottom_navigation')), findsNothing);
     });
 
-    testWidgets('settings structure selects More', (tester) async {
+    testShell('settings structure selects More', (tester) async {
       await pumpShell(
         tester,
         width: 800,
@@ -263,7 +277,7 @@ void main() {
   });
 
   group('role-based More visibility', () {
-    testWidgets('system admin sees management, settings and service switch',
+    testShell('system admin sees management, settings and service switch',
         (tester) async {
       await pumpShell(
         tester,
@@ -281,7 +295,7 @@ void main() {
       expect(find.byKey(const Key('nav_switch_service')), findsOneWidget);
     });
 
-    testWidgets('overall leader sees management and service settings',
+    testShell('overall leader sees management and service settings',
         (tester) async {
       await pumpShell(
         tester,
@@ -299,7 +313,7 @@ void main() {
       expect(find.byKey(const Key('nav_switch_service')), findsNothing);
     });
 
-    testWidgets('class leader sees reports but not management settings',
+    testShell('class leader sees reports but not management settings',
         (tester) async {
       await pumpShell(
         tester,
@@ -316,7 +330,7 @@ void main() {
       expect(find.byKey(const Key('nav_more_settings')), findsNothing);
     });
 
-    testWidgets('class servant sees only universally available More items',
+    testShell('class servant sees only universally available More items',
         (tester) async {
       await pumpShell(
         tester,
@@ -335,7 +349,7 @@ void main() {
     });
   });
 
-  testWidgets('top-bar SyncBadge opens the sync center', (tester) async {
+  testShell('top-bar SyncBadge opens the sync center', (tester) async {
     final router = await pumpShell(
       tester,
       width: 390,
@@ -348,7 +362,7 @@ void main() {
     expect(router.routeInformationProvider.value.uri.path, '/sync');
   });
 
-  testWidgets('More sheet is grouped and Logout signs out', (tester) async {
+  testShell('More sheet is grouped and Logout signs out', (tester) async {
     final router = await pumpShell(
       tester,
       width: 390,

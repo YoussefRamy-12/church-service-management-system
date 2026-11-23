@@ -9,7 +9,7 @@
 
 ## Shared shell and interaction model
 
-- Mobile has four persistent destinations: الرئيسية، التلاميذ، الحضور، المزيد. Attendance is one tap away from every authenticated screen.
+- Mobile has five persistent destinations: الرئيسية، الحضور، التلاميذ، المتابعة، المزيد. Attendance is one tap away from every authenticated screen.
 - More opens the complete navigation list, filtered using the existing role visibility rules. No new permissions are introduced.
 - Desktop keeps the persistent right-side navigation; compact density is used for data tables.
 - Offline indicator remains visible without obscuring the current task. Attendance writes continue to use the existing offline-first behavior.
@@ -77,7 +77,7 @@ No tap reduction is claimed here; the improvement is clearer hierarchy, readable
 
 ```text
 ┌──────────────────────────────────────┐
-│ [☰] لوحة الخدمة          [مزامنة][حساب]│
+│ لوحة الخدمة                 [مزامنة] │
 ├──────────────────────────────────────┤
 │ خدمة تلاميذ المسيح                   │
 │ كنيسة السيدة العذراء بعياد بك        │
@@ -99,7 +99,7 @@ No tap reduction is claimed here; the improvement is clearer hierarchy, readable
 │ إجراءات / ملخصات حسب الدور           │
 │ ...                                  │
 ├──────────────────────────────────────┤
-│ الرئيسية  التلاميذ  الحضور  المزيد   │
+│ الرئيسية  الحضور  التلاميذ  المتابعة  المزيد │
 └──────────────────────────────────────┘
 ```
 
@@ -189,7 +189,7 @@ Use compact roster rows/table with name, class (in all-students mode), attendanc
 
 ```text
 ┌──────────────────────────────────────┐
-│ [☰] التلاميذ              [إضافة +]  │
+│ التلاميذ                  [إضافة +]  │
 ├──────────────────────────────────────┤
 │ ┌──────────────────────────────────┐ │
 │ │ ابحث بالاسم أو الهاتف...     [⌕] │ │
@@ -212,7 +212,7 @@ Use compact roster rows/table with name, class (in all-students mode), attendanc
 │ │         [✓ معتمد]                 │ │
 │ └──────────────────────────────────┘ │
 ├──────────────────────────────────────┤
-│ الرئيسية  التلاميذ  الحضور  المزيد   │
+│ الرئيسية  الحضور  التلاميذ  المتابعة  المزيد │
 └──────────────────────────────────────┘
 ```
 
@@ -293,32 +293,32 @@ The task remains three explicit activations; the redesign improves control hiera
 
 ```text
 ┌──────────────────────────────────────┐
-│ [☰] اسم الصفحة          [مزامنة][حساب]│
+│ اسم الصفحة                  [مزامنة] │
 ├──────────────────────────────────────┤
 │                                      │
 │             محتوى الصفحة             │
 │                                      │
 │                                      │
 ├──────────────────────────────────────┤
-│                                      │
-│   الرئيسية  التلاميذ  الحضور  المزيد │
-│     ⌂        ♙        ✓       ⋯       │
+│ الرئيسية   الحضور   التلاميذ  المتابعة  المزيد │
+│    ⌂        ✓        ♙        ✆       ⋯     │
 └──────────────────────────────────────┘
 
 عند فتح «المزيد»:
 ┌──────────────────────────────────────┐
-│                 التنقل               │
-│ الرئيسية                             │
-│ التلاميذ                             │
-│ النوتة الروحية                       │
-│ الحضور                               │
-│ المتابعة                              │
-│ التقارير                              │
-│ تحضيري                                │
-│ الخدام (حسب الصلاحية)                 │
-│ إعدادات الخدمة (حسب الصلاحية)        │
-│ حسابي                                 │
-│ تغيير الخدمة / تسجيل الخروج           │
+│ الخدمة                               │
+│  تحضيري                              │
+│  النوتة الروحية                      │
+│ الإدارة                              │
+│  التقارير                            │
+│  الخدام                              │
+│  تصدير البيانات                      │
+│  التخرج                              │
+│  إعدادات الخدمة                      │
+│ الحساب                               │
+│  حسابي                               │
+│  اختيار خدمة أخرى / تغيير الخدمة     │
+│  تسجيل الخروج                        │
 └──────────────────────────────────────┘
 ```
 

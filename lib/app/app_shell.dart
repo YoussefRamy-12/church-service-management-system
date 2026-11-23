@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../core/sync/sync_engine_provider.dart';
+import '../core/sync/sync_queue_repository.dart';
 import '../features/auth/domain/entities/session_identity.dart';
 import '../features/auth/presentation/auth_providers.dart';
 import '../features/follow_up/presentation/follow_up_case_providers.dart';
@@ -23,7 +24,11 @@ class AppShell extends ConsumerWidget {
   static const _items = <_NavItem>[
     _NavItem('الرئيسية', Icons.dashboard_rounded, 'dashboard'),
     _NavItem('التلاميذ', Icons.school_rounded, 'students'),
-    _NavItem('النوتة الروحية', Icons.auto_stories_rounded, 'spiritual-notebook'),
+    _NavItem(
+      'النوتة الروحية',
+      Icons.auto_stories_rounded,
+      'spiritual-notebook',
+    ),
     _NavItem('الحضور', Icons.how_to_reg_rounded, 'attendance'),
     _NavItem('المتابعة', Icons.phone_in_talk_rounded, 'follow-up'),
     _NavItem('التقارير', Icons.insights_rounded, 'reports'),
@@ -79,8 +84,9 @@ class AppShell extends ConsumerWidget {
     final selectedIndex = primaryItems.indexWhere(
       (item) => item.segment == selectedSegment,
     );
-    final navigationIndex =
-        selectedIndex >= 0 ? selectedIndex : primaryItems.length;
+    final navigationIndex = selectedIndex >= 0
+        ? selectedIndex
+        : primaryItems.length;
     final isFullScreenFlow = _isFullScreenFlow(location);
     final isMobile = context.isMobile;
     final isTablet = context.isTablet;
@@ -91,6 +97,7 @@ class AppShell extends ConsumerWidget {
     Future<void> logout() async {
       await signOutAndGoToLogin(ref, context);
     }
+
     void openMore() => _showMoreSheet(
       context,
       visibleItems: visibleItems,
@@ -127,8 +134,9 @@ class AppShell extends ConsumerWidget {
               profileRole: isSuperAdmin ? 'system_admin' : profile?.role,
               items: visibleItems,
               canSwitchService: canSwitchService,
-              switchServiceLabel:
-                  isSuperAdmin ? 'اختيار خدمة أخرى' : 'تغيير الخدمة',
+              switchServiceLabel: isSuperAdmin
+                  ? 'اختيار خدمة أخرى'
+                  : 'تغيير الخدمة',
               onNavigate: go,
               onSwitchService: switchService,
               onLogout: logout,
@@ -147,7 +155,8 @@ class AppShell extends ConsumerWidget {
           Expanded(child: content),
         ],
       ),
-      bottomNavigationBar: isMobile &&
+      bottomNavigationBar:
+          isMobile &&
               !isFullScreenFlow &&
               MediaQuery.viewInsetsOf(context).bottom == 0
           ? SafeArea(
@@ -281,7 +290,9 @@ class AppShell extends ConsumerWidget {
       visible['graduation'],
       visible['settings'],
     ].whereType<_NavItem>().toList();
-    final accountItems = [visible['my-settings']].whereType<_NavItem>().toList();
+    final accountItems = [
+      visible['my-settings'],
+    ].whereType<_NavItem>().toList();
     final scheme = Theme.of(context).colorScheme;
 
     showModalBottomSheet<void>(
@@ -333,8 +344,8 @@ class AppShell extends ConsumerWidget {
                     items: managementItems,
                     onNavigate: onNavigate,
                   ),
-                  Padding(
-                    padding: const EdgeInsetsDirectional.only(
+                  const Padding(
+                    padding: EdgeInsetsDirectional.only(
                       start: AppSpacing.md,
                       bottom: AppSpacing.xs,
                     ),
@@ -488,10 +499,7 @@ class _TabletNavigationRail extends StatelessWidget {
 }
 
 class _DestinationIcon extends StatelessWidget {
-  const _DestinationIcon({
-    required this.icon,
-    this.badgeCount,
-  });
+  const _DestinationIcon({required this.icon, this.badgeCount});
 
   final IconData icon;
   final int? badgeCount;
@@ -554,32 +562,46 @@ class _ShellTopBar extends StatelessWidget {
   }
 }
 
-class _ShellSyncBadge extends ConsumerWidget {
+class _ShellSyncBadge extends ConsumerStatefulWidget {
   const _ShellSyncBadge({required this.onTap});
 
   final VoidCallback onTap;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<_ShellSyncBadge> createState() => _ShellSyncBadgeState();
+}
+
+class _ShellSyncBadgeState extends ConsumerState<_ShellSyncBadge> {
+  Stream<int>? _pendingStream;
+  Stream<int>? _conflictStream;
+  SyncQueueRepository? _lastQueue;
+
+  void _updateStreams(SyncQueueRepository queue) {
+    if (_lastQueue != queue) {
+      _lastQueue = queue;
+      _pendingStream = queue.watchCountByStatus('pending');
+      _conflictStream = queue.watchCountByStatus('conflict');
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final queue = ref.watch(syncQueueRepositoryProvider);
+    _updateStreams(queue);
     return StreamBuilder<int>(
-      stream: queue.watchCountByStatus('pending'),
+      stream: _pendingStream,
       builder: (context, pendingSnapshot) {
         return StreamBuilder<int>(
-          stream: queue.watchCountByStatus('conflict'),
+          stream: _conflictStream,
           builder: (context, conflictSnapshot) {
             final pending = pendingSnapshot.data ?? 0;
             final conflicts = conflictSnapshot.data ?? 0;
             final state = conflicts > 0
                 ? SyncState.conflict
                 : pending > 0
-                    ? SyncState.pending
-                    : SyncState.synced;
-            return SyncBadge(
-              state: state,
-              count: pending,
-              onTap: onTap,
-            );
+                ? SyncState.pending
+                : SyncState.synced;
+            return SyncBadge(state: state, count: pending, onTap: widget.onTap);
           },
         );
       },
@@ -738,14 +760,15 @@ class _DesktopSidebar extends StatelessWidget {
   bool _isSelected(String path, String segment) {
     final parts = path.split('/').where((part) => part.isNotEmpty).toList();
     final current = parts.length > 2 ? parts[2] : '';
-    if (segment == 'dashboard') return current == 'dashboard' || current == 'stage';
+    if (segment == 'dashboard') {
+      return current == 'dashboard' || current == 'stage';
+    }
     return current == segment;
   }
 }
 
 class _SidebarAccount extends StatelessWidget {
   const _SidebarAccount({
-    super.key,
     required this.profileName,
     required this.profileRole,
     required this.onLogout,
@@ -821,19 +844,22 @@ class _DesktopNavTile extends StatelessWidget {
     final scheme = Theme.of(context).colorScheme;
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 2),
-      child: ListTile(
-        key: Key('nav_${item.segment}'),
-        minVerticalPadding: AppSpacing.sm,
-        contentPadding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
-        selected: selected,
-        selectedTileColor: scheme.primaryContainer,
-        selectedColor: scheme.onPrimaryContainer,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(AppRadii.card),
+      child: Material(
+        color: Colors.transparent,
+        child: ListTile(
+          key: Key('nav_${item.segment}'),
+          minVerticalPadding: AppSpacing.sm,
+          contentPadding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
+          selected: selected,
+          selectedTileColor: scheme.primaryContainer,
+          selectedColor: scheme.onPrimaryContainer,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(AppRadii.card),
+          ),
+          leading: Icon(item.icon),
+          title: Text(item.label),
+          onTap: onTap,
         ),
-        leading: Icon(item.icon),
-        title: Text(item.label),
-        onTap: onTap,
       ),
     );
   }
