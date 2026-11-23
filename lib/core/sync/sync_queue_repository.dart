@@ -47,9 +47,10 @@ class SyncQueueRepository {
         .getSingleOrNull();
     final now = DateTime.now();
     final latestAt = latest?.createdAt;
-    final createdAt = latestAt == null || now.isAfter(latestAt)
+    final minimumNextAt = latestAt?.add(const Duration(milliseconds: 1));
+    final createdAt = minimumNextAt == null || now.isAfter(minimumNextAt)
         ? now
-        : latestAt.add(const Duration(milliseconds: 1));
+        : minimumNextAt;
 
     await _db
         .into(_db.syncQueueEntries)
