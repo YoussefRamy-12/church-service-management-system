@@ -132,6 +132,7 @@ class AppShell extends ConsumerWidget {
               onNavigate: go,
               onSwitchService: switchService,
               onLogout: logout,
+              onSyncTap: () => context.go('/sync'),
             ),
           if (isTablet)
             _TabletNavigationRail(
@@ -574,6 +575,7 @@ class _DesktopSidebar extends StatelessWidget {
     required this.onNavigate,
     required this.onSwitchService,
     required this.onLogout,
+    required this.onSyncTap,
   });
 
   final String location;
@@ -585,6 +587,7 @@ class _DesktopSidebar extends StatelessWidget {
   final ValueChanged<String> onNavigate;
   final VoidCallback onSwitchService;
   final VoidCallback onLogout;
+  final VoidCallback onSyncTap;
 
   @override
   Widget build(BuildContext context) {
@@ -678,6 +681,25 @@ class _DesktopSidebar extends StatelessWidget {
                     ),
                 ],
               ),
+            ),
+            Padding(
+              padding: const EdgeInsetsDirectional.fromSTEB(
+                AppSpacing.lg,
+                AppSpacing.md,
+                AppSpacing.lg,
+                AppSpacing.xs,
+              ),
+              child: Align(
+                alignment: AlignmentDirectional.centerStart,
+                child: Text(
+                  'حالة النظام',
+                  style: Theme.of(context).textTheme.labelMedium,
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
+              child: _ShellSyncBadge(onTap: onSyncTap),
             ),
             AppSurfaceAccount(
               profileName: profileName,
