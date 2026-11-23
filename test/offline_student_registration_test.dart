@@ -101,6 +101,10 @@ void main() {
 
       final pending = await queue.pending();
       expect(pending.length, 2);
+      expect(
+        pending.map((operation) => operation.entityType).toList(),
+        ['student', 'service_student'],
+      );
       final studentOperation = pending.firstWhere((op) => op.entityType == 'student');
       final membershipOperation = pending.firstWhere((op) => op.entityType == 'service_student');
       expect(studentOperation.operationType, 'insert');
