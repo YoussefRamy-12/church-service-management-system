@@ -330,11 +330,24 @@ class AppShell extends ConsumerWidget {
                     items: managementItems,
                     onNavigate: onNavigate,
                   ),
-                  _MoreSection(
-                    title: 'الحساب',
-                    items: accountItems,
-                    onNavigate: onNavigate,
+                  Padding(
+                    padding: const EdgeInsetsDirectional.only(
+                      start: AppSpacing.md,
+                      bottom: AppSpacing.xs,
+                    ),
+                    child: AppSectionHeader(title: 'الحساب'),
                   ),
+                  for (final item in accountItems)
+                    ListTile(
+                      key: Key('nav_more_${item.segment}'),
+                      minVerticalPadding: AppSpacing.sm,
+                      leading: Icon(item.icon),
+                      title: Text(item.label),
+                      onTap: () {
+                        Navigator.pop(sheetContext);
+                        onNavigate(item.segment);
+                      },
+                    ),
                   if (canSwitchService)
                     ListTile(
                       key: const Key('nav_switch_service'),
@@ -346,7 +359,7 @@ class AppShell extends ConsumerWidget {
                         onSwitchService();
                       },
                     ),
-                  const Divider(height: AppSpacing.xl),
+                  const Divider(height: AppSpacing.md),
                   ListTile(
                     key: const Key('nav_logout'),
                     minVerticalPadding: AppSpacing.sm,
