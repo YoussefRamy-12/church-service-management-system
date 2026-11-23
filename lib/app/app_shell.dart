@@ -12,7 +12,6 @@ import 'ui/app_ui.dart';
 import 'ui/components/app_section_header.dart';
 import 'ui/components/sync_badge.dart';
 import 'ui/responsive.dart';
-import 'ui/role_labels.dart';
 
 /// Responsive application navigation for service-scoped routes.
 class AppShell extends ConsumerWidget {
