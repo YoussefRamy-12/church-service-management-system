@@ -62,7 +62,11 @@ class LocalServiceStudentRepository {
     await cache([membership]);
     await _queue.enqueue(
       SyncOperation(
-        operationId: const Uuid().v4(),
+        // Membership mutations are last-write-wins while still queued.
+        // Reusing the membership UUID replaces an earlier pending upsert
+        // (for example active -> inactive archive) instead of replaying two
+        // writes whose timestamps may be identical on local storage.
+        operationId: membership.id,
         entityType: 'service_student',
         operationType: 'upsert',
         payloadJson: jsonEncode(membership.toMap()),
