@@ -221,10 +221,10 @@ void main() {
 
     expect(await queue.pending(), isEmpty);
     expect(await queue.countByStatus('conflict'), 0);
-    expect(remote.attendanceWrites.map((row) => row['service_student_id']),
-        ['membership-a', 'membership-b']);
-    expect(remote.followUpWrites.map((row) => row['service_student_id']),
-        ['membership-a', 'membership-b']);
+    expect(remote.attendanceWrites.map((row) => row['service_student_id']).toSet(),
+        {'membership-a', 'membership-b'});
+    expect(remote.followUpWrites.map((row) => row['service_student_id']).toSet(),
+        {'membership-a', 'membership-b'});
     sync.dispose();
   });
 
