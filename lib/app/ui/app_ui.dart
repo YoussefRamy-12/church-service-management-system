@@ -390,8 +390,8 @@ class EmptyState extends StatelessWidget {
             physics: const BouncingScrollPhysics(),
             child: Padding(
               padding: EdgeInsets.all(isCompact ? 12 : 24),
-              child: GlassContainer(
-                borderRadius: 16,
+              child: AppCard(
+                borderRadius: 12,
                 padding: EdgeInsets.symmetric(
                   horizontal: isCompact ? 16 : 28,
                   vertical: isCompact ? 14 : 28,
@@ -403,12 +403,9 @@ class EmptyState extends StatelessWidget {
                       width: isCompact ? 44 : 64,
                       height: isCompact ? 44 : 64,
                       decoration: BoxDecoration(
-                        color: scheme.primary.withValues(alpha: 0.08),
+                        color: scheme.surfaceContainerLow,
                         shape: BoxShape.circle,
-                        border: Border.all(
-                          color: scheme.primary.withValues(alpha: 0.20),
-                          width: 1,
-                        ),
+                        border: Border.all(color: scheme.outlineVariant),
                       ),
                       child: Icon(
                         icon,
@@ -561,7 +558,7 @@ class LoadingView extends StatelessWidget {
             runSpacing: 14,
             children: List.generate(
               3,
-              (index) => GlassContainer(
+              (index) => AppSurface(
                 width: 190,
                 height: 94,
                 borderRadius: 18,
@@ -578,8 +575,8 @@ class LoadingView extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 20),
-          GlassContainer(
-            borderRadius: 20,
+          AppSurface(
+            borderRadius: 12,
             padding: const EdgeInsets.all(20),
             child: Column(
               children: List.generate(
