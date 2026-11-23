@@ -245,8 +245,12 @@ class AppShell extends ConsumerWidget {
   }
 
   int? _followUpCount(WidgetRef ref, String serviceId) {
-    final items = ref.watch(followUpStudentItemsProvider(serviceId));
-    final data = items.asData?.value;
+    final provider = followUpStudentItemsProvider(serviceId);
+    // Do not kick off the expensive aggregate query just to paint a badge.
+    // Reuse the result only when the existing Follow-up screen/provider has
+    // already initialized it in this ProviderContainer.
+    if (!ref.exists(provider)) return null;
+    final data = ref.read(provider).asData?.value;
     if (data == null) return null;
     return data.where((item) => item.needsFollowUp).length;
   }
