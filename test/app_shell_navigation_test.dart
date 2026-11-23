@@ -33,6 +33,8 @@ void main() {
     required String location,
     String role = 'class_servant',
     bool systemAdmin = false,
+    double textScale = 1,
+    double keyboardInset = 0,
   }) async {
     tester.view.devicePixelRatio = 1;
     tester.view.physicalSize = Size(width, 900);
@@ -140,9 +142,15 @@ void main() {
         child: MaterialApp.router(
           theme: AppTheme.light,
           routerConfig: router,
-          builder: (context, child) => Directionality(
-            textDirection: TextDirection.rtl,
-            child: child!,
+          builder: (context, child) => MediaQuery(
+            data: MediaQuery.of(context).copyWith(
+              textScaler: TextScaler.linear(textScale),
+              viewInsets: EdgeInsets.only(bottom: keyboardInset),
+            ),
+            child: Directionality(
+              textDirection: TextDirection.rtl,
+              child: child!,
+            ),
           ),
         ),
       ),
@@ -167,6 +175,20 @@ void main() {
       expect(find.byKey(const Key('app_shell_bottom_navigation')), findsOneWidget);
       expect(find.byKey(const Key('app_shell_navigation_rail')), findsNothing);
       expect(find.byKey(const Key('app_shell_desktop_sidebar')), findsNothing);
+    });
+
+    testWidgets('keyboard and 1.3 text scale hide the mobile bar without overflow',
+        (tester) async {
+      await pumpShell(
+        tester,
+        width: 390,
+        location: '/service/service-1/dashboard',
+        textScale: 1.3,
+        keyboardInset: 280,
+      );
+
+      expect(find.byKey(const Key('app_shell_bottom_navigation')), findsNothing);
+      expect(tester.takeException(), isNull);
     });
 
     testWidgets('800px uses a right-side NavigationRail', (tester) async {
