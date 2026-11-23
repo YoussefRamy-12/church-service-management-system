@@ -127,10 +127,24 @@ void main() {
     stdout.writeln('RULE_COUNT|$rule|$count');
   }
   stdout.writeln('CYCLE_COUNT|${cycles.length}');
+  stdout.writeln('RECIPROCAL_PAIR_COUNT|${reciprocalPairs.length}');
 
   for (final entry in SplayTreeMap<String, int>.from(pairCounts).entries) {
     final parts = entry.key.split('|');
     stdout.writeln('FEATURE_PAIR|${parts[0]}|${parts[1]}|${entry.value}');
+  }
+
+  final reciprocalPairs = <String>[];
+  for (final pair in pairCounts.keys) {
+    final parts = pair.split('|');
+    if (parts[0].compareTo(parts[1]) < 0 &&
+        pairCounts.containsKey('${parts[1]}|${parts[0]}')) {
+      reciprocalPairs.add('RECIPROCAL_PAIR|${parts[0]}|${parts[1]}');
+    }
+  }
+  reciprocalPairs.sort();
+  for (final pair in reciprocalPairs) {
+    stdout.writeln(pair);
   }
 
   final fanIn = <String, Set<String>>{};
