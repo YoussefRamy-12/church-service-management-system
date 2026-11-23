@@ -456,8 +456,7 @@ class _TabletNavigationRail extends StatelessWidget {
             label: Text(AppShell._primaryLabels[item.segment] ?? item.label),
           ),
         const NavigationRailDestination(
-          key: Key('nav_tab_more'),
-          icon: Icon(Icons.more_horiz_rounded),
+          icon: Icon(Icons.more_horiz_rounded, key: Key('nav_tab_more')),
           selectedIcon: Icon(Icons.more_horiz_rounded),
           label: Text('المزيد'),
         ),
