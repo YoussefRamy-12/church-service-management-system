@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:drift/drift.dart';
+import 'package:uuid/uuid.dart';
 
 import '../../../core/database/app_database.dart';
 import '../../../core/sync/sync_operation.dart';
@@ -59,13 +60,11 @@ class LocalServiceStudentRepository {
 
   Future<void> saveOffline(ServiceStudent membership) async {
     await cache([membership]);
-    await _queue.enqueue(
-      SyncOperation(
-        // Membership mutations are last-write-wins while still queued.
-        // Reusing the membership UUID replaces an earlier pending upsert
-        // (for example active -> inactive archive) instead of replaying two
-        // writes whose timestamps may be identical on local storage.
-        operationId: membership.id,
+    await _queue.enqueueReplacingEntity(
+      entityType: 'service_student',
+      entityId: membership.id,
+      operation: SyncOperation(
+        operationId: const Uuid().v4(),
         entityType: 'service_student',
         operationType: 'upsert',
         payloadJson: jsonEncode(membership.toMap()),
