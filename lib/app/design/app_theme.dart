@@ -196,6 +196,9 @@ abstract final class AppTheme {
         secondarySelectedColor: scheme.primaryContainer,
         checkmarkColor: scheme.onPrimaryContainer,
         labelStyle: textTheme.labelMedium!,
+        secondaryLabelStyle: textTheme.labelMedium?.copyWith(
+          color: scheme.onPrimaryContainer,
+        ),
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
         shape: const StadiumBorder(),
         side: borderSide,
