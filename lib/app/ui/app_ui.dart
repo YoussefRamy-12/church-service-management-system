@@ -1,8 +1,102 @@
 import 'package:flutter/material.dart';
 import '../theme.dart';
+import 'responsive.dart';
 export 'role_labels.dart';
 
-/// Applies the shared, quiet canvas behind the application shell.
+/// Opaque, theme-aware surface for grouping related content.
+class AppSurface extends StatelessWidget {
+  const AppSurface({
+    super.key,
+    required this.child,
+    this.borderRadius = 12,
+    this.color,
+    this.border,
+    this.padding,
+    this.margin,
+    this.width,
+    this.height,
+    this.alignment,
+  });
+
+  final Widget child;
+  final double borderRadius;
+  final Color? color;
+  final BoxBorder? border;
+  final EdgeInsetsGeometry? padding;
+  final EdgeInsetsGeometry? margin;
+  final double? width;
+  final double? height;
+  final AlignmentGeometry? alignment;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return Container(
+      width: width,
+      height: height,
+      alignment: alignment,
+      padding: padding,
+      margin: margin,
+      decoration: BoxDecoration(
+        color: color ?? scheme.surface,
+        borderRadius: BorderRadius.circular(borderRadius),
+        border: border ?? Border.all(color: scheme.outlineVariant),
+      ),
+      child: child,
+    );
+  }
+}
+
+/// Flat bordered card with an optional full-card tap target.
+class AppCard extends StatelessWidget {
+  const AppCard({
+    super.key,
+    required this.child,
+    this.borderRadius = 12,
+    this.color,
+    this.border,
+    this.padding = const EdgeInsets.all(16),
+    this.margin,
+    this.onTap,
+  });
+
+  final Widget child;
+  final double borderRadius;
+  final Color? color;
+  final BoxBorder? border;
+  final EdgeInsetsGeometry padding;
+  final EdgeInsetsGeometry? margin;
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final card = Container(
+      margin: margin,
+      decoration: BoxDecoration(
+        color: color ?? scheme.surface,
+        borderRadius: BorderRadius.circular(borderRadius),
+        border: border ?? Border.all(color: scheme.outlineVariant),
+      ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(borderRadius),
+        child: Padding(padding: padding, child: child),
+      ),
+    );
+    if (onTap == null) return card;
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(borderRadius),
+        child: card,
+      ),
+    );
+  }
+}
+
+/// Legacy shell background. Prefer AppSurface or a themed Scaffold.
+@Deprecated('Use AppSurface or Scaffold.backgroundColor instead.')
 class AmbientBackground extends StatelessWidget {
   const AmbientBackground({
     super.key,
@@ -14,21 +108,21 @@ class AmbientBackground extends StatelessWidget {
   final double intensity;
 
   @override
-  Widget build(BuildContext context) {
-    return ColoredBox(
-      color: Theme.of(context).scaffoldBackgroundColor,
-      child: child,
-    );
-  }
+  Widget build(BuildContext context) => AppSurface(
+        borderRadius: 0,
+        color: Theme.of(context).scaffoldBackgroundColor,
+        border: Border.all(color: Colors.transparent),
+        child: child,
+      );
 }
 
-/// Solid surface container. Legacy visual parameters remain accepted so existing
-/// call sites keep working while rendering stays crisp and predictable.
+/// Compatibility wrapper. Blur and opacity are ignored; surfaces are opaque.
+@Deprecated('Use AppSurface; blur and opacity are no longer supported.')
 class GlassContainer extends StatelessWidget {
   const GlassContainer({
     super.key,
     required this.child,
-    this.borderRadius = 20,
+    this.borderRadius = 12,
     this.blur = 16,
     this.opacity = 0.75,
     this.color,
@@ -55,22 +149,17 @@ class GlassContainer extends StatelessWidget {
   final List<BoxShadow>? boxShadow;
 
   @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Container(
-      width: width,
-      height: height,
-      alignment: alignment,
-      padding: padding,
-      margin: margin,
-      decoration: BoxDecoration(
-        color: color ?? theme.colorScheme.surface,
-        borderRadius: BorderRadius.circular(borderRadius),
-        border: border ?? Border.all(color: theme.colorScheme.outlineVariant),
-      ),
-      child: child,
-    );
-  }
+  Widget build(BuildContext context) => AppSurface(
+        borderRadius: borderRadius,
+        color: color,
+        border: border,
+        padding: padding,
+        margin: margin,
+        width: width,
+        height: height,
+        alignment: alignment,
+        child: child,
+      );
 }
 
 /// Solid High-Contrast Card for dense rosters, forms, and tables
@@ -133,19 +222,20 @@ class SolidCard extends StatelessWidget {
   }
 }
 
-/// Shared solid card with an optional accessible tap target.
+/// Legacy glass-card name retained as a flat AppCard compatibility wrapper.
+@Deprecated('Use AppCard; blur and opacity are no longer supported.')
 class GlassCard extends StatelessWidget {
   const GlassCard({
     super.key,
     required this.child,
-    this.borderRadius = 20,
+    this.borderRadius = 12,
     this.blur = 16,
     this.opacity = 0.80,
     this.color,
     this.padding,
     this.margin,
     this.onTap,
-    this.hoverElevation = true,
+    this.hoverElevation = false,
   });
 
   final Widget child;
@@ -159,28 +249,14 @@ class GlassCard extends StatelessWidget {
   final bool hoverElevation;
 
   @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final card = Container(
-      margin: margin,
-      padding: padding ?? const EdgeInsets.all(18),
-      decoration: BoxDecoration(
-        color: color ?? theme.colorScheme.surface,
-        borderRadius: BorderRadius.circular(borderRadius),
-        border: Border.all(color: theme.colorScheme.outlineVariant),
-      ),
-      child: child,
-    );
-    if (onTap == null) return card;
-    return Material(
-      color: Colors.transparent,
-      child: InkWell(
+  Widget build(BuildContext context) => AppCard(
+        borderRadius: borderRadius,
+        color: color,
+        padding: padding ?? const EdgeInsets.all(16),
+        margin: margin,
         onTap: onTap,
-        borderRadius: BorderRadius.circular(borderRadius),
-        child: card,
-      ),
-    );
-  }
+        child: child,
+      );
 }
 
 /// Smooth Pressable wrapper with micro-scale feedback
@@ -289,24 +365,11 @@ class AppContent extends StatelessWidget {
   final EdgeInsetsGeometry? padding;
 
   @override
-  Widget build(BuildContext context) {
-    final width = MediaQuery.sizeOf(context).width;
-    final horizontal = width < 600
-        ? 16.0
-        : width < 1000
-        ? 24.0
-        : 32.0;
-    return Center(
-      child: ConstrainedBox(
-        constraints: BoxConstraints(maxWidth: maxWidth),
-        child: Padding(
-          padding:
-              padding ?? EdgeInsets.fromLTRB(horizontal, 16, horizontal, 32),
-          child: child,
-        ),
-      ),
-    );
-  }
+  Widget build(BuildContext context) => MaxWidthContainer(
+        maxWidth: maxWidth,
+        padding: padding ?? context.adaptivePagePadding,
+        child: child,
+      );
 }
 
 class EmptyState extends StatelessWidget {
