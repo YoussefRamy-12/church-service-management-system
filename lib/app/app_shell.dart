@@ -135,11 +135,14 @@ class AppShell extends ConsumerWidget {
               onSyncTap: () => context.go('/sync'),
             ),
           if (isTablet)
-            _TabletNavigationRail(
-              items: primaryItems,
-              selectedIndex: navigationIndex,
-              isMoreSelected: isMoreSelected,
-              onNavigate: (segment) => segment == 'more' ? openMore() : go(segment),
+            SafeArea(
+              child: _TabletNavigationRail(
+                items: primaryItems,
+                selectedIndex: navigationIndex,
+                isMoreSelected: isMoreSelected,
+                onNavigate: (segment) =>
+                    segment == 'more' ? openMore() : go(segment),
+              ),
             ),
           Expanded(child: content),
         ],
