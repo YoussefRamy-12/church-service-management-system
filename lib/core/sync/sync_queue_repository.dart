@@ -48,6 +48,46 @@ class SyncQueueRepository {
         );
   }
 
+  /// Replaces older pending snapshots for the same entity before enqueueing
+  /// the latest full snapshot. A fresh operation ID is intentional: if an
+  /// older snapshot is already being replayed by SyncEngine, its completion
+  /// must not delete the newly queued snapshot.
+  Future<void> enqueueReplacingEntity({
+    required String entityType,
+    required String entityId,
+    required SyncOperation operation,
+  }) async {
+    if (!_enabled) {
+      throw StateError(
+        'Offline sync is disabled. Mutations cannot be queued.',
+      );
+    }
+    if (operation.entityType != entityType) {
+      throw ArgumentError('Replacement entity type does not match operation.');
+    }
+
+    await _db.transaction(() async {
+      final existing = await (_db.select(_db.syncQueueEntries)
+            ..where(
+              (t) =>
+                  t.entityType.equals(entityType) &
+                  t.status.isIn(['pending', 'conflict']),
+            ))
+          .get();
+
+      for (final row in existing) {
+        final payload = decode(row.payloadJson);
+        if (payload['id'] == entityId) {
+          await (_db.delete(_db.syncQueueEntries)
+                ..where((t) => t.operationId.equals(row.operationId)))
+              .go();
+        }
+      }
+
+      await enqueue(operation);
+    });
+  }
+
   Stream<List<SyncConflictItem>> watchConflicts() {
     return (_db.select(_db.syncQueueEntries)
           ..where((t) => t.status.equals('conflict'))
