@@ -6,6 +6,7 @@ import 'package:church_service_management_system/core/database/app_database.dart
 import 'package:church_service_management_system/core/sync/sync_queue_repository.dart';
 import 'package:church_service_management_system/features/students/data/local_student_repository.dart';
 import 'package:church_service_management_system/features/students/data/offline_first_student_registration.dart';
+import 'package:church_service_management_system/features/students/data/local_service_student_repository.dart';
 
 void main() {
   late AppDatabase db;
@@ -17,7 +18,7 @@ void main() {
     db = AppDatabase.forTesting();
     local = LocalStudentRepository(db);
     queue = SyncQueueRepository(db);
-    registration = OfflineFirstStudentRegistration(local, queue);
+    registration = OfflineFirstStudentRegistration(local, queue, db);
   });
 
   tearDown(() async => db.close());
@@ -34,6 +35,44 @@ void main() {
     );
     expect(await queue.pending(), isEmpty);
   });
+
+  test(
+    'archiving a newly registered offline student replaces its pending membership snapshot',
+    () async {
+      final student = await registration.registerPending(
+        serviceId: 'service-1',
+        proposedClassId: 'class-1',
+        name: 'New Student',
+        grade: 'Grade 5',
+        birthDate: DateTime(2015, 3, 12),
+      );
+      final membershipRepository = LocalServiceStudentRepository(db, queue);
+      final membership = await membershipRepository.findById(
+        student.membershipId!,
+      );
+      expect(membership, isNotNull);
+
+      await membershipRepository.archiveOffline(membership!);
+
+      final pending = await queue.pending();
+      final studentOperations = pending
+          .where((operation) => operation.entityType == 'student')
+          .toList();
+      final membershipOperations = pending
+          .where((operation) => operation.entityType == 'service_student')
+          .toList();
+
+      expect(studentOperations, hasLength(1));
+      expect(membershipOperations, hasLength(1));
+      final membershipPayload = jsonDecode(
+        membershipOperations.single.payloadJson,
+      ) as Map<String, dynamic>;
+      expect(membershipPayload['id'], student.membershipId);
+      expect(membershipPayload['student_id'], student.id);
+      expect(membershipPayload['service_id'], student.serviceId);
+      expect(membershipPayload['status'], 'inactive');
+    },
+  );
 
   test(
     'pending registration is immediately cached with proposed class and queued',
