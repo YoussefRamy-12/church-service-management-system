@@ -179,6 +179,10 @@ void main() {
       expect(find.byKey(const Key('app_shell_navigation_rail')), findsOneWidget);
       expect(find.byKey(const Key('app_shell_bottom_navigation')), findsNothing);
       expect(find.byKey(const Key('app_shell_desktop_sidebar')), findsNothing);
+      expect(
+        tester.getRect(find.byKey(const Key('app_shell_navigation_rail'))).right,
+        closeTo(800, 0.1),
+      );
     });
 
     testWidgets('1280px keeps the 288px desktop sidebar', (tester) async {
