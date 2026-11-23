@@ -67,7 +67,7 @@ Ratios below are calculated using the WCAG 2.x relative-luminance formula. Value
 
 | Foreground | Background | Ratio | Result |
 |---|---|---:|---|
-| Light ink `#17243A` | Light canvas `#FAF8F4` | 14.65:1 | AAA |
+| Light ink `#17243A` | Light canvas `#FAF8F4` | 14.67:1 | AAA |
 | Light muted ink `#46515F` | Light canvas `#FAF8F4` | 7.61:1 | AAA |
 | Light muted ink `#46515F` | Light surface `#FFFFFF` | 8.07:1 | AAA |
 | Primary `#00236F` | Light canvas `#FAF8F4` | 13.47:1 | AAA |
