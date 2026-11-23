@@ -35,6 +35,22 @@ class SyncQueueRepository {
         'Offline sync is disabled. Mutations cannot be queued.',
       );
     }
+    await _db.transaction(() => _enqueue(operation));
+  }
+
+  /// Serializes queue timestamps so FIFO ordering remains deterministic even
+  /// when multiple mutations are enqueued within the same clock millisecond.
+  Future<void> _enqueue(SyncOperation operation) async {
+    final latest = await (_db.select(_db.syncQueueEntries)
+          ..orderBy([(t) => OrderingTerm.desc(t.createdAt)])
+          ..limit(1))
+        .getSingleOrNull();
+    final now = DateTime.now();
+    final latestAt = latest?.createdAt;
+    final createdAt = latestAt == null || now.isAfter(latestAt)
+        ? now
+        : latestAt.add(const Duration(milliseconds: 1));
+
     await _db
         .into(_db.syncQueueEntries)
         .insertOnConflictUpdate(
@@ -43,7 +59,7 @@ class SyncQueueRepository {
             entityType: operation.entityType,
             operationType: operation.operationType,
             payloadJson: operation.payloadJson,
-            createdAt: DateTime.now(),
+            createdAt: createdAt,
           ),
         );
   }
@@ -84,7 +100,7 @@ class SyncQueueRepository {
         }
       }
 
-      await enqueue(operation);
+      await _enqueue(operation);
     });
   }
 
