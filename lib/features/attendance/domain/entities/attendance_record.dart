@@ -6,6 +6,8 @@ class AttendanceRecord {
     required this.id,
     required this.meetingId,
     required this.studentId,
+    this.serviceId,
+    this.serviceStudentId,
     required this.classIdAtAttendance,
     required this.checkedInAt,
     required this.recordedBy,
@@ -16,6 +18,8 @@ class AttendanceRecord {
   final String id;
   final String meetingId;
   final String studentId;
+  final String? serviceId;
+  final String? serviceStudentId;
   final String classIdAtAttendance;
   final DateTime checkedInAt;
   final String recordedBy;
@@ -26,6 +30,8 @@ class AttendanceRecord {
     String? id,
     String? meetingId,
     String? studentId,
+    String? serviceId,
+    String? serviceStudentId,
     String? classIdAtAttendance,
     DateTime? checkedInAt,
     String? recordedBy,
@@ -36,6 +42,8 @@ class AttendanceRecord {
       id: id ?? this.id,
       meetingId: meetingId ?? this.meetingId,
       studentId: studentId ?? this.studentId,
+      serviceId: serviceId ?? this.serviceId,
+      serviceStudentId: serviceStudentId ?? this.serviceStudentId,
       classIdAtAttendance: classIdAtAttendance ?? this.classIdAtAttendance,
       checkedInAt: checkedInAt ?? this.checkedInAt,
       recordedBy: recordedBy ?? this.recordedBy,

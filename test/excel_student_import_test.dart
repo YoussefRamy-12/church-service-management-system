@@ -419,8 +419,9 @@ void main() {
 
         try {
           final inputs = [
-            const StudentRegistrationInput(
+            StudentRegistrationInput(
               name: 'فادي ماجد عزيز',
+              birthDate: DateTime(2013, 8, 14),
               grade: 'الابتدائية',
               phone: '01233334444',
               school: 'مدرسة القديس يوسف',
@@ -470,10 +471,18 @@ void main() {
           expect(cachedSensitive.financialStatus, 'طبيعي');
 
           final pendingSync = await queue.pending();
-          expect(pendingSync.length, 1);
+          expect(pendingSync, hasLength(2));
+          final studentOperation = pendingSync.firstWhere(
+            (operation) => operation.entityType == 'student',
+          );
+          final membershipOperation = pendingSync.firstWhere(
+            (operation) => operation.entityType == 'service_student',
+          );
 
           final opPayload =
-              jsonDecode(pendingSync.first.payloadJson) as Map<String, dynamic>;
+              jsonDecode(studentOperation.payloadJson) as Map<String, dynamic>;
+          final membershipPayload =
+              jsonDecode(membershipOperation.payloadJson) as Map<String, dynamic>;
           expect(opPayload['id'], created.first.id);
           expect(opPayload['grade'], 'الابتدائية');
           expect(opPayload['current_class_id'], 'class-200');
@@ -483,6 +492,9 @@ void main() {
           expect(opPayload['sensitive_data'], isNotNull);
           expect(opPayload['sensitive_data']['father_job'], 'مهندس');
           expect(opPayload['sensitive_data']['financial_status'], 'طبيعي');
+          expect(membershipPayload['student_id'], created.first.id);
+          expect(membershipPayload['service_id'], 'service-100');
+          expect(membershipPayload['status'], 'active');
         } finally {
           await db.close();
         }

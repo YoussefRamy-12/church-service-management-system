@@ -7,11 +7,11 @@ import 'package:church_service_management_system/features/students/domain/entiti
 void main() {
   group('Drift Student Migration & Compatibility Tests', () {
     test(
-      'Fresh installation initializes schema version 8 with CachedStudentSensitiveData and isDeacon',
+      'Fresh installation initializes schema version 16 with per-service membership, attendance and follow-up ownership cache',
       () async {
         final db = AppDatabase.forTesting();
         try {
-          expect(db.schemaVersion, 8);
+          expect(db.schemaVersion, 16);
 
           final local = LocalStudentRepository(db);
 
@@ -73,11 +73,11 @@ void main() {
     );
 
     test(
-      'Drift migration strategy registers upgrade steps for version 8',
+      'Version 16 database exposes membership identity fields for attendance and follow-up',
       () async {
         final db = AppDatabase.forTesting();
         try {
-          expect(db.schemaVersion, 7);
+          expect(db.schemaVersion, 16);
           expect(db.migration.onUpgrade, isNotNull);
 
           final students = await db.select(db.cachedStudents).get();
@@ -87,6 +87,15 @@ void main() {
               .select(db.cachedStudentSensitiveData)
               .get();
           expect(sensitive, isA<List<CachedStudentSensitiveDataData>>());
+          expect(await db.select(db.cachedFollowUpCases).get(), isEmpty);
+          expect(
+            await db.select(db.cachedFollowUpCaseAssignments).get(),
+            isEmpty,
+          );
+          expect(await db.select(db.cachedFollowUpActivities).get(), isEmpty);
+          expect(await db.select(db.cachedServiceStudents).get(), isEmpty);
+          final attendance = await db.select(db.cachedAttendanceRecords).get();
+          expect(attendance, isEmpty);
         } finally {
           await db.close();
         }
@@ -94,33 +103,32 @@ void main() {
     );
 
     test(
-      'Student delete removes both student record and associated sensitive record',
+      'Archiving a membership preserves global identity and sensitive history',
       () async {
         final db = AppDatabase.forTesting();
         final local = LocalStudentRepository(db);
         try {
           const student = Student(
-            id: 'del-student-1',
+            id: 'archive-student-1',
+            membershipId: 'archive-membership-1',
             serviceId: 'srv-1',
-            name: 'تلميذ للحذف',
+            name: 'تلميذ للأرشفة',
             approvalStatus: 'approved',
           );
           const sensitive = SensitiveStudentData(
-            studentId: 'del-student-1',
+            studentId: 'archive-student-1',
             fatherJob: 'وظيفة',
             financialStatus: FinancialStatus.brothersOfLord,
           );
 
           await local.cacheStudents([student]);
           await local.cacheSensitiveData(sensitive);
+          await local.archiveMembership(student.id);
 
-          expect(await local.findById('del-student-1'), isNotNull);
-          expect(await local.findSensitiveData('del-student-1'), isNotNull);
-
-          await local.deleteStudent('del-student-1');
-
-          expect(await local.findById('del-student-1'), isNull);
-          expect(await local.findSensitiveData('del-student-1'), isNull);
+          final archived = await local.findById(student.id);
+          expect(archived, isNotNull);
+          expect(archived!.membershipStatus, 'inactive');
+          expect(await local.findSensitiveData(student.id), isNotNull);
         } finally {
           await db.close();
         }

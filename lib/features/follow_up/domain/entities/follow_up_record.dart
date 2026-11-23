@@ -5,6 +5,8 @@ class FollowUpRecord {
   const FollowUpRecord({
     required this.id,
     required this.studentId,
+    required this.serviceId,
+    required this.serviceStudentId,
     required this.createdBy,
     required this.followUpDate,
     required this.contactStatus,
@@ -21,6 +23,8 @@ class FollowUpRecord {
 
   final String id;
   final String studentId;
+  final String serviceId;
+  final String serviceStudentId;
   final String createdBy;
   final String followUpDate;
   final String contactStatus;
@@ -37,6 +41,8 @@ class FollowUpRecord {
   FollowUpRecord copyWith({
     String? id,
     String? studentId,
+    String? serviceId,
+    String? serviceStudentId,
     String? createdBy,
     String? followUpDate,
     String? contactStatus,
@@ -53,6 +59,8 @@ class FollowUpRecord {
     return FollowUpRecord(
       id: id ?? this.id,
       studentId: studentId ?? this.studentId,
+      serviceId: serviceId ?? this.serviceId,
+      serviceStudentId: serviceStudentId ?? this.serviceStudentId,
       createdBy: createdBy ?? this.createdBy,
       followUpDate: followUpDate ?? this.followUpDate,
       contactStatus: contactStatus ?? this.contactStatus,

@@ -19,20 +19,25 @@ class StudentSyncHandler implements EntitySyncHandler {
     Map<String, dynamic> payload,
   ) async {
     if (operation.operationType == 'delete') {
-      final rows = await client
-          .from('students')
-          .delete()
-          .eq('id', payload['id'] as String)
-          .select('id');
-      if (rows.isEmpty) {
-        throw const SyncConflictException(
-          'Student deletion was rejected or is no longer accessible.',
-        );
-      }
-      return;
+      // Older app versions queued physical identity deletion. Never replay
+      // that destructive operation after the membership migration: it could
+      // erase a global identity shared by multiple services.
+      throw const SyncConflictException(
+        'Legacy student deletion was blocked. Archive the intended service membership instead.',
+      );
     }
 
     if (operation.operationType == 'insert') {
+      final existing = await client
+          .from('students')
+          .select('service_id')
+          .eq('id', payload['id'] as String)
+          .maybeSingle();
+      if (existing != null && existing['service_id'] != payload['service_id']) {
+        throw const SyncConflictException(
+          'A service membership cannot overwrite a global identity owned by another service.',
+        );
+      }
       final sensitiveData = payload.remove('sensitive_data');
       await client.from('students').upsert(payload, onConflict: 'id');
       if (sensitiveData is Map<String, dynamic> &&
@@ -49,6 +54,16 @@ class StudentSyncHandler implements EntitySyncHandler {
     }
 
     if (operation.operationType == 'update') {
+      final existing = await client
+          .from('students')
+          .select('service_id')
+          .eq('id', payload['id'] as String)
+          .maybeSingle();
+      if (existing == null || existing['service_id'] != payload['service_id']) {
+        throw const SyncConflictException(
+          'Global identity updates are restricted to the identity-owning service.',
+        );
+      }
       final sensitiveData = payload.remove('sensitive_data');
       final rows = await client
           .from('students')

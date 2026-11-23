@@ -40,7 +40,12 @@ class _FakeServiceRepo implements ServiceRepository {
   Future<void> refreshReportingPeriods(String serviceId) async {}
 
   @override
-  Future<Service?> getService(String serviceId) async => null;
+  Future<Service?> getService(String serviceId) async => const Service(
+    id: 'service-1',
+    name: 'خدمة تجريبية',
+    churchName: 'كنيسة تجريبية',
+    meetingStartTime: '15:00',
+  );
 
   @override
   Stream<List<Stage>> watchStages(String serviceId) => const Stream.empty();
@@ -122,6 +127,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.text('إضافة طالب جديد'), findsOneWidget);
+      expect(find.text('خدمة تجريبية — كنيسة تجريبية'), findsOneWidget);
       expect(find.text('1. بيانات الطالب الأساسية'), findsOneWidget);
       expect(find.text('2. العنوان'), findsOneWidget);
       expect(find.text('3. بيانات الأسرة'), findsOneWidget);

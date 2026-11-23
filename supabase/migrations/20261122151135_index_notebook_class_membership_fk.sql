@@ -1,0 +1,2 @@
+CREATE INDEX IF NOT EXISTS idx_spiritual_submissions_class_service_fk
+ON public.spiritual_notebook_submissions (class_id_at_submission, service_id);

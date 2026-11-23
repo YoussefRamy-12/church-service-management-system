@@ -14,54 +14,51 @@ class OnlineStudentRepository implements StudentRepository {
 
   @override
   Stream<List<Student>> watchStudentsForClass(String classId) async* {
-    final rows = await _client
-        .from('students')
-        .select(
-          'id, service_id, current_class_id, proposed_class_id, name, '
-          'birth_date, phone, school, grade, is_deacon, enrollment_at, approval_status, '
-          'photo_path, notes',
-        )
-        .eq('current_class_id', classId)
-        .order('name');
-    yield rows.map(_fromRow).toList();
+    final service = await _client.from('classes')
+        .select('service_id').eq('id', classId).maybeSingle();
+    if (service == null) {
+      yield [];
+      return;
+    }
+    final rows = await _client.rpc(
+      'get_service_student_directory',
+      params: {'p_service_id': service['service_id']},
+    );
+    yield (rows as List)
+        .map((row) => _fromMembershipRow(Map<String, dynamic>.from(row as Map)))
+        .where((student) =>
+            (student.membershipStatus == 'active' || student.membershipStatus == 'pending') &&
+            (student.currentClassId == classId || student.proposedClassId == classId))
+        .toList();
   }
 
   @override
   Stream<List<Student>> watchStudentsForService(String serviceId) async* {
-    final rows = await _client
-        .from('students')
-        .select(
-          'id, service_id, current_class_id, proposed_class_id, name, '
-          'birth_date, phone, school, grade, is_deacon, enrollment_at, approval_status, '
-          'photo_path, notes',
-        )
-        .eq('service_id', serviceId)
-        .order('name');
-    yield rows.map(_fromRow).toList();
+    final rows = await _client.rpc(
+      'get_service_student_directory',
+      params: {'p_service_id': serviceId},
+    );
+    yield (rows as List)
+        .map((row) => _fromMembershipRow(Map<String, dynamic>.from(row as Map)))
+        .where((student) => student.membershipStatus == 'active' || student.membershipStatus == 'pending')
+        .toList();
   }
 
   @override
   Future<void> refreshStudents(String classId) async {
-    await _client
-        .from('students')
-        .select('id')
-        .eq('current_class_id', classId)
-        .limit(1);
+    await watchStudentsForClass(classId).first;
   }
 
   @override
   Future<void> refreshStudentsForService(String serviceId) async {
-    await _client
-        .from('students')
-        .select('id')
-        .eq('service_id', serviceId)
-        .limit(1);
+    await watchStudentsForService(serviceId).first;
   }
 
   @override
   Future<Student> updateStudent({
     required String studentId,
     required String name,
+    String? membershipId,
     DateTime? birthDate,
     String? phone,
     String? school,
@@ -72,120 +69,89 @@ class OnlineStudentRepository implements StudentRepository {
     String? notes,
     SensitiveStudentData? sensitiveData,
   }) async {
-    final payload = <String, dynamic>{
-      'name': name.trim(),
-      'birth_date': birthDate?.toIso8601String().split('T').first,
-      'phone': phone?.trim().isEmpty == true ? null : phone?.trim(),
-      'school': school?.trim().isEmpty == true ? null : school?.trim(),
-      'grade': grade?.trim().isEmpty == true ? null : grade?.trim(),
-      'is_deacon': ?isDeacon,
-      'enrollment_at': enrollmentAt?.toIso8601String(),
-      'photo_path': photoPath?.trim().isEmpty == true ? null : photoPath?.trim(),
-      'notes': notes?.trim().isEmpty == true ? null : notes?.trim(),
-    };
-
-    final rows = await _client
-        .from('students')
-        .update(payload)
-        .eq('id', studentId)
-        .select(
-          'id, service_id, current_class_id, proposed_class_id, name, '
-          'birth_date, phone, school, grade, is_deacon, enrollment_at, approval_status, '
-          'photo_path, notes',
-        );
-
-    if (rows.isEmpty) {
-      throw StateError('Student update was rejected or not found on server.');
+    final id = membershipId;
+    if (id == null) throw StateError('Student membership is required for editing.');
+    final current = await _fetchMembership(id);
+    final ownsIdentity = current.serviceId == current.identityServiceId;
+    if (!ownsIdentity && _hasSensitiveData(sensitiveData)) {
+      throw StateError(
+        'Confidential student data can only be changed by the identity-owning service.',
+      );
     }
-
-    if (sensitiveData != null) {
+    await _client.rpc('update_service_student', params: {
+      'p_membership_id': id,
+      'p_name': name.trim(),
+      'p_birth_date': birthDate?.toIso8601String().split('T').first,
+      'p_phone': phone,
+      'p_photo_path': photoPath,
+      'p_school': school,
+      'p_grade': grade,
+      'p_is_deacon': isDeacon,
+      'p_enrollment_date': enrollmentAt?.toIso8601String(),
+      'p_notes': notes,
+    });
+    if (sensitiveData != null && ownsIdentity) {
       final map = sensitiveData.toMap();
       if (map.values.any((v) => v != null && v.toString().trim().isNotEmpty)) {
         await _safeUpsertSensitiveData(studentId, map);
       }
     }
-
-    return _fromRow(rows.first);
+    return _fetchMembership(id);
   }
 
   @override
-  Future<Student> approvePending(String studentId) async {
-    final currentRows = await _client
-        .from('students')
-        .select(
-          'id, service_id, current_class_id, proposed_class_id, name, '
-          'birth_date, phone, school, grade, is_deacon, enrollment_at, approval_status, '
-          'photo_path, notes',
-        )
-        .eq('id', studentId);
-
-    if (currentRows.isEmpty) {
-      throw StateError('Student not found: $studentId');
-    }
-    final current = _fromRow(currentRows.first);
-    if (!current.isPending || current.proposedClassId == null) {
-      throw StateError(
-        'Only pending students with a proposed class can be approved.',
-      );
-    }
-
-    final rows = await _client
-        .from('students')
-        .update({
-          'approval_status': 'approved',
-          'current_class_id': current.proposedClassId,
-          'proposed_class_id': null,
-        })
-        .eq('id', studentId)
-        .select(
-          'id, service_id, current_class_id, proposed_class_id, name, '
-          'birth_date, phone, school, grade, is_deacon, enrollment_at, approval_status, '
-          'photo_path, notes',
-        );
-
-    if (rows.isEmpty) {
-      throw StateError('Student approval was rejected by server.');
-    }
-
-    return _fromRow(rows.first);
+  Future<Student> approvePending(String studentId, {String? membershipId}) async {
+    final id = membershipId;
+    if (id == null) throw StateError('Student membership is required for approval.');
+    await _client.rpc('approve_service_student', params: {'p_membership_id': id});
+    return _fetchMembership(id);
   }
 
   @override
-  Future<void> deleteStudent(String studentId) async {
-    final rows = await _client
-        .from('students')
-        .delete()
-        .eq('id', studentId)
-        .select('id');
-    if (rows.isEmpty) {
-      throw StateError('Student deletion was rejected or student not found.');
-    }
+  Future<void> deleteStudent(String studentId, {String? membershipId}) async {
+    final id = membershipId;
+    if (id == null) throw StateError('Student membership is required for archival.');
+    await _client.rpc('archive_service_student', params: {'p_membership_id': id});
   }
 
   @override
-  Future<Student> assignClass(String studentId, String classId) async {
-    final rows = await _client
-        .from('students')
-        .update({
-          'current_class_id': classId,
-          'proposed_class_id': null,
-        })
-        .eq('id', studentId)
-        .select(
-          'id, service_id, current_class_id, proposed_class_id, name, '
-          'birth_date, phone, school, grade, is_deacon, enrollment_at, approval_status, '
-          'photo_path, notes',
-        );
-
-    if (rows.isEmpty) {
-      throw StateError('Class assignment was rejected by server.');
-    }
-
-    return _fromRow(rows.first);
+  Future<Student> assignClass(
+    String studentId,
+    String classId, {
+    String? membershipId,
+  }) async {
+    final id = membershipId;
+    if (id == null) throw StateError('Student membership is required for class assignment.');
+    await _client.rpc('assign_service_student_class', params: {
+      'p_membership_id': id,
+      'p_class_id': classId,
+    });
+    return _fetchMembership(id);
   }
 
+  Future<Student> _fetchMembership(String membershipId) async {
+    final membership = await _client.from('service_students')
+        .select('service_id').eq('id', membershipId).single();
+    final rows = await _client.rpc(
+      'get_service_student_directory',
+      params: {'p_service_id': membership['service_id']},
+    );
+    final match = (rows as List)
+        .map((row) => _fromMembershipRow(Map<String, dynamic>.from(row as Map)))
+        .where((student) => student.membershipId == membershipId);
+    return match.first;
+  }
+
+
   @override
-  Future<SensitiveStudentData?> getSensitiveData(String studentId) async {
+  Future<SensitiveStudentData?> getSensitiveData(
+    String studentId, {
+    String? serviceId,
+    String? identityServiceId,
+  }) async {
+    if (serviceId != null && serviceId != identityServiceId) {
+      return null;
+    }
     final row = await _client
         .from('student_sensitive_data')
         .select()
@@ -195,22 +161,34 @@ class OnlineStudentRepository implements StudentRepository {
     return SensitiveStudentData.fromMap(row, studentId: studentId);
   }
 
-  Student _fromRow(Map<String, dynamic> row) => Student(
-    id: row['id'] as String,
-    serviceId: row['service_id'] as String,
-    name: row['name'] as String,
-    approvalStatus: row['approval_status'] as String,
-    currentClassId: row['current_class_id'] as String?,
-    proposedClassId: row['proposed_class_id'] as String?,
-    birthDate: _date(row['birth_date']),
-    phone: row['phone'] as String?,
-    school: row['school'] as String?,
-    grade: row['grade'] as String?,
-    isDeacon: (row['is_deacon'] as bool?) ?? false,
-    enrollmentAt: _date(row['enrollment_at']),
-    photoPath: row['photo_path'] as String?,
-    notes: row['notes'] as String?,
-  );
+  bool _hasSensitiveData(SensitiveStudentData? data) =>
+      data != null &&
+      data.toMap().values.any(
+        (value) => value != null && value.toString().trim().isNotEmpty,
+      );
+
+  Student _fromMembershipRow(Map<String, dynamic> row) {
+    final status = row['membership_status'] as String;
+    return Student(
+      id: row['student_id'] as String,
+      membershipId: row['membership_id'] as String,
+      membershipStatus: status,
+      serviceId: row['service_id'] as String,
+      identityServiceId: row['identity_service_id'] as String?,
+      name: row['student_name'] as String? ?? '',
+      approvalStatus: status == 'pending' ? 'pending' : 'approved',
+      currentClassId: row['class_id'] as String?,
+      proposedClassId: row['proposed_class_id'] as String?,
+      birthDate: _date(row['birth_date']),
+      phone: row['phone'] as String?,
+      school: row['school'] as String?,
+      grade: row['grade'] as String?,
+      isDeacon: row['is_deacon'] as bool? ?? false,
+      enrollmentAt: _date(row['enrollment_date']),
+      photoPath: row['photo_path'] as String?,
+      notes: row['membership_notes'] as String?,
+    );
+  }
 
   static DateTime? _date(Object? value) =>
       value == null ? null : DateTime.tryParse(value.toString());

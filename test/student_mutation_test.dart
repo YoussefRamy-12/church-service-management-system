@@ -4,9 +4,53 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:church_service_management_system/features/auth/domain/entities/servant_profile.dart';
 import 'package:church_service_management_system/features/students/domain/entities/sensitive_student_data.dart';
 import 'package:church_service_management_system/features/students/domain/entities/student.dart';
+import 'package:church_service_management_system/core/sync/sync_operation.dart';
+import 'package:church_service_management_system/core/sync/sync_conflict_exception.dart';
+import 'package:church_service_management_system/core/sync/handlers/student_sync_handler.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:church_service_management_system/features/students/domain/student_permissions.dart';
 
 void main() {
+  test('legacy physical student delete is rejected after membership migration', () async {
+    final handler = StudentSyncHandler(
+      SupabaseClient('https://example.supabase.co', 'test-key'),
+    );
+    await expectLater(
+      handler.apply(
+        const SyncOperation(
+          operationId: 'legacy-delete-1',
+          entityType: 'student',
+          operationType: 'delete',
+          payloadJson: '{"id":"student-1"}',
+        ),
+        {'id': 'student-1'},
+      ),
+      throwsA(isA<SyncConflictException>()),
+    );
+  });
+
+  test('Student.copyWith can explicitly clear nullable membership fields', () {
+    const student = Student(
+      id: 'copy-student',
+      serviceId: 'service-a',
+      membershipId: 'membership-a',
+      name: 'Student',
+      approvalStatus: 'pending',
+      proposedClassId: 'class-a',
+      notes: 'old note',
+    );
+    final updated = student.copyWith(
+      approvalStatus: 'approved',
+      membershipStatus: 'active',
+      currentClassId: 'class-a',
+      proposedClassId: null,
+      notes: null,
+    );
+    expect(updated.proposedClassId, isNull);
+    expect(updated.notes, isNull);
+    expect(updated.currentClassId, 'class-a');
+  });
+
   test('approval payload moves proposed class to current class', () {
     final payload = <String, dynamic>{
       'approval_status': 'approved',
@@ -88,6 +132,7 @@ void main() {
   test('Student entity default isDeacon is false and copyWith works', () {
     const student = Student(
       id: 'st-1',
+      membershipId: 'membership-1',
       serviceId: 'srv-1',
       name: 'جورج رامي',
       approvalStatus: 'approved',
@@ -101,12 +146,30 @@ void main() {
   group('canEditOrDeleteStudent permissions', () {
     const student = Student(
       id: 'st-1',
+      membershipId: 'membership-1',
       serviceId: 'srv-1',
       currentClassId: 'cls-1',
       proposedClassId: 'cls-pending',
       name: 'مارك يوسف',
       approvalStatus: 'approved',
     );
+
+    test('students without a membership ID remain read-only', () {
+      const legacyStudent = Student(
+        id: 'legacy-student',
+        serviceId: 'srv-1',
+        name: 'طالب قديم',
+        approvalStatus: 'approved',
+      );
+      expect(
+        canEditOrDeleteStudent(
+          student: legacyStudent,
+          profile: null,
+          isSuperAdmin: true,
+        ),
+        isFalse,
+      );
+    });
 
     test('super admin always has edit/delete permission', () {
       expect(

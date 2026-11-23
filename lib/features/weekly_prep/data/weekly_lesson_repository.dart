@@ -41,15 +41,17 @@ class WeeklyLessonRepository {
         .eq('week_start', week)
         .maybeSingle();
     final path = '$serviceId/$stageId/$week/${const Uuid().v4()}.pdf';
-    await _client.storage.from(bucket).uploadBinary(
-      path,
-      bytes,
-      fileOptions: const FileOptions(
-        contentType: 'application/pdf',
-        cacheControl: '3600',
-        upsert: false,
-      ),
-    );
+    await _client.storage
+        .from(bucket)
+        .uploadBinary(
+          path,
+          bytes,
+          fileOptions: const FileOptions(
+            contentType: 'application/pdf',
+            cacheControl: '3600',
+            upsert: false,
+          ),
+        );
     try {
       final payload = {
         'service_id': serviceId,
@@ -80,7 +82,6 @@ class WeeklyLessonRepository {
       }
     }
   }
-
 
   Future<bool> isPrepared({
     required String lessonId,
@@ -114,11 +115,13 @@ class WeeklyLessonRepository {
   }
 
   Future<Uri> signedUrl(WeeklyLesson lesson, {required bool download}) async {
-    final url = await _client.storage.from(bucket).createSignedUrl(
-      lesson.storagePath,
-      300,
-      download: download ? DownloadBehavior.withOriginalName : null,
-    );
+    final url = await _client.storage
+        .from(bucket)
+        .createSignedUrl(
+          lesson.storagePath,
+          300,
+          download: download ? DownloadBehavior.withOriginalName : null,
+        );
     return Uri.parse(url);
   }
 

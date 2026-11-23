@@ -41,7 +41,16 @@ class OfflineFirstStudentRepository implements StudentRepository {
   }
 
   @override
-  Future<SensitiveStudentData?> getSensitiveData(String studentId) async {
+  Future<SensitiveStudentData?> getSensitiveData(
+    String studentId, {
+    String? serviceId,
+    String? identityServiceId,
+  }) async {
+    // Sensitive data belongs to the identity-owning service by default.
+    // Never fall back to a device-global cache for another service membership.
+    if (serviceId != null && serviceId != identityServiceId) {
+      return null;
+    }
     try {
       final remoteRow = await remote.fetchSensitiveData(studentId);
       if (remoteRow != null) {
@@ -60,6 +69,7 @@ class OfflineFirstStudentRepository implements StudentRepository {
   Future<Student> updateStudent({
     required String studentId,
     required String name,
+    String? membershipId,
     DateTime? birthDate,
     String? phone,
     String? school,
@@ -70,8 +80,20 @@ class OfflineFirstStudentRepository implements StudentRepository {
     String? notes,
     SensitiveStudentData? sensitiveData,
   }) async {
+    final current = await local.findById(studentId, membershipId: membershipId);
+    if (current == null || current.membershipId == null ||
+        (membershipId != null && current.membershipId != membershipId)) {
+      throw StateError('Student membership is not available locally.');
+    }
+    final ownsIdentity = current.serviceId == current.identityServiceId;
+    if (!ownsIdentity && _hasSensitiveData(sensitiveData)) {
+      throw StateError(
+        'Confidential student data can only be changed by the identity-owning service.',
+      );
+    }
     final updated = await local.updateStudent(
       studentId: studentId,
+      membershipId: membershipId,
       name: name,
       birthDate: birthDate,
       phone: phone,
@@ -81,41 +103,102 @@ class OfflineFirstStudentRepository implements StudentRepository {
       enrollmentAt: enrollmentAt,
       photoPath: photoPath,
       notes: notes,
+      updateGlobalIdentity: ownsIdentity,
     );
-    if (sensitiveData != null) {
+    if (sensitiveData != null && ownsIdentity) {
       await local.cacheSensitiveData(sensitiveData);
     }
-    await _enqueueUpdate(updated, sensitiveData: sensitiveData);
+    await _enqueueMembershipUpdate(updated);
+    if (ownsIdentity) {
+      await _enqueueUpdate(updated, sensitiveData: sensitiveData);
+    }
     return updated;
   }
 
   @override
-  Future<Student> approvePending(String studentId) async {
-    final updated = await local.approvePending(studentId);
-    await _enqueueUpdate(updated);
+  Future<Student> approvePending(String studentId, {String? membershipId}) async {
+    final current = await local.findById(studentId, membershipId: membershipId);
+    if (current == null || current.membershipId == null ||
+        (membershipId != null && current.membershipId != membershipId)) {
+      throw StateError('Student membership is not available locally.');
+    }
+    final updated = await local.approvePending(studentId, membershipId: membershipId);
+    await _enqueueMembershipUpdate(updated);
+    if (current.serviceId == current.identityServiceId) {
+      await _enqueueUpdate(updated);
+    }
     return updated;
   }
 
   @override
-  Future<void> deleteStudent(String studentId) async {
-    final current = await local.findById(studentId);
+  Future<void> deleteStudent(String studentId, {String? membershipId}) async {
+    final current = await local.findById(studentId, membershipId: membershipId);
     if (current == null) return;
-    await local.deleteStudent(studentId);
+    final id = membershipId ?? current.membershipId;
+    if (id == null) throw StateError('Student membership is required for archival.');
+    await local.archiveMembership(studentId, membershipId: id);
     await queue.enqueue(
       SyncOperation(
         operationId: const Uuid().v4(),
-        entityType: 'student',
+        entityType: 'service_student',
         operationType: 'delete',
-        payloadJson: jsonEncode({'id': studentId}),
+        payloadJson: jsonEncode({'id': id}),
       ),
     );
   }
 
   @override
-  Future<Student> assignClass(String studentId, String classId) async {
-    final updated = await local.assignClass(studentId, classId);
-    await _enqueueUpdate(updated);
+  Future<Student> assignClass(
+    String studentId,
+    String classId, {
+    String? membershipId,
+  }) async {
+    final current = await local.findById(studentId, membershipId: membershipId);
+    if (current == null || current.membershipId == null ||
+        (membershipId != null && current.membershipId != membershipId)) {
+      throw StateError('Student membership is not available locally.');
+    }
+    final updated = await local.assignClass(studentId, classId, membershipId: membershipId);
+    await _enqueueMembershipUpdate(updated);
+    if (current.serviceId == current.identityServiceId) {
+      await _enqueueUpdate(updated);
+    }
     return updated;
+  }
+
+  bool _hasSensitiveData(SensitiveStudentData? data) =>
+      data != null &&
+      data.toMap().values.any(
+        (value) => value != null && value.toString().trim().isNotEmpty,
+      );
+
+  Future<void> _enqueueMembershipUpdate(Student student) async {
+    final membershipId = student.membershipId;
+    if (membershipId == null) {
+      throw StateError('Student membership is required for synchronization.');
+    }
+    await queue.enqueue(
+      SyncOperation(
+        operationId: const Uuid().v4(),
+        entityType: 'service_student',
+        operationType: 'upsert',
+        payloadJson: jsonEncode({
+          'id': membershipId,
+          'student_id': student.id,
+          'service_id': student.serviceId,
+          'class_id': student.currentClassId,
+          'proposed_class_id': student.proposedClassId,
+          'enrollment_date': student.enrollmentAt?.toUtc().toIso8601String(),
+          'status': student.membershipStatus == 'inactive'
+              ? 'inactive'
+              : (student.isPending ? 'pending' : 'active'),
+          'school': student.school,
+          'grade': student.grade,
+          'is_deacon': student.isDeacon,
+          'notes': student.notes,
+        }),
+      ),
+    );
   }
 
   Future<void> _enqueueUpdate(

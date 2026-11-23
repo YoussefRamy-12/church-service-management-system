@@ -32,6 +32,8 @@ void main() {
       final record = await attendance.checkIn(
         meetingId: 'meeting-1',
         studentId: 'student-1',
+        serviceId: 'service-1',
+        serviceStudentId: 'student-1_membership',
         classIdAtAttendance: 'class-1',
         recordedBy: 'servant-1',
         checkedInAt: checkedInAt,
@@ -42,6 +44,8 @@ void main() {
 
       expect(localRows, hasLength(1));
       expect(localRows.single.studentId, 'student-1');
+      expect(localRows.single.serviceId, 'service-1');
+      expect(localRows.single.serviceStudentId, 'student-1_membership');
       expect(localRows.single.syncState, 'pending');
       expect(localRows.single.clientOperationId, record.clientOperationId);
 
@@ -54,9 +58,43 @@ void main() {
           jsonDecode(pending.single.payloadJson) as Map<String, dynamic>;
       expect(payload['meeting_id'], 'meeting-1');
       expect(payload['student_id'], 'student-1');
+      expect(payload['service_id'], 'service-1');
+      expect(payload['service_student_id'], 'student-1_membership');
       expect(payload['class_id_at_attendance'], 'class-1');
     },
   );
+
+  test('queued check-ins retain their original service after a service switch', () async {
+    await attendance.checkIn(
+      meetingId: 'meeting-service-a',
+      studentId: 'shared-student',
+      serviceId: 'service-a',
+      serviceStudentId: 'membership-a',
+      classIdAtAttendance: 'class-a',
+      recordedBy: 'servant-a',
+      checkedInAt: DateTime(2026, 10, 7, 10, 30),
+    );
+    await attendance.checkIn(
+      meetingId: 'meeting-service-b',
+      studentId: 'shared-student',
+      serviceId: 'service-b',
+      serviceStudentId: 'membership-b',
+      classIdAtAttendance: 'class-b',
+      recordedBy: 'servant-b',
+      checkedInAt: DateTime(2026, 10, 7, 10, 35),
+    );
+
+    // Changing the active service does not rewrite previously queued payloads.
+    final payloads = (await queue.pending())
+        .map((operation) => queue.decode(operation.payloadJson))
+        .toList();
+
+    expect(payloads, hasLength(2));
+    expect(payloads.map((payload) => payload['service_id']),
+        ['service-a', 'service-b']);
+    expect(payloads.map((payload) => payload['service_student_id']),
+        ['membership-a', 'membership-b']);
+  });
 
   test(
     'duplicate check-in does not create a second attendance record or sync operation',
@@ -64,6 +102,8 @@ void main() {
       final first = await attendance.checkIn(
         meetingId: 'meeting-1',
         studentId: 'student-1',
+        serviceId: 'service-1',
+        serviceStudentId: 'student-1_membership',
         classIdAtAttendance: 'class-1',
         recordedBy: 'servant-1',
         checkedInAt: DateTime(2026, 10, 7, 10, 30),
@@ -72,6 +112,8 @@ void main() {
       final second = await attendance.checkIn(
         meetingId: 'meeting-1',
         studentId: 'student-1',
+        serviceId: 'service-1',
+        serviceStudentId: 'student-1_membership',
         classIdAtAttendance: 'class-1',
         recordedBy: 'servant-1',
         checkedInAt: DateTime(2026, 10, 7, 10, 31),
@@ -93,6 +135,8 @@ void main() {
       final original = await attendance.checkIn(
         meetingId: 'meeting-1',
         studentId: 'student-1',
+        serviceId: 'service-1',
+        serviceStudentId: 'student-1_membership',
         classIdAtAttendance: 'class-1',
         recordedBy: 'servant-1',
         checkedInAt: DateTime(2026, 10, 7, 10, 30),
@@ -114,7 +158,7 @@ void main() {
       expect(localRows.single.checkedInAt, updatedAt);
       expect(pending, hasLength(1));
       expect(pending.single.operationId, original.clientOperationId);
-      expect(payload['checked_in_at'], updatedAt.toIso8601String());
+      expect(payload['checked_in_at'], updatedAt.toUtc().toIso8601String());
     },
   );
 
@@ -124,6 +168,8 @@ void main() {
     await attendance.checkIn(
       meetingId: 'meeting-1',
       studentId: 'student-1',
+      serviceId: 'service-1',
+      serviceStudentId: 'student-1_membership',
       classIdAtAttendance: 'class-1',
       recordedBy: 'servant-1',
       checkedInAt: DateTime(2026, 10, 7, 10, 30),

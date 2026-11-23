@@ -8,9 +8,12 @@ import 'package:church_service_management_system/features/students/data/local_st
 import 'package:church_service_management_system/features/students/data/offline_first_student_repository.dart';
 import 'package:church_service_management_system/features/students/data/supabase_student_repository.dart';
 import 'package:church_service_management_system/features/students/domain/entities/student.dart';
+import 'package:church_service_management_system/features/students/domain/entities/sensitive_student_data.dart';
 
 Student _student({
   String id = 'student-1',
+  String? membershipId,
+  String? identityServiceId,
   String name = 'Peter',
   String approvalStatus = 'approved',
   String? currentClassId = 'class-1',
@@ -18,11 +21,14 @@ Student _student({
 }) {
   return Student(
     id: id,
+    membershipId: membershipId ?? '${id}_membership',
+    identityServiceId: identityServiceId ?? 'service-1',
     serviceId: 'service-1',
     currentClassId: currentClassId,
     proposedClassId: proposedClassId,
     name: name,
     approvalStatus: approvalStatus,
+    membershipStatus: approvalStatus == 'pending' ? 'pending' : 'active',
     birthDate: DateTime(2014, 5, 10),
     enrollmentAt: DateTime(2026, 9, 1),
   );
@@ -65,20 +71,24 @@ void main() {
       );
 
       final pending = await queue.pending();
-      final payload =
-          jsonDecode(pending.single.payloadJson) as Map<String, dynamic>;
+      final membershipOp = pending.firstWhere((op) => op.entityType == 'service_student');
+      final studentOp = pending.firstWhere((op) => op.entityType == 'student');
+      final payload = jsonDecode(studentOp.payloadJson) as Map<String, dynamic>;
+      final membershipPayload = jsonDecode(membershipOp.payloadJson) as Map<String, dynamic>;
 
       expect(updated.name, 'Peter Updated');
       expect(await repo.local.findById('student-1'), isNotNull);
-      expect(pending, hasLength(1));
-      expect(pending.single.entityType, 'student');
-      expect(pending.single.operationType, 'update');
+      expect(pending, hasLength(2));
+      expect(studentOp.operationType, 'update');
       expect(payload['id'], 'student-1');
       expect(payload['name'], 'Peter Updated');
       expect(payload['current_class_id'], 'class-1');
       expect(payload['approval_status'], 'approved');
       expect(payload['phone'], '01000000000');
       expect(payload['notes'], 'Needs follow-up');
+      expect(membershipOp.operationType, 'upsert');
+      expect(membershipPayload['id'], 'student-1_membership');
+      expect(membershipPayload['student_id'], 'student-1');
     },
   );
 
@@ -96,18 +106,99 @@ void main() {
       final approved = await repo.approvePending('student-1');
 
       final pending = await queue.pending();
-      final payload =
-          jsonDecode(pending.single.payloadJson) as Map<String, dynamic>;
+      final studentOp = pending.firstWhere((op) => op.entityType == 'student');
+      final membershipOp = pending.firstWhere((op) => op.entityType == 'service_student');
+      final payload = jsonDecode(studentOp.payloadJson) as Map<String, dynamic>;
+      final membershipPayload = jsonDecode(membershipOp.payloadJson) as Map<String, dynamic>;
 
       expect(approved.approvalStatus, 'approved');
+      expect(approved.membershipStatus, 'active');
       expect(approved.currentClassId, 'class-2');
       expect(approved.proposedClassId, isNull);
-      expect(pending, hasLength(1));
+      expect(pending, hasLength(2));
       expect(payload['approval_status'], 'approved');
       expect(payload['current_class_id'], 'class-2');
       expect(payload['proposed_class_id'], isNull);
+      expect(membershipPayload['status'], 'active');
+      expect(membershipPayload['class_id'], 'class-2');
     },
   );
+
+  test('secondary service edits membership without changing global identity', () async {
+    await repo.local.cacheStudents([
+      _student(
+        id: 'shared-edit-student',
+        membershipId: 'membership-service-b',
+        identityServiceId: 'service-a',
+      ).copyWith(serviceId: 'service-b'),
+    ]);
+
+    final updated = await repo.updateStudent(
+      studentId: 'shared-edit-student',
+      membershipId: 'membership-service-b',
+      name: 'Name edited in Service B',
+      birthDate: DateTime(2012, 2, 2),
+      phone: '01099999999',
+      school: 'Service B school',
+      grade: 'السادس',
+      notes: 'ملاحظة الخدمة ب',
+    );
+
+    final pending = await queue.pending();
+    final cached = await repo.local.findById('shared-edit-student');
+    expect(updated.name, 'Peter');
+    expect(updated.phone, isNull);
+    expect(updated.birthDate, DateTime(2014, 5, 10));
+    expect(updated.school, 'Service B school');
+    expect(cached?.identityServiceId, 'service-a');
+    expect(pending, hasLength(1));
+    expect(pending.single.entityType, 'service_student');
+  });
+
+  test('offline sensitive data is not shared with a different service membership', () async {
+    await repo.local.cacheStudents([
+      _student(id: 'shared-student', membershipId: 'membership-service-b')
+          .copyWith(serviceId: 'service-b', identityServiceId: 'service-a'),
+    ]);
+    await repo.local.cacheSensitiveData(
+      const SensitiveStudentData(
+        studentId: 'shared-student',
+        fatherJob: 'محاسب',
+      ),
+    );
+
+    final data = await repo.getSensitiveData(
+      'shared-student',
+      serviceId: 'service-b',
+      identityServiceId: 'service-a',
+    );
+
+    expect(data, isNull);
+  });
+
+  test('offline student deletion archives membership and preserves identity cache', () async {
+    await repo.local.cacheStudents([_student()]);
+    const sensitive = SensitiveStudentData(
+      studentId: 'student-1',
+      fatherJob: 'محاسب',
+    );
+    await repo.local.cacheSensitiveData(sensitive);
+
+    await repo.deleteStudent('student-1', membershipId: 'student-1_membership');
+
+    final archived = await repo.local.findById('student-1');
+    final pending = await queue.pending();
+    expect(archived, isNotNull);
+    expect(archived!.membershipStatus, 'inactive');
+    expect(await repo.local.findSensitiveData('student-1'), isNotNull);
+    expect(pending, hasLength(1));
+    expect(pending.single.entityType, 'service_student');
+    expect(pending.single.operationType, 'delete');
+    expect(
+      (jsonDecode(pending.single.payloadJson) as Map<String, dynamic>)['id'],
+      'student-1_membership',
+    );
+  });
 
   test(
     'multiple offline student edits create independently retryable operations',
@@ -122,10 +213,11 @@ void main() {
 
       final pending = await queue.pending();
 
-      expect(pending, hasLength(2));
-      expect(pending.map((op) => op.operationId).toSet(), hasLength(2));
+      expect(pending, hasLength(4));
+      expect(pending.map((op) => op.operationId).toSet(), hasLength(4));
 
       final names = pending
+          .where((op) => op.entityType == 'student')
           .map(
             (op) =>
                 (jsonDecode(op.payloadJson) as Map<String, dynamic>)['name'],

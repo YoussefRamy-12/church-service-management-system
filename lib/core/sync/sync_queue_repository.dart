@@ -35,6 +35,12 @@ class SyncQueueRepository {
         'Offline sync is disabled. Mutations cannot be queued.',
       );
     }
+    await _enqueue(operation);
+  }
+
+  /// Inserts one queue row. SQLite's implicit rowid is the authoritative
+  /// insertion sequence; DateTime precision is not sufficient for FIFO order.
+  Future<void> _enqueue(SyncOperation operation) async {
     await _db
         .into(_db.syncQueueEntries)
         .insertOnConflictUpdate(
@@ -46,6 +52,46 @@ class SyncQueueRepository {
             createdAt: DateTime.now(),
           ),
         );
+  }
+
+  /// Replaces older pending snapshots for the same entity before enqueueing
+  /// the latest full snapshot. A fresh operation ID is intentional: if an
+  /// older snapshot is already being replayed by SyncEngine, its completion
+  /// must not delete the newly queued snapshot.
+  Future<void> enqueueReplacingEntity({
+    required String entityType,
+    required String entityId,
+    required SyncOperation operation,
+  }) async {
+    if (!_enabled) {
+      throw StateError(
+        'Offline sync is disabled. Mutations cannot be queued.',
+      );
+    }
+    if (operation.entityType != entityType) {
+      throw ArgumentError('Replacement entity type does not match operation.');
+    }
+
+    await _db.transaction(() async {
+      final existing = await (_db.select(_db.syncQueueEntries)
+            ..where(
+              (t) =>
+                  t.entityType.equals(entityType) &
+                  t.status.isIn(['pending', 'conflict']),
+            ))
+          .get();
+
+      for (final row in existing) {
+        final payload = decode(row.payloadJson);
+        if (payload['id'] == entityId) {
+          await (_db.delete(_db.syncQueueEntries)
+                ..where((t) => t.operationId.equals(row.operationId)))
+              .go();
+        }
+      }
+
+      await _enqueue(operation);
+    });
   }
 
   Stream<List<SyncConflictItem>> watchConflicts() {
@@ -114,18 +160,21 @@ class SyncQueueRepository {
     if (!_enabled) {
       return const [];
     }
-    final rows =
-        await (_db.select(_db.syncQueueEntries)
-              ..where((t) => t.status.equals('pending'))
-              ..orderBy([(t) => OrderingTerm(expression: t.createdAt)]))
-            .get();
+    final rows = await _db
+        .customSelect(
+          'SELECT operation_id, entity_type, operation_type, payload_json '
+          'FROM sync_queue_entries WHERE status = ? ORDER BY rowid ASC',
+          variables: [Variable.withString('pending')],
+          readsFrom: {_db.syncQueueEntries},
+        )
+        .get();
     return rows
         .map(
           (row) => SyncOperation(
-            operationId: row.operationId,
-            entityType: row.entityType,
-            operationType: row.operationType,
-            payloadJson: row.payloadJson,
+            operationId: row.read<String>('operation_id'),
+            entityType: row.read<String>('entity_type'),
+            operationType: row.read<String>('operation_type'),
+            payloadJson: row.read<String>('payload_json'),
           ),
         )
         .toList();

@@ -17,6 +17,15 @@ void main() {
   Future<void> seedBaseData() async {
     await db.batch((batch) {
       batch.insert(
+        db.cachedStages,
+        CachedStagesCompanion.insert(
+          id: 'stage-1',
+          serviceId: 'service-1',
+          name: 'Stage 1',
+          cachedAt: DateTime(2026, 10, 1),
+        ),
+      );
+      batch.insert(
         db.cachedClasses,
         CachedClassesCompanion.insert(
           id: 'class-1',
@@ -26,26 +35,20 @@ void main() {
         ),
       );
       batch.insert(
-        db.cachedStudents,
-        CachedStudentsCompanion.insert(
-          id: 'student-1',
-          serviceId: 'service-1',
-          name: 'Peter',
-          approvalStatus: 'approved',
-          currentClassId: const Value('class-1'),
-          enrollmentAt: const Value('2026-09-01'),
+        db.cachedServiceStudents,
+        CachedServiceStudentsCompanion.insert(
+          id: 'membership-1', studentId: 'student-1', serviceId: 'service-1',
+          studentName: const Value('Peter'), status: 'active',
+          classId: const Value('class-1'), enrollmentDate: '2026-09-01',
           cachedAt: DateTime(2026, 10, 1),
         ),
       );
       batch.insert(
-        db.cachedStudents,
-        CachedStudentsCompanion.insert(
-          id: 'student-2',
-          serviceId: 'service-1',
-          name: 'Mark',
-          approvalStatus: 'approved',
-          currentClassId: const Value('class-1'),
-          enrollmentAt: const Value('2026-10-10'),
+        db.cachedServiceStudents,
+        CachedServiceStudentsCompanion.insert(
+          id: 'membership-2', studentId: 'student-2', serviceId: 'service-1',
+          studentName: const Value('Mark'), status: 'active',
+          classId: const Value('class-1'), enrollmentDate: '2026-10-10',
           cachedAt: DateTime(2026, 10, 1),
         ),
       );
@@ -87,6 +90,79 @@ void main() {
     expect(report.present, 0);
   });
 
+  test('report isolates attendance to the selected service membership', () async {
+    await seedBaseData();
+
+    await db.into(db.cachedServiceStudents).insert(
+      CachedServiceStudentsCompanion.insert(
+        id: 'membership-service-2',
+        studentId: 'student-1',
+        serviceId: 'service-2',
+        studentName: const Value('Peter'),
+        status: 'active',
+        classId: const Value('class-1'),
+        enrollmentDate: '2026-09-01',
+        cachedAt: DateTime(2026, 10, 1),
+      ),
+    );
+    await db.into(db.cachedAttendanceRecords).insert(
+      CachedAttendanceRecordsCompanion.insert(
+        id: 'attendance-service-2',
+        meetingId: 'meeting-1',
+        studentId: 'student-1',
+        serviceId: const Value('service-2'),
+        serviceStudentId: const Value('membership-service-2'),
+        classIdAtAttendance: 'class-1',
+        checkedInAt: DateTime(2026, 10, 5, 10, 10),
+        recordedBy: 'servant-2',
+        clientOperationId: 'op-service-2',
+        syncState: const Value('synced'),
+      ),
+    );
+
+    final report = await repo.fetch(
+      serviceId: 'service-1',
+      start: DateTime(2026, 10, 1),
+      end: DateTime(2026, 10, 31),
+    );
+
+    expect(report.students, 2);
+    expect(report.present, 0);
+  });
+
+  test('archived membership remains in historical attendance reports', () async {
+    await seedBaseData();
+    await db
+        .into(db.cachedAttendanceRecords)
+        .insert(
+          CachedAttendanceRecordsCompanion.insert(
+            id: 'attendance-archived-student',
+            meetingId: 'meeting-1',
+            studentId: 'student-1',
+            serviceId: const Value('service-1'),
+            serviceStudentId: const Value('membership-1'),
+            classIdAtAttendance: 'class-1',
+            checkedInAt: DateTime(2026, 10, 5, 10, 10),
+            recordedBy: 'servant-1',
+            clientOperationId: 'op-archived',
+            syncState: const Value('synced'),
+          ),
+        );
+    await (db.update(db.cachedServiceStudents)
+          ..where((row) => row.id.equals('membership-1')))
+        .write(const CachedServiceStudentsCompanion(status: Value('inactive')));
+
+    final report = await repo.fetch(
+      serviceId: 'service-1',
+      start: DateTime(2026, 10, 1),
+      end: DateTime(2026, 10, 31),
+    );
+
+    expect(report.students, 2);
+    expect(report.expectedAttendance, 3);
+    expect(report.present, 1);
+  });
+
   test('report separates early and normal attendance', () async {
     await seedBaseData();
 
@@ -97,6 +173,8 @@ void main() {
             id: 'attendance-1',
             meetingId: 'meeting-1',
             studentId: 'student-1',
+            serviceId: const Value('service-1'),
+            serviceStudentId: const Value('membership-1'),
             classIdAtAttendance: 'class-1',
             checkedInAt: DateTime(2026, 10, 5, 10, 10),
             recordedBy: 'servant-1',
@@ -111,6 +189,8 @@ void main() {
             id: 'attendance-2',
             meetingId: 'meeting-2',
             studentId: 'student-1',
+            serviceId: const Value('service-1'),
+            serviceStudentId: const Value('membership-1'),
             classIdAtAttendance: 'class-1',
             checkedInAt: DateTime(2026, 10, 12, 10, 20),
             recordedBy: 'servant-1',
@@ -145,15 +225,12 @@ void main() {
           ),
         );
     await db
-        .into(db.cachedStudents)
+        .into(db.cachedServiceStudents)
         .insert(
-          CachedStudentsCompanion.insert(
-            id: 'student-3',
-            serviceId: 'service-1',
-            name: 'John',
-            approvalStatus: 'approved',
-            currentClassId: const Value('class-2'),
-            enrollmentAt: const Value('2026-09-01'),
+          CachedServiceStudentsCompanion.insert(
+            id: 'membership-3', studentId: 'student-3', serviceId: 'service-1',
+            studentName: const Value('John'), status: 'active',
+            classId: const Value('class-2'), enrollmentDate: '2026-09-01',
             cachedAt: DateTime(2026, 10, 1),
           ),
         );
@@ -180,6 +257,8 @@ void main() {
             CachedFollowUpRecordsCompanion.insert(
               id: 'follow-1',
               studentId: 'student-1',
+              serviceId: const Value('service-1'),
+              serviceStudentId: const Value('membership-1'),
               createdBy: 'servant-1',
               followUpDate: '2026-10-07',
               contactStatus: 'contacted',
@@ -193,6 +272,8 @@ void main() {
             CachedFollowUpRecordsCompanion.insert(
               id: 'follow-2',
               studentId: 'student-1',
+              serviceId: const Value('service-1'),
+              serviceStudentId: const Value('membership-1'),
               createdBy: 'servant-1',
               followUpDate: '2026-11-01',
               contactStatus: 'contacted',
@@ -223,6 +304,8 @@ void main() {
             id: 'attendance-duplicate-1',
             meetingId: 'meeting-1',
             studentId: 'student-1',
+            serviceId: const Value('service-1'),
+            serviceStudentId: const Value('membership-1'),
             classIdAtAttendance: 'class-1',
             checkedInAt: DateTime(2026, 10, 5, 10, 10),
             recordedBy: 'servant-1',
@@ -236,6 +319,8 @@ void main() {
             id: 'attendance-duplicate-2',
             meetingId: 'meeting-1',
             studentId: 'student-1',
+            serviceId: const Value('service-1'),
+            serviceStudentId: const Value('membership-1'),
             classIdAtAttendance: 'class-1',
             checkedInAt: DateTime(2026, 10, 5, 10, 11),
             recordedBy: 'servant-1',
@@ -254,6 +339,7 @@ void main() {
       expect(report.present, 1);
       expect(report.early, 1);
       expect(report.normal, 0);
+      expect(report.classComparisons.single.presentCount, 1);
     },
   );
 }

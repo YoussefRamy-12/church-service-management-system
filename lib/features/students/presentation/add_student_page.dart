@@ -8,6 +8,7 @@ import '../../../core/network/network_error_formatter.dart';
 import '../../auth/presentation/auth_providers.dart';
 import '../../service/domain/entities/service_class.dart';
 import '../../service/domain/entities/stage.dart';
+import '../../service/domain/entities/service.dart';
 import '../../service/presentation/service_providers.dart';
 import '../domain/entities/sensitive_student_data.dart';
 import 'student_details_page.dart';
@@ -64,6 +65,7 @@ class _AddStudentPageState extends ConsumerState<AddStudentPage> {
   List<Stage> _stages = [];
   Map<String, List<ServiceClass>> _stageClasses = {};
   List<String> _studyYears = [];
+  Service? _service;
   bool _loadingStructure = true;
   bool _isClassLocked = false;
   String? _lockedClassLabel;
@@ -108,6 +110,11 @@ class _AddStudentPageState extends ConsumerState<AddStudentPage> {
   Future<void> _loadStructure() async {
     setState(() => _loadingStructure = true);
     final serviceRepo = ref.read(serviceRepositoryProvider);
+    Service? service;
+
+    try {
+      service = await serviceRepo.getService(widget.serviceId);
+    } catch (_) {}
 
     try {
       await serviceRepo.refreshStages(widget.serviceId);
@@ -164,6 +171,7 @@ class _AddStudentPageState extends ConsumerState<AddStudentPage> {
         _stages = stages;
         _stageClasses = stageClasses;
         _studyYears = years;
+        _service = service;
         _selectedStudyYear = years.first;
         _selectedStageId = preselectedStageId;
         _selectedClassId = preselectedClassId;
@@ -214,6 +222,24 @@ class _AddStudentPageState extends ConsumerState<AddStudentPage> {
       return;
     }
 
+    if (_birthDate == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('تاريخ الميلاد مطلوب لتسجيل التلميذ.')),
+      );
+      return;
+    }
+    final matchingClasses = _stageClasses.values
+        .expand((classes) => classes)
+        .where((item) => item.id == _selectedClassId)
+        .toList();
+    if (matchingClasses.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('تعذر تحديد الصف الدراسي.')),
+      );
+      return;
+    }
+    final selectedClass = matchingClasses.first;
+
     setState(() => _saving = true);
 
     try {
@@ -246,6 +272,7 @@ class _AddStudentPageState extends ConsumerState<AddStudentPage> {
                 ? null
                 : _studentPhone.text.trim(),
             school: _school.text.trim().isEmpty ? null : _school.text.trim(),
+            grade: selectedClass.name,
             isDeacon: _isDeacon,
             notes: _generalNotes.text.trim().isEmpty
                 ? null
@@ -318,7 +345,7 @@ class _AddStudentPageState extends ConsumerState<AddStudentPage> {
                         // Header Intro Card
                         GlassContainer(
                           padding: const EdgeInsets.all(18),
-                          borderRadius: 20,
+                          borderRadius: 12,
                           margin: const EdgeInsets.only(bottom: 24),
                           child: Row(
                             children: [
@@ -350,7 +377,9 @@ class _AddStudentPageState extends ConsumerState<AddStudentPage> {
                                     ),
                                     const SizedBox(height: 4),
                                     Text(
-                                      'أسرة تلاميذ المسيح — خدمة 5 و6 ابتدائي بنين — كنيسة السيدة العذراء بعياد بك',
+                                      _service == null
+                                          ? 'إضافة طالب إلى الخدمة المحددة'
+                                          : '${_service!.name} — ${_service!.churchName}',
                                       style: TextStyle(
                                         fontSize: 12,
                                         color: isDark

@@ -61,6 +61,7 @@ class OnlineStudentRegistration implements StudentRegistration {
 
     for (final input in inputs) {
       final studentId = _uuid.v4();
+      final membershipId = _uuid.v4();
       final effectiveCurrentClassId = input.currentClassId ??
           (input.proposedClassId != null || proposedClassId != null
               ? null
@@ -70,6 +71,11 @@ class OnlineStudentRegistration implements StudentRegistration {
       final effectiveApprovalStatus = input.approvalStatus ??
           (effectiveCurrentClassId != null ? 'approved' : 'pending');
 
+      if (input.birthDate == null) {
+        throw ArgumentError(
+          'Student "${input.name}" is missing a required birth date.',
+        );
+      }
       final effectiveGrade = input.grade?.trim();
       if (effectiveGrade == null || effectiveGrade.isEmpty) {
         throw ArgumentError(
@@ -82,6 +88,9 @@ class OnlineStudentRegistration implements StudentRegistration {
         serviceId: serviceId,
         name: input.name.trim(),
         approvalStatus: effectiveApprovalStatus,
+        membershipId: membershipId,
+        identityServiceId: serviceId,
+        membershipStatus: effectiveApprovalStatus == 'approved' ? 'active' : 'pending',
         currentClassId: effectiveCurrentClassId,
         proposedClassId: effectiveProposedClassId,
         birthDate: input.birthDate,
@@ -98,28 +107,25 @@ class OnlineStudentRegistration implements StudentRegistration {
         notes: input.notes?.trim().isEmpty == true ? null : input.notes?.trim(),
       );
 
-      final studentPayload = <String, dynamic>{
-        'id': student.id,
-        'service_id': student.serviceId,
-        'current_class_id': student.currentClassId,
-        'proposed_class_id': student.proposedClassId,
-        'name': student.name,
-        'birth_date': student.birthDate?.toIso8601String().split('T').first,
-        'phone': student.phone,
-        'school': student.school,
-        'grade': student.grade,
-        'is_deacon': student.isDeacon,
-        'approval_status': student.approvalStatus,
-        'enrollment_at': student.enrollmentAt
-            ?.toIso8601String()
-            .split('T')
-            .first,
-        'photo_path': student.photoPath,
-        'notes': student.notes,
-      };
-
-      // Directly insert to Supabase
-      await _client.from('students').insert(studentPayload);
+      // One transactional RPC creates the global identity (or reuses the
+      // explicitly supplied UUID) and its service membership atomically.
+      await _client.rpc('register_service_student', params: {
+        'p_student_id': student.id,
+        'p_membership_id': membershipId,
+        'p_service_id': serviceId,
+        'p_name': student.name,
+        'p_birth_date': student.birthDate?.toIso8601String().split('T').first,
+        'p_phone': student.phone,
+        'p_photo_path': student.photoPath,
+        'p_school': student.school,
+        'p_grade': student.grade,
+        'p_is_deacon': student.isDeacon,
+        'p_enrollment_date': student.enrollmentAt?.toIso8601String(),
+        'p_status': effectiveApprovalStatus == 'approved' ? 'active' : 'pending',
+        'p_class_id': effectiveCurrentClassId,
+        'p_proposed_class_id': effectiveProposedClassId,
+        'p_notes': student.notes,
+      });
 
       final cleanedSensitiveData = <String, dynamic>{};
       for (final entry in input.sensitiveData.entries) {

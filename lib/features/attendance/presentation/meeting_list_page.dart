@@ -120,27 +120,13 @@ class _MeetingListPageState extends ConsumerState<MeetingListPage> {
         ],
       ),
       floatingActionButton: canCreate
-          ? Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(20),
-                boxShadow: [
-                  BoxShadow(
-                    color: Theme.of(
-                      context,
-                    ).colorScheme.primary.withValues(alpha: 0.35),
-                    blurRadius: 20,
-                    offset: const Offset(0, 8),
-                  ),
-                ],
-              ),
-              child: FloatingActionButton.extended(
-                onPressed: _createMeeting,
-                tooltip: 'إنشاء اجتماع',
-                icon: const Icon(Icons.add_rounded),
-                label: const Text(
-                  'اجتماع جديد',
-                  style: TextStyle(fontWeight: FontWeight.w700),
-                ),
+          ? FloatingActionButton.extended(
+              onPressed: _createMeeting,
+              tooltip: 'إنشاء اجتماع',
+              icon: const Icon(Icons.add_rounded),
+              label: const Text(
+                'اجتماع جديد',
+                style: TextStyle(fontWeight: FontWeight.w700),
               ),
             )
           : null,
@@ -159,8 +145,8 @@ class _MeetingListPageState extends ConsumerState<MeetingListPage> {
                 child: Padding(
                   padding: const EdgeInsets.all(32),
                   child: GlassCard(
-                    borderRadius: 24,
-                    padding: const EdgeInsets.all(36),
+                    borderRadius: 12,
+                    padding: const EdgeInsets.all(32),
                     hoverElevation: false,
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
@@ -248,10 +234,10 @@ class _MeetingListPageState extends ConsumerState<MeetingListPage> {
 
                   return GlassCard(
                     key: Key('attendance_meeting_' + meeting.id),
-                    borderRadius: 20,
+                    borderRadius: 12,
                     padding: const EdgeInsets.symmetric(
-                      horizontal: 18,
-                      vertical: 16,
+                      horizontal: 16,
+                      vertical: 14,
                     ),
                     onTap: () => context.go(
                       '/service/' +
@@ -261,46 +247,32 @@ class _MeetingListPageState extends ConsumerState<MeetingListPage> {
                     ),
                     child: Row(
                       children: [
-                        // Calendar date badge
+                        // Calendar date badge (Solid surface, 1px border)
                         Container(
-                          width: 54,
-                          height: 54,
+                          width: 50,
+                          height: 50,
                           decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              colors: isCurrent
-                                  ? [
-                                      const Color(0xFF4F46E5),
-                                      const Color(0xFF7C3AED),
-                                    ]
-                                  : [
-                                      const Color(0xFF64748B),
-                                      const Color(0xFF94A3B8),
-                                    ],
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
+                            color: isCurrent
+                                ? const Color(0xFF00236F).withValues(alpha: 0.08)
+                                : const Color(0xFF64748B).withValues(alpha: 0.08),
+                            borderRadius: BorderRadius.circular(10),
+                            border: Border.all(
+                              color: isCurrent
+                                  ? const Color(0xFF00236F).withValues(alpha: 0.20)
+                                  : const Color(0xFF64748B).withValues(alpha: 0.20),
                             ),
-                            borderRadius: BorderRadius.circular(16),
-                            boxShadow: [
-                              BoxShadow(
-                                color:
-                                    (isCurrent
-                                            ? const Color(0xFF4F46E5)
-                                            : const Color(0xFF64748B))
-                                        .withValues(alpha: 0.25),
-                                blurRadius: 10,
-                                offset: const Offset(0, 4),
-                              ),
-                            ],
                           ),
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Text(
                                 '${meeting.meetingDate.day}',
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.w900,
-                                  fontSize: 18,
+                                style: TextStyle(
+                                  color: isCurrent
+                                      ? const Color(0xFF00236F)
+                                      : const Color(0xFF334155),
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: 17,
                                   height: 1,
                                 ),
                               ),
@@ -308,7 +280,9 @@ class _MeetingListPageState extends ConsumerState<MeetingListPage> {
                               Text(
                                 _monthLabel(meeting.meetingDate.month),
                                 style: TextStyle(
-                                  color: Colors.white.withValues(alpha: 0.85),
+                                  color: isCurrent
+                                      ? const Color(0xFF00236F)
+                                      : const Color(0xFF64748B),
                                   fontWeight: FontWeight.w600,
                                   fontSize: 10,
                                   height: 1,
@@ -317,7 +291,7 @@ class _MeetingListPageState extends ConsumerState<MeetingListPage> {
                             ],
                           ),
                         ),
-                        const SizedBox(width: 16),
+                        const SizedBox(width: 14),
                         // Meeting info
                         Expanded(
                           child: Column(
@@ -325,11 +299,15 @@ class _MeetingListPageState extends ConsumerState<MeetingListPage> {
                             children: [
                               Row(
                                 children: [
-                                  Text(
-                                    '${meeting.name} — $dateParts',
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.w800,
-                                      fontSize: 15,
+                                  Expanded(
+                                    child: Text(
+                                      '${meeting.name} — $dateParts',
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.w700,
+                                        fontSize: 14,
+                                      ),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
                                     ),
                                   ),
                                   const SizedBox(width: 8),
@@ -350,24 +328,24 @@ class _MeetingListPageState extends ConsumerState<MeetingListPage> {
                                     ),
                                 ],
                               ),
-                              const SizedBox(height: 6),
+                              const SizedBox(height: 4),
                               Row(
                                 children: [
                                   Icon(
                                     Icons.schedule_rounded,
-                                    size: 15,
+                                    size: 14,
                                     color: Theme.of(
                                       context,
                                     ).colorScheme.onSurfaceVariant,
                                   ),
-                                  const SizedBox(width: 5),
+                                  const SizedBox(width: 4),
                                   Text(
                                     'بداية الاجتماع ${meeting.startTime}',
                                     style: TextStyle(
                                       color: Theme.of(
                                         context,
                                       ).colorScheme.onSurfaceVariant,
-                                      fontSize: 13,
+                                      fontSize: 12,
                                       fontWeight: FontWeight.w500,
                                     ),
                                   ),
@@ -376,19 +354,21 @@ class _MeetingListPageState extends ConsumerState<MeetingListPage> {
                             ],
                           ),
                         ),
+                        const SizedBox(width: 8),
                         // Action chevron
                         Container(
-                          width: 38,
-                          height: 38,
+                          width: 34,
+                          height: 34,
                           decoration: BoxDecoration(
                             color: Theme.of(
                               context,
                             ).colorScheme.primary.withValues(alpha: 0.08),
-                            borderRadius: BorderRadius.circular(12),
+                            borderRadius: BorderRadius.circular(8),
                           ),
                           child: Icon(
                             Icons.chevron_left_rounded,
                             color: Theme.of(context).colorScheme.primary,
+                            size: 20,
                           ),
                         ),
                       ],

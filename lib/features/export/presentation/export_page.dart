@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../app/ui/app_ui.dart';
 import '../../../core/config/config_provider.dart';
 import '../../../core/database/database_provider.dart';
 import '../../../core/network/network_error_formatter.dart';
@@ -265,122 +266,159 @@ class _ExportPageState extends ConsumerState<ExportPage> {
       appBar: AppBar(
         title: Text(widget.graduationOnly ? 'تصدير بيانات التخرج' : 'التصدير'),
       ),
-      body: ListView(
-        padding: const EdgeInsets.all(20),
-        children: [
-          DropdownButtonFormField<String>(
-            initialValue: scope,
-            decoration: const InputDecoration(labelText: 'النطاق'),
-            items: scopeItems,
-            onChanged: (value) => setState(() {
-              scope = value!;
-              selectedStudentIds = {};
-            }),
-          ),
-          if (scope == 'stage')
+      body: AppContent(
+        maxWidth: 760,
+        child: ListView(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+          children: [
             DropdownButtonFormField<String>(
-              initialValue: stageId,
-              decoration: const InputDecoration(labelText: 'المرحلة'),
-              items: stages
-                  .map(
-                    (stage) => DropdownMenuItem(
-                      value: stage.id as String,
-                      child: Text(stage.name as String),
-                    ),
-                  )
-                  .toList(),
+              initialValue: scope,
+              decoration: const InputDecoration(labelText: 'النطاق'),
+              items: scopeItems,
               onChanged: (value) => setState(() {
-                stageId = value;
-                selectedClassId = null;
+                scope = value!;
                 selectedStudentIds = {};
               }),
             ),
-          if (scope == 'class' || scope == 'students')
-            DropdownButtonFormField<String>(
-              initialValue:
-                  visibleClasses.any((item) => item.id == selectedClassId)
-                  ? selectedClassId
-                  : null,
-              decoration: const InputDecoration(labelText: 'الفصل'),
-              items: visibleClasses
-                  .map(
-                    (item) => DropdownMenuItem(
-                      value: item.id as String,
-                      child: Text(item.name as String),
-                    ),
-                  )
-                  .toList(),
-              onChanged: (value) => setState(() {
-                selectedClassId = value;
-                selectedStudentIds = {};
-              }),
-            ),
-          if (scope == 'students')
-            ...visibleStudents.map(
-              (student) => CheckboxListTile(
-                value: selectedStudentIds.contains(student.id),
-                title: Text(student.name as String),
-                subtitle: Text(student.grade as String? ?? ''),
+            if (scope == 'stage') ...[
+              const SizedBox(height: 12),
+              DropdownButtonFormField<String>(
+                initialValue: stageId,
+                decoration: const InputDecoration(labelText: 'المرحلة'),
+                items: stages
+                    .map(
+                      (stage) => DropdownMenuItem(
+                        value: stage.id as String,
+                        child: Text(stage.name as String),
+                      ),
+                    )
+                    .toList(),
                 onChanged: (value) => setState(() {
-                  if (value == true) {
-                    selectedStudentIds.add(student.id as String);
-                  } else {
-                    selectedStudentIds.remove(student.id as String);
-                  }
+                  stageId = value;
+                  selectedClassId = null;
+                  selectedStudentIds = {};
                 }),
               ),
-            ),
-          if (!widget.graduationOnly)
-            SwitchListTile(
-              title: const Text('تصدير بيانات التخرج فقط'),
-              subtitle: const Text(
-                'بدون الحضور أو المتابعة أو البيانات الحساسة.',
+            ],
+            if (scope == 'class' || scope == 'students') ...[
+              const SizedBox(height: 12),
+              DropdownButtonFormField<String>(
+                initialValue:
+                    visibleClasses.any((item) => item.id == selectedClassId)
+                    ? selectedClassId
+                    : null,
+                decoration: const InputDecoration(labelText: 'الفصل'),
+                items: visibleClasses
+                    .map(
+                      (item) => DropdownMenuItem(
+                        value: item.id as String,
+                        child: Text(item.name as String),
+                      ),
+                    )
+                    .toList(),
+                onChanged: (value) => setState(() {
+                  selectedClassId = value;
+                  selectedStudentIds = {};
+                }),
               ),
-              value: graduationOnly,
-              onChanged: (value) => setState(() {
-                graduationOnly = value;
-                if (value) {
-                  selectedColumns = CsvExportRepository.graduationColumns
-                      .toSet();
-                } else {
-                  selectedColumns = CsvExportRepository.columns
-                      .map((c) => c.id)
-                      .toSet();
-                }
-              }),
-            ),
-          const SizedBox(height: 12),
-          Text(
-            'الأعمدة المصدّرة',
-            style: Theme.of(context).textTheme.titleMedium,
-          ),
-          ...CsvExportRepository.columns
-              .where(
-                (column) =>
-                    !graduationOnly ||
-                    CsvExportRepository.graduationColumns.contains(column.id),
-              )
-              .map(
-                (column) => CheckboxListTile(
-                  contentPadding: EdgeInsets.zero,
-                  title: Text(column.label),
-                  value: selectedColumns.contains(column.id),
+            ],
+            if (scope == 'students') ...[
+              const SizedBox(height: 14),
+              Card(
+                child: Padding(
+                  padding: const EdgeInsets.all(8),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        child: Text(
+                          'حدد التلاميذ المراد تصديرهم',
+                          style: TextStyle(fontWeight: FontWeight.w700),
+                        ),
+                      ),
+                      for (final student in visibleStudents)
+                        CheckboxListTile(
+                          value: selectedStudentIds.contains(student.id),
+                          title: Text(student.name as String),
+                          subtitle: Text(student.grade as String? ?? ''),
+                          onChanged: (value) => setState(() {
+                            if (value == true) {
+                              selectedStudentIds.add(student.id as String);
+                            } else {
+                              selectedStudentIds.remove(student.id as String);
+                            }
+                          }),
+                        ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+            const SizedBox(height: 12),
+            if (!widget.graduationOnly)
+              Card(
+                child: SwitchListTile(
+                  title: const Text('تصدير بيانات التخرج فقط'),
+                  subtitle: const Text(
+                    'بدون الحضور أو المتابعة أو البيانات الحساسة.',
+                  ),
+                  value: graduationOnly,
                   onChanged: (value) => setState(() {
-                    if (value == true) {
-                      selectedColumns.add(column.id);
+                    graduationOnly = value;
+                    if (value) {
+                      selectedColumns = CsvExportRepository.graduationColumns
+                          .toSet();
                     } else {
-                      selectedColumns.remove(column.id);
+                      selectedColumns = CsvExportRepository.columns
+                          .map((c) => c.id)
+                          .toSet();
                     }
                   }),
                 ),
               ),
-          const SizedBox(height: 16),
-          FilledButton.icon(
-            onPressed: exporting ? null : _export,
-            icon: const Icon(Icons.download),
-            label: Text(exporting ? 'جاري التصدير...' : 'تصدير Excel'),
-          ),
-        ],
+            const SizedBox(height: 14),
+            Text(
+              'الأعمدة المصدّرة',
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w700,
+                  ),
+            ),
+            const SizedBox(height: 6),
+            Card(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+                child: Column(
+                  children: [
+                    for (final column in CsvExportRepository.columns.where(
+                      (column) =>
+                          !graduationOnly ||
+                          CsvExportRepository.graduationColumns.contains(column.id),
+                    ))
+                      CheckboxListTile(
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 8),
+                        title: Text(column.label),
+                        value: selectedColumns.contains(column.id),
+                        onChanged: (value) => setState(() {
+                          if (value == true) {
+                            selectedColumns.add(column.id);
+                          } else {
+                            selectedColumns.remove(column.id);
+                          }
+                        }),
+                      ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 20),
+            FilledButton.icon(
+              onPressed: exporting ? null : _export,
+              icon: const Icon(Icons.download_rounded),
+              label: Text(exporting ? 'جاري التصدير...' : 'تصدير Excel'),
+            ),
+          ],
+        ),
       ),
     );
   }

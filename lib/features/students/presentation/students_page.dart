@@ -11,6 +11,7 @@ import 'student_details_page.dart';
 import 'student_providers.dart';
 import 'import_students_excel_page.dart';
 import '../../../app/ui/app_ui.dart';
+import '../../../app/theme.dart';
 
 class StudentsPage extends ConsumerStatefulWidget {
   const StudentsPage({super.key, required this.serviceId});
@@ -221,31 +222,26 @@ class _StudentsPageState extends ConsumerState<StudentsPage> {
         padding: const EdgeInsets.only(bottom: 24),
         children: [
           Padding(
-            padding: const EdgeInsets.fromLTRB(20, 4, 20, 12),
-            child: Wrap(
-              spacing: 12,
-              runSpacing: 12,
+            padding: const EdgeInsets.fromLTRB(20, 4, 20, 14),
+            child: ResponsiveMetricGrid(
               children: [
-                _metric(
-                  context,
-                  classScoped ? 'تلاميذ الفصل' : 'إجمالي التلاميذ',
-                  students.length,
-                  Icons.school_rounded,
-                  const Color(0xFF4F46E5),
+                ModernMetricCard(
+                  label: classScoped ? 'تلاميذ الفصل' : 'إجمالي التلاميذ',
+                  value: '${students.length}',
+                  icon: Icons.school_rounded,
+                  color: const Color(0xFF00236F),
                 ),
-                _metric(
-                  context,
-                  'معتمدون',
-                  students.where((student) => student.isApproved).length,
-                  Icons.verified_rounded,
-                  const Color(0xFF10B981),
+                ModernMetricCard(
+                  label: 'معتمدون',
+                  value: '${students.where((student) => student.isApproved).length}',
+                  icon: Icons.verified_rounded,
+                  color: const Color(0xFF059669),
                 ),
-                _metric(
-                  context,
-                  'بانتظار الاعتماد',
-                  students.where((student) => student.isPending).length,
-                  Icons.pending_actions_rounded,
-                  const Color(0xFFF59E0B),
+                ModernMetricCard(
+                  label: 'بانتظار الاعتماد',
+                  value: '${students.where((student) => student.isPending).length}',
+                  icon: Icons.pending_actions_rounded,
+                  color: const Color(0xFF904D00),
                 ),
               ],
             ),
@@ -253,7 +249,7 @@ class _StudentsPageState extends ConsumerState<StudentsPage> {
           Padding(
             padding: const EdgeInsetsDirectional.fromSTEB(20, 0, 20, 12),
             child: GlassCard(
-              borderRadius: 20,
+              borderRadius: 12,
               padding: const EdgeInsets.all(14),
               hoverElevation: false,
               child: Column(
@@ -345,98 +341,91 @@ class _StudentsPageState extends ConsumerState<StudentsPage> {
 
   Widget _studentRow(Student student) {
     final statusColor = student.isApproved
-        ? const Color(0xFF10B981)
-        : const Color(0xFFF59E0B);
+        ? const Color(0xFF059669)
+        : const Color(0xFF904D00);
     final details = [
       if ((student.grade ?? '').isNotEmpty) student.grade!,
       if ((student.school ?? '').isNotEmpty) student.school!,
       if ((student.phone ?? '').isNotEmpty) student.phone!,
     ].join(' • ');
 
-    return GlassCard(
+    return SolidCard(
       key: Key('student_item_${student.id}'),
-      borderRadius: 18,
+      borderRadius: 14,
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      onTap: () => Navigator.of(context).push(
-        MaterialPageRoute(builder: (_) => StudentDetailsPage(student: student)),
-      ),
-      child: Row(
-        children: [
-          // Glowing initial avatar
-          Container(
-            width: 44,
-            height: 44,
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: student.isApproved
-                    ? [const Color(0xFF4F46E5), const Color(0xFF7C3AED)]
-                    : [const Color(0xFFF59E0B), const Color(0xFFF97316)],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-              shape: BoxShape.circle,
-              boxShadow: [
-                BoxShadow(
-                  color:
-                      (student.isApproved
-                              ? const Color(0xFF4F46E5)
-                              : const Color(0xFFF59E0B))
-                          .withValues(alpha: 0.3),
-                  blurRadius: 10,
-                  offset: const Offset(0, 3),
-                ),
-              ],
-            ),
-            child: Center(
-              child: Text(
-                student.name.isEmpty ? '؟' : student.name.characters.first,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.w800,
-                  fontSize: 18,
+      child: InkWell(
+        onTap: () => Navigator.of(context).push(
+          MaterialPageRoute(builder: (_) => StudentDetailsPage(student: student)),
+        ),
+        borderRadius: BorderRadius.circular(12),
+        child: Row(
+          children: [
+            // Dignified solid avatar
+            Container(
+              width: 44,
+              height: 44,
+              decoration: BoxDecoration(
+                color: (student.isApproved ? appPrimary : const Color(0xFF904D00))
+                    .withValues(alpha: 0.10),
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: (student.isApproved ? appPrimary : const Color(0xFF904D00))
+                      .withValues(alpha: 0.20),
+                  width: 1,
                 ),
               ),
-            ),
-          ),
-          const SizedBox(width: 14),
-          // Student Info
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  student.name,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.w800,
-                    fontSize: 15,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  details.isEmpty ? 'لا توجد بيانات إضافية' : details,
+              child: Center(
+                child: Text(
+                  student.name.isEmpty ? '؟' : student.name.characters.first,
                   style: TextStyle(
-                    fontSize: 12,
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    color: student.isApproved ? appPrimary : const Color(0xFF904D00),
+                    fontWeight: FontWeight.w800,
+                    fontSize: 17,
                   ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
                 ),
-              ],
+              ),
             ),
-          ),
-          const SizedBox(width: 8),
-          // Status badge
-          GlassBadge(
-            label: student.isApproved ? 'معتمد' : 'بانتظار الاعتماد',
-            color: statusColor,
-          ),
-          const SizedBox(width: 6),
-          Icon(
-            Icons.chevron_left_rounded,
-            size: 20,
-            color: Theme.of(context).colorScheme.onSurfaceVariant,
-          ),
-        ],
+            const SizedBox(width: 14),
+            // Student Info
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    student.name,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w800,
+                      fontSize: 15,
+                    ),
+                  ),
+                  const SizedBox(height: 3),
+                  Text(
+                    details.isEmpty ? 'لا توجد بيانات إضافية' : details,
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 8),
+            // Status badge
+            GlassBadge(
+              label: student.isApproved ? 'معتمد' : 'بانتظار الاعتماد',
+              color: statusColor,
+              showDot: true,
+            ),
+            const SizedBox(width: 6),
+            Icon(
+              Icons.chevron_left_rounded,
+              size: 20,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -478,7 +467,7 @@ class _StudentsPageState extends ConsumerState<StudentsPage> {
             Padding(
               padding: const EdgeInsets.only(bottom: 12),
               child: GlassCard(
-                borderRadius: 20,
+                borderRadius: 12,
                 padding: EdgeInsets.zero,
                 hoverElevation: false,
                 child: Theme(
@@ -491,13 +480,13 @@ class _StudentsPageState extends ConsumerState<StudentsPage> {
                       width: 40,
                       height: 40,
                       decoration: BoxDecoration(
-                        color: const Color(0xFF4F46E5).withValues(alpha: 0.12),
-                        borderRadius: BorderRadius.circular(12),
+                        color: const Color(0xFF00236F).withValues(alpha: 0.08),
+                        borderRadius: BorderRadius.circular(8),
                       ),
                       child: const Icon(
                         Icons.layers_outlined,
-                        color: Color(0xFF4F46E5),
-                        size: 22,
+                        color: Color(0xFF00236F),
+                        size: 20,
                       ),
                     ),
                     title: Text(
@@ -570,64 +559,6 @@ class _StudentsPageState extends ConsumerState<StudentsPage> {
     },
   );
 
-  Widget _metric(
-    BuildContext context,
-    String label,
-    int value,
-    IconData icon,
-    Color color,
-  ) => SizedBox(
-    width: 220,
-    child: GlassCard(
-      borderRadius: 20,
-      padding: const EdgeInsets.all(16),
-      child: Row(
-        children: [
-          Container(
-            width: 46,
-            height: 46,
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  color.withValues(alpha: 0.2),
-                  color.withValues(alpha: 0.08),
-                ],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-              borderRadius: BorderRadius.circular(14),
-              border: Border.all(color: color.withValues(alpha: 0.2)),
-            ),
-            child: Icon(icon, color: color, size: 24),
-          ),
-          const SizedBox(width: 14),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  label,
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    fontWeight: FontWeight.w600,
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                  ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  '$value',
-                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                    color: color,
-                    fontWeight: FontWeight.w900,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    ),
-  );
-
   Widget _filter(String value, String label, int count) => ChoiceChip(
     key: Key('student_filter_$value'),
     selected: statusFilter == value,
@@ -639,7 +570,7 @@ class _StudentsPageState extends ConsumerState<StudentsPage> {
     child: Padding(
       padding: const EdgeInsets.all(28),
       child: GlassCard(
-        borderRadius: 24,
+        borderRadius: 12,
         padding: const EdgeInsets.all(32),
         hoverElevation: false,
         child: Column(

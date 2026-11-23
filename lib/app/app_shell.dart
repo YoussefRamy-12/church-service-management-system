@@ -15,6 +15,7 @@ class AppShell extends ConsumerWidget {
   static const _items = <_NavItem>[
     _NavItem('الرئيسية', Icons.dashboard_rounded, 'dashboard'),
     _NavItem('التلاميذ', Icons.school_rounded, 'students'),
+    _NavItem('النوتة الروحية', Icons.auto_stories_rounded, 'spiritual-notebook'),
     _NavItem('الحضور', Icons.how_to_reg_rounded, 'attendance'),
     _NavItem('المتابعة', Icons.phone_in_talk_rounded, 'follow-up'),
     _NavItem('التقارير', Icons.insights_rounded, 'reports'),
@@ -22,7 +23,8 @@ class AppShell extends ConsumerWidget {
     _NavItem('الخدام', Icons.supervised_user_circle_rounded, 'servants'),
     _NavItem('تصدير البيانات', Icons.file_download_rounded, 'export'),
     _NavItem('التخرج', Icons.school_outlined, 'graduation'),
-    _NavItem('الإعدادات', Icons.settings_rounded, 'settings'),
+    _NavItem('إعدادات الخدمة', Icons.settings_rounded, 'settings'),
+    _NavItem('حسابي', Icons.account_circle_rounded, 'my-settings'),
   ];
 
   void _go(BuildContext context, String segment) =>
@@ -61,6 +63,8 @@ class AppShell extends ConsumerWidget {
             profile?.role == 'overall_leader' ||
             profile?.role == 'overall_helper';
       }
+      // 'my-settings' is visible to ALL roles — no restriction.
+      if (item.segment == 'my-settings') return true;
       if (item.segment == 'servants' ||
           item.segment == 'export' ||
           item.segment == 'graduation') {
@@ -116,6 +120,7 @@ class AppShell extends ConsumerWidget {
                         ? 'اختيار خدمة أخرى'
                         : 'تغيير الخدمة',
                     onSwitchService: switchService,
+                    onMySettings: () => _go(context, 'my-settings'),
                     onLogout: logout,
                   ),
                   Expanded(child: child),
@@ -134,6 +139,7 @@ class AppShell extends ConsumerWidget {
     return switch (segment) {
       'dashboard' => 'الرئيسية',
       'students' => 'التلاميذ',
+      'spiritual-notebook' => 'النوتة الروحية',
       'attendance' => 'الحضور',
       'follow-up' => 'المتابعة',
       'reports' => 'التقارير',
@@ -141,7 +147,8 @@ class AppShell extends ConsumerWidget {
       'servants' => 'الخدام',
       'export' => 'التصدير',
       'graduation' => 'التخرج',
-      'settings' => 'الإعدادات',
+      'settings' => 'إعدادات الخدمة',
+      'my-settings' => 'حسابي',
       'structure' => 'المراحل والفصول',
       'system' => 'إعدادات النظام',
       _ => 'إدارة الخدمة',
@@ -269,8 +276,8 @@ class _DesktopSidebar extends ConsumerWidget {
     final isDark = theme.brightness == Brightness.dark;
     final sidebarBg = isDark ? const Color(0xFF111827) : Colors.white;
     final borderColor = isDark
-        ? const Color(0x33818CF8)
-        : const Color(0xFFC5C5D3);
+        ? const Color(0xFF1E293B)
+        : const Color(0xFFE2E8F0);
     final subtextColor = isDark
         ? const Color(0xFF94A3B8)
         : const Color(0xFF444651);
@@ -488,6 +495,7 @@ class _ShellTopBar extends ConsumerWidget {
     required this.canSwitchService,
     required this.switchServiceLabel,
     required this.onSwitchService,
+    required this.onMySettings,
   });
 
   final bool compact;
@@ -499,6 +507,7 @@ class _ShellTopBar extends ConsumerWidget {
   final bool canSwitchService;
   final String switchServiceLabel;
   final VoidCallback onSwitchService;
+  final VoidCallback onMySettings;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -506,8 +515,8 @@ class _ShellTopBar extends ConsumerWidget {
     final isDark = theme.brightness == Brightness.dark;
     final topBarBg = isDark ? const Color(0xFF111827) : Colors.white;
     final borderBottom = isDark
-        ? const Color(0x33818CF8)
-        : const Color(0xFFC5C5D3);
+        ? const Color(0xFF1E293B)
+        : const Color(0xFFE2E8F0);
     final subtextColor = isDark
         ? const Color(0xFF94A3B8)
         : const Color(0xFF444651);
@@ -585,6 +594,7 @@ class _ShellTopBar extends ConsumerWidget {
                 key: const Key('user_menu'),
                 tooltip: 'قائمة المستخدم',
                 onSelected: (value) {
+                  if (value == 'settings') onMySettings();
                   if (value == 'logout') onLogout();
                 },
                 itemBuilder: (context) => [
@@ -606,6 +616,17 @@ class _ShellTopBar extends ConsumerWidget {
                     ),
                   ),
                   const PopupMenuDivider(),
+                  const PopupMenuItem(
+                    value: 'settings',
+                    child: ListTile(
+                      contentPadding: EdgeInsets.zero,
+                      leading: Icon(Icons.account_circle_rounded),
+                      title: Text(
+                        'إعداداتي وحسابي',
+                        style: TextStyle(fontWeight: FontWeight.w600),
+                      ),
+                    ),
+                  ),
                   const PopupMenuItem(
                     value: 'logout',
                     child: ListTile(
@@ -686,7 +707,7 @@ class _NavTileState extends State<_NavTile> {
     final hoveredTextColor = isDark ? Colors.white : appPrimary;
 
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 2.5),
+      padding: const EdgeInsets.symmetric(vertical: 1.0),
       child: MouseRegion(
         onEnter: (_) => setState(() => _hovered = true),
         onExit: (_) => setState(() => _hovered = false),
@@ -696,14 +717,33 @@ class _NavTileState extends State<_NavTile> {
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(10),
             color: widget.selected
-                ? (isDark ? const Color(0xFF263B68) : const Color(0xFFE7EEFF))
-                : (_hovered ? appSoftBlue : null),
+                ? (isDark ? const Color(0xFF3B82F6) : appPrimaryContainer)
+                : (_hovered
+                      ? (isDark
+                            ? const Color(0xFF1E293B)
+                            : appSoftBlue)
+                      : null),
+            boxShadow: widget.selected
+                ? [
+                    BoxShadow(
+                      color: (isDark ? const Color(0xFF3B82F6) : appPrimaryContainer)
+                          .withValues(alpha: 0.25),
+                      blurRadius: 6,
+                      offset: const Offset(0, 2),
+                    ),
+                  ]
+                : null,
           ),
           child: Material(
             color: Colors.transparent,
-            borderRadius: BorderRadius.circular(14),
+            borderRadius: BorderRadius.circular(10),
             child: ListTile(
               key: Key('nav_${widget.item.segment}'),
+              dense: true,
+              visualDensity: const VisualDensity(vertical: -2.5),
+              minLeadingWidth: 20,
+              minVerticalPadding: 0,
+              contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
               selected: widget.selected,
               selectedColor: isDark ? Colors.white : appPrimary,
               selectedTileColor: Colors.transparent,
@@ -716,7 +756,7 @@ class _NavTileState extends State<_NavTile> {
                           : (isDark
                                 ? const Color(0xFF94A3B8)
                                 : const Color(0xFF64748B))),
-                size: 22,
+                size: 20,
               ),
               title: Text(
                 widget.item.label,
@@ -727,11 +767,11 @@ class _NavTileState extends State<_NavTile> {
                   color: widget.selected
                       ? Colors.white
                       : (_hovered ? hoveredTextColor : idleTextColor),
-                  fontSize: 14,
+                  fontSize: 13.5,
                 ),
               ),
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(14),
+                borderRadius: BorderRadius.circular(10),
               ),
               onTap: widget.onTap,
             ),

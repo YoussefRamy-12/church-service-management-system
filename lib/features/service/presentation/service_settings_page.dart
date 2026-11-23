@@ -250,7 +250,7 @@ class _ServiceSettingsPageState extends ConsumerState<ServiceSettingsPage> {
                         const Row(
                           children: [
                             Icon(Icons.install_mobile_rounded,
-                                color: Color(0xFF4F46E5), size: 22),
+                                color: Color(0xFF00236F), size: 22),
                             SizedBox(width: 10),
                             Text('استخدام التطبيق على الهاتف',
                                 style: TextStyle(
@@ -284,7 +284,7 @@ class _ServiceSettingsPageState extends ConsumerState<ServiceSettingsPage> {
                             currentThemeMode == ThemeMode.dark
                                 ? Icons.dark_mode_rounded
                                 : Icons.light_mode_rounded,
-                            color: const Color(0xFF4F46E5),
+                            color: const Color(0xFF00236F),
                             size: 22,
                           ),
                           const SizedBox(width: 10),
@@ -333,7 +333,7 @@ class _ServiceSettingsPageState extends ConsumerState<ServiceSettingsPage> {
                         children: [
                           Icon(
                             Icons.church_rounded,
-                            color: Color(0xFF4F46E5),
+                            color: Color(0xFF00236F),
                             size: 22,
                           ),
                           SizedBox(width: 10),
@@ -375,7 +375,7 @@ class _ServiceSettingsPageState extends ConsumerState<ServiceSettingsPage> {
                         children: [
                           Icon(
                             Icons.schedule_rounded,
-                            color: Color(0xFF4F46E5),
+                            color: Color(0xFF00236F),
                             size: 22,
                           ),
                           SizedBox(width: 10),
@@ -536,7 +536,7 @@ class _ServiceSettingsPageState extends ConsumerState<ServiceSettingsPage> {
                         children: [
                           Icon(
                             Icons.layers_outlined,
-                            color: Color(0xFF4F46E5),
+                            color: Color(0xFF00236F),
                             size: 22,
                           ),
                           SizedBox(width: 10),

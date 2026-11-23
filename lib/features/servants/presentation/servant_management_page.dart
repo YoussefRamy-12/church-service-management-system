@@ -127,175 +127,41 @@ class _ServantManagementPageState extends ConsumerState<ServantManagementPage> {
               child: ListView(
                 padding: const EdgeInsets.fromLTRB(20, 16, 20, 32),
                 children: [
-                  // Metrics Ribbon
-                  Row(
+                  // Metrics Ribbon (Responsive Metric Grid)
+                  ResponsiveMetricGrid(
+                    spacing: 10,
                     children: [
-                      Expanded(
-                        child: GlassCard(
-                          borderRadius: 18,
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 14,
-                            vertical: 12,
-                          ),
-                          child: Row(
-                            children: [
-                              Container(
-                                width: 38,
-                                height: 38,
-                                decoration: BoxDecoration(
-                                  color: const Color(
-                                    0xFF4F46E5,
-                                  ).withValues(alpha: 0.12),
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                child: const Icon(
-                                  Icons.people_outline_rounded,
-                                  color: Color(0xFF4F46E5),
-                                  size: 20,
-                                ),
-                              ),
-                              const SizedBox(width: 10),
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    'إجمالي الخدام',
-                                    style: TextStyle(
-                                      fontSize: 11,
-                                      color: Theme.of(
-                                        context,
-                                      ).colorScheme.onSurfaceVariant,
-                                    ),
-                                  ),
-                                  Text(
-                                    '${all.length}',
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.w900,
-                                      fontSize: 16,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
+                      ModernMetricCard(
+                        label: 'إجمالي الخدام',
+                        value: '${all.length}',
+                        icon: Icons.people_outline_rounded,
+                        color: const Color(0xFF00236F),
                       ),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: GlassCard(
-                          borderRadius: 18,
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 14,
-                            vertical: 12,
-                          ),
-                          child: Row(
-                            children: [
-                              Container(
-                                width: 38,
-                                height: 38,
-                                decoration: BoxDecoration(
-                                  color: const Color(
-                                    0xFF10B981,
-                                  ).withValues(alpha: 0.12),
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                child: const Icon(
-                                  Icons.check_circle_outline_rounded,
-                                  color: Color(0xFF10B981),
-                                  size: 20,
-                                ),
-                              ),
-                              const SizedBox(width: 10),
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    'نشط',
-                                    style: TextStyle(
-                                      fontSize: 11,
-                                      color: Theme.of(
-                                        context,
-                                      ).colorScheme.onSurfaceVariant,
-                                    ),
-                                  ),
-                                  Text(
-                                    '$activeCount',
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.w900,
-                                      fontSize: 16,
-                                      color: Color(0xFF10B981),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
+                      ModernMetricCard(
+                        label: 'نشط',
+                        value: '$activeCount',
+                        icon: Icons.check_circle_outline_rounded,
+                        color: const Color(0xFF10B981),
                       ),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: GlassCard(
-                          borderRadius: 18,
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 14,
-                            vertical: 12,
-                          ),
-                          child: Row(
-                            children: [
-                              Container(
-                                width: 38,
-                                height: 38,
-                                decoration: BoxDecoration(
-                                  color: const Color(
-                                    0xFFF59E0B,
-                                  ).withValues(alpha: 0.12),
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                child: const Icon(
-                                  Icons.hourglass_top_rounded,
-                                  color: Color(0xFFF59E0B),
-                                  size: 20,
-                                ),
-                              ),
-                              const SizedBox(width: 10),
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    'معلق',
-                                    style: TextStyle(
-                                      fontSize: 11,
-                                      color: Theme.of(
-                                        context,
-                                      ).colorScheme.onSurfaceVariant,
-                                    ),
-                                  ),
-                                  Text(
-                                    '$pendingCount',
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.w900,
-                                      fontSize: 16,
-                                      color: Color(0xFFF59E0B),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
+                      ModernMetricCard(
+                        label: 'معلق',
+                        value: '$pendingCount',
+                        icon: Icons.hourglass_top_rounded,
+                        color: const Color(0xFFF59E0B),
                       ),
                     ],
                   ),
                   const SizedBox(height: 14),
                   // Search & Filter Card
                   GlassCard(
-                    borderRadius: 20,
-                    padding: const EdgeInsets.all(14),
+                    borderRadius: 12,
+                    padding: const EdgeInsets.all(12),
                     hoverElevation: false,
                     child: Column(
                       children: [
                         TextField(
                           decoration: InputDecoration(
+                            isDense: true,
                             labelText: 'بحث بالاسم أو الهاتف',
                             prefixIcon: const Icon(Icons.search_rounded),
                             suffixIcon: search.isNotEmpty
@@ -332,10 +198,10 @@ class _ServantManagementPageState extends ConsumerState<ServantManagementPage> {
                       ],
                     ),
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 14),
                   if (filtered.isEmpty)
                     GlassCard(
-                      borderRadius: 20,
+                      borderRadius: 12,
                       padding: const EdgeInsets.all(32),
                       child: Center(
                         child: Column(
@@ -343,7 +209,7 @@ class _ServantManagementPageState extends ConsumerState<ServantManagementPage> {
                           children: [
                             Icon(
                               Icons.search_off_rounded,
-                              size: 44,
+                              size: 40,
                               color: Theme.of(
                                 context,
                               ).colorScheme.onSurfaceVariant,
@@ -361,53 +227,51 @@ class _ServantManagementPageState extends ConsumerState<ServantManagementPage> {
                     Padding(
                       padding: const EdgeInsets.only(bottom: 10),
                       child: GlassCard(
-                        borderRadius: 18,
+                        borderRadius: 12,
                         padding: const EdgeInsets.symmetric(
-                          horizontal: 16,
+                          horizontal: 14,
                           vertical: 12,
                         ),
                         onTap: () => _openEditor(servant),
                         child: Row(
                           children: [
-                            // Initial Avatar
+                            // Initial Avatar (Solid surface, no gradient)
                             Container(
-                              width: 44,
-                              height: 44,
+                              width: 42,
+                              height: 42,
                               decoration: BoxDecoration(
-                                gradient: LinearGradient(
-                                  colors: servant.accountStatus == 'active'
-                                      ? [
-                                          const Color(0xFF4F46E5),
-                                          const Color(0xFF7C3AED),
-                                        ]
-                                      : servant.accountStatus == 'pending'
-                                      ? [
-                                          const Color(0xFFF59E0B),
-                                          const Color(0xFFF97316),
-                                        ]
-                                      : [
-                                          const Color(0xFF64748B),
-                                          const Color(0xFF94A3B8),
-                                        ],
-                                  begin: Alignment.topLeft,
-                                  end: Alignment.bottomRight,
-                                ),
+                                color: servant.accountStatus == 'active'
+                                    ? const Color(0xFF00236F).withValues(alpha: 0.08)
+                                    : servant.accountStatus == 'pending'
+                                    ? const Color(0xFFF59E0B).withValues(alpha: 0.12)
+                                    : const Color(0xFF64748B).withValues(alpha: 0.10),
                                 shape: BoxShape.circle,
+                                border: Border.all(
+                                  color: servant.accountStatus == 'active'
+                                      ? const Color(0xFF00236F).withValues(alpha: 0.20)
+                                      : servant.accountStatus == 'pending'
+                                      ? const Color(0xFFF59E0B).withValues(alpha: 0.25)
+                                      : const Color(0xFF64748B).withValues(alpha: 0.20),
+                                ),
                               ),
                               child: Center(
                                 child: Text(
                                   servant.name.isEmpty
-                                      ? '?'
-                                      : servant.name.substring(0, 1),
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.w800,
-                                    fontSize: 18,
+                                      ? '؟'
+                                      : servant.name.characters.first,
+                                  style: TextStyle(
+                                    color: servant.accountStatus == 'active'
+                                        ? const Color(0xFF00236F)
+                                        : servant.accountStatus == 'pending'
+                                        ? const Color(0xFFB45309)
+                                        : const Color(0xFF475569),
+                                    fontWeight: FontWeight.w700,
+                                    fontSize: 16,
                                   ),
                                 ),
                               ),
                             ),
-                            const SizedBox(width: 14),
+                            const SizedBox(width: 12),
                             // Servant Info
                             Expanded(
                               child: Column(
@@ -425,7 +289,7 @@ class _ServantManagementPageState extends ConsumerState<ServantManagementPage> {
                                     children: [
                                       GlassBadge(
                                         label: _roleLabel(servant.role),
-                                        color: const Color(0xFF4F46E5),
+                                        color: const Color(0xFF00236F),
                                         showDot: false,
                                       ),
                                       const SizedBox(width: 6),

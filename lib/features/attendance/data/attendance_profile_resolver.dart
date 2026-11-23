@@ -26,8 +26,31 @@ Future<String> resolveAttendanceRecorderProfileId(
   }
 
   final rows = profiles.cast<Map<String, dynamic>>();
-  for (final profile in rows) {
-    if (profile['id'] == preferredProfileId) return profile['id'] as String;
+  return selectAttendanceRecorderProfileId(
+    preferredProfileId: preferredProfileId,
+    eligibleProfiles: rows,
+  );
+}
+
+/// Keeps the original recorder identity when replaying an offline check-in.
+/// If that profile is not available to the signed-in account in this service,
+/// defer replay instead of attributing the historical action to another user.
+String selectAttendanceRecorderProfileId({
+  required String preferredProfileId,
+  required List<Map<String, dynamic>> eligibleProfiles,
+}) {
+  if (eligibleProfiles.isEmpty) {
+    throw StateError('لا يوجد ملف خادم نشط مرتبط بهذه الخدمة.');
   }
-  return rows.first['id'] as String;
+
+  for (final profile in eligibleProfiles) {
+    if (profile['id'] == preferredProfileId) {
+      return profile['id'] as String;
+    }
+  }
+
+  throw StateError(
+    'Queued attendance belongs to another account or an inactive service profile; '
+    'sign in with the original account to sync it.',
+  );
 }

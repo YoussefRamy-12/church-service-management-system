@@ -57,6 +57,31 @@ class ServantProfileRepository {
       .eq('auth_user_id', authUserId)
       .maybeSingle();
 
+  Future<ServantProfile> updatePersonalProfile({
+    required String servantId,
+    required String name,
+    String? phone,
+  }) async {
+    final rows = await _client
+        .from('servant_profiles')
+        .update({
+          'name': name.trim(),
+          'phone': phone?.trim(),
+        })
+        .eq('id', servantId)
+        .select(
+          'id, auth_user_id, service_id, name, phone, birth_date, work_study, role, account_status, stage_id, class_id, must_change_password',
+        );
+
+    if (rows.isEmpty) {
+      throw const PostgrestException(
+        message: 'تعذر تحديث البيانات الشخصية.',
+      );
+    }
+
+    return _map(rows.first);
+  }
+
   ServantProfile _map(Map<String, dynamic> row) => ServantProfile(
     id: row['id'] as String,
     authUserId: row['auth_user_id'] as String,

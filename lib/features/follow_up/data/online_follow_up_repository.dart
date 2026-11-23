@@ -15,11 +15,15 @@ class OnlineFollowUpRepository implements FollowUpRepository {
   static const Uuid _uuid = Uuid();
 
   @override
-  Stream<List<FollowUpRecord>> watchForStudent(String id) async* {
+  Stream<List<FollowUpRecord>> watchForStudent(
+    String id, {
+    required String serviceId,
+  }) async* {
     final rows = await _client
         .from('follow_up_records')
         .select()
         .eq('student_id', id)
+        .eq('service_id', serviceId)
         .order('follow_up_date', ascending: true);
 
     yield rows
@@ -27,6 +31,8 @@ class OnlineFollowUpRepository implements FollowUpRepository {
           (r) => FollowUpRecord(
             id: r['id'] as String,
             studentId: r['student_id'] as String,
+            serviceId: r['service_id'] as String,
+            serviceStudentId: r['service_student_id'] as String,
             createdBy: r['created_by'] as String,
             followUpDate: r['follow_up_date'] as String,
             contactStatus: r['contact_status'] as String,
@@ -48,6 +54,8 @@ class OnlineFollowUpRepository implements FollowUpRepository {
   @override
   Future<FollowUpRecord> create({
     required String studentId,
+    required String serviceId,
+    required String serviceStudentId,
     required String createdBy,
     required String followUpDate,
     required String contactStatus,
@@ -66,6 +74,8 @@ class OnlineFollowUpRepository implements FollowUpRepository {
     final payload = <String, dynamic>{
       'id': id,
       'student_id': studentId,
+      'service_id': serviceId,
+      'service_student_id': serviceStudentId,
       'created_by': createdBy,
       'follow_up_date': followUpDate,
       'contact_status': contactStatus,
@@ -85,6 +95,8 @@ class OnlineFollowUpRepository implements FollowUpRepository {
     return FollowUpRecord(
       id: id,
       studentId: studentId,
+      serviceId: serviceId,
+      serviceStudentId: serviceStudentId,
       createdBy: createdBy,
       followUpDate: followUpDate,
       contactStatus: contactStatus,

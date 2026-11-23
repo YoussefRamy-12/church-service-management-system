@@ -7,6 +7,8 @@ import '../domain/entities/sensitive_student_data.dart';
 import '../domain/entities/student.dart';
 import '../domain/repositories/student_registration.dart';
 import 'local_student_repository.dart';
+import 'local_service_student_repository.dart';
+import '../domain/entities/service_student.dart';
 
 export '../domain/repositories/student_registration.dart';
 
@@ -16,6 +18,8 @@ class OfflineFirstStudentRegistration implements StudentRegistration {
   final SyncQueueRepository queue;
   final AppDatabase? db;
   final Uuid _uuid = const Uuid();
+  LocalServiceStudentRepository? get _memberships =>
+      db == null ? null : LocalServiceStudentRepository(db!, queue);
 
   @override
   Future<Student> registerPending({
@@ -73,6 +77,11 @@ class OfflineFirstStudentRegistration implements StudentRegistration {
       final effectiveApprovalStatus = input.approvalStatus ??
           (effectiveCurrentClassId != null ? 'approved' : 'pending');
 
+      if (input.birthDate == null) {
+        throw ArgumentError(
+          'Student "${input.name}" is missing a required birth date.',
+        );
+      }
       final effectiveGrade = input.grade?.trim();
       if (effectiveGrade == null || effectiveGrade.isEmpty) {
         throw ArgumentError(
@@ -82,6 +91,9 @@ class OfflineFirstStudentRegistration implements StudentRegistration {
 
       final student = Student(
         id: _uuid.v4(),
+        membershipId: _uuid.v4(),
+        identityServiceId: serviceId,
+        membershipStatus: effectiveApprovalStatus == 'approved' ? 'active' : 'pending',
         serviceId: serviceId,
         name: input.name.trim(),
         approvalStatus: effectiveApprovalStatus,
@@ -150,6 +162,34 @@ class OfflineFirstStudentRegistration implements StudentRegistration {
             'notes': student.notes,
             'sensitive_data': cleanedSensitiveData,
           }),
+        ),
+      );
+
+      final membership = ServiceStudent(
+        id: student.membershipId!,
+        studentId: student.id,
+        serviceId: student.serviceId,
+        classId: student.currentClassId,
+        proposedClassId: student.proposedClassId,
+        enrollmentDate: student.enrollmentAt!,
+        status: student.membershipStatus,
+        school: student.school,
+        grade: student.grade,
+        isDeacon: student.isDeacon,
+        notes: student.notes,
+        studentName: student.name,
+        birthDate: student.birthDate,
+        phone: student.phone,
+        photoPath: student.photoPath,
+        identityServiceId: student.identityServiceId,
+      );
+      await _memberships?.cache([membership]);
+      operations.add(
+        SyncOperation(
+          operationId: _uuid.v4(),
+          entityType: 'service_student',
+          operationType: 'upsert',
+          payloadJson: jsonEncode(membership.toMap()),
         ),
       );
     }

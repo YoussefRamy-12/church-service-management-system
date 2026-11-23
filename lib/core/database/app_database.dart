@@ -70,6 +70,32 @@ class CachedStudents extends Table {
   BoolColumn get isDeacon => boolean().withDefault(const Constant(false))();
   TextColumn get photoPath => text().nullable()();
   TextColumn get notes => text().nullable()();
+  TextColumn get membershipId => text().nullable()();
+  TextColumn get identityServiceId => text().nullable()();
+  TextColumn get membershipStatus => text().withDefault(const Constant('active'))();
+  DateTimeColumn get cachedAt => dateTime()();
+
+  @override
+  Set<Column<Object>> get primaryKey => {id};
+}
+
+class CachedServiceStudents extends Table {
+  TextColumn get id => text()();
+  TextColumn get studentId => text()();
+  TextColumn get serviceId => text()();
+  TextColumn get classId => text().nullable()();
+  TextColumn get proposedClassId => text().nullable()();
+  TextColumn get enrollmentDate => text()();
+  TextColumn get status => text()();
+  TextColumn get school => text().nullable()();
+  TextColumn get grade => text().nullable()();
+  BoolColumn get isDeacon => boolean().withDefault(const Constant(false))();
+  TextColumn get notes => text().nullable()();
+  TextColumn get studentName => text().withDefault(const Constant(''))();
+  TextColumn get birthDate => text().nullable()();
+  TextColumn get phone => text().nullable()();
+  TextColumn get photoPath => text().nullable()();
+  TextColumn get identityServiceId => text().nullable()();
   DateTimeColumn get cachedAt => dateTime()();
 
   @override
@@ -117,6 +143,8 @@ class CachedAttendanceRecords extends Table {
   TextColumn get id => text()();
   TextColumn get meetingId => text()();
   TextColumn get studentId => text()();
+  TextColumn get serviceId => text().nullable()();
+  TextColumn get serviceStudentId => text().nullable()();
   TextColumn get classIdAtAttendance => text()();
   DateTimeColumn get checkedInAt => dateTime()();
   TextColumn get recordedBy => text()();
@@ -129,6 +157,8 @@ class CachedAttendanceRecords extends Table {
 class CachedFollowUpRecords extends Table {
   TextColumn get id => text()();
   TextColumn get studentId => text()();
+  TextColumn get serviceId => text().nullable()();
+  TextColumn get serviceStudentId => text().nullable()();
   TextColumn get createdBy => text()();
   TextColumn get followUpDate => text()();
   TextColumn get contactStatus => text()();
@@ -143,6 +173,60 @@ class CachedFollowUpRecords extends Table {
   TextColumn get nextFollowUpDate => text().nullable()();
   TextColumn get clientOperationId => text()();
   DateTimeColumn get cachedAt => dateTime()();
+  @override
+  Set<Column<Object>> get primaryKey => {id};
+}
+
+class CachedFollowUpCases extends Table {
+  TextColumn get id => text()();
+  TextColumn get serviceId => text()();
+  TextColumn get studentId => text()();
+  TextColumn get serviceStudentId => text().nullable()();
+  TextColumn get classId => text()();
+  TextColumn get title => text()();
+  TextColumn get description => text().nullable()();
+  TextColumn get priority => text()();
+  TextColumn get status => text()();
+  TextColumn get caseType => text().withDefault(const Constant('general'))();
+  TextColumn get createdBy => text()();
+  DateTimeColumn get createdAt => dateTime()();
+  DateTimeColumn get updatedAt => dateTime()();
+  DateTimeColumn get resolvedAt => dateTime().nullable()();
+  DateTimeColumn get closedAt => dateTime().nullable()();
+  TextColumn get clientOperationId => text()();
+  DateTimeColumn get cachedAt => dateTime()();
+
+  @override
+  Set<Column<Object>> get primaryKey => {id};
+}
+
+class CachedFollowUpCaseAssignments extends Table {
+  TextColumn get id => text()();
+  TextColumn get caseId => text()();
+  TextColumn get servantId => text()();
+  TextColumn get assignedBy => text()();
+  DateTimeColumn get assignedAt => dateTime()();
+  TextColumn get assignmentStatus =>
+      text().withDefault(const Constant('active'))();
+  DateTimeColumn get removedAt => dateTime().nullable()();
+  TextColumn get clientOperationId => text()();
+  DateTimeColumn get cachedAt => dateTime()();
+
+  @override
+  Set<Column<Object>> get primaryKey => {id};
+}
+
+class CachedFollowUpActivities extends Table {
+  TextColumn get id => text()();
+  TextColumn get caseId => text()();
+  TextColumn get activityType => text()();
+  TextColumn get description => text()();
+  TextColumn get createdBy => text()();
+  DateTimeColumn get createdAt => dateTime()();
+  TextColumn get activityDate => text()();
+  TextColumn get clientOperationId => text()();
+  DateTimeColumn get cachedAt => dateTime()();
+
   @override
   Set<Column<Object>> get primaryKey => {id};
 }
@@ -181,11 +265,15 @@ class SyncQueueEntries extends Table {
     CachedStages,
     CachedClasses,
     CachedStudents,
+    CachedServiceStudents,
     CachedStudentSensitiveData,
     CachedMeetings,
     CachedAttendanceRecords,
     CachedFollowUpRecords,
     CachedReportingPeriods,
+    CachedFollowUpCases,
+    CachedFollowUpCaseAssignments,
+    CachedFollowUpActivities,
     SyncQueueEntries,
   ],
 )
@@ -203,7 +291,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.forTesting() : super(testingDatabaseConnection());
 
   @override
-  int get schemaVersion => 8;
+  int get schemaVersion => 16;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -238,6 +326,116 @@ class AppDatabase extends _$AppDatabase {
       if (from < 8) {
         await m.addColumn(cachedMeetings, cachedMeetings.name);
         await m.addColumn(cachedMeetings, cachedMeetings.scheduleId);
+      }
+      if (from < 9) {
+        await m.createTable(cachedFollowUpCases);
+        await m.createTable(cachedFollowUpCaseAssignments);
+        await m.createTable(cachedFollowUpActivities);
+      }
+      if (from < 10) {
+        await m.createTable(cachedServiceStudents);
+      } else if (from < 11) {
+        await m.addColumn(cachedServiceStudents, cachedServiceStudents.studentName);
+        await m.addColumn(cachedServiceStudents, cachedServiceStudents.birthDate);
+        await m.addColumn(cachedServiceStudents, cachedServiceStudents.phone);
+        await m.addColumn(cachedServiceStudents, cachedServiceStudents.photoPath);
+      }
+      if (from < 12) {
+        await m.addColumn(cachedStudents, cachedStudents.membershipId);
+        await m.addColumn(cachedStudents, cachedStudents.membershipStatus);
+      }
+      if (from < 13) {
+        await m.addColumn(cachedStudents, cachedStudents.identityServiceId);
+      }
+      if (from >= 10 && from < 14) {
+        await m.addColumn(cachedServiceStudents, cachedServiceStudents.identityServiceId);
+      }
+      if (from < 14) {
+        await customStatement('''
+          INSERT OR IGNORE INTO cached_service_students (
+            id, student_id, service_id, class_id, proposed_class_id,
+            enrollment_date, status, school, grade, is_deacon, notes,
+            student_name, birth_date, phone, photo_path,
+            identity_service_id, cached_at
+          )
+          SELECT
+            membership_id, id, service_id, current_class_id, proposed_class_id,
+            COALESCE(enrollment_at, datetime(cached_at / 1000, 'unixepoch')),
+            CASE
+              WHEN membership_status = 'pending' THEN 'pending'
+              WHEN membership_status = 'inactive' THEN 'inactive'
+              WHEN approval_status = 'pending' THEN 'pending'
+              ELSE 'active'
+            END,
+            school, grade, is_deacon, notes, name, birth_date, phone, photo_path,
+            COALESCE(identity_service_id, service_id), cached_at
+          FROM cached_students
+          WHERE membership_id IS NOT NULL;
+        ''');
+      }
+      if (from >= 3 && from < 15) {
+        await m.addColumn(cachedAttendanceRecords, cachedAttendanceRecords.serviceId);
+        await m.addColumn(cachedAttendanceRecords, cachedAttendanceRecords.serviceStudentId);
+        await customStatement('''
+          UPDATE cached_attendance_records
+          SET service_id = (
+            SELECT service_id FROM cached_meetings
+            WHERE cached_meetings.id = cached_attendance_records.meeting_id
+          )
+          WHERE service_id IS NULL;
+        ''');
+        await customStatement('''
+          UPDATE cached_attendance_records
+          SET service_student_id = (
+            SELECT css.id
+            FROM cached_service_students css
+            WHERE css.student_id = cached_attendance_records.student_id
+              AND css.service_id = cached_attendance_records.service_id
+            LIMIT 1
+          )
+          WHERE service_student_id IS NULL;
+        ''');
+      }
+      if (from >= 4 && from < 16) {
+        await m.addColumn(cachedFollowUpRecords, cachedFollowUpRecords.serviceId);
+        await m.addColumn(cachedFollowUpRecords, cachedFollowUpRecords.serviceStudentId);
+        await customStatement('''
+          UPDATE cached_follow_up_records
+          SET service_id = COALESCE(
+            (
+              SELECT service_id FROM cached_profiles
+              WHERE cached_profiles.id = cached_follow_up_records.created_by
+            ),
+            (
+              SELECT service_id FROM cached_students
+              WHERE cached_students.id = cached_follow_up_records.student_id
+            )
+          )
+          WHERE service_id IS NULL;
+        ''');
+        await customStatement('''
+          UPDATE cached_follow_up_records
+          SET service_student_id = (
+            SELECT css.id FROM cached_service_students css
+            WHERE css.student_id = cached_follow_up_records.student_id
+              AND css.service_id = cached_follow_up_records.service_id
+            LIMIT 1
+          )
+          WHERE service_student_id IS NULL;
+        ''');
+      }
+      if (from >= 9 && from < 16) {
+        await m.addColumn(cachedFollowUpCases, cachedFollowUpCases.serviceStudentId);
+        await customStatement('''
+          UPDATE cached_follow_up_cases
+          SET service_student_id = (
+            SELECT css.id FROM cached_service_students css
+            WHERE css.student_id = cached_follow_up_cases.student_id
+              AND css.service_id = cached_follow_up_cases.service_id
+            LIMIT 1
+          )
+          WHERE service_student_id IS NULL;
+        ''');
       }
     },
   );
