@@ -6,7 +6,6 @@ import '../core/sync/sync_engine_provider.dart';
 import '../features/auth/domain/entities/session_identity.dart';
 import '../features/auth/presentation/auth_providers.dart';
 import '../features/follow_up/presentation/follow_up_case_providers.dart';
-import 'design/app_colors.dart';
 import 'design/app_radii.dart';
 import 'design/app_spacing.dart';
 import 'ui/components/sync_badge.dart';
@@ -49,12 +48,6 @@ class AppShell extends ConsumerWidget {
     'follow-up': 'المتابعة',
   };
 
-  static const _primaryIcons = <String, IconData>{
-    'dashboard': Icons.home_rounded,
-    'attendance': Icons.how_to_reg_rounded,
-    'students': Icons.school_rounded,
-    'follow-up': Icons.phone_in_talk_rounded,
-  };
 
   bool _canSeeManagement(String? role) =>
       role == 'overall_leader' ||
@@ -458,8 +451,7 @@ class _TabletNavigationRail extends StatelessWidget {
       destinations: [
         for (final item in items)
           NavigationRailDestination(
-            key: Key('nav_tab_${item.segment}'),
-            icon: Icon(item.icon),
+            icon: Icon(item.icon, key: Key('nav_tab_${item.segment}')),
             selectedIcon: Icon(item.icon),
             label: Text(AppShell._primaryLabels[item.segment] ?? item.label),
           ),

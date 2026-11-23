@@ -63,6 +63,7 @@ void main() {
         ),
         GoRoute(
           path: '/service/:serviceId',
+          redirect: (context, state) => null,
           routes: [
             ShellRoute(
               builder: (context, state, child) => AppShell(
@@ -179,7 +180,7 @@ void main() {
       final sidebar = tester.widget<Container>(
         find.byKey(const Key('app_shell_desktop_sidebar')),
       );
-      expect(sidebar.constraints, isNull);
+      expect(sidebar.constraints?.maxWidth, 288);
     });
   });
 
@@ -195,6 +196,16 @@ void main() {
         find.byKey(const Key('app_shell_navigation_rail')),
       );
       expect(rail.selectedIndex, 1);
+    });
+
+    testWidgets('attendance session hides the mobile bottom bar', (tester) async {
+      await pumpShell(
+        tester,
+        width: 390,
+        location: '/service/service-1/attendance/session/meeting-1/class-1',
+      );
+
+      expect(find.byKey(const Key('app_shell_bottom_navigation')), findsNothing);
     });
 
     testWidgets('settings structure selects More', (tester) async {
