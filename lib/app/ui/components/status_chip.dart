@@ -30,7 +30,7 @@ extension AppStatusPresentation on AppStatus {
   AppSemanticColors colors(AppColors palette) => switch (this) {
         AppStatus.present => palette.present,
         AppStatus.absent => palette.absent,
-        AppStatus.lateArrival => palette.late,
+        AppStatus.lateArrival => palette.lateArrival,
         AppStatus.excused => palette.excused,
         AppStatus.pending => palette.pending,
         AppStatus.synced => palette.synced,
