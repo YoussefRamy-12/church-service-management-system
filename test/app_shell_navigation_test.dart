@@ -23,6 +23,10 @@ void main() {
     authRepository = _FakeAuthRepository();
   });
 
+  tearDown(() async {
+    await database.close();
+  });
+
   Future<GoRouter> pumpShell(
     WidgetTester tester, {
     required double width,
@@ -55,6 +59,12 @@ void main() {
     final router = GoRouter(
       initialLocation: location,
       routes: [
+        GoRoute(
+          path: '/sync',
+          builder: (context, state) => const Scaffold(
+            body: Center(child: Text('sync route')),
+          ),
+        ),
         GoRoute(
           path: '/login',
           builder: (context, state) => const Scaffold(
@@ -130,6 +140,10 @@ void main() {
         child: MaterialApp.router(
           theme: AppTheme.light,
           routerConfig: router,
+          builder: (context, child) => Directionality(
+            textDirection: TextDirection.rtl,
+            child: child!,
+          ),
         ),
       ),
     );
@@ -293,6 +307,19 @@ void main() {
       expect(find.byKey(const Key('nav_more_settings')), findsNothing);
       expect(find.byKey(const Key('nav_more_my-settings')), findsOneWidget);
     });
+  });
+
+  testWidgets('top-bar SyncBadge opens the sync center', (tester) async {
+    final router = await pumpShell(
+      tester,
+      width: 390,
+      location: '/service/service-1/dashboard',
+    );
+
+    await tester.tap(find.text('تمت المزامنة'));
+    await tester.pumpAndSettle();
+
+    expect(router.routeInformationProvider.value.uri.path, '/sync');
   });
 
   testWidgets('More sheet is grouped and Logout signs out', (tester) async {
