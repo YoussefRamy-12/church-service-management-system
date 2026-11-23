@@ -23,6 +23,8 @@ abstract final class AppTheme {
     final error = isDark ? AppDesignColors.darkError : AppDesignColors.lightError;
     final gold = isDark ? AppDesignColors.darkGold : AppDesignColors.lightGold;
     final semanticColors = AppColors.forBrightness(brightness);
+    final actionForeground = isDark ? ink : AppDesignColors.primary;
+    final selectedNavigationColor = isDark ? ink : AppDesignColors.primary;
 
     final scheme = isDark
         ? ColorScheme.dark(
@@ -135,7 +137,7 @@ abstract final class AppTheme {
         style: OutlinedButton.styleFrom(
           minimumSize: const Size(0, 48),
           padding: const EdgeInsets.symmetric(horizontal: 20),
-          foregroundColor: scheme.primary,
+          foregroundColor: actionForeground,
           side: borderSide,
           shape: controlShape,
           textStyle: textTheme.labelLarge,
@@ -144,7 +146,7 @@ abstract final class AppTheme {
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(
           minimumSize: const Size(0, 44),
-          foregroundColor: scheme.primary,
+          foregroundColor: actionForeground,
           shape: controlShape,
           textStyle: textTheme.labelLarge,
         ),
@@ -210,7 +212,9 @@ abstract final class AppTheme {
         backgroundColor: surface,
         indicatorColor: scheme.primaryContainer,
         height: 64,
-        labelTextStyle: WidgetStatePropertyAll(textTheme.labelSmall),
+        labelTextStyle: WidgetStateProperty.resolveWith((states) => textTheme.labelSmall?.copyWith(
+          color: states.contains(WidgetState.selected) ? selectedNavigationColor : mutedInk,
+        )),
         iconTheme: WidgetStateProperty.resolveWith((states) => IconThemeData(
           color: states.contains(WidgetState.selected)
               ? scheme.onPrimaryContainer
@@ -226,7 +230,7 @@ abstract final class AppTheme {
         labelType: NavigationRailLabelType.all,
         selectedIconTheme: IconThemeData(color: scheme.onPrimaryContainer),
         unselectedIconTheme: IconThemeData(color: mutedInk),
-        selectedLabelTextStyle: textTheme.labelMedium?.copyWith(color: scheme.primary),
+        selectedLabelTextStyle: textTheme.labelMedium?.copyWith(color: selectedNavigationColor),
         unselectedLabelTextStyle: textTheme.labelMedium?.copyWith(color: mutedInk),
       ),
       dialogTheme: DialogThemeData(

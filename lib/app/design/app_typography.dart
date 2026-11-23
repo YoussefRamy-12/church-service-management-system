@@ -42,10 +42,10 @@ abstract final class AppTypography {
       titleMedium: body(16, FontWeight.w600, 1.40, ink),
       titleSmall: body(14, FontWeight.w600, 1.40, ink),
       bodyLarge: body(16, FontWeight.w400, 1.50, ink),
-      bodyMedium: body(14, FontWeight.w400, 1.50, ink),
-      bodySmall: body(13, FontWeight.w400, 1.45, muted),
+      bodyMedium: body(16, FontWeight.w400, 1.50, ink),
+      bodySmall: body(12, FontWeight.w500, 1.40, muted),
       labelLarge: body(14, FontWeight.w600, 1.35, ink),
-      labelMedium: body(12, FontWeight.w600, 1.35, muted),
+      labelMedium: body(14, FontWeight.w600, 1.35, muted),
       labelSmall: body(12, FontWeight.w500, 1.40, muted),
     );
   }
