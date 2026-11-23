@@ -4,13 +4,13 @@ import '../../design/app_colors.dart';
 import '../../design/app_radii.dart';
 
 /// Compact semantic status: icon, Arabic label and AA foreground/background.
-enum AppStatus { present, absent, late, excused, pending, synced, conflict }
+enum AppStatus { present, absent, lateArrival, excused, pending, synced, conflict }
 
 extension AppStatusPresentation on AppStatus {
   String get arabicLabel => switch (this) {
         AppStatus.present => 'حاضر',
         AppStatus.absent => 'غائب',
-        AppStatus.late => 'متأخر',
+        AppStatus.lateArrival => 'متأخر',
         AppStatus.excused => 'معتذر',
         AppStatus.pending => 'قيد الانتظار',
         AppStatus.synced => 'تمت المزامنة',
@@ -20,7 +20,7 @@ extension AppStatusPresentation on AppStatus {
   IconData get icon => switch (this) {
         AppStatus.present => Icons.check_circle,
         AppStatus.absent => Icons.cancel,
-        AppStatus.late => Icons.schedule,
+        AppStatus.lateArrival => Icons.schedule,
         AppStatus.excused => Icons.info,
         AppStatus.pending => Icons.hourglass_top,
         AppStatus.synced => Icons.cloud_done,
@@ -30,7 +30,7 @@ extension AppStatusPresentation on AppStatus {
   AppSemanticColors colors(AppColors palette) => switch (this) {
         AppStatus.present => palette.present,
         AppStatus.absent => palette.absent,
-        AppStatus.late => palette.late,
+        AppStatus.lateArrival => palette.late,
         AppStatus.excused => palette.excused,
         AppStatus.pending => palette.pending,
         AppStatus.synced => palette.synced,

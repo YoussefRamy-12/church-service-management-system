@@ -37,7 +37,7 @@ Icon(Icons.check_circle, color: statusColors.foreground);
 DecoratedBox(decoration: BoxDecoration(color: statusColors.background));
 ~~~
 
-Semantic foreground/background pairs (present, absent, late, excused, pending, synced, conflict, warning and accent) are tested against WCAG AA.
+Semantic foreground/background pairs (present, absent, lateArrival, excused, pending, synced, conflict, warning and accent) are tested against WCAG AA.
 
 ## Spacing, shape and typography
 

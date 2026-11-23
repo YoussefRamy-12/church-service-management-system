@@ -51,7 +51,7 @@ class AppColors extends ThemeExtension<AppColors> {
   const AppColors({
     required this.present,
     required this.absent,
-    required this.late,
+    required this.lateArrival,
     required this.excused,
     required this.pending,
     required this.synced,
@@ -62,7 +62,7 @@ class AppColors extends ThemeExtension<AppColors> {
 
   final AppSemanticColors present;
   final AppSemanticColors absent;
-  final AppSemanticColors late;
+  final AppSemanticColors lateArrival;
   final AppSemanticColors excused;
   final AppSemanticColors pending;
   final AppSemanticColors synced;
@@ -73,7 +73,7 @@ class AppColors extends ThemeExtension<AppColors> {
   static const light = AppColors(
     present: AppSemanticColors(foreground: Color(0xFF166534), background: Color(0xFFDCFCE7)),
     absent: AppSemanticColors(foreground: Color(0xFFB91C1C), background: Color(0xFFFEE2E2)),
-    late: AppSemanticColors(foreground: Color(0xFF92400E), background: Color(0xFFFEF3C7)),
+    lateArrival: AppSemanticColors(foreground: Color(0xFF92400E), background: Color(0xFFFEF3C7)),
     excused: AppSemanticColors(foreground: Color(0xFF1D4ED8), background: Color(0xFFDBEAFE)),
     pending: AppSemanticColors(foreground: Color(0xFF854D0E), background: Color(0xFFFEF3C7)),
     synced: AppSemanticColors(foreground: Color(0xFF0F766E), background: Color(0xFFCCFBF1)),
@@ -85,7 +85,7 @@ class AppColors extends ThemeExtension<AppColors> {
   static const dark = AppColors(
     present: AppSemanticColors(foreground: Color(0xFF4ADE80), background: Color(0xFF163A2A)),
     absent: AppSemanticColors(foreground: Color(0xFFF87171), background: Color(0xFF451B22)),
-    late: AppSemanticColors(foreground: Color(0xFFFBBF24), background: Color(0xFF45320E)),
+    lateArrival: AppSemanticColors(foreground: Color(0xFFFBBF24), background: Color(0xFF45320E)),
     excused: AppSemanticColors(foreground: Color(0xFF60A5FA), background: Color(0xFF172F52)),
     pending: AppSemanticColors(foreground: Color(0xFFFCD34D), background: Color(0xFF45320E)),
     synced: AppSemanticColors(foreground: Color(0xFF5EEAD4), background: Color(0xFF123C3A)),
@@ -103,7 +103,7 @@ class AppColors extends ThemeExtension<AppColors> {
   }
 
   List<AppSemanticColors> get semanticColors => [
-        present, absent, late, excused, pending, synced, conflict, warning, accent,
+        present, absent, lateArrival, excused, pending, synced, conflict, warning, accent,
       ];
 
   /// WCAG 2.x contrast ratio for opaque sRGB colors.
@@ -119,7 +119,7 @@ class AppColors extends ThemeExtension<AppColors> {
   AppColors copyWith({
     AppSemanticColors? present,
     AppSemanticColors? absent,
-    AppSemanticColors? late,
+    AppSemanticColors? lateArrival,
     AppSemanticColors? excused,
     AppSemanticColors? pending,
     AppSemanticColors? synced,
@@ -129,7 +129,7 @@ class AppColors extends ThemeExtension<AppColors> {
   }) => AppColors(
         present: present ?? this.present,
         absent: absent ?? this.absent,
-        late: late ?? this.late,
+        lateArrival: lateArrival ?? this.lateArrival,
         excused: excused ?? this.excused,
         pending: pending ?? this.pending,
         synced: synced ?? this.synced,
@@ -144,7 +144,7 @@ class AppColors extends ThemeExtension<AppColors> {
     return AppColors(
       present: present.lerp(other.present, t),
       absent: absent.lerp(other.absent, t),
-      late: late.lerp(other.late, t),
+      lateArrival: lateArrival.lerp(other.lateArrival, t),
       excused: excused.lerp(other.excused, t),
       pending: pending.lerp(other.pending, t),
       synced: synced.lerp(other.synced, t),
