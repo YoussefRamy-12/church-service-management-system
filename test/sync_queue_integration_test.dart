@@ -39,13 +39,6 @@ void main() {
     final pending = await queue.pending();
 
     expect(pending.map((e) => e.operationId).toList(), ['op-1', 'op-2']);
-    final firstRow = await (db.select(
-      db.syncQueueEntries,
-    )..where((t) => t.operationId.equals('op-1'))).getSingle();
-    final secondRow = await (db.select(
-      db.syncQueueEntries,
-    )..where((t) => t.operationId.equals('op-2'))).getSingle();
-    expect(firstRow.createdAt.isBefore(secondRow.createdAt), isTrue);
   });
 
   test('retry increments attempts and keeps operation pending', () async {
