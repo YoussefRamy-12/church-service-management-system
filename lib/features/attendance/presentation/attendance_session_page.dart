@@ -1,18 +1,24 @@
-import 'package:church_service_management_system/app/ui/app_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../students/domain/entities/student.dart';
-import 'widgets/register_student_dialog.dart';
-import '../../students/presentation/student_providers.dart';
+
+import '../../../app/ui/app_ui.dart';
 import '../../../core/config/config_provider.dart';
 import '../../../core/network/network_error_formatter.dart';
 import '../../../core/sync/sync_engine_provider.dart';
 import '../../../core/sync/sync_status_widget.dart';
+import '../../service/presentation/service_providers.dart';
+import '../../students/domain/entities/student.dart';
+import '../../students/presentation/student_providers.dart';
 import '../domain/entities/attendance_record.dart';
 import 'attendance_providers.dart';
-import 'qr_scan_page.dart';
-import '../../service/presentation/service_providers.dart';
 import 'meeting_providers.dart';
+import 'qr_scan_page.dart';
+import 'widgets/attendance_filter.dart';
+import 'widgets/attendance_review_sheet.dart';
+import 'widgets/attendance_search_filter_bar.dart';
+import 'widgets/attendance_session_header.dart';
+import 'widgets/attendance_student_tile.dart';
+import 'widgets/register_student_dialog.dart';
 
 class AttendanceSessionPage extends ConsumerStatefulWidget {
   const AttendanceSessionPage({
@@ -36,7 +42,7 @@ class _AttendanceSessionPageState extends ConsumerState<AttendanceSessionPage> {
   int earlyAttendanceMinutes = 15;
   bool openingQrScanner = false;
   bool _readOnly = true;
-  _AttendanceFilter _filter = _AttendanceFilter.all;
+  AttendanceFilter _filter = AttendanceFilter.all;
   Map<String, String> _classNames = {};
   List<Student> _studentsSnapshot = const [];
 
@@ -48,28 +54,45 @@ class _AttendanceSessionPageState extends ConsumerState<AttendanceSessionPage> {
     Future.microtask(_loadClassNames);
     Future.microtask(() async {
       try {
-        final meetings = await ref.read(meetingRepositoryProvider).watchMeetings(widget.serviceId).first;
+        final meetings = await ref
+            .read(meetingRepositoryProvider)
+            .watchMeetings(widget.serviceId)
+            .first;
         final now = DateTime.now();
         final today = DateTime(now.year, now.month, now.day);
-        final selected = meetings.where((meeting) => meeting.id == widget.meetingId);
+        final selected =
+            meetings.where((meeting) => meeting.id == widget.meetingId);
         final selectedMeeting = selected.isEmpty ? null : selected.first;
         final active = meetings.where((meeting) {
           final date = meeting.meetingDate;
-          final isNotFuture = !DateTime(date.year, date.month, date.day).isAfter(today);
+          final isNotFuture =
+              !DateTime(date.year, date.month, date.day).isAfter(today);
           if (!isNotFuture || selectedMeeting == null) return isNotFuture;
           return selectedMeeting.scheduleId != null
               ? meeting.scheduleId == selectedMeeting.scheduleId
-              : meeting.scheduleId == null && meeting.name == selectedMeeting.name;
-        }).toList()..sort((a, b) => b.meetingDate.compareTo(a.meetingDate));
+              : meeting.scheduleId == null &&
+                  meeting.name == selectedMeeting.name;
+        }).toList()
+          ..sort((a, b) => b.meetingDate.compareTo(a.meetingDate));
         final latestDay = active.isEmpty
             ? null
-            : DateTime(active.first.meetingDate.year, active.first.meetingDate.month, active.first.meetingDate.day);
+            : DateTime(
+                active.first.meetingDate.year,
+                active.first.meetingDate.month,
+                active.first.meetingDate.day,
+              );
         final selectedDay = selectedMeeting == null
             ? null
-            : DateTime(selectedMeeting.meetingDate.year, selectedMeeting.meetingDate.month, selectedMeeting.meetingDate.day);
+            : DateTime(
+                selectedMeeting.meetingDate.year,
+                selectedMeeting.meetingDate.month,
+                selectedMeeting.meetingDate.day,
+              );
         if (mounted) {
           setState(() {
-            _readOnly = latestDay == null || selectedDay == null || selectedDay != latestDay;
+            _readOnly = latestDay == null ||
+                selectedDay == null ||
+                selectedDay != latestDay;
             if (selectedMeeting != null) {
               _meetingName = selectedMeeting.name;
               final parts = selectedMeeting.startTime.split(':');
@@ -129,28 +152,35 @@ class _AttendanceSessionPageState extends ConsumerState<AttendanceSessionPage> {
     }
   }
 
-  String _classIdFor(Student student) => student.currentClassId ??
-      student.proposedClassId ?? (_allStudentsMode ? 'unassigned' : widget.classId);
+  String _classIdFor(Student student) =>
+      student.currentClassId ??
+      student.proposedClassId ??
+      (_allStudentsMode ? 'unassigned' : widget.classId);
 
   String _classLabelFor(Student student) {
     final id = _classIdFor(student);
     if (id == 'unassigned') return 'بدون فصل محدد';
-    return _classNames[id] ?? (_allStudentsMode ? 'فصل غير محدد' : 'الفصل المحدد');
+    return _classNames[id] ??
+        (_allStudentsMode ? 'فصل غير محدد' : 'الفصل المحدد');
   }
 
   Color _classColorFor(String id) {
     const palette = <Color>[
-      Color(0xFF00236F), Color(0xFF0D9488), Color(0xFFB45309),
-      Color(0xFF475569), Color(0xFF0369A1), Color(0xFFBE123C),
+      Color(0xFF00236F),
+      Color(0xFF0D9488),
+      Color(0xFFB45309),
+      Color(0xFF475569),
+      Color(0xFF0369A1),
+      Color(0xFFBE123C),
     ];
     final stableHash = id.codeUnits.fold<int>(0, (value, unit) => value + unit);
     return palette[stableHash % palette.length];
   }
+
   Future<void> _checkIn(Student student) async {
     if (_readOnly) return;
     if (busyStudentId != null) return;
-    final classId =
-        student.currentClassId ??
+    final classId = student.currentClassId ??
         student.proposedClassId ??
         (_allStudentsMode ? null : widget.classId);
     if (classId == null) {
@@ -171,9 +201,7 @@ class _AttendanceSessionPageState extends ConsumerState<AttendanceSessionPage> {
     }
     setState(() => busyStudentId = student.id);
     try {
-      await ref
-          .read(attendanceRepositoryProvider)
-          .checkIn(
+      await ref.read(attendanceRepositoryProvider).checkIn(
             meetingId: widget.meetingId,
             studentId: student.id,
             serviceId: student.serviceId,
@@ -207,7 +235,7 @@ class _AttendanceSessionPageState extends ConsumerState<AttendanceSessionPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text(
-            'أضف التلميذ من الفصل المقترح أولًا، ثم سجّل حضوره من القائمة العامة.',
+            'أضف التلميذ من الفصل المقترح أولاً، ثم سجّل حضوره من القائمة العامة.',
           ),
         ),
       );
@@ -220,9 +248,7 @@ class _AttendanceSessionPageState extends ConsumerState<AttendanceSessionPage> {
     if (details == null) return;
     final isOffline = ref.read(offlineSyncEnabledProvider);
     try {
-      await ref
-          .read(studentRegistrationProvider)
-          .registerPending(
+      await ref.read(studentRegistrationProvider).registerPending(
             serviceId: widget.serviceId,
             proposedClassId: widget.classId,
             name: details.name,
@@ -244,7 +270,11 @@ class _AttendanceSessionPageState extends ConsumerState<AttendanceSessionPage> {
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('تعذر تسجيل التلميذ: ${NetworkErrorFormatter.format(e)}')),
+        SnackBar(
+          content: Text(
+            'تعذر تسجيل التلميذ: ${NetworkErrorFormatter.format(e)}',
+          ),
+        ),
       );
     }
   }
@@ -284,13 +314,13 @@ class _AttendanceSessionPageState extends ConsumerState<AttendanceSessionPage> {
           .first;
       if (!mounted) return;
 
-      final studentId = await Navigator.of(context, rootNavigator: true).push<String>(
+      final studentId =
+          await Navigator.of(context, rootNavigator: true).push<String>(
         MaterialPageRoute(
           builder: (_) => QrScanPage(
             students: students,
-            presentStudentIds: attendance
-                .map((record) => record.studentId)
-                .toSet(),
+            presentStudentIds:
+                attendance.map((record) => record.studentId).toSet(),
           ),
         ),
       );
@@ -327,131 +357,16 @@ class _AttendanceSessionPageState extends ConsumerState<AttendanceSessionPage> {
       context: context,
       isScrollControlled: true,
       showDragHandle: true,
-      backgroundColor: isDark
-          ? const Color(0xF7131D33)
-          : const Color(0xF7FFFFFF),
+      backgroundColor:
+          isDark ? const Color(0xF7131D33) : const Color(0xF7FFFFFF),
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),
-      builder: (context) => SafeArea(
-        child: SizedBox(
-          height: MediaQuery.sizeOf(context).height * .75,
-          child: Column(
-            children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 20,
-                  vertical: 12,
-                ),
-                child: Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(10),
-                      decoration: BoxDecoration(
-                        color: theme.colorScheme.primary.withValues(
-                          alpha: 0.12,
-                        ),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Icon(
-                        Icons.fact_check_rounded,
-                        color: theme.colorScheme.primary,
-                      ),
-                    ),
-                    const SizedBox(width: 14),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'مراجعة الحضور',
-                            style: theme.textTheme.titleLarge?.copyWith(
-                              fontWeight: FontWeight.w800,
-                            ),
-                          ),
-                          Text(
-                            'نسبة الحضور: ${presentIds.length} من أصل ${students.length}',
-                            style: theme.textTheme.bodySmall,
-                          ),
-                        ],
-                      ),
-                    ),
-                    GlassBadge(
-                      label: '${presentIds.length}/${students.length}',
-                      color: theme.colorScheme.primary,
-                      showDot: false,
-                    ),
-                  ],
-                ),
-              ),
-              const Divider(height: 1),
-              Expanded(
-                child: students.isEmpty
-                    ? EmptyState(
-                        icon: Icons.people_outline,
-                        title: _allStudentsMode
-                            ? 'لا يوجد تلاميذ في الخدمة'
-                            : 'لا يوجد تلاميذ في الفصل',
-                      )
-                    : ListView.separated(
-                        padding: const EdgeInsets.all(16),
-                        itemCount: students.length,
-                        separatorBuilder: (_, _) => const SizedBox(height: 6),
-                        itemBuilder: (context, index) {
-                          final student = students[index];
-                          final present = presentIds.contains(student.id);
-                          return SolidCard(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 14,
-                              vertical: 10,
-                            ),
-                            child: Row(
-                              children: [
-                                Icon(
-                                  present
-                                      ? Icons.check_circle_rounded
-                                      : Icons.cancel_outlined,
-                                  color: present
-                                      ? const Color(0xFF059669)
-                                      : const Color(0xFF94A3B8),
-                                  size: 22,
-                                ),
-                                const SizedBox(width: 12),
-                                Expanded(
-                                  child: Text(
-                                    student.name,
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.w700,
-                                      fontSize: 14,
-                                    ),
-                                  ),
-                                ),
-                                GlassBadge(
-                                  label: present ? 'حاضر' : 'غير مسجل',
-                                  color: present
-                                      ? const Color(0xFF059669)
-                                      : const Color(0xFF64748B),
-                                  showDot: present,
-                                ),
-                              ],
-                            ),
-                          );
-                        },
-                      ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(16),
-                child: SizedBox(
-                  width: double.infinity,
-                  child: FilledButton(
-                    onPressed: () => Navigator.pop(context),
-                    child: Text(_readOnly ? 'إغلاق' : 'متابعة تسجيل الحضور'),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
+      builder: (context) => AttendanceReviewSheet(
+        students: students,
+        presentIds: presentIds,
+        allStudentsMode: _allStudentsMode,
+        readOnly: _readOnly,
       ),
     );
   }
@@ -484,14 +399,14 @@ class _AttendanceSessionPageState extends ConsumerState<AttendanceSessionPage> {
     final studentsStream = _allStudentsMode
         ? studentRepository.watchStudentsForService(widget.serviceId)
         : studentRepository.watchStudentsForClass(widget.classId);
-    final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
 
     return Scaffold(
       key: const Key('attendance_session'),
       appBar: AppBar(
         title: Text(
-          _allStudentsMode ? '$_meetingName — حضور جميع طلاب الخدمة' : '$_meetingName — تسجيل الحضور',
+          _allStudentsMode
+              ? '$_meetingName — حضور جميع طلاب الخدمة'
+              : '$_meetingName — تسجيل الحضور',
           style: const TextStyle(fontWeight: FontWeight.w800),
         ),
         actions: [
@@ -502,11 +417,12 @@ class _AttendanceSessionPageState extends ConsumerState<AttendanceSessionPage> {
             onPressed: () => _review(_studentsSnapshot),
           ),
           const SyncStatusWidget(),
-          if (!_readOnly) IconButton(
-            icon: const Icon(Icons.person_add_rounded),
-            tooltip: 'تلميذ جديد',
-            onPressed: _register,
-          ),
+          if (!_readOnly)
+            IconButton(
+              icon: const Icon(Icons.person_add_rounded),
+              tooltip: 'تلميذ جديد',
+              onPressed: _register,
+            ),
           if (ref.watch(offlineSyncEnabledProvider))
             IconButton(
               icon: const Icon(Icons.sync_rounded),
@@ -527,7 +443,9 @@ class _AttendanceSessionPageState extends ConsumerState<AttendanceSessionPage> {
             );
           }
           if (!snapshot.hasData) {
-            return const LoadingView(message: 'جاري تحميل قائمة التلاميذ...');
+            return const LoadingView(
+              message: 'جاري تحميل قائمة التلاميذ...',
+            );
           }
 
           return StreamBuilder<List<AttendanceRecord>>(
@@ -541,12 +459,16 @@ class _AttendanceSessionPageState extends ConsumerState<AttendanceSessionPage> {
               };
 
               final totalCount = allStudents.length;
-              final studentIds = allStudents.map((student) => student.id).toSet();
-              final relevantRecords = records.where((record) => studentIds.contains(record.studentId)).toList();
-              final presentCount = allStudents.where((student) => checkedMap.containsKey(student.id)).length;
-              final absentCount = totalCount > presentCount
-                  ? totalCount - presentCount
-                  : 0;
+              final studentIds =
+                  allStudents.map((student) => student.id).toSet();
+              final relevantRecords = records
+                  .where((record) => studentIds.contains(record.studentId))
+                  .toList();
+              final presentCount = allStudents
+                  .where((student) => checkedMap.containsKey(student.id))
+                  .length;
+              final absentCount =
+                  totalCount > presentCount ? totalCount - presentCount : 0;
               int earlyCount = 0;
               int normalCount = 0;
               for (final rec in relevantRecords) {
@@ -557,486 +479,165 @@ class _AttendanceSessionPageState extends ConsumerState<AttendanceSessionPage> {
 
               // Filter students
               final filtered = allStudents.where((s) {
-                final matchesQuery = s.name.toLowerCase().contains(query.trim().toLowerCase());
+                final matchesQuery =
+                    s.name.toLowerCase().contains(query.trim().toLowerCase());
                 if (!matchesQuery) return false;
                 final isChecked = checkedMap.containsKey(s.id);
                 switch (_filter) {
-                  case _AttendanceFilter.all:
+                  case AttendanceFilter.all:
                     return true;
-                  case _AttendanceFilter.present:
+                  case AttendanceFilter.present:
                     return isChecked;
-                  case _AttendanceFilter.absent:
+                  case AttendanceFilter.absent:
                     return !isChecked;
-                  case _AttendanceFilter.pending:
+                  case AttendanceFilter.pending:
                     return s.isPending;
                 }
               }).toList()
                 ..sort((a, b) {
                   if (_allStudentsMode) {
-                    final classCompare = _classLabelFor(a).compareTo(_classLabelFor(b));
+                    final classCompare =
+                        _classLabelFor(a).compareTo(_classLabelFor(b));
                     if (classCompare != 0) return classCompare;
-                    final classIdCompare = _classIdFor(a).compareTo(_classIdFor(b));
+                    final classIdCompare =
+                        _classIdFor(a).compareTo(_classIdFor(b));
                     if (classIdCompare != 0) return classIdCompare;
                   }
                   return a.name.toLowerCase().compareTo(b.name.toLowerCase());
                 });
 
               final leftWidgets = <Widget>[
-                    if (_readOnly)
-                      Container(
-                        margin: const EdgeInsets.only(bottom: 12),
-                        padding: const EdgeInsets.all(14),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF64748B).withValues(alpha: .10),
-                          borderRadius: BorderRadius.circular(14),
-                        ),
-                        child: const Row(children: [
-                          Icon(Icons.lock_outline_rounded),
-                          SizedBox(width: 10),
-                          Expanded(child: Text('اجتماع سابق — العرض فقط، تم إيقاف تعديل وتسجيل الحضور.')),
-                        ]),
-                      ),
-                    // Top Overview Banner & KPI Cards
-                    GlassContainer(
-                      padding: const EdgeInsets.all(16),
-                      margin: const EdgeInsets.only(bottom: 14),
-                      borderRadius: 12,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          Row(
-                            children: [
-                              Container(
-                                padding: const EdgeInsets.all(10),
-                                decoration: BoxDecoration(
-                                  color: const Color(0xFF00236F).withValues(alpha: 0.08),
-                                  borderRadius: BorderRadius.circular(8),
-                                  border: Border.all(
-                                    color: const Color(0xFF00236F).withValues(alpha: 0.15),
-                                  ),
-                                ),
-                                child: const Icon(
-                                  Icons.event_note_rounded,
-                                  color: Color(0xFF00236F),
-                                  size: 20,
-                                ),
-                              ),
-                              const SizedBox(width: 12),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      _allStudentsMode
-                                          ? 'جلسة حضور الخدمة العامة'
-                                          : 'جلسة الحضور الميداني',
-                                      style: const TextStyle(
-                                        fontWeight: FontWeight.w800,
-                                        fontSize: 16,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 2),
-                                    Text(
-                                      'بداية الاجتماع: ${meetingTime.format(context)} • الحضور المبكر حتى ${TimeOfDay.fromDateTime(DateTime(2020, 1, 1, meetingTime.hour, meetingTime.minute).add(Duration(minutes: earlyAttendanceMinutes))).format(context)}',
-                                      style: TextStyle(
-                                        fontSize: 12,
-                                        color: isDark
-                                            ? const Color(0xFF94A3B8)
-                                            : const Color(0xFF64748B),
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              // Fast QR Scan Hero CTA
-                              if (!_readOnly) FilledButton.icon(
-                                onPressed: openingQrScanner
-                                    ? null
-                                    : () => _openQrScanner(allStudents),
-                                icon: const Icon(
-                                  Icons.qr_code_scanner_rounded,
-                                  size: 20,
-                                ),
-                                label: const Text('مسح QR'),
-                                style: FilledButton.styleFrom(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 16,
-                                    vertical: 12,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 16),
-                          // KPI Mini Tiles
-                          Wrap(
-                            spacing: 10,
-                            runSpacing: 10,
-                            children: [
-                              _KpiPill(
-                                label: 'إجمالي المقيدين',
-                                value: '$totalCount',
-                                icon: Icons.groups_rounded,
-                                color: const Color(0xFF00236F),
-                              ),
-                              _KpiPill(
-                                label: 'حاضر',
-                                value: '$presentCount',
-                                icon: Icons.check_circle_rounded,
-                                color: const Color(0xFF059669),
-                              ),
-                              _KpiPill(
-                                label: 'غائب',
-                                value: '$absentCount',
-                                icon: Icons.cancel_outlined,
-                                color: const Color(0xFFDC2626),
-                              ),
-                              _KpiPill(
-                                label: 'مبكر',
-                                value: '$earlyCount',
-                                icon: Icons.star_rounded,
-                                color: const Color(0xFFD97706),
-                              ),
-                              _KpiPill(
-                                label: 'قبل الاجتماع',
-                                value: '${relevantRecords.where((r) => _attendanceLabel(r.checkedInAt) == 'قبل الاجتماع').length}',
-                                icon: Icons.access_time_filled_rounded,
-                                color: const Color(0xFF00236F),
-                              ),
-                              _KpiPill(
-                                label: 'عادي',
-                                value: '$normalCount',
-                                icon: Icons.schedule_rounded,
-                                color: const Color(0xFF0D9488),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
+                AttendanceSessionHeader(
+                  readOnly: _readOnly,
+                  allStudentsMode: _allStudentsMode,
+                  meetingTime: meetingTime,
+                  earlyAttendanceMinutes: earlyAttendanceMinutes,
+                  openingQrScanner: openingQrScanner,
+                  onOpenQrScanner: () => _openQrScanner(allStudents),
+                  totalCount: totalCount,
+                  presentCount: presentCount,
+                  absentCount: absentCount,
+                  earlyCount: earlyCount,
+                  beforeMeetingCount: relevantRecords
+                      .where(
+                        (r) =>
+                            _attendanceLabel(r.checkedInAt) == 'قبل الاجتماع',
+                      )
+                      .length,
+                  normalCount: normalCount,
+                ),
               ];
               final rightWidgets = <Widget>[
-                    // Search and Filter Bar
-                    SolidCard(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 14,
-                        vertical: 10,
-                      ),
-                      margin: const EdgeInsets.only(bottom: 12),
-                      borderRadius: 12,
-                      child: Column(
+                // Search and Filter Bar
+                AttendanceSearchFilterBar(
+                  query: query,
+                  onQueryChanged: (v) => setState(() => query = v),
+                  filter: _filter,
+                  onFilterChanged: (f) => setState(() => _filter = f),
+                  totalCount: totalCount,
+                  presentCount: presentCount,
+                  absentCount: absentCount,
+                ),
+
+                // Student Roster
+                if (filtered.isEmpty)
+                  EmptyState(
+                    icon: Icons.search_off_rounded,
+                    title: 'لم يتم العثور على نتائج',
+                    message: query.isNotEmpty
+                        ? 'لا يوجد تلميذ يطابق "$query"'
+                        : 'لا يوجد تلاميذ في هذا الفلتر',
+                  )
+                else
+                  ListView.separated(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: filtered.length,
+                    separatorBuilder: (_, _) => const SizedBox(height: 8),
+                    itemBuilder: (context, i) {
+                      final student = filtered[i];
+                      final record = checkedMap[student.id];
+                      final isBusy = busyStudentId == student.id;
+                      final classId = _classIdFor(student);
+                      final classColor = _classColorFor(classId);
+                      final previousClassId =
+                          i == 0 ? null : _classIdFor(filtered[i - 1]);
+                      final showClassHeader =
+                          _allStudentsMode && classId != previousClassId;
+
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
-                          TextField(
-                            onChanged: (v) => setState(() => query = v),
-                            decoration: InputDecoration(
-                              isDense: true,
-                              prefixIcon: const Icon(
-                                Icons.search_rounded,
-                                size: 22,
-                              ),
-                              hintText: 'ابحث باسم التلميذ...',
-                              suffixIcon: query.isNotEmpty
-                                  ? IconButton(
-                                      icon: const Icon(
-                                        Icons.clear_rounded,
-                                        size: 18,
-                                      ),
-                                      onPressed: () =>
-                                          setState(() => query = ''),
-                                    )
-                                  : null,
-                              contentPadding: const EdgeInsets.symmetric(
-                                horizontal: 14,
-                                vertical: 12,
-                              ),
-                              border: InputBorder.none,
-                              enabledBorder: InputBorder.none,
-                              focusedBorder: InputBorder.none,
-                            ),
-                          ),
-                          const Divider(height: 12),
-                          SingleChildScrollView(
-                            scrollDirection: Axis.horizontal,
-                            child: Row(
-                              children: [
-                                _FilterChipButton(
-                                  label: 'الكل ($totalCount)',
-                                  selected: _filter == _AttendanceFilter.all,
-                                  onTap: () => setState(
-                                    () => _filter = _AttendanceFilter.all,
-                                  ),
-                                ),
-                                const SizedBox(width: 6),
-                                _FilterChipButton(
-                                  label: 'حاضر ($presentCount)',
-                                  selected:
-                                      _filter == _AttendanceFilter.present,
-                                  color: const Color(0xFF059669),
-                                  onTap: () => setState(
-                                    () => _filter = _AttendanceFilter.present,
-                                  ),
-                                ),
-                                const SizedBox(width: 6),
-                                _FilterChipButton(
-                                  label: 'غائب ($absentCount)',
-                                  selected: _filter == _AttendanceFilter.absent,
-                                  color: const Color(0xFFDC2626),
-                                  onTap: () => setState(
-                                    () => _filter = _AttendanceFilter.absent,
-                                  ),
-                                ),
-                                const SizedBox(width: 6),
-                                _FilterChipButton(
-                                  label: 'بانتظار الاعتماد',
-                                  selected:
-                                      _filter == _AttendanceFilter.pending,
-                                  color: const Color(0xFFD97706),
-                                  onTap: () => setState(
-                                    () => _filter = _AttendanceFilter.pending,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-
-                    // Student Roster
-                    if (filtered.isEmpty)
-                      EmptyState(
-                          icon: Icons.search_off_rounded,
-                          title: 'لم يتم العثور على نتائج',
-                          message: query.isNotEmpty
-                              ? 'لا يوجد تلميذ يطابق "$query"'
-                              : 'لا يوجد تلاميذ في هذا الفلتر',
-                        )
-                    else
-                      ListView.separated(
-                          shrinkWrap: true,
-                          physics: const NeverScrollableScrollPhysics(),
-                          itemCount: filtered.length,
-                          separatorBuilder: (_, _) => const SizedBox(height: 8),
-                          itemBuilder: (context, i) {
-                            final student = filtered[i];
-                            final record = checkedMap[student.id];
-                            final isPresent = record != null;
-                            final isBusy = busyStudentId == student.id;
-                            final classId = _classIdFor(student);
-                            final classColor = _classColorFor(classId);
-                            final previousClassId = i == 0 ? null : _classIdFor(filtered[i - 1]);
-                            final showClassHeader = _allStudentsMode && classId != previousClassId;
-
-                            return Column(
-                              crossAxisAlignment: CrossAxisAlignment.stretch,
-                              children: [
-                                if (showClassHeader)
-                                  Padding(
-                                    padding: const EdgeInsets.fromLTRB(2, 12, 2, 4),
-                                    child: Row(
-                                      children: [
-                                        Container(
-                                          width: 4,
-                                          height: 24,
-                                          decoration: BoxDecoration(color: classColor, borderRadius: BorderRadius.circular(4)),
-                                        ),
-                                        const SizedBox(width: 8),
-                                        Expanded(
-                                          child: Text(_classLabelFor(student), style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w800)),
-                                        ),
-                                        Container(
-                                          padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 3),
-                                          decoration: BoxDecoration(color: classColor.withValues(alpha: .10), borderRadius: BorderRadius.circular(999)),
-                                          child: Text('${filtered.where((item) => _classIdFor(item) == classId).length} تلميذ', style: TextStyle(color: classColor, fontSize: 11, fontWeight: FontWeight.w700)),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                SolidCard(
-                              key: ValueKey(student.id),
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 12,
-                                vertical: 10,
-                              ),
-                              borderRadius: 12,
+                          if (showClassHeader)
+                            Padding(
+                              padding: const EdgeInsets.fromLTRB(2, 12, 2, 4),
                               child: Row(
                                 children: [
-                                  // Avatar (Solid surface, no gradient/glow)
                                   Container(
-                                    width: 42,
-                                    height: 42,
+                                    width: 4,
+                                    height: 24,
                                     decoration: BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      color: isPresent
-                                          ? const Color(0xFF059669).withValues(alpha: 0.12)
-                                          : (student.isPending
-                                                ? const Color(0xFFD97706).withValues(alpha: 0.10)
-                                                : (isDark
-                                                      ? const Color(0xFF1E293B)
-                                                      : const Color(0xFFF1F5F9))),
-                                      border: Border.all(
-                                        color: isPresent
-                                            ? const Color(0xFF059669).withValues(alpha: 0.30)
-                                            : (student.isPending
-                                                  ? const Color(0xFFD97706).withValues(alpha: 0.25)
-                                                  : (isDark
-                                                        ? const Color(0xFF334155)
-                                                        : const Color(0xFFE2E8F0))),
-                                      ),
+                                      color: classColor,
+                                      borderRadius: BorderRadius.circular(4),
                                     ),
-                                    alignment: Alignment.center,
-                                    child: isPresent
-                                        ? const Icon(
-                                            Icons.check_rounded,
-                                            color: Color(0xFF059669),
-                                            size: 20,
-                                          )
-                                        : Text(
-                                            student.name.isNotEmpty
-                                                ? student.name.characters.first
-                                                : 'ت',
-                                            style: TextStyle(
-                                              fontWeight: FontWeight.w700,
-                                              fontSize: 15,
-                                              color: isDark
-                                                  ? const Color(0xFFCBD5E1)
-                                                  : const Color(0xFF334155),
-                                            ),
-                                          ),
                                   ),
-                                  const SizedBox(width: 12),
-
-                                  // Student Details
+                                  const SizedBox(width: 8),
                                   Expanded(
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          student.name,
-                                          style: const TextStyle(
+                                    child: Text(
+                                      _classLabelFor(student),
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .titleSmall
+                                          ?.copyWith(
                                             fontWeight: FontWeight.w800,
-                                            fontSize: 15,
                                           ),
-                                        ),
-                                        const SizedBox(height: 4),
-                                        Wrap(
-                                          spacing: 6,
-                                          runSpacing: 4,
-                                          crossAxisAlignment:
-                                              WrapCrossAlignment.center,
-                                          children: [
-                                            Container(
-                                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                                              decoration: BoxDecoration(
-                                                color: classColor.withValues(alpha: .10),
-                                                borderRadius: BorderRadius.circular(999),
-                                                border: Border.all(color: classColor.withValues(alpha: .30)),
-                                              ),
-                                              child: Text(_classLabelFor(student), maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(color: classColor, fontSize: 10, fontWeight: FontWeight.w700)),
-                                            ),
-                                            if (student.isPending)
-                                              const GlassBadge(
-                                                label: 'بانتظار الاعتماد',
-                                                color: Color(0xFFD97706),
-                                                showDot: true,
-                                              ),
-                                            if (isPresent) ...[
-                                              GlassBadge(
-                                                label: _attendanceLabel(
-                                                  record.checkedInAt,
-                                                ),
-                                                color: _attendanceColor(
-                                                  record.checkedInAt,
-                                                ),
-                                                showDot: false,
-                                              ),
-                                              Text(
-                                                TimeOfDay.fromDateTime(
-                                                  record.checkedInAt,
-                                                ).format(context),
-                                                style: TextStyle(
-                                                  fontSize: 11,
-                                                  fontWeight: FontWeight.w600,
-                                                  color: isDark
-                                                      ? const Color(0xFF94A3B8)
-                                                      : const Color(0xFF64748B),
-                                                ),
-                                              ),
-                                            ] else ...[
-                                              Text(
-                                                'غير مسجل',
-                                                style: TextStyle(
-                                                  fontSize: 12,
-                                                  color: isDark
-                                                      ? const Color(0xFF64748B)
-                                                      : const Color(0xFF94A3B8),
-                                                  fontWeight: FontWeight.w500,
-                                                ),
-                                              ),
-                                            ],
-                                          ],
-                                        ),
-                                      ],
                                     ),
                                   ),
-
-                                  // Action Button
-                                  if (isPresent)
-                                    OutlinedButton.icon(
-                                      onPressed: _readOnly ? null : () => _editAttendance(
-                                        record.id,
-                                        record.checkedInAt,
-                                      ),
-                                      icon: const Icon(
-                                        Icons.access_time_rounded,
-                                        size: 16,
-                                      ),
-                                      label: const Text('تعديل'),
-                                      style: OutlinedButton.styleFrom(
-                                        minimumSize: const Size(80, 40),
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 10,
-                                        ),
-                                      ),
-                                    )
-                                  else
-                                    FilledButton.icon(
-                                      onPressed: _readOnly || isBusy
-                                          ? null
-                                          : () => _checkIn(student),
-                                      icon: isBusy
-                                          ? const SizedBox(
-                                              width: 14,
-                                              height: 14,
-                                              child: CircularProgressIndicator(
-                                                strokeWidth: 2,
-                                                color: Colors.white,
-                                              ),
-                                            )
-                                          : const Icon(
-                                              Icons.how_to_reg_rounded,
-                                              size: 18,
-                                            ),
-                                      label: const Text('تسجيل'),
-                                      style: FilledButton.styleFrom(
-                                        backgroundColor: const Color(
-                                          0xFF059669,
-                                        ),
-                                        minimumSize: const Size(88, 42),
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 14,
-                                        ),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 9,
+                                      vertical: 3,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: classColor.withValues(alpha: .10),
+                                      borderRadius: BorderRadius.circular(999),
+                                    ),
+                                    child: Text(
+                                      '${filtered.where((item) => _classIdFor(item) == classId).length} تلميذ',
+                                      style: TextStyle(
+                                        color: classColor,
+                                        fontSize: 11,
+                                        fontWeight: FontWeight.w700,
                                       ),
                                     ),
+                                  ),
                                 ],
                               ),
-                                ),
-                              ],
-                            );
-                          },
-                        ),
+                            ),
+                          AttendanceStudentTile(
+                            student: student,
+                            record: record,
+                            isBusy: isBusy,
+                            readOnly: _readOnly,
+                            classColor: classColor,
+                            classLabel: _classLabelFor(student),
+                            attendanceLabel: record != null
+                                ? _attendanceLabel(record.checkedInAt)
+                                : '',
+                            attendanceColor: record != null
+                                ? _attendanceColor(record.checkedInAt)
+                                : Colors.transparent,
+                            onCheckIn: () => _checkIn(student),
+                            onEditTime: () {
+                              if (record != null) {
+                                _editAttendance(record.id, record.checkedInAt);
+                              }
+                            },
+                          ),
+                        ],
+                      );
+                    },
+                  ),
               ];
 
               return AppContent(
@@ -1052,17 +653,21 @@ class _AttendanceSessionPageState extends ConsumerState<AttendanceSessionPage> {
                           children: [
                             SizedBox(
                               width: 340,
-                              child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-                    ...leftWidgets,
-
-                              ]),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.stretch,
+                                children: [
+                                  ...leftWidgets,
+                                ],
+                              ),
                             ),
                             const SizedBox(width: 16),
                             Expanded(
-                              child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-                    ...rightWidgets,
-
-                              ]),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.stretch,
+                                children: [
+                                  ...rightWidgets,
+                                ],
+                              ),
                             ),
                           ],
                         ),
@@ -1084,112 +689,6 @@ class _AttendanceSessionPageState extends ConsumerState<AttendanceSessionPage> {
             },
           );
         },
-      ),
-    );
-  }
-}
-
-enum _AttendanceFilter { all, present, absent, pending }
-
-class _KpiPill extends StatelessWidget {
-  const _KpiPill({
-    required this.label,
-    required this.value,
-    required this.icon,
-    required this.color,
-  });
-
-  final String label;
-  final String value;
-  final IconData icon;
-  final Color color;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.08),
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: color.withValues(alpha: 0.22), width: 1),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: 16, color: color),
-          const SizedBox(width: 6),
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-              color: color,
-            ),
-          ),
-          const SizedBox(width: 6),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
-            decoration: BoxDecoration(
-              color: color,
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Text(
-              value,
-              style: const TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.w800,
-                fontSize: 12,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _FilterChipButton extends StatelessWidget {
-  const _FilterChipButton({
-    required this.label,
-    required this.selected,
-    required this.onTap,
-    this.color,
-  });
-
-  final String label;
-  final bool selected;
-  final VoidCallback onTap;
-  final Color? color;
-
-  @override
-  Widget build(BuildContext context) {
-    final effectiveColor = color ?? const Color(0xFF00236F);
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(999),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 160),
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
-        decoration: BoxDecoration(
-          color: selected
-              ? effectiveColor
-              : effectiveColor.withValues(alpha: 0.08),
-          borderRadius: BorderRadius.circular(999),
-          border: Border.all(
-            color: selected
-                ? effectiveColor
-                : effectiveColor.withValues(alpha: 0.20),
-            width: 1,
-          ),
-        ),
-        child: Text(
-          label,
-          style: TextStyle(
-            fontSize: 12,
-            fontWeight: selected ? FontWeight.w800 : FontWeight.w600,
-            color: selected ? Colors.white : effectiveColor,
-          ),
-        ),
       ),
     );
   }
