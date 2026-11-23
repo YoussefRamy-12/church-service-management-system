@@ -272,18 +272,25 @@ abstract final class AppTheme {
       ),
       checkboxTheme: CheckboxThemeData(
         fillColor: WidgetStateProperty.resolveWith((states) =>
-            states.contains(WidgetState.selected) ? scheme.primary : null),
+            states.contains(WidgetState.selected)
+                ? (isDark ? focus : scheme.primary)
+                : null),
+        checkColor: WidgetStatePropertyAll(isDark ? canvas : Colors.white),
         side: borderSide,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
       ),
       switchTheme: SwitchThemeData(
         thumbColor: WidgetStateProperty.resolveWith((states) =>
-            states.contains(WidgetState.selected) ? scheme.onPrimary : null),
+            states.contains(WidgetState.selected)
+                ? (isDark ? canvas : scheme.onPrimary)
+                : null),
         trackColor: WidgetStateProperty.resolveWith((states) =>
-            states.contains(WidgetState.selected) ? scheme.primaryContainer : null),
+            states.contains(WidgetState.selected)
+                ? (isDark ? focus : scheme.primaryContainer)
+                : null),
       ),
       progressIndicatorTheme: ProgressIndicatorThemeData(
-        color: scheme.primary,
+        color: isDark ? focus : scheme.primary,
         linearTrackColor: subtleSurface,
       ),
       focusColor: focus.withValues(alpha: 0.12),
