@@ -23,6 +23,8 @@ class _ServantSignUpPageState extends ConsumerState<ServantSignUpPage> {
   DateTime? _birthDate;
   bool _loading = false;
   bool _submitted = false;
+  bool _showPassword = false;
+  bool _showConfirmPassword = false;
   String? _error;
 
   @override
@@ -206,11 +208,22 @@ class _ServantSignUpPageState extends ConsumerState<ServantSignUpPage> {
         TextFormField(
           key: const Key('signup_password'),
           controller: _password,
-          obscureText: true,
+          obscureText: !_showPassword,
           autofillHints: const [AutofillHints.newPassword],
           textInputAction: TextInputAction.next,
           onFieldSubmitted: (_) => FocusScope.of(context).nextFocus(),
-          decoration: const InputDecoration(labelText: 'كلمة المرور'),
+          decoration: InputDecoration(
+            labelText: 'كلمة المرور',
+            suffixIcon: Semantics(
+              button: true,
+              label: _showPassword ? 'إخفاء كلمة المرور' : 'إظهار كلمة المرور',
+              child: IconButton(
+                tooltip: _showPassword ? 'إخفاء كلمة المرور' : 'إظهار كلمة المرور',
+                onPressed: () => setState(() => _showPassword = !_showPassword),
+                icon: Icon(_showPassword ? Icons.visibility_off_outlined : Icons.visibility_outlined),
+              ),
+            ),
+          ),
           validator: (value) => value == null || value.length < 8
               ? 'استخدم 8 أحرف على الأقل'
               : null,
@@ -219,11 +232,22 @@ class _ServantSignUpPageState extends ConsumerState<ServantSignUpPage> {
         TextFormField(
           key: const Key('signup_confirm_password'),
           controller: _confirmPassword,
-          obscureText: true,
+          obscureText: !_showConfirmPassword,
           autofillHints: const [AutofillHints.newPassword],
           textInputAction: TextInputAction.done,
           onFieldSubmitted: (_) => _submit(),
-          decoration: const InputDecoration(labelText: 'تأكيد كلمة المرور'),
+          decoration: InputDecoration(
+            labelText: 'تأكيد كلمة المرور',
+            suffixIcon: Semantics(
+              button: true,
+              label: _showConfirmPassword ? 'إخفاء كلمة المرور' : 'إظهار كلمة المرور',
+              child: IconButton(
+                tooltip: _showConfirmPassword ? 'إخفاء كلمة المرور' : 'إظهار كلمة المرور',
+                onPressed: () => setState(() => _showConfirmPassword = !_showConfirmPassword),
+                icon: Icon(_showConfirmPassword ? Icons.visibility_off_outlined : Icons.visibility_outlined),
+              ),
+            ),
+          ),
           validator: (value) =>
               value != _password.text ? 'كلمتا المرور غير متطابقتين' : null,
         ),
