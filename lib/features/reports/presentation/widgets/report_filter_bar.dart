@@ -69,6 +69,7 @@ class ReportFilterBar extends ConsumerWidget {
                   runSpacing: 8,
                   children: [
                     _periodButton(
+                      context: context,
                       label: 'اجتماع الجمعة الماضي',
                       preset: ReportPeriodPreset.lastMeeting,
                       currentPreset: filter.preset,
@@ -209,7 +210,7 @@ class ReportFilterBar extends ConsumerWidget {
                     child: DropdownButtonFormField<String?>(
                       initialValue: filter.stageId,
                       isDense: true,
-                      decoration: _dropdownDecoration('المرحلة'),
+                      decoration: _dropdownDecoration(context, 'المرحلة'),
                       items: [
                         const DropdownMenuItem(
                           value: null,
@@ -235,7 +236,7 @@ class ReportFilterBar extends ConsumerWidget {
                     child: DropdownButtonFormField<String?>(
                       initialValue: filter.classId,
                       isDense: true,
-                      decoration: _dropdownDecoration('الفصل (الأسرة)'),
+                      decoration: _dropdownDecoration(context, 'الفصل (الأسرة)'),
                       items: [
                         const DropdownMenuItem(
                           value: null,
@@ -414,6 +415,7 @@ class ReportFilterBar extends ConsumerWidget {
   }
 
   Widget _periodButton({
+    required BuildContext context,
     required String label,
     required ReportPeriodPreset preset,
     required ReportPeriodPreset currentPreset,
@@ -465,7 +467,7 @@ class ReportFilterBar extends ConsumerWidget {
     return fallback;
   }
 
-  InputDecoration _dropdownDecoration(String label) {
+  InputDecoration _dropdownDecoration(BuildContext context, String label) {
     final scheme = Theme.of(context).colorScheme;
     return InputDecoration(
       labelText: label,
