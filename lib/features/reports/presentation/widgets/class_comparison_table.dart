@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+
+import '../../../../app/design/app_colors.dart';
 import '../../domain/analytics_models.dart';
 
 class ClassComparisonTable extends StatelessWidget {
@@ -11,10 +13,116 @@ class ClassComparisonTable extends StatelessWidget {
   final List<ClassComparisonMetric> classComparisons;
   final ValueChanged<ClassComparisonMetric>? onClassTap;
 
+  Widget _buildMobileCard(
+    BuildContext context,
+    ClassComparisonMetric item,
+  ) {
+    final theme = Theme.of(context);
+    final rateColor = item.attendanceRate >= 75
+        ? AppColors.of(context).present.foreground
+        : item.attendanceRate >= 50
+            ? AppColors.of(context).pending.foreground
+            : AppColors.of(context).absent.foreground;
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
+      child: InkWell(
+        onTap: onClassTap == null ? null : () => onClassTap!(item),
+        borderRadius: BorderRadius.circular(10),
+        child: Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(14),
+          decoration: BoxDecoration(
+            color: theme.colorScheme.surface,
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(color: theme.colorScheme.outlineVariant),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(item.className, style: theme.textTheme.titleMedium),
+              const SizedBox(height: 2),
+              Text(
+                item.stageName,
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: theme.colorScheme.onSurfaceVariant,
+                ),
+              ),
+              const SizedBox(height: 12),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: [
+                  _metric(context, 'التلاميذ', '${item.totalStudents}'),
+                  _metric(
+                    context,
+                    'الحضور',
+                    '${item.presentCount} / ${item.expectedAttendance}',
+                  ),
+                  _metric(
+                    context,
+                    'نسبة الحضور',
+                    '${item.attendanceRate.toStringAsFixed(1)}%',
+                    valueColor: rateColor,
+                  ),
+                  _metric(
+                    context,
+                    'حضور مبكر',
+                    '${item.earlyRate.toStringAsFixed(0)}%',
+                  ),
+                  _metric(
+                    context,
+                    'غياب متكرر',
+                    '${item.repeatedAbsencesCount}',
+                    valueColor: item.repeatedAbsencesCount > 0
+                        ? AppColors.of(context).absent.foreground
+                        : AppColors.of(context).present.foreground,
+                  ),
+                  _metric(
+                    context,
+                    'إنجاز الافتقاد',
+                    '${item.followUpCompletionRate.toStringAsFixed(0)}%',
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _metric(
+    BuildContext context,
+    String label,
+    String value, {
+    Color? valueColor,
+  }) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surfaceContainerLow,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(label, style: Theme.of(context).textTheme.bodySmall),
+          const SizedBox(height: 2),
+          Text(
+            value,
+            style: Theme.of(context).textTheme.titleSmall?.copyWith(
+              fontWeight: FontWeight.w700,
+              color: valueColor,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
 
     if (classComparisons.isEmpty) {
       return const SizedBox.shrink();
@@ -22,10 +130,10 @@ class ClassComparisonTable extends StatelessWidget {
 
     return Container(
       decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF131D33) : Colors.white,
+        color: theme.colorScheme.surface,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0),
+          color: theme.colorScheme.outlineVariant,
           width: 1.2,
         ),
       ),
@@ -42,12 +150,12 @@ class ClassComparisonTable extends StatelessWidget {
                     Container(
                       padding: const EdgeInsets.all(6),
                       decoration: BoxDecoration(
-                        color: const Color(0xFF00236F).withValues(alpha: 0.1),
+                        color: theme.colorScheme.primaryContainer,
                         borderRadius: BorderRadius.circular(8),
                       ),
-                      child: const Icon(
+                      child: Icon(
                         Icons.table_chart_rounded,
-                        color: Color(0xFF00236F),
+                        color: theme.colorScheme.primary,
                         size: 20,
                       ),
                     ),
@@ -66,18 +174,21 @@ class ClassComparisonTable extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w600,
-                    color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                    color: theme.colorScheme.onSurfaceVariant,
                   ),
                 ),
               ],
             ),
           ),
           const Divider(height: 1),
-          SingleChildScrollView(
+          LayoutBuilder(
+            builder: (context, constraints) {
+              if (constraints.maxWidth >= 768) {
+                return SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             child: DataTable(
               headingRowColor: WidgetStateProperty.all(
-                isDark ? const Color(0xFF182234) : const Color(0xFFF8FAFC),
+                theme.colorScheme.surfaceContainerLow,
               ),
               dataRowMinHeight: 52,
               dataRowMaxHeight: 56,
@@ -94,10 +205,10 @@ class ClassComparisonTable extends StatelessWidget {
               rows: classComparisons.map((c) {
                 final rate = c.attendanceRate;
                 final rateColor = rate >= 75
-                    ? const Color(0xFF10B981)
+                    ? AppColors.of(context).present.foreground
                     : (rate >= 50
-                        ? const Color(0xFFF59E0B)
-                        : const Color(0xFFEF4444));
+                        ? AppColors.of(context).pending.foreground
+                        : AppColors.of(context).absent.foreground);
 
                 return DataRow(
                   onSelectChanged: onClassTap != null ? (_) => onClassTap!(c) : null,
@@ -153,18 +264,18 @@ class ClassComparisonTable extends StatelessWidget {
                           ? Container(
                               padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                               decoration: BoxDecoration(
-                                color: const Color(0xFFEF4444).withValues(alpha: 0.15),
+                                color: AppColors.of(context).absent.background,
                                 borderRadius: BorderRadius.circular(4),
                               ),
                               child: Text(
                                 '${c.repeatedAbsencesCount}',
                                 style: const TextStyle(
                                   fontWeight: FontWeight.w700,
-                                  color: Color(0xFFDC2626),
+                                  color: AppColors.of(context).absent.foreground,
                                 ),
                               ),
                             )
-                          : const Text('0', style: TextStyle(color: Color(0xFF10B981))),
+                          : Text('0', style: TextStyle(color: AppColors.of(context).present.foreground)),
                     ),
                     DataCell(
                       Text(
@@ -176,6 +287,15 @@ class ClassComparisonTable extends StatelessWidget {
                 );
               }).toList(),
             ),
+          ),;
+              }
+              return Column(
+                children: [
+                  for (final item in classComparisons)
+                    _buildMobileCard(context, item),
+                ],
+              );
+            },
           ),
         ],
       ),
