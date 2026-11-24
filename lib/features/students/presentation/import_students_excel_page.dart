@@ -1,5 +1,6 @@
 // ignore_for_file: deprecated_member_use
 import '../../../app/theme.dart';
+import '../../../app/ui/components/status_chip.dart';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
@@ -977,17 +978,12 @@ class _ImportStudentsExcelPageState
                     ),
                     const SizedBox(width: 8),
                     StatusChip(
+                      status: hasErr
+                          ? AppStatus.conflict
+                          : isDup
+                          ? AppStatus.pending
+                          : AppStatus.present,
                       label: badgeText,
-                      icon: hasErr
-                          ? Icons.error_outline_rounded
-                          : isDup
-                          ? Icons.copy_rounded
-                          : Icons.check_circle_rounded,
-                      tone: hasErr
-                          ? StatusTone.error
-                          : isDup
-                          ? StatusTone.warning
-                          : StatusTone.success,
                     ),
                     if (hasErr || isDup) ...[
                       const SizedBox(width: 8),
