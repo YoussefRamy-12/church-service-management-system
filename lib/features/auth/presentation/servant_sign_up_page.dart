@@ -98,7 +98,8 @@ class _ServantSignUpPageState extends ConsumerState<ServantSignUpPage> {
     return Scaffold(
       key: const Key('servant_signup_page'),
       appBar: AppBar(title: const Text('إنشاء حساب خادم')),
-      body: AmbientBackground(
+      body: SafeArea(
+        child: AmbientBackground(
         intensity: 0.9,
         child: Center(
           child: ConstrainedBox(
@@ -114,7 +115,7 @@ class _ServantSignUpPageState extends ConsumerState<ServantSignUpPage> {
             ),
           ),
         ),
-      ),
+      )),
     );
   }
 
@@ -140,6 +141,8 @@ class _ServantSignUpPageState extends ConsumerState<ServantSignUpPage> {
           key: const Key('signup_name'),
           controller: _name,
           textCapitalization: TextCapitalization.words,
+          textInputAction: TextInputAction.next,
+          onFieldSubmitted: (_) => FocusScope.of(context).nextFocus(),
           decoration: const InputDecoration(labelText: 'الاسم بالكامل'),
           validator: (value) => value == null || value.trim().isEmpty
               ? 'أدخل الاسم بالكامل'
@@ -174,6 +177,8 @@ class _ServantSignUpPageState extends ConsumerState<ServantSignUpPage> {
           key: const Key('signup_work_study'),
           controller: _workStudy,
           textCapitalization: TextCapitalization.sentences,
+          textInputAction: TextInputAction.next,
+          onFieldSubmitted: (_) => FocusScope.of(context).nextFocus(),
           decoration: const InputDecoration(
             labelText: 'العمل أو الدراسة',
             hintText: 'مثال: طالب جامعي أو مهندس',
@@ -200,6 +205,8 @@ class _ServantSignUpPageState extends ConsumerState<ServantSignUpPage> {
           key: const Key('signup_phone'),
           controller: _phone,
           keyboardType: TextInputType.phone,
+          textInputAction: TextInputAction.next,
+          onFieldSubmitted: (_) => FocusScope.of(context).nextFocus(),
           decoration: const InputDecoration(labelText: 'رقم الهاتف'),
           validator: (value) =>
               value == null || value.trim().isEmpty ? 'أدخل رقم الهاتف' : null,
