@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../app/ui/app_ui.dart';
+import '../../app/ui/components/sync_badge.dart';
 import '../config/config_provider.dart';
 import 'sync_engine_provider.dart';
 import 'sync_status.dart';
@@ -91,7 +92,19 @@ class _SyncCenterPageState extends ConsumerState<SyncCenterPage> {
                   final pendingCount = pending.data ?? 0;
                   final conflictCount = conflict.data ?? 0;
                   return Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 8,
+                        children: [
+                          SyncBadge(state: conflictCount > 0 ? SyncState.conflict : SyncState.synced, count: conflictCount, label: conflictCount > 0 ? 'تعارضات تحتاج مراجعة ($conflictCount)' : 'لا توجد تعارضات'),
+                          SyncBadge(state: pendingCount > 0 ? SyncState.pending : SyncState.synced, count: pendingCount, label: pendingCount > 0 ? 'في انتظار المزامنة ($pendingCount)' : 'لا توجد تغييرات معلقة'),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+                      const Text('المزامنة ترسل التغييرات المحفوظة على هذا الجهاز. العناصر المعلقة لم تصل إلى قاعدة البيانات بعد، والتعارضات تحتاج مراجعة قبل إعادة المحاولة.'),
+                      const SizedBox(height: 14),
                       Row(
                         children: [
                           Expanded(
@@ -142,8 +155,8 @@ class _SyncCenterPageState extends ConsumerState<SyncCenterPage> {
                           padding: EdgeInsets.only(top: 14),
                           child: EmptyState(
                             icon: Icons.cloud_done_outlined,
-                            title: 'كل التغييرات متزامنة',
-                            message: 'ستظهر هنا أي تغييرات محفوظة دون اتصال.',
+                            title: 'كل شيء متزامن',
+                            message: 'لا توجد تغييرات معلقة أو تعارضات. بيانات هذا الجهاز متزامنة.',
                           ),
                         ),
                     ],
@@ -151,6 +164,37 @@ class _SyncCenterPageState extends ConsumerState<SyncCenterPage> {
                 },
               ),
             ),
+            if (offlineSyncEnabled) ...[
+              StreamBuilder<int>(
+                stream: queue.watchCountByStatus('pending'),
+                builder: (context, pendingSnapshot) {
+                  if ((pendingSnapshot.data ?? 0) == 0) return const SizedBox.shrink();
+                  return FutureBuilder(
+                    future: queue.pending(),
+                    builder: (context, itemsSnapshot) {
+                      final items = itemsSnapshot.data;
+                      if (items == null || items.isEmpty) return const SizedBox.shrink();
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Text('التغييرات في انتظار المزامنة', style: Theme.of(context).textTheme.titleMedium),
+                          const SizedBox(height: 8),
+                          for (final item in items)
+                            Card(
+                              child: ListTile(
+                                leading: const Icon(Icons.cloud_upload_outlined),
+                                title: Text(item.entityType),
+                                subtitle: Text(item.operationType),
+                                trailing: const Icon(Icons.schedule),
+                              ),
+                            ),
+                        ],
+                      );
+                    },
+                  );
+                },
+              ),
+            ],
             const SizedBox(height: 16),
             Card(
               child: Padding(
