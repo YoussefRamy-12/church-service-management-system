@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:supabase_flutter/supabase_flutter.dart' show SupabaseClient;
+
+import 'package:church_service_management_system/core/network/supabase_client_provider.dart';
 
 import 'package:church_service_management_system/features/auth/presentation/auth_providers.dart';
 import 'package:church_service_management_system/features/auth/presentation/session_gate.dart';
 import 'package:church_service_management_system/features/auth/domain/entities/session_identity.dart';
+import 'package:church_service_management_system/features/auth/domain/entities/servant_profile.dart';
 
 void main() {
   testWidgets('session gate rejects an account without an active identity', (
