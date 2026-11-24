@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:church_service/features/servants/presentation/servant_role_filter.dart';
+import 'package:church_service_management_system/features/servants/presentation/servant_role_filter.dart';
 
 void main() {
   testWidgets('servant role filter reports the selected role', (tester) async {
