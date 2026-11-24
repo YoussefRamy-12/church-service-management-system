@@ -11,6 +11,7 @@ import '../../service/domain/entities/stage.dart';
 import '../../service/presentation/service_providers.dart';
 import 'servant_providers.dart';
 import 'servant_management_dialogs.dart';
+import 'servant_role_filter.dart';
 import '../../../app/ui/app_ui.dart';
 import '../../../core/ui/phone_contact_actions.dart';
 
@@ -240,31 +241,10 @@ class _ServantManagementPageState extends ConsumerState<ServantManagementPage> {
                           onChanged: (value) => setState(() => search = value),
                         ),
                         const SizedBox(height: 12),
-                        Text(
-                          'الدور',
-                          style: Theme.of(context).textTheme.labelLarge,
-                        ),
-                        const SizedBox(height: 6),
-                        Wrap(
-                          spacing: 8,
-                          runSpacing: 8,
-                          children: [
-                            for (final option in const [
-                              ('all', 'كل الأدوار'),
-                              ('overall_leader', 'أمين الخدمة'),
-                              ('overall_helper', 'أمين مساعد'),
-                              ('stage_leader', 'أمين المرحلة'),
-                              ('class_leader', 'أمين الفصل'),
-                              ('class_servant', 'خادم الفصل'),
-                            ])
-                              ChoiceChip(
-                                label: Text(option.$2),
-                                selected: roleFilter == option.$1,
-                                onSelected: (_) => setState(
-                                  () => roleFilter = option.$1,
-                                ),
-                              ),
-                          ],
+                        ServantRoleFilter(
+                          selectedRole: roleFilter,
+                          onChanged: (value) =>
+                              setState(() => roleFilter = value),
                         ),
                         const SizedBox(height: 10),
                         Text(
