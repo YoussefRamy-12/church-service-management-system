@@ -32,6 +32,7 @@ class _ExportPageState extends ConsumerState<ExportPage> {
   String? selectedClassId;
   Set<String> selectedStudentIds = {};
   bool exporting = false;
+  bool _exportCompleted = false;
   bool loading = true;
   List<dynamic> stages = [];
   List<dynamic> classes = [];
@@ -146,7 +147,10 @@ class _ExportPageState extends ConsumerState<ExportPage> {
       ),
     );
     if (confirm != true || !mounted) return;
-    setState(() => exporting = true);
+    setState(() {
+      exporting = true;
+      _exportCompleted = false;
+    });
     try {
       final offlineEnabled = ref.read(offlineSyncEnabledProvider);
       String? effectiveStage = stageId;
@@ -225,6 +229,7 @@ class _ExportPageState extends ConsumerState<ExportPage> {
         );
       }
       if (!mounted) return;
+      setState(() => _exportCompleted = true);
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('تم إنشاء ملف Excel بنجاح.')),
       );
@@ -305,6 +310,18 @@ class _ExportPageState extends ConsumerState<ExportPage> {
         child: ListView(
           padding: EdgeInsets.fromLTRB(16, 20, 16, isMobile ? 104 : 24),
           children: [
+            if (exporting)
+              const StatusChip(
+                label: 'جارٍ تجهيز ملف Excel',
+                icon: Icons.hourglass_top_rounded,
+              ),
+            if (_exportCompleted)
+              const StatusChip(
+                label: 'تم إنشاء ملف Excel بنجاح',
+                icon: Icons.check_circle_rounded,
+                tone: StatusTone.success,
+              ),
+            if (exporting || _exportCompleted) const SizedBox(height: 12),
             DropdownButtonFormField<String>(
               initialValue: scope,
               decoration: const InputDecoration(labelText: 'النطاق'),
