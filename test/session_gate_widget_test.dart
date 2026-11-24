@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'package:church_service_management_system/features/auth/presentation/auth_providers.dart';
 import 'package:church_service_management_system/features/auth/presentation/session_gate.dart';
+import 'package:church_service_management_system/features/auth/domain/entities/session_identity.dart';
 
 void main() {
   testWidgets('session gate rejects an account without an active identity', (
@@ -22,4 +23,24 @@ void main() {
 
     expect(find.text('الحساب غير مرتبط بدور نشط في الخدمة.'), findsOneWidget);
   });
+  testWidgets('service picker shows a clear empty state when no services are assigned', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          currentSessionIdentityProvider.overrideWith(
+            (ref) async => const MultiServiceServantIdentity([]),
+          ),
+        ],
+        child: const MaterialApp(home: SessionGate()),
+      ),
+    );
+
+    await tester.pumpAndSettle();
+
+    expect(find.text('لا توجد خدمات مرتبطة'), findsOneWidget);
+    expect(find.text('تواصل مع مسؤول النظام لربط حسابك بخدمة.'), findsOneWidget);
+  });
+
 }
