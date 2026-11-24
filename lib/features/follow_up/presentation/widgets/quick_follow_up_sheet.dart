@@ -204,8 +204,9 @@ class _QuickFollowUpSheetState extends ConsumerState<QuickFollowUpSheet> {
         const SizedBox(height: 14),
         FilledButton.icon(
           onPressed: () {
-            Navigator.pop(context);
-            Navigator.of(context).push(
+            final navigator = Navigator.of(context);
+            navigator.pop();
+            navigator.push(
               MaterialPageRoute(
                 builder: (_) => CreateFollowUpCasePage(
                   serviceId: widget.serviceId,
@@ -255,10 +256,11 @@ class _QuickFollowUpSheetState extends ConsumerState<QuickFollowUpSheet> {
         caseId: caseId,
       );
       if (!mounted) return;
-      Navigator.pop(context);
-      ScaffoldMessenger.of(context).showSnackBar(
+      final messenger = ScaffoldMessenger.of(context);
+      messenger.showSnackBar(
         const SnackBar(content: Text('تم تسجيل المتابعة بنجاح.')),
       );
+      Navigator.pop(context);
     } catch (error) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(

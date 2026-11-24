@@ -124,7 +124,7 @@ class FollowUpStudentCard extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                 decoration: BoxDecoration(
                   color: hasHighAbsence
-                      ? const Color(0xFFDC2626).withValues(alpha: 0.12)
+                      ? semantic.absent.background
                       : theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
                   borderRadius: BorderRadius.circular(8),
                   border: Border.all(
