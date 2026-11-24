@@ -479,14 +479,14 @@ class _ServantPrepViewState extends ConsumerState<ServantPrepView> {
                     decoration: BoxDecoration(
                       color: isCurrentWeek
                           ? appSoftBlue
-                          : const AppDesignColors.lightSurfaceSubtle,
+                          : AppDesignColors.lightSurfaceSubtle,
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Icon(
                       Icons.menu_book_rounded,
                       color: isCurrentWeek
                           ? appPrimary
-                          : const AppDesignColors.lightMutedInk,
+                          : AppDesignColors.lightMutedInk,
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -501,7 +501,7 @@ class _ServantPrepViewState extends ConsumerState<ServantPrepView> {
                             fontWeight: FontWeight.w600,
                             color: isCurrentWeek
                                 ? appPrimary
-                                : const AppDesignColors.lightMutedInk,
+                                : AppDesignColors.lightMutedInk,
                           ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
