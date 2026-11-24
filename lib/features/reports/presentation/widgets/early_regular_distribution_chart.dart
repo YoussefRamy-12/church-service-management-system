@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../../../app/design/app_colors.dart';
+
 class EarlyRegularDistributionChart extends StatelessWidget {
   const EarlyRegularDistributionChart({
     super.key,
@@ -19,7 +21,6 @@ class EarlyRegularDistributionChart extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
 
     final total = expectedAttendance > 0 ? expectedAttendance : 1;
     final beforePct = (beforeCount * 100.0) / total;
@@ -30,10 +31,10 @@ class EarlyRegularDistributionChart extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF131D33) : Colors.white,
+        color: theme.colorScheme.surface,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0),
+          color: theme.colorScheme.outlineVariant,
           width: 1.2,
         ),
       ),
@@ -45,12 +46,12 @@ class EarlyRegularDistributionChart extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(6),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF10B981).withValues(alpha: 0.1),
+                  color: theme.colorScheme.primaryContainer,
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: const Icon(
                   Icons.timelapse_rounded,
-                  color: Color(0xFF10B981),
+                  color: AppColors.of(context).present.foreground,
                   size: 20,
                 ),
               ),
@@ -76,7 +77,7 @@ class EarlyRegularDistributionChart extends StatelessWidget {
                     Expanded(
                       flex: (beforePct * 10).toInt().clamp(1, 1000),
                       child: Container(
-                        color: const Color(0xFF047857),
+                        color: AppColors.of(context).present.foreground,
                         alignment: Alignment.center,
                       ),
                     ),
@@ -84,7 +85,7 @@ class EarlyRegularDistributionChart extends StatelessWidget {
                     Expanded(
                       flex: (earlyPct * 10).toInt().clamp(1, 1000),
                       child: Container(
-                        color: const Color(0xFF10B981),
+                        color: AppColors.of(context).present.foreground,
                         alignment: Alignment.center,
                       ),
                     ),
@@ -92,7 +93,7 @@ class EarlyRegularDistributionChart extends StatelessWidget {
                     Expanded(
                       flex: (normalPct * 10).toInt().clamp(1, 1000),
                       child: Container(
-                        color: const Color(0xFF1E3A8A),
+                        color: theme.colorScheme.primary,
                         alignment: Alignment.center,
                       ),
                     ),
@@ -100,7 +101,7 @@ class EarlyRegularDistributionChart extends StatelessWidget {
                     Expanded(
                       flex: (absentPct * 10).toInt().clamp(1, 1000),
                       child: Container(
-                        color: const Color(0xFFEF4444),
+                        color: AppColors.of(context).absent.foreground,
                         alignment: Alignment.center,
                       ),
                     ),
@@ -109,38 +110,55 @@ class EarlyRegularDistributionChart extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 18),
-          // 4 Stats indicators
-          Row(
-            children: [
-              _statItem(
-                label: 'قبل الموعد',
-                count: beforeCount,
-                pct: beforePct,
-                color: const Color(0xFF047857),
-                isDark: isDark,
-              ),
-              _statItem(
-                label: 'مبكر',
-                count: earlyCount,
-                pct: earlyPct,
-                color: const Color(0xFF10B981),
-                isDark: isDark,
-              ),
-              _statItem(
-                label: 'عادي',
-                count: normalCount,
-                pct: normalPct,
-                color: const Color(0xFF1E3A8A),
-                isDark: isDark,
-              ),
-              _statItem(
-                label: 'غياب',
-                count: absentCount,
-                pct: absentPct,
-                color: const Color(0xFFEF4444),
-                isDark: isDark,
-              ),
-            ],
+          // 4 Stats indicators — two columns on narrow screens.
+          LayoutBuilder(
+            builder: (context, constraints) {
+              final itemWidth = constraints.maxWidth >= 768
+                  ? (constraints.maxWidth - 36) / 4
+                  : (constraints.maxWidth - 12) / 2;
+              return Wrap(
+                spacing: 12,
+                runSpacing: 12,
+                children: [
+                  SizedBox(
+                    width: itemWidth,
+                    child: _statItem(
+                      label: 'قبل الموعد',
+                      count: beforeCount,
+                      pct: beforePct,
+                      color: AppColors.of(context).present.foreground,
+                    ),
+                  ),
+                  SizedBox(
+                    width: itemWidth,
+                    child: _statItem(
+                      label: 'مبكر',
+                      count: earlyCount,
+                      pct: earlyPct,
+                      color: AppColors.of(context).present.foreground,
+                    ),
+                  ),
+                  SizedBox(
+                    width: itemWidth,
+                    child: _statItem(
+                      label: 'عادي',
+                      count: normalCount,
+                      pct: normalPct,
+                      color: theme.colorScheme.primary,
+                    ),
+                  ),
+                  SizedBox(
+                    width: itemWidth,
+                    child: _statItem(
+                      label: 'غياب',
+                      count: absentCount,
+                      pct: absentPct,
+                      color: AppColors.of(context).absent.foreground,
+                    ),
+                  ),
+                ],
+              );
+            },
           ),
         ],
       ),
@@ -152,10 +170,8 @@ class EarlyRegularDistributionChart extends StatelessWidget {
     required int count,
     required double pct,
     required Color color,
-    required bool isDark,
   }) {
-    return Expanded(
-      child: Column(
+    return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
@@ -174,9 +190,7 @@ class EarlyRegularDistributionChart extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 11,
                     fontWeight: FontWeight.w600,
-                    color: isDark
-                        ? const Color(0xFF94A3B8)
-                        : const Color(0xFF64748B),
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
                 ),
               ),
@@ -188,11 +202,10 @@ class EarlyRegularDistributionChart extends StatelessWidget {
             style: TextStyle(
               fontSize: 13,
               fontWeight: FontWeight.w700,
-              color: isDark ? Colors.white : const Color(0xFF0F172A),
+              color: Theme.of(context).colorScheme.onSurface,
             ),
           ),
         ],
-      ),
     );
   }
 }
