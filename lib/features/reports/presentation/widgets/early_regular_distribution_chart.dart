@@ -133,6 +133,7 @@ class EarlyRegularDistributionChart extends StatelessWidget {
                   SizedBox(
                     width: itemWidth,
                     child: _statItem(
+                      context: context,
                       label: 'مبكر',
                       count: earlyCount,
                       pct: earlyPct,
@@ -142,6 +143,7 @@ class EarlyRegularDistributionChart extends StatelessWidget {
                   SizedBox(
                     width: itemWidth,
                     child: _statItem(
+                      context: context,
                       label: 'عادي',
                       count: normalCount,
                       pct: normalPct,
@@ -151,6 +153,7 @@ class EarlyRegularDistributionChart extends StatelessWidget {
                   SizedBox(
                     width: itemWidth,
                     child: _statItem(
+                      context: context,
                       label: 'غياب',
                       count: absentCount,
                       pct: absentPct,
