@@ -191,13 +191,7 @@ class _SpiritualNotebookPageState extends ConsumerState<SpiritualNotebookPage> {
     );
   }
 
-  Widget _buildTopHeader(
-    BuildContext context, {
-    required bool isDark,
-    required bool isMobile,
-    required WeeklyPeriod period,
-    required bool isCurrentWeek,
-  }) {
+) {
     final theme = Theme.of(context);
 
     if (isMobile) {
@@ -514,14 +508,7 @@ class _SpiritualNotebookPageState extends ConsumerState<SpiritualNotebookPage> {
     );
   }
 
-  Widget _buildMetricsSection({
-    required bool isMobile,
-    required int totalStudents,
-    required int registeredCount,
-    required int pendingCount,
-    required int weekTotalPoints,
-    required int completionPercentage,
-  }) {
+) {
     if (isMobile) {
       // Mobile: 2x2 compact grid (takes only ~105px total, eliminates any overflow)
       return Column(
@@ -621,11 +608,7 @@ class _SpiritualNotebookPageState extends ConsumerState<SpiritualNotebookPage> {
     );
   }
 
-  Widget _buildTabBar({
-    required bool isMobile,
-    required int totalStudents,
-    required bool canConfigure,
-  }) {
+) {
     return Center(
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 600),
