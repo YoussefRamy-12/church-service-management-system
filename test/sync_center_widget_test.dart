@@ -48,6 +48,21 @@ void main() {
         child: const MaterialApp(home: SyncCenterPage()),
       );
 
+  testWidgets('sync center matches the empty-state golden', (tester) async {
+    tester.view.physicalSize = const Size(1280, 900);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    await tester.pumpWidget(buildSubject());
+    await tester.pumpAndSettle();
+
+    expect(find.text('كل شيء متزامن'), findsOneWidget);
+    await expectLater(
+      find.byType(SyncCenterPage),
+      matchesGoldenFile('goldens/sync_center_empty.png'),
+    );
+  });
+
   testWidgets('sync center shows the synchronized empty state', (tester) async {
     await tester.pumpWidget(buildSubject());
     await tester.pumpAndSettle();
