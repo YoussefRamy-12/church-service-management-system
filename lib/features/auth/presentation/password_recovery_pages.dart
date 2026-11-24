@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import 'auth_providers.dart';
-import '../../../app/ui/app_ui.dart';
 import '../../../core/network/supabase_client_provider.dart';
 
 class ForgotPasswordPage extends ConsumerStatefulWidget {
@@ -44,9 +43,9 @@ class _ForgotPasswordPageState extends ConsumerState<ForgotPasswordPage> {
   @override
   Widget build(BuildContext context) => Scaffold(
     appBar: AppBar(title: const Text('استعادة كلمة المرور')),
-    body: SafeArea(child: AmbientBackground(child: Center(child: ConstrainedBox(
+    body: SafeArea(child: ColoredBox(color: Theme.of(context).scaffoldBackgroundColor, child: Center(child: ConstrainedBox(
       constraints: const BoxConstraints(maxWidth: 460),
-      child: GlassCard(padding: const EdgeInsets.all(28), child: _sent
+      child: Container(padding: const EdgeInsets.all(24), decoration: BoxDecoration(color: Theme.of(context).colorScheme.surface, borderRadius: BorderRadius.circular(12), border: Border.all(color: Theme.of(context).colorScheme.outlineVariant)), child: _sent
         ? Column(mainAxisSize: MainAxisSize.min, children: [
             const Icon(Icons.mark_email_read_outlined, size: 48),
             const SizedBox(height: 16),
@@ -120,9 +119,9 @@ class _ResetPasswordPageState extends ConsumerState<ResetPasswordPage> {
   @override
   Widget build(BuildContext context) => Scaffold(
     appBar: AppBar(title: const Text('إنشاء كلمة مرور جديدة')),
-    body: SafeArea(child: AmbientBackground(child: Center(child: ConstrainedBox(
+    body: SafeArea(child: ColoredBox(color: Theme.of(context).scaffoldBackgroundColor, child: Center(child: ConstrainedBox(
       constraints: const BoxConstraints(maxWidth: 460),
-      child: GlassCard(padding: const EdgeInsets.all(28), child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+      child: Container(padding: const EdgeInsets.all(24), decoration: BoxDecoration(color: Theme.of(context).colorScheme.surface, borderRadius: BorderRadius.circular(12), border: Border.all(color: Theme.of(context).colorScheme.outlineVariant)), child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.stretch, children: [
         const Text('اختر كلمة مرور جديدة لحسابك.'),
         const SizedBox(height: 16),
         TextField(controller: _password, obscureText: !_showPassword, autofillHints: const [AutofillHints.newPassword], textInputAction: TextInputAction.next, decoration: InputDecoration(labelText: 'كلمة المرور الجديدة', suffixIcon: Semantics(button: true, label: _showPassword ? 'إخفاء كلمة المرور' : 'إظهار كلمة المرور', child: IconButton(tooltip: _showPassword ? 'إخفاء كلمة المرور' : 'إظهار كلمة المرور', onPressed: () => setState(() => _showPassword = !_showPassword), icon: Icon(_showPassword ? Icons.visibility_off_outlined : Icons.visibility_outlined))))),
