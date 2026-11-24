@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -168,12 +169,8 @@ class _LoginPageState extends ConsumerState<LoginPage> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
-    final cardBg = isDark
-        ? const Color(0xFF131D33)
-        : Colors.white;
-    final cardBorder = isDark
-        ? const Color(0xFF1E293B)
-        : const Color(0xFFE2E8F0);
+    final cardBg = theme.colorScheme.surface;
+    final cardBorder = theme.colorScheme.outlineVariant;
 
     return Scaffold(
       key: const Key('login_page'),
@@ -208,25 +205,15 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(12),
                     child: BackdropFilter(
-                      filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+                      filter: ImageFilter.blur(sigmaX: 0, sigmaY: 0),
                       child: Container(
                         decoration: BoxDecoration(
                           color: cardBg,
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(color: cardBorder, width: 1),
-                          boxShadow: [
-                            BoxShadow(
-                              color: isDark
-                                  ? Colors.black.withValues(alpha: 0.4)
-                                  : const Color(
-                                      0xFF0F172A,
-                                    ).withValues(alpha: 0.08),
-                              blurRadius: 32,
-                              offset: const Offset(0, 12),
-                            ),
-                          ],
+                          boxShadow: const [],
                         ),
-                        padding: const EdgeInsets.fromLTRB(32, 36, 32, 36),
+                        padding: const EdgeInsets.fromLTRB(24, 24, 24, 24),
                         child: Form(
                           key: _formKey,
                           child: Column(
