@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../service/presentation/service_providers.dart';
@@ -11,18 +10,18 @@ import '../domain/entities/student.dart';
 import '../domain/student_permissions.dart';
 import 'student_providers.dart';
 import '../../../app/ui/app_ui.dart';
+import '../../../app/design/app_colors.dart';
+import '../../../app/ui/components/status_chip.dart';
 import '../../../core/config/config_provider.dart';
 import '../../../core/network/network_error_formatter.dart';
 import '../../../core/ui/phone_contact_actions.dart';
-import '../../attendance/presentation/attendance_providers.dart';
-import '../../attendance/presentation/meeting_providers.dart';
-import '../../follow_up/presentation/follow_up_case_providers.dart';
-import '../../follow_up/presentation/follow_up_providers.dart';
-import '../../follow_up/presentation/pages/create_follow_up_case_page.dart';
-import '../../follow_up/presentation/pages/follow_up_case_details_page.dart';
-import '../../follow_up/presentation/widgets/case_priority_badge.dart';
-import '../../follow_up/presentation/widgets/case_status_badge.dart';
-import '../../follow_up/presentation/widgets/follow_up_activity_card.dart';
+import 'widgets/student_attendance_tab.dart';
+import 'widgets/student_edit_dialog.dart';
+import 'widgets/student_follow_up_tab.dart';
+
+export 'widgets/student_edit_dialog.dart';
+
+enum _StudentAction { assignClass, archive }
 
 class StudentDetailsPage extends ConsumerStatefulWidget {
   const StudentDetailsPage({super.key, required this.student});
@@ -259,7 +258,7 @@ class _StudentDetailsPageState extends ConsumerState<StudentDetailsPage> {
                 ? 'تمت أرشفة عضوية التلميذ محليًا وستتم مزامنتها.'
                 : 'تمت أرشفة عضوية التلميذ بنجاح.',
           ),
-          backgroundColor: const Color(0xFF10B981),
+          backgroundColor: AppColors.of(context).present.foreground,
         ),
       );
     } catch (error) {
@@ -272,7 +271,7 @@ class _StudentDetailsPageState extends ConsumerState<StudentDetailsPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(message),
-          backgroundColor: const Color(0xFFDC2626),
+          backgroundColor: AppDesignColors.lightError,
         ),
       );
     } finally {
@@ -385,32 +384,59 @@ class _StudentDetailsPageState extends ConsumerState<StudentDetailsPage> {
             ],
           ),
           actions: [
-            if (canEdit)
-              IconButton(
-                key: const Key('student_assign_class'),
-                tooltip: 'تغيير الفصل',
-                onPressed: _isDeleting ? null : _changeClass,
-                icon: const Icon(Icons.move_to_inbox_outlined),
-              ),
-            if (canEdit)
-              IconButton(
-                key: const Key('student_delete'),
-                tooltip: 'أرشفة عضوية التلميذ',
-                onPressed: _isDeleting ? null : _delete,
-                icon: _isDeleting
-                    ? const SizedBox(
-                        width: 20,
-                        height: 20,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
-                    : const Icon(Icons.delete_outline_rounded),
-              ),
-            if (canEdit)
+            // Single contextual primary: approve OR edit, never both
+            if (student.isPending && canApprove)
+              Padding(
+                padding: const EdgeInsets.only(left: 8),
+                child: FilledButton.icon(
+                  key: const Key('student_approve'),
+                  onPressed: _isDeleting ? null : _approve,
+                  icon: const Icon(Icons.verified_outlined, size: 18),
+                  label: const Text('اعتماد'),
+                ),
+              )
+            else if (canEdit)
               IconButton(
                 key: const Key('student_edit'),
                 icon: const Icon(Icons.edit),
                 tooltip: 'تعديل',
                 onPressed: _isDeleting ? null : _edit,
+              ),
+            // Destructive & secondary in overflow
+            if (canEdit)
+              PopupMenuButton<_StudentAction>(
+                key: const Key('student_overflow_menu'),
+                tooltip: 'المزيد',
+                onSelected: (action) {
+                  if (action == _StudentAction.assignClass) _changeClass();
+                  if (action == _StudentAction.archive) _delete();
+                },
+                itemBuilder: (_) => [
+                  const PopupMenuItem(
+                    value: _StudentAction.assignClass,
+                    child: ListTile(
+                      dense: true,
+                      leading: Icon(Icons.move_to_inbox_outlined),
+                      title: Text('تغيير الفصل'),
+                      contentPadding: EdgeInsets.zero,
+                    ),
+                  ),
+                  const PopupMenuItem(
+                    value: _StudentAction.archive,
+                    child: ListTile(
+                      dense: true,
+                      leading: Icon(
+                        Icons.archive_outlined,
+                        color: AppDesignColors.lightError,
+                      ),
+                      title: Text(
+                        'أرشفة عضوية التلميذ',
+                        style: TextStyle(color: AppDesignColors.lightError),
+                      ),
+                      contentPadding: EdgeInsets.zero,
+                    ),
+                  ),
+                ],
               ),
           ],
         ),
@@ -421,29 +447,12 @@ class _StudentDetailsPageState extends ConsumerState<StudentDetailsPage> {
               child: ListView(
                 padding: const EdgeInsets.fromLTRB(0, 20, 0, 32),
                 children: [
-                  if (student.isPending && canApprove)
-                    Card(
-                      child: ListTile(
-                        leading: const Icon(Icons.verified_outlined),
-                        title: const Text('التلميذ في انتظار الاعتماد'),
-                        subtitle: const Text(
-                          'سيتم اعتماد الفصل المقترح كالفصل الحالي.',
-                        ),
-                        trailing: FilledButton(
-                          onPressed: _approve,
-                          child: const Text('اعتماد'),
-                        ),
-                      ),
-                    ),
-                  Center(
-                    child: CircleAvatar(
-                      radius: 42,
-                      child: Text(
-                        student.name.characters.first,
-                        style: const TextStyle(fontSize: 28),
-                      ),
-                    ),
+                  _StudentProfileHeader(
+                    student: student,
+                    stageName: _studentStageName,
+                    className: _studentClassName,
                   ),
+                  const SizedBox(height: 8),
                   // QR Code Section
                   _section(context, 'رمز QR الخاص بالطالب', [
                     Center(
@@ -456,7 +465,7 @@ class _StudentDetailsPageState extends ConsumerState<StudentDetailsPage> {
                               color: Colors.white,
                               borderRadius: BorderRadius.circular(12),
                               border: Border.all(
-                                color: const Color(0xFFE2E8F0),
+                                color: Theme.of(context).colorScheme.outlineVariant,
                               ),
                             ),
                             child: QrImageView(
@@ -509,7 +518,7 @@ class _StudentDetailsPageState extends ConsumerState<StudentDetailsPage> {
                                   : 'تحميل بطاقة الطالب PDF',
                             ),
                             style: FilledButton.styleFrom(
-                              backgroundColor: const Color(0xFF00236F),
+                              backgroundColor: AppDesignColors.primary,
                               padding: const EdgeInsets.symmetric(
                                 horizontal: 20,
                                 vertical: 12,
@@ -524,12 +533,6 @@ class _StudentDetailsPageState extends ConsumerState<StudentDetailsPage> {
                   // 1. Basic Info Section
                   _section(context, 'بيانات الطالب الأساسية', [
                     _row('الاسم الكامل', student.name),
-                    _row(
-                      'الحالة',
-                      student.isPending
-                          ? 'Pending — بانتظار الاعتماد'
-                          : 'معتمد',
-                    ),
                     _row('تاريخ الميلاد', _date(student.birthDate)),
                     _row(
                       'المرحلة',
@@ -537,7 +540,7 @@ class _StudentDetailsPageState extends ConsumerState<StudentDetailsPage> {
                           (student.currentClassId == null &&
                                   student.proposedClassId != null
                               ? 'مرحلة الفصل المقترح'
-                              : 'غير محددة'),
+                              : 'غير مسجل'),
                     ),
                     _row(
                       'الفصل',
@@ -545,11 +548,11 @@ class _StudentDetailsPageState extends ConsumerState<StudentDetailsPage> {
                           (student.currentClassId == null &&
                                   student.proposedClassId != null
                               ? 'فصل مقترح'
-                              : 'غير محدد'),
+                              : 'غير مسجل'),
                     ),
-                    _row('الصف الدراسي', student.grade ?? 'غير محدد'),
+                    _row('الصف الدراسي', student.grade ?? 'غير مسجل'),
                     _phoneRow('تليفون الطالب', student.phone),
-                    _row('المدرسة', student.school ?? 'غير محددة'),
+                    _row('المدرسة', student.school ?? 'غير مسجل'),
                     _row('شماس', student.isDeacon ? 'شماس' : 'غير مرسوم'),
                   ]),
 
@@ -575,13 +578,13 @@ class _StudentDetailsPageState extends ConsumerState<StudentDetailsPage> {
                   _section(context, 'بيانات الأسرة', [
                     _row(
                       'وظيفة الأب',
-                      _sensitiveData?.fatherJob ?? 'غير محددة',
+                      _sensitiveData?.fatherJob ?? 'غير مسجل',
                     ),
                     _phoneRow('تليفون الأب', _sensitiveData?.effectiveFatherPhone),
-                    _row('اسم الأم', _sensitiveData?.motherName ?? 'غير محدد'),
+                    _row('اسم الأم', _sensitiveData?.motherName ?? 'غير مسجل'),
                     _row(
                       'وظيفة الأم',
-                      _sensitiveData?.motherJob ?? 'غير محددة',
+                      _sensitiveData?.motherJob ?? 'غير مسجل',
                     ),
                     _phoneRow('تليفون الأم', _sensitiveData?.effectiveMotherPhone),
                     _row(
@@ -602,11 +605,11 @@ class _StudentDetailsPageState extends ConsumerState<StudentDetailsPage> {
                   _section(context, 'بيانات الدراسة والخدمة', [
                     _row(
                       'السنة الدراسية',
-                      _sensitiveData?.studyYear ?? 'غير محددة',
+                      _sensitiveData?.studyYear ?? 'غير مسجل',
                     ),
                     _row(
                       'أب الاعتراف',
-                      _sensitiveData?.confessor ?? 'غير محدد',
+                      _sensitiveData?.confessor ?? 'غير مسجل',
                     ),
                     _row('تاريخ الالتحاق', _date(student.enrollmentAt)),
                   ]),
@@ -615,23 +618,23 @@ class _StudentDetailsPageState extends ConsumerState<StudentDetailsPage> {
                   _section(context, 'البيانات الصحية والحساسة', [
                     _row(
                       'ملاحظات صحية أو حساسية',
-                      _sensitiveData?.medicalNotes ?? 'لا توجد ملاحظات صحية',
+                      _sensitiveData?.medicalNotes ?? 'غير مسجل',
                     ),
                     _row(
                       'الحالة المادية للأسرة',
-                      _sensitiveData?.financialStatus ?? 'غير محددة',
+                      _sensitiveData?.financialStatus ?? 'غير مسجل',
                     ),
                   ]),
 
                   // 6. General Notes
                   _section(context, 'ملاحظات عامة', [
-                    _row('ملاحظات', student.notes ?? 'لا توجد ملاحظات عامة'),
+                    _row('ملاحظات', student.notes ?? 'غير مسجل'),
                   ]),
                 ],
               ),
             ),
-            _StudentAttendanceTab(student: student),
-            _StudentFollowUpTab(student: student),
+            StudentAttendanceTab(student: student),
+            StudentFollowUpTab(student: student),
           ],
         ),
       ),
@@ -670,7 +673,13 @@ class _StudentDetailsPageState extends ConsumerState<StudentDetailsPage> {
         children: [
           SizedBox(
             width: 140,
-            child: Text(label, style: const TextStyle(fontWeight: FontWeight.w700, color: Color(0xFF475569))),
+            child: Text(
+              label,
+              style: TextStyle(
+                fontWeight: FontWeight.w700,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
+            ),
           ),
           Expanded(child: SelectableText(value)),
           PhoneContactActions(phone: value, compact: true),
@@ -689,9 +698,9 @@ class _StudentDetailsPageState extends ConsumerState<StudentDetailsPage> {
             width: 140,
             child: Text(
               label,
-              style: const TextStyle(
+              style: TextStyle(
                 fontWeight: FontWeight.w700,
-                color: Color(0xFF475569),
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
             ),
           ),
@@ -702,827 +711,80 @@ class _StudentDetailsPageState extends ConsumerState<StudentDetailsPage> {
   }
 }
 
-class _StudentAttendanceTab extends ConsumerStatefulWidget {
-  const _StudentAttendanceTab({required this.student});
-  final Student student;
-
-  @override
-  ConsumerState<_StudentAttendanceTab> createState() =>
-      _StudentAttendanceTabState();
-}
-
-class _StudentAttendanceTabState extends ConsumerState<_StudentAttendanceTab> {
-  @override
-  void initState() {
-    super.initState();
-    Future.microtask(() async {
-      try {
-        await ref.read(meetingRepositoryProvider).refresh(widget.student.serviceId);
-      } catch (_) {}
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final student = widget.student;
-    final attendanceStream = ref
-        .watch(attendanceRepositoryProvider)
-        .watchForStudent(student.id);
-    final meetingsStream = ref
-        .watch(meetingRepositoryProvider)
-        .watchMeetings(student.serviceId);
-    return AppContent(
-      maxWidth: 900,
-      child: StreamBuilder(
-        stream: meetingsStream,
-        builder: (context, meetingSnapshot) => StreamBuilder(
-          stream: attendanceStream,
-          builder: (context, snapshot) {
-          if (snapshot.hasError || meetingSnapshot.hasError) {
-            return const EmptyState(
-              icon: Icons.error_outline,
-              title: 'تعذر تحميل سجل الحضور',
-            );
-          }
-          if (!snapshot.hasData || !meetingSnapshot.hasData) {
-            return const LoadingView(message: 'جاري تحميل سجل الحضور...');
-          }
-          final meetingsById = {
-            for (final meeting in meetingSnapshot.data!) meeting.id: meeting,
-          };
-          final rows = [...snapshot.data!]
-            ..sort((a, b) {
-              final aDate = meetingsById[a.meetingId]?.meetingDate ?? a.checkedInAt;
-              final bDate = meetingsById[b.meetingId]?.meetingDate ?? b.checkedInAt;
-              return bDate.compareTo(aDate);
-            });
-          if (rows.isEmpty) {
-            return const EmptyState(
-              icon: Icons.fact_check_outlined,
-              title: 'لا يوجد سجل حضور بعد',
-              message: 'ستظهر سجلات الاجتماعات التي سُجل فيها التلميذ هنا.',
-            );
-          }
-          return ListView(
-            padding: const EdgeInsets.symmetric(vertical: 16),
-            children: [
-              Text(
-                'سجل الحضور',
-                style: Theme.of(
-                  context,
-                ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),
-              ),
-              const SizedBox(height: 8),
-              for (final record in rows)
-                Card(
-                  margin: const EdgeInsets.only(bottom: 8),
-                  child: ListTile(
-                    leading: const CircleAvatar(
-                      child: Icon(Icons.check_rounded),
-                    ),
-                    title: Text(
-                      meetingsById[record.meetingId] == null
-                          ? 'موعد الاجتماع غير متاح'
-                          : '${meetingsById[record.meetingId]!.name} — ${DateFormat('yyyy/MM/dd').format(meetingsById[record.meetingId]!.meetingDate)}',
-                    ),
-                    subtitle: Text(
-                      meetingsById[record.meetingId] == null
-                          ? 'تاريخ تسجيل الحضور: ${DateFormat('yyyy/MM/dd HH:mm').format(record.checkedInAt.toLocal())}'
-                          : 'وقت تسجيل الحضور: ${DateFormat('HH:mm').format(record.checkedInAt.toLocal())}',
-                    ),
-                    trailing: Icon(
-                      record.syncState == 'synced'
-                          ? Icons.cloud_done_outlined
-                          : Icons.cloud_upload_outlined,
-                      semanticLabel: record.syncState == 'synced'
-                          ? 'تمت المزامنة'
-                          : 'بانتظار المزامنة',
-                    ),
-                  ),
-                ),
-            ],
-          );
-        },
-        ),
-      ),
-    );
-  }
-}
-
-class _StudentFollowUpTab extends ConsumerWidget {
-  const _StudentFollowUpTab({required this.student});
-  final Student student;
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final casesAsync = ref.watch(
-      studentCasesProvider((
-        serviceId: student.serviceId,
-        studentId: student.id,
-      )),
-    );
-    final activitiesAsync = ref.watch(studentActivitiesProvider((serviceId: student.serviceId, studentId: student.id)));
-
-    return AppContent(
-      maxWidth: 900,
-      child: ListView(
-        padding: const EdgeInsets.symmetric(vertical: 16),
-        children: [
-          Row(
-            children: [
-              Expanded(
-                child: Text(
-                  'حالات المتابعة',
-                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                        fontWeight: FontWeight.w800,
-                      ),
-                ),
-              ),
-              FilledButton.icon(
-                key: const Key('student_follow_up_add'),
-                onPressed: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => CreateFollowUpCasePage(
-                      serviceId: student.serviceId,
-                      preselectedStudent: student,
-                      classId: student.currentClassId ?? student.proposedClassId,
-                    ),
-                  ),
-                ),
-                icon: const Icon(Icons.add),
-                label: const Text('فتح حالة'),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          casesAsync.when(
-            loading: () => const LoadingView(
-              message: 'جاري تحميل حالات المتابعة...',
-            ),
-            error: (error, _) => EmptyState(
-              icon: Icons.error_outline_rounded,
-              title: 'تعذر تحميل حالات المتابعة',
-              message: '$error',
-            ),
-            data: (cases) {
-              if (cases.isEmpty) {
-                return const EmptyState(
-                  icon: Icons.folder_open_rounded,
-                  title: 'لا توجد حالات متابعة',
-                  message: 'افتح حالة جديدة لتسجيل المتابعة ومراحلها في ملف التلميذ.',
-                );
-              }
-              return Column(
-                children: cases.map((caseItem) {
-                  return Card(
-                    key: ValueKey('student_follow_up_case_${caseItem.id}'),
-                    margin: const EdgeInsets.only(bottom: 8),
-                    child: ListTile(
-                      onTap: () => Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => FollowUpCaseDetailsPage(
-                            serviceId: student.serviceId,
-                            caseId: caseItem.id,
-                          ),
-                        ),
-                      ),
-                      leading: const Icon(Icons.folder_shared_outlined),
-                      title: Text(
-                        caseItem.title,
-                        style: const TextStyle(fontWeight: FontWeight.w700),
-                      ),
-                      subtitle: Padding(
-                        padding: const EdgeInsets.only(top: 7),
-                        child: Wrap(
-                          spacing: 6,
-                          runSpacing: 6,
-                          children: [
-                            CaseStatusBadge(
-                              status: caseItem.status,
-                              dense: true,
-                            ),
-                            CasePriorityBadge(
-                              priority: caseItem.priority,
-                              dense: true,
-                            ),
-                          ],
-                        ),
-                      ),
-                      trailing: const Icon(Icons.chevron_right_rounded),
-                    ),
-                  );
-                }).toList(),
-              );
-            },
-          ),
-          const SizedBox(height: 20),
-          Text(
-            'سجل الأنشطة والافتقاد',
-            style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                  fontWeight: FontWeight.w800,
-                ),
-          ),
-          const SizedBox(height: 10),
-          activitiesAsync.when(
-            loading: () => const LoadingView(
-              message: 'جاري تحميل سجل الأنشطة...',
-            ),
-            error: (error, _) => EmptyState(
-              icon: Icons.error_outline_rounded,
-              title: 'تعذر تحميل سجل الأنشطة',
-              message: '$error',
-            ),
-            data: (activities) {
-              if (activities.isEmpty) {
-                return const EmptyState(
-                  icon: Icons.history_toggle_off_rounded,
-                  title: 'لا توجد أنشطة مسجلة',
-                  message: 'ستظهر هنا كل الاتصالات والزيارات وتغييرات الحالة.',
-                );
-              }
-              return Column(
-                children: activities
-                    .map(
-                      (activity) => Padding(
-                        padding: const EdgeInsets.only(bottom: 8),
-                        child: FollowUpActivityCard(
-                          activity: activity,
-                          showCaseInfo: true,
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) => FollowUpCaseDetailsPage(
-                                  serviceId: student.serviceId,
-                                  caseId: activity.caseId,
-                                ),
-                              ),
-                            );
-                          },
-                        ),
-                      ),
-                    )
-                    .toList(),
-              );
-            },
-          ),
-          const SizedBox(height: 20),
-          Text(
-            'السجل السابق (قبل نظام الحالات)',
-            style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.w800,
-                ),
-          ),
-          const SizedBox(height: 8),
-          StreamBuilder(
-            stream: ref.watch(followUpRepositoryProvider).watchForStudent(
-              student.id,
-              serviceId: student.serviceId,
-            ),
-            builder: (context, snapshot) {
-              if (snapshot.hasError) {
-                return const Text('تعذر تحميل السجل السابق.');
-              }
-              if (!snapshot.hasData) {
-                return const LoadingView(message: 'جاري تحميل السجل السابق...');
-              }
-              final legacyRecords = snapshot.data!;
-              if (legacyRecords.isEmpty) {
-                return const Text(
-                  'لا توجد سجلات سابقة محفوظة.',
-                  style: TextStyle(color: Colors.grey),
-                );
-              }
-              return Column(
-                children: legacyRecords.map((record) => Card(
-                  margin: const EdgeInsets.only(bottom: 8),
-                  child: ListTile(
-                    leading: Icon(
-                      record.contactStatus == 'contacted'
-                          ? Icons.call_made_rounded
-                          : Icons.phone_missed_rounded,
-                    ),
-                    title: Text(
-                      '${record.followUpDate} — ${record.contactStatus == 'contacted' ? 'تم التواصل' : 'لم يتم التواصل'}',
-                    ),
-                    subtitle: Text(
-                      record.notes?.isNotEmpty == true
-                          ? record.notes!
-                          : (record.actionRequired?.isNotEmpty == true
-                              ? record.actionRequired!
-                              : 'لا توجد ملاحظات'),
-                    ),
-                    trailing: record.anotherFollowUpNeeded
-                        ? const Tooltip(
-                            message: 'متابعة أخرى مطلوبة',
-                            child: Icon(Icons.event_repeat_rounded),
-                          )
-                        : null,
-                  ),
-                )).toList(),
-              );
-            },
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class StudentEditResult {
-  const StudentEditResult({
-    required this.name,
-    required this.birthDate,
-    required this.phone,
-    required this.school,
-    required this.grade,
-    required this.isDeacon,
-    required this.enrollmentAt,
-    required this.photoPath,
-    required this.notes,
-    this.sensitiveData,
-  });
-
-  final String name;
-  final DateTime? birthDate;
-  final String? phone;
-  final String? school;
-  final String? grade;
-  final bool isDeacon;
-  final DateTime? enrollmentAt;
-  final String? photoPath;
-  final String? notes;
-  final SensitiveStudentData? sensitiveData;
-}
-
-class StudentEditDialog extends StatefulWidget {
-  const StudentEditDialog({
-    super.key,
+class _StudentProfileHeader extends StatelessWidget {
+  const _StudentProfileHeader({
     required this.student,
-    this.sensitiveData,
-    this.onDelete,
+    this.stageName,
+    this.className,
   });
 
   final Student student;
-  final SensitiveStudentData? sensitiveData;
-  final VoidCallback? onDelete;
-
-  @override
-  State<StudentEditDialog> createState() => _StudentEditDialogState();
-}
-
-class _StudentEditDialogState extends State<StudentEditDialog> {
-  late final TextEditingController name;
-  late final TextEditingController phone;
-  late final TextEditingController school;
-  late final TextEditingController notes;
-  late bool isDeacon;
-  late DateTime? birthDate;
-
-  // Address
-  late final TextEditingController addressBuilding;
-  late final TextEditingController addressStreet;
-  late final TextEditingController addressFloor;
-  late final TextEditingController addressApartment;
-
-  // Family
-  late final TextEditingController fatherJob;
-  late final TextEditingController fatherPhone;
-  late final TextEditingController motherName;
-  late final TextEditingController motherJob;
-  late final TextEditingController motherPhone;
-  late final TextEditingController familySize;
-  late final TextEditingController birthOrder;
-
-  // Pastoral & Sensitive
-  late final TextEditingController confessor;
-  late final TextEditingController medicalNotes;
-  String? financialStatus;
-
-  @override
-  void initState() {
-    super.initState();
-    name = TextEditingController(text: widget.student.name);
-    phone = TextEditingController(text: widget.student.phone ?? '');
-    school = TextEditingController(text: widget.student.school ?? '');
-    notes = TextEditingController(text: widget.student.notes ?? '');
-    isDeacon = widget.student.isDeacon;
-    birthDate = widget.student.birthDate;
-
-    final s = widget.sensitiveData;
-    addressBuilding = TextEditingController(text: s?.addressBuilding ?? '');
-    addressStreet = TextEditingController(text: s?.addressStreet ?? '');
-    addressFloor = TextEditingController(text: s?.addressFloor ?? '');
-    addressApartment = TextEditingController(text: s?.addressApartment ?? '');
-
-    fatherJob = TextEditingController(text: s?.fatherJob ?? '');
-    fatherPhone = TextEditingController(text: s?.effectiveFatherPhone ?? '');
-    motherName = TextEditingController(text: s?.motherName ?? '');
-    motherJob = TextEditingController(text: s?.motherJob ?? '');
-    motherPhone = TextEditingController(text: s?.effectiveMotherPhone ?? '');
-    familySize = TextEditingController(text: s?.familySize?.toString() ?? '');
-    birthOrder = TextEditingController(text: s?.birthOrder?.toString() ?? '');
-
-    confessor = TextEditingController(text: s?.confessor ?? '');
-    medicalNotes = TextEditingController(text: s?.medicalNotes ?? '');
-    financialStatus = s?.financialStatus;
-  }
-
-  @override
-  void dispose() {
-    name.dispose();
-    phone.dispose();
-    school.dispose();
-    notes.dispose();
-    addressBuilding.dispose();
-    addressStreet.dispose();
-    addressFloor.dispose();
-    addressApartment.dispose();
-    fatherJob.dispose();
-    fatherPhone.dispose();
-    motherName.dispose();
-    motherJob.dispose();
-    motherPhone.dispose();
-    familySize.dispose();
-    birthOrder.dispose();
-    confessor.dispose();
-    medicalNotes.dispose();
-    super.dispose();
-  }
-
-  Future<void> _pickBirthDate() async {
-    final picked = await showDatePicker(
-      context: context,
-      initialDate: birthDate ?? DateTime(2013),
-      firstDate: DateTime(1990),
-      lastDate: DateTime.now(),
-    );
-    if (picked != null) {
-      setState(() => birthDate = picked);
-    }
-  }
-
-  String _date(DateTime? value) =>
-      value == null ? 'غير محدد' : value.toLocal().toString().split(' ').first;
-
-  bool get _canEditGlobalIdentity =>
-      widget.student.identityServiceId != null &&
-      widget.student.serviceId == widget.student.identityServiceId;
+  final String? stageName;
+  final String? className;
 
   @override
   Widget build(BuildContext context) {
-    return AlertDialog(
-      title: const Text(
-        'تعديل بيانات التلميذ',
-        style: TextStyle(fontWeight: FontWeight.w800),
-      ),
-      insetPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
-      content: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 580, maxHeight: 620),
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              if (!_canEditGlobalIdentity)
-                const Padding(
-                  padding: EdgeInsets.only(bottom: 12),
-                  child: Text(
-                    'البيانات الشخصية والحساسة مشتركة وتُدار من الخدمة المالكة للهوية. يمكنك تعديل بيانات العضوية الخاصة بهذه الخدمة فقط.',
-                    style: TextStyle(color: Colors.blueGrey),
-                  ),
-                ),
-              const Text(
-                'البيانات الأساسية',
-                style: TextStyle(fontWeight: FontWeight.w800),
-              ),
-              const SizedBox(height: 8),
-              TextField(
-                controller: name,
-                readOnly: !_canEditGlobalIdentity,
-                decoration: const InputDecoration(
-                  labelText: 'الاسم الكامل للطالب *',
-                ),
-              ),
-              const SizedBox(height: 12),
-              ListTile(
-                contentPadding: EdgeInsets.zero,
-                title: Text('تاريخ الميلاد: ${_date(birthDate)}'),
-                trailing: IconButton(
-                  icon: const Icon(Icons.calendar_month),
-                  onPressed: _canEditGlobalIdentity ? _pickBirthDate : null,
-                ),
-              ),
-              TextField(
-                controller: phone,
-                readOnly: !_canEditGlobalIdentity,
-                decoration: const InputDecoration(labelText: 'تليفون الطالب'),
-                keyboardType: TextInputType.phone,
-              ),
-              const SizedBox(height: 12),
-              TextField(
-                controller: school,
-                decoration: const InputDecoration(labelText: 'المدرسة'),
-              ),
-              const SizedBox(height: 12),
-              SwitchListTile(
-                contentPadding: EdgeInsets.zero,
-                title: const Text('شماس'),
-                value: isDeacon,
-                onChanged: (val) => setState(() => isDeacon = val),
-              ),
+    final scheme = Theme.of(context).colorScheme;
+    final primary = scheme.primary;
+    final subtitle = [
+      if (stageName != null && stageName!.isNotEmpty) stageName!,
+      if (className != null && className!.isNotEmpty) className!,
+    ].join(' • ');
 
-              const Divider(height: 28),
-              const Text(
-                'العنوان',
-                style: TextStyle(fontWeight: FontWeight.w800),
-              ),
-              const SizedBox(height: 8),
-              Row(
-                children: [
-                  Expanded(
-                    child: TextField(
-                      controller: addressBuilding,
-                      readOnly: !_canEditGlobalIdentity,
-                      decoration: const InputDecoration(
-                        labelText: 'رقم العقار',
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    flex: 2,
-                    child: TextField(
-                      controller: addressStreet,
-                      readOnly: !_canEditGlobalIdentity,
-                      decoration: const InputDecoration(labelText: 'شارع'),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 8),
-              Row(
-                children: [
-                  Expanded(
-                    child: TextField(
-                      controller: addressFloor,
-                      readOnly: !_canEditGlobalIdentity,
-                      decoration: const InputDecoration(labelText: 'دور'),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: TextField(
-                      controller: addressApartment,
-                      readOnly: !_canEditGlobalIdentity,
-                      decoration: const InputDecoration(labelText: 'شقة'),
-                    ),
-                  ),
-                ],
-              ),
+    final statusStatus =
+        student.isPending ? AppStatus.pending : AppStatus.present;
 
-              const Divider(height: 28),
-              const Text(
-                'بيانات الأسرة',
-                style: TextStyle(fontWeight: FontWeight.w800),
-              ),
-              const SizedBox(height: 8),
-              Row(
-                children: [
-                  Expanded(
-                    child: TextField(
-                      controller: fatherJob,
-                      readOnly: !_canEditGlobalIdentity,
-                      decoration: const InputDecoration(
-                        labelText: 'وظيفة الأب',
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: TextField(
-                      controller: fatherPhone,
-                      readOnly: !_canEditGlobalIdentity,
-                      decoration: const InputDecoration(
-                        labelText: 'تليفون الأب',
-                      ),
-                      keyboardType: TextInputType.phone,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 8),
-              Row(
-                children: [
-                  Expanded(
-                    child: TextField(
-                      controller: motherName,
-                      readOnly: !_canEditGlobalIdentity,
-                      decoration: const InputDecoration(labelText: 'اسم الأم'),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: TextField(
-                      controller: motherJob,
-                      readOnly: !_canEditGlobalIdentity,
-                      decoration: const InputDecoration(
-                        labelText: 'وظيفة الأم',
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 8),
-              TextField(
-                controller: motherPhone,
-                      readOnly: !_canEditGlobalIdentity,
-                decoration: const InputDecoration(labelText: 'تليفون الأم'),
-                keyboardType: TextInputType.phone,
-              ),
-              const SizedBox(height: 8),
-              Row(
-                children: [
-                  Expanded(
-                    child: TextField(
-                      controller: familySize,
-                      readOnly: !_canEditGlobalIdentity,
-                      decoration: const InputDecoration(
-                        labelText: 'عدد أفراد الأسرة',
-                      ),
-                      keyboardType: TextInputType.number,
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: TextField(
-                      controller: birthOrder,
-                      readOnly: !_canEditGlobalIdentity,
-                      decoration: const InputDecoration(
-                        labelText: 'ترتيب الطالب بين إخوته',
-                      ),
-                      keyboardType: TextInputType.number,
-                    ),
-                  ),
-                ],
-              ),
-
-              const Divider(height: 28),
-              const Text(
-                'بيانات الخدمة والرعاية',
-                style: TextStyle(fontWeight: FontWeight.w800),
-              ),
-              const SizedBox(height: 8),
-              TextField(
-                controller: confessor,
-                      readOnly: !_canEditGlobalIdentity,
-                decoration: const InputDecoration(labelText: 'أب الاعتراف'),
-              ),
-              const SizedBox(height: 8),
-              TextField(
-                controller: medicalNotes,
-                      readOnly: !_canEditGlobalIdentity,
-                decoration: const InputDecoration(
-                  labelText: 'ملاحظات صحية أو حساسية',
+    return Card(
+      margin: EdgeInsets.zero,
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Row(
+          children: [
+            CircleAvatar(
+              radius: 36,
+              backgroundColor: primary.withValues(alpha: 0.12),
+              child: Text(
+                student.name.isEmpty ? '؟' : student.name.characters.first,
+                style: TextStyle(
+                  color: primary,
+                  fontWeight: FontWeight.w800,
+                  fontSize: 24,
                 ),
               ),
-              const SizedBox(height: 12),
-              DropdownButtonFormField<String>(
-                initialValue: financialStatus,
-                decoration: const InputDecoration(
-                  labelText: 'الحالة المادية للأسرة',
-                ),
-                items: const [
-                  DropdownMenuItem(value: null, child: Text('غير محدد')),
-                  DropdownMenuItem(
-                    value: FinancialStatus.natural,
-                    child: Text(FinancialStatus.natural),
-                  ),
-                  DropdownMenuItem(
-                    value: FinancialStatus.brothersOfLord,
-                    child: Text(FinancialStatus.brothersOfLord),
-                  ),
-                  DropdownMenuItem(
-                    value: FinancialStatus.hiddenFamily,
-                    child: Text(FinancialStatus.hiddenFamily),
-                  ),
-                ],
-                onChanged: _canEditGlobalIdentity
-                    ? (val) => setState(() => financialStatus = val)
-                    : null,
-              ),
-              const SizedBox(height: 12),
-              TextField(
-                controller: notes,
-                maxLines: 2,
-                decoration: const InputDecoration(labelText: 'ملاحظات عامة'),
-              ),
-            ],
-          ),
-        ),
-      ),
-      actions: [
-        if (widget.onDelete != null)
-          TextButton.icon(
-            key: const Key('student_dialog_archive'),
-            onPressed: () {
-              Navigator.pop(context);
-              widget.onDelete!();
-            },
-            icon: const Icon(Icons.delete_outline, color: Color(0xFFDC2626)),
-            label: const Text(
-              'أرشفة عضوية التلميذ',
-              style: TextStyle(color: Color(0xFFDC2626)),
             ),
-          ),
-        TextButton(
-          onPressed: () => Navigator.pop(context),
-          child: const Text('إلغاء'),
-        ),
-        FilledButton(
-          onPressed: () {
-            if (name.text.trim().isEmpty) return;
-
-            final famSize = int.tryParse(familySize.text.trim());
-            final bOrder = int.tryParse(birthOrder.text.trim());
-            final validationError =
-                SensitiveStudentData.validateFamilyAndFinance(
-                  familySize: famSize,
-                  birthOrder: bOrder,
-                  financialStatus: financialStatus,
-                );
-
-            if (validationError != null) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(validationError),
-                  backgroundColor: const Color(0xFFDC2626),
-                ),
-              );
-              return;
-            }
-
-            final updatedSensitive = SensitiveStudentData(
-              studentId: widget.student.id,
-              fatherJob: fatherJob.text.trim().isEmpty
-                  ? null
-                  : fatherJob.text.trim(),
-              fatherPhone: fatherPhone.text.trim().isEmpty
-                  ? null
-                  : fatherPhone.text.trim(),
-              motherName: motherName.text.trim().isEmpty
-                  ? null
-                  : motherName.text.trim(),
-              motherJob: motherJob.text.trim().isEmpty
-                  ? null
-                  : motherJob.text.trim(),
-              motherPhone: motherPhone.text.trim().isEmpty
-                  ? null
-                  : motherPhone.text.trim(),
-              familySize: famSize,
-              birthOrder: bOrder,
-              confessor: confessor.text.trim().isEmpty
-                  ? null
-                  : confessor.text.trim(),
-              medicalNotes: medicalNotes.text.trim().isEmpty
-                  ? null
-                  : medicalNotes.text.trim(),
-              financialStatus: financialStatus,
-              addressBuilding: addressBuilding.text.trim().isEmpty
-                  ? null
-                  : addressBuilding.text.trim(),
-              addressStreet: addressStreet.text.trim().isEmpty
-                  ? null
-                  : addressStreet.text.trim(),
-              addressFloor: addressFloor.text.trim().isEmpty
-                  ? null
-                  : addressFloor.text.trim(),
-              addressApartment: addressApartment.text.trim().isEmpty
-                  ? null
-                  : addressApartment.text.trim(),
-              studyYear: widget.sensitiveData?.studyYear,
-            );
-
-            Navigator.pop(
-              context,
-              StudentEditResult(
-                name: name.text.trim(),
-                birthDate: birthDate,
-                phone: phone.text.trim().isEmpty ? null : phone.text.trim(),
-                school: school.text.trim().isEmpty ? null : school.text.trim(),
-                grade: widget.student.grade,
-                isDeacon: isDeacon,
-                enrollmentAt: widget.student.enrollmentAt,
-                photoPath: widget.student.photoPath,
-                notes: notes.text.trim().isEmpty ? null : notes.text.trim(),
-                sensitiveData: updatedSensitive,
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    student.name,
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                          fontWeight: FontWeight.w800,
+                        ),
+                  ),
+                  const SizedBox(height: 6),
+                  StatusChip(
+                    status: statusStatus,
+                    label: student.isPending ? 'بانتظار الاعتماد' : 'معتمد',
+                  ),
+                  if (subtitle.isNotEmpty) ...[
+                    const SizedBox(height: 6),
+                    Text(
+                      subtitle,
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: scheme.onSurfaceVariant,
+                          ),
+                    ),
+                  ],
+                ],
               ),
-            );
-          },
-          child: const Text('حفظ'),
+            ),
+          ],
         ),
-      ],
+      ),
     );
   }
 }
+
+
