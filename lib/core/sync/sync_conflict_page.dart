@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../app/ui/app_ui.dart';
+import '../../app/ui/components/status_chip.dart';
 import '../config/config_provider.dart';
 import 'sync_engine_provider.dart';
 import 'sync_queue_repository.dart';
@@ -39,7 +40,13 @@ class SyncConflictPage extends ConsumerWidget {
         builder: (context, snapshot) {
           final conflicts = snapshot.data ?? const <SyncConflictItem>[];
           if (conflicts.isEmpty) {
-            return const Center(child: Text('لا توجد تعارضات معلقة.'));
+            return const Center(
+              child: EmptyState(
+                icon: Icons.cloud_done_outlined,
+                title: 'كل شيء متزامن',
+                message: 'لا توجد تعارضات تحتاج إلى مراجعة حاليًا.',
+              ),
+            );
           }
           return ListView.separated(
             padding: const EdgeInsets.all(20),
@@ -59,8 +66,13 @@ class SyncConflictPage extends ConsumerWidget {
                 child: ListTile(
                   leading: const Icon(Icons.warning_amber),
                   title: Text(_entityLabel(item.entityType)),
-                  subtitle: Text(
-                    '${item.operationType} • ${item.createdAt.toIso8601String().split('T').first}',
+                  subtitle: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('${item.operationType} • ${item.createdAt.toIso8601String().split('T').first}'),
+                      const SizedBox(height: 6),
+                      const StatusChip(status: AppStatus.conflict),
+                    ],
                   ),
                   trailing: IconButton(
                     tooltip: 'إعادة المحاولة',
