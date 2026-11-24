@@ -66,10 +66,10 @@ class RepeatedAbsencesTable extends StatelessWidget {
 
     return Container(
       decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF131D33) : Colors.white,
+        color: theme.colorScheme.surface,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0),
+          color: theme.colorScheme.outlineVariant,
           width: 1.2,
         ),
       ),
@@ -108,15 +108,15 @@ class RepeatedAbsencesTable extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFEF4444).withValues(alpha: 0.1),
+                    color: AppColors.of(context).absent.background,
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: Text(
                     '${repeatedAbsences.length} تلميذ',
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w700,
-                      color: Color(0xFFDC2626),
+                      color: AppColors.of(context).absent.foreground,
                     ),
                   ),
                 ),
