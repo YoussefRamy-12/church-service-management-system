@@ -1,4 +1,8 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
+
+import '../../../../app/design/app_colors.dart';
 import '../../domain/analytics_models.dart';
 
 class AttendanceTrendChart extends StatelessWidget {
@@ -14,7 +18,6 @@ class AttendanceTrendChart extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
 
     if (meetingHistory.isEmpty) {
       return Container(
@@ -24,7 +27,7 @@ class AttendanceTrendChart extends StatelessWidget {
           'لا توجد اجتماعات كافية لعرض رسم بياني لتطور الحضور',
           style: TextStyle(
             fontSize: 13,
-            color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+            color: theme.colorScheme.onSurfaceVariant,
           ),
         ),
       );
@@ -33,10 +36,10 @@ class AttendanceTrendChart extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF131D33) : Colors.white,
+        color: theme.colorScheme.surface,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0),
+          color: theme.colorScheme.outlineVariant,
           width: 1.2,
         ),
       ),
@@ -51,12 +54,12 @@ class AttendanceTrendChart extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.all(6),
                     decoration: BoxDecoration(
-                      color: const Color(0xFF00236F).withValues(alpha: 0.1),
+                      color: theme.colorScheme.primaryContainer,
                       borderRadius: BorderRadius.circular(8),
                     ),
-                    child: const Icon(
+                    child: Icon(
                       Icons.insights_rounded,
-                      color: Color(0xFF00236F),
+                      color: theme.colorScheme.primary,
                       size: 20,
                     ),
                   ),
@@ -72,17 +75,26 @@ class AttendanceTrendChart extends StatelessWidget {
               ),
               Row(
                 children: [
-                  _legendDot(const Color(0xFF10B981), 'حضور مبكر'),
+                  _legendItem(AppColors.of(context).present.foreground, Icons.schedule_rounded, 'حضور مبكر'),
                   const SizedBox(width: 12),
-                  _legendDot(const Color(0xFF1E3A8A), 'حضور عادي'),
+                  _legendItem(theme.colorScheme.primary, Icons.check_circle_outline_rounded, 'حضور عادي'),
                 ],
               ),
             ],
           ),
           const SizedBox(height: 20),
-          SizedBox(
-            height: 180,
-            child: Row(
+          LayoutBuilder(
+            builder: (context, constraints) {
+              final chartWidth = math.max(
+                constraints.maxWidth,
+                meetingHistory.length * 58.0,
+              );
+              return SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: SizedBox(
+                  width: chartWidth,
+                  height: 180,
+                  child: Row(
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 for (final item in meetingHistory)
@@ -101,10 +113,10 @@ class AttendanceTrendChart extends StatelessWidget {
                                 fontSize: 11,
                                 fontWeight: FontWeight.w700,
                                 color: item.attendanceRate >= 70
-                                    ? const Color(0xFF10B981)
+                                    ? AppColors.of(context).present.foreground
                                     : (item.attendanceRate >= 50
-                                        ? const Color(0xFFF59E0B)
-                                        : const Color(0xFFEF4444)),
+                                        ? AppColors.of(context).pending.foreground
+                                        : AppColors.of(context).absent.foreground),
                               ),
                             ),
                             const SizedBox(height: 6),
@@ -129,9 +141,7 @@ class AttendanceTrendChart extends StatelessWidget {
                                         borderRadius: const BorderRadius.vertical(
                                           top: Radius.circular(6),
                                         ),
-                                        color: isDark
-                                            ? const Color(0xFF1E293B)
-                                            : const Color(0xFFF1F5F9),
+                                        color: theme.colorScheme.surfaceContainerHighest,
                                       ),
                                       child: ClipRRect(
                                         borderRadius: const BorderRadius.vertical(
@@ -142,13 +152,13 @@ class AttendanceTrendChart extends StatelessWidget {
                                             Expanded(
                                               flex: (normalFraction * 100).toInt(),
                                               child: Container(
-                                                color: const Color(0xFF1E3A8A),
+                                                color: theme.colorScheme.primary,
                                               ),
                                             ),
                                             Expanded(
                                               flex: (earlyFraction * 100).toInt(),
                                               child: Container(
-                                                color: const Color(0xFF10B981),
+                                                color: AppColors.of(context).present.foreground,
                                               ),
                                             ),
                                           ],
@@ -165,9 +175,7 @@ class AttendanceTrendChart extends StatelessWidget {
                               style: TextStyle(
                                 fontSize: 11,
                                 fontWeight: FontWeight.w600,
-                                color: isDark
-                                    ? const Color(0xFF94A3B8)
-                                    : const Color(0xFF64748B),
+                                color: theme.colorScheme.onSurfaceVariant,
                               ),
                             ),
                           ],
@@ -176,26 +184,25 @@ class AttendanceTrendChart extends StatelessWidget {
                     ),
                   ),
               ],
-            ),
+                  ),
+                ),
+              );
+            },
           ),
         ],
       ),
     );
   }
 
-  Widget _legendDot(Color color, String label) {
+  Widget _legendItem(Color color, IconData icon, String label) {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Container(
-          width: 8,
-          height: 8,
-          decoration: BoxDecoration(color: color, shape: BoxShape.circle),
-        ),
+        Icon(icon, size: 14, color: color),
         const SizedBox(width: 4),
         Text(
           label,
-          style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w500),
+          style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600),
         ),
       ],
     );
