@@ -44,7 +44,7 @@ class _ForgotPasswordPageState extends ConsumerState<ForgotPasswordPage> {
   @override
   Widget build(BuildContext context) => Scaffold(
     appBar: AppBar(title: const Text('استعادة كلمة المرور')),
-    body: AmbientBackground(child: Center(child: ConstrainedBox(
+    body: SafeArea(child: AmbientBackground(child: Center(child: ConstrainedBox(
       constraints: const BoxConstraints(maxWidth: 460),
       child: GlassCard(padding: const EdgeInsets.all(28), child: _sent
         ? Column(mainAxisSize: MainAxisSize.min, children: [
@@ -62,7 +62,7 @@ class _ForgotPasswordPageState extends ConsumerState<ForgotPasswordPage> {
             const SizedBox(height: 18),
             FilledButton(onPressed: _loading ? null : _send, child: _loading ? const CircularProgressIndicator() : const Text('إرسال رابط الاستعادة')),
           ])),
-    ))),
+    )))),
   );
 }
 
@@ -107,8 +107,8 @@ class _ResetPasswordPageState extends ConsumerState<ResetPasswordPage> {
   @override
   Widget build(BuildContext context) => Scaffold(
     appBar: AppBar(title: const Text('إنشاء كلمة مرور جديدة')),
-    body: AmbientBackground(child: Center(child: ConstrainedBox(
-      constraints: const BoxConstraints(maxWidth: 480),
+    body: SafeArea(child: AmbientBackground(child: Center(child: ConstrainedBox(
+      constraints: const BoxConstraints(maxWidth: 460),
       child: GlassCard(padding: const EdgeInsets.all(28), child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.stretch, children: [
         const Text('اختر كلمة مرور جديدة لحسابك.'),
         const SizedBox(height: 16),
@@ -119,7 +119,7 @@ class _ResetPasswordPageState extends ConsumerState<ResetPasswordPage> {
         const SizedBox(height: 18),
         FilledButton(onPressed: _loading ? null : _save, child: _loading ? const CircularProgressIndicator() : const Text('حفظ كلمة المرور')),
       ])),
-    ))),
+    )))),
   );
 }
 
