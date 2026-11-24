@@ -24,4 +24,12 @@ jobs:
           curl -fsSL https://github.com/simolus3/drift/releases/download/drift-2.35.1/sqlite3.wasm -o web/sqlite3.wasm
           curl -fsSL https://github.com/simolus3/drift/releases/download/drift-2.35.1/drift_worker.js -o web/drift_worker.js
       - run: flutter build web
-      - run: flutter test
+      - name: Generate golden baselines
+        run: flutter test --update-goldens
+      - name: Upload golden baselines
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: task-5-goldens
+          path: test/goldens/
+          if-no-files-found: warn
