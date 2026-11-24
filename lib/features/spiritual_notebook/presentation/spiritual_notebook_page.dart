@@ -9,6 +9,7 @@ import '../../../features/auth/presentation/auth_providers.dart';
 import '../data/spiritual_notebook_repository.dart';
 import '../domain/weekly_period.dart';
 
+part 'parts/notebook_data.dart';
 part 'parts/notebook_page_state.dart';
 part 'parts/notebook_page_layout.dart';
 part 'widgets/notebook_controls.dart';
