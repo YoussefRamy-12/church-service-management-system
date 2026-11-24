@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/network/supabase_client_provider.dart';
+import '../../../app/ui/components/status_chip.dart';
 
 class ServantRegistrationRequestsPage extends ConsumerStatefulWidget {
   const ServantRegistrationRequestsPage({super.key});
@@ -450,7 +451,14 @@ class _ServantRegistrationRequestsPageState
                             },
                           ),
                           const SizedBox(height: 4),
-                          Chip(label: Text(_statusLabel(status))),
+                          StatusChip(
+                            status: status == 'pending'
+                                ? AppStatus.pending
+                                : status == 'rejected'
+                                    ? AppStatus.conflict
+                                    : AppStatus.synced,
+                            label: _statusLabel(status),
+                          ),
                         ],
                       ),
                     ),
