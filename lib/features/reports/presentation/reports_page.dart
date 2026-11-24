@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../app/ui/app_ui.dart';
+import '../../../app/design/app_colors.dart';
 import '../../service/presentation/service_providers.dart';
 import '../domain/analytics_models.dart';
 import '../domain/service_report.dart';
@@ -140,12 +141,12 @@ class _ReportsPageState extends ConsumerState<ReportsPage>
                       Container(
                         padding: const EdgeInsets.all(8),
                         decoration: BoxDecoration(
-                          color: const Color(0xFF00236F).withValues(alpha: 0.1),
+                          color: theme.colorScheme.primaryContainer,
                           borderRadius: BorderRadius.circular(10),
                         ),
-                        child: const Icon(
+                        child: Icon(
                           Icons.query_stats_rounded,
-                          color: Color(0xFF00236F),
+                          color: theme.colorScheme.primary,
                           size: 26,
                         ),
                       ),
@@ -168,8 +169,7 @@ class _ReportsPageState extends ConsumerState<ReportsPage>
                               style: TextStyle(
                                 fontSize: 13,
                                 color: isDark
-                                    ? const Color(0xFF94A3B8)
-                                    : const Color(0xFF64748B),
+                                    : theme.colorScheme.onSurfaceVariant,
                               ),
                             ),
                           ],
@@ -191,12 +191,11 @@ class _ReportsPageState extends ConsumerState<ReportsPage>
               // 4 Primary Navigation Tabs
               Container(
                 decoration: BoxDecoration(
-                  color: isDark ? const Color(0xFF131D33) : Colors.white,
+                  color: theme.colorScheme.surface,
                   borderRadius: BorderRadius.circular(14),
                   border: Border.all(
                     color: isDark
-                        ? const Color(0xFF1E293B)
-                        : const Color(0xFFE2E8F0),
+                        : theme.colorScheme.outlineVariant,
                     width: 1.2,
                   ),
                 ),
@@ -205,13 +204,13 @@ class _ReportsPageState extends ConsumerState<ReportsPage>
                   isScrollable: true,
                   indicatorSize: TabBarIndicatorSize.tab,
                   indicator: BoxDecoration(
-                    color: const Color(0xFF00236F),
+                    color: theme.colorScheme.primary,
                     borderRadius: BorderRadius.circular(10),
                   ),
                   labelColor: Colors.white,
                   unselectedLabelColor: isDark
-                      ? const Color(0xFF94A3B8)
-                      : const Color(0xFF475569),
+                      ? theme.colorScheme.onSurfaceVariant
+                      : theme.colorScheme.onSurfaceVariant,
                   labelStyle: const TextStyle(
                     fontWeight: FontWeight.w700,
                     fontSize: 13,
@@ -264,7 +263,7 @@ class _ReportsPageState extends ConsumerState<ReportsPage>
                         const Icon(
                           Icons.error_outline_rounded,
                           size: 48,
-                          color: Color(0xFFEF4444),
+                          color: AppColors.of(context).absent.foreground,
                         ),
                         const SizedBox(height: 14),
                         Text(
@@ -341,7 +340,7 @@ class _ReportsPageState extends ConsumerState<ReportsPage>
                 title: 'معدل الحضور العام',
                 value: '${report.attendancePercentage.toStringAsFixed(1)}%',
                 icon: Icons.check_circle_outline_rounded,
-                color: const Color(0xFF10B981),
+                color: AppColors.of(context).present.foreground,
                 changePercentage: report.attendanceChange,
                 subtitle:
                     'حضر ${report.present} من أصل ${report.expectedAttendance} متوقع',
@@ -350,21 +349,21 @@ class _ReportsPageState extends ConsumerState<ReportsPage>
                 title: 'حضور مبكر',
                 value: '${report.earlyRate.toStringAsFixed(1)}%',
                 icon: Icons.timer_rounded,
-                color: const Color(0xFF00236F),
+                color: theme.colorScheme.primary,
                 subtitle: '${report.early + report.before} تلميذ حضروا مبكراً',
               ),
               ReportKpiCard(
                 title: 'إجمالي الغياب',
                 value: '${report.absencePercentage.toStringAsFixed(1)}%',
                 icon: Icons.person_off_rounded,
-                color: const Color(0xFFEF4444),
+                color: AppColors.of(context).absent.foreground,
                 subtitle: '${report.absentCount} حالة غياب فردية مسجلة',
               ),
               ReportKpiCard(
                 title: 'الغياب المتكرر',
                 value: '${report.repeatedAbsences.length}',
                 icon: Icons.warning_amber_rounded,
-                color: const Color(0xFFF59E0B),
+                color: AppColors.of(context).pending.foreground,
                 subtitle: 'تلاميذ تغيبوا عن اجتماعين متتاليين أو أكثر',
               ),
             ];
@@ -399,12 +398,15 @@ class _ReportsPageState extends ConsumerState<ReportsPage>
                 ],
               );
             } else {
-              return Column(
+              return Wrap(
+                spacing: 12,
+                runSpacing: 12,
                 children: [
-                  for (var i = 0; i < cards.length; i++) ...[
-                    if (i > 0) const SizedBox(height: 12),
-                    cards[i],
-                  ],
+                  for (final card in cards)
+                    SizedBox(
+                      width: (width - 12) / 2,
+                      child: card,
+                    ),
                 ],
               );
             }
@@ -461,7 +463,7 @@ class _ReportsPageState extends ConsumerState<ReportsPage>
                 value:
                     '${report.followUpAnalytics?.totalCases ?? report.followUps}',
                 icon: Icons.mark_chat_read_rounded,
-                color: const Color(0xFF904D00),
+                color: AppColors.of(context).warning.foreground,
                 subtitle: 'حالات المتابعة المقيدة في نطاق الفترة',
               ),
               ReportKpiCard(
@@ -498,12 +500,15 @@ class _ReportsPageState extends ConsumerState<ReportsPage>
                 ],
               );
             } else {
-              return Column(
+              return Wrap(
+                spacing: 12,
+                runSpacing: 12,
                 children: [
-                  for (var i = 0; i < cards.length; i++) ...[
-                    if (i > 0) const SizedBox(height: 12),
-                    cards[i],
-                  ],
+                  for (final card in cards)
+                    SizedBox(
+                      width: (width - 12) / 2,
+                      child: card,
+                    ),
                 ],
               );
             }
@@ -554,7 +559,7 @@ class _ReportsPageState extends ConsumerState<ReportsPage>
                 title: 'قيد الاعتماد',
                 value: '${report.studentAnalytics?.pendingStudents ?? 0}',
                 icon: Icons.hourglass_top_rounded,
-                color: const Color(0xFFFE932C),
+                color: AppColors.of(context).warning.foreground,
                 subtitle: 'بانتظار موافقة أمين الخدمة',
               ),
               ReportKpiCard(
@@ -577,12 +582,15 @@ class _ReportsPageState extends ConsumerState<ReportsPage>
                 ],
               );
             } else {
-              return Column(
+              return Wrap(
+                spacing: 12,
+                runSpacing: 12,
                 children: [
-                  for (var i = 0; i < cards.length; i++) ...[
-                    if (i > 0) const SizedBox(height: 12),
-                    cards[i],
-                  ],
+                  for (final card in cards)
+                    SizedBox(
+                      width: (width - 12) / 2,
+                      child: card,
+                    ),
                 ],
               );
             }
@@ -648,12 +656,15 @@ class _ReportsPageState extends ConsumerState<ReportsPage>
                 ],
               );
             } else {
-              return Column(
+              return Wrap(
+                spacing: 12,
+                runSpacing: 12,
                 children: [
-                  for (var i = 0; i < cards.length; i++) ...[
-                    if (i > 0) const SizedBox(height: 12),
-                    cards[i],
-                  ],
+                  for (final card in cards)
+                    SizedBox(
+                      width: (width - 12) / 2,
+                      child: card,
+                    ),
                 ],
               );
             }
