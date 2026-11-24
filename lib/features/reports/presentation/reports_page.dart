@@ -146,7 +146,7 @@ class _ReportsPageState extends ConsumerState<ReportsPage>
                         ),
                         child: Icon(
                           Icons.query_stats_rounded,
-                          color: theme.colorScheme.primary,
+                          color: Theme.of(context).colorScheme.primary,
                           size: 26,
                         ),
                       ),
@@ -168,8 +168,7 @@ class _ReportsPageState extends ConsumerState<ReportsPage>
                                   : 'متابعة الحضور والغياب والافتقاد داخل نطاق مسؤوليتك المصرح بها.',
                               style: TextStyle(
                                 fontSize: 13,
-                                color: isDark
-                                    : theme.colorScheme.onSurfaceVariant,
+                                color: theme.colorScheme.onSurfaceVariant,
                               ),
                             ),
                           ],
@@ -194,8 +193,7 @@ class _ReportsPageState extends ConsumerState<ReportsPage>
                   color: theme.colorScheme.surface,
                   borderRadius: BorderRadius.circular(14),
                   border: Border.all(
-                    color: isDark
-                        : theme.colorScheme.outlineVariant,
+                    color: theme.colorScheme.outlineVariant,
                     width: 1.2,
                   ),
                 ),
@@ -204,7 +202,7 @@ class _ReportsPageState extends ConsumerState<ReportsPage>
                   isScrollable: true,
                   indicatorSize: TabBarIndicatorSize.tab,
                   indicator: BoxDecoration(
-                    color: theme.colorScheme.primary,
+                    color: Theme.of(context).colorScheme.primary,
                     borderRadius: BorderRadius.circular(10),
                   ),
                   labelColor: Colors.white,
@@ -446,7 +444,7 @@ class _ReportsPageState extends ConsumerState<ReportsPage>
                 title: 'حضور مبكر',
                 value: '${report.earlyRate.toStringAsFixed(1)}%',
                 icon: Icons.timer_rounded,
-                color: theme.colorScheme.primary,
+                color: Theme.of(context).colorScheme.primary,
                 subtitle: '${report.early + report.before} تلميذ حضروا مبكراً',
               ),
               ReportKpiCard(
@@ -582,7 +580,7 @@ class _ReportsPageState extends ConsumerState<ReportsPage>
                 value:
                     '${report.followUpAnalytics?.totalActivities ?? report.followUps}',
                 icon: Icons.volunteer_activism_rounded,
-                color: theme.colorScheme.primary,
+                color: Theme.of(context).colorScheme.primary,
                 subtitle: 'مكالمات، زيارات، وجلسات منفذة',
               ),
             ];
@@ -641,7 +639,7 @@ class _ReportsPageState extends ConsumerState<ReportsPage>
                 title: 'إجمالي المخدومين',
                 value: '${report.students}',
                 icon: Icons.school_rounded,
-                color: theme.colorScheme.primary,
+                color: Theme.of(context).colorScheme.primary,
                 subtitle: 'التلاميذ المشمولون في نطاق التقرير',
               ),
               ReportKpiCard(
@@ -722,7 +720,7 @@ class _ReportsPageState extends ConsumerState<ReportsPage>
                 title: 'إجمالي الخدام',
                 value: '${report.servantWorkloads.length}',
                 icon: Icons.diversity_3_rounded,
-                color: theme.colorScheme.primary,
+                color: Theme.of(context).colorScheme.primary,
                 subtitle: 'خدام الخدمة والمراحل والفصول',
               ),
               ReportKpiCard(
