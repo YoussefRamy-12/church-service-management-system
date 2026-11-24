@@ -504,8 +504,8 @@ class _ImportStudentsExcelPageState
                               style: TextStyle(
                                 fontSize: 12,
                                 color: isDark
-                                    ? const AppDesignColors.darkMutedInk
-                                    : const AppDesignColors.lightMutedInk,
+                                    ? AppDesignColors.darkMutedInk
+                                    : AppDesignColors.lightMutedInk,
                               ),
                             ),
                             const SizedBox(height: 12),
@@ -595,8 +595,8 @@ class _ImportStudentsExcelPageState
                                     style: TextStyle(
                                       fontSize: 12,
                                       color: isDark
-                                          ? const AppDesignColors.darkMutedInk
-                                          : const AppDesignColors.lightMutedInk,
+                                          ? AppDesignColors.darkMutedInk
+                                          : AppDesignColors.lightMutedInk,
                                     ),
                                   ),
                                 ],
@@ -686,8 +686,8 @@ class _ImportStudentsExcelPageState
                                       style: TextStyle(
                                         fontSize: 12,
                                         color: isDark
-                                            ? const AppDesignColors.darkMutedInk
-                                            : const AppDesignColors.lightMutedInk,
+                                            ? AppDesignColors.darkMutedInk
+                                            : AppDesignColors.lightMutedInk,
                                       ),
                                     ),
                                   ],
