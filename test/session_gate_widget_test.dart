@@ -68,4 +68,38 @@ void main() {
     );
     expect(find.text('إعادة المحاولة'), findsOneWidget);
   });
+
+  testWidgets('service picker shows retry when service names cannot load', (
+    tester,
+  ) async {
+    final client = SupabaseClient('http://127.0.0.1:1', 'test-key');
+    addTearDown(client.dispose);
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          supabaseClientProvider.overrideWithValue(client),
+          currentSessionIdentityProvider.overrideWith(
+            (ref) async => const MultiServiceServantIdentity([
+              ServantProfile(
+                id: 'profile-1',
+                authUserId: 'user-1',
+                serviceId: 'service-1',
+                name: 'خادم اختبار',
+                role: 'class_servant',
+                accountStatus: 'active',
+              ),
+            ]),
+          ),
+        ],
+        child: const MaterialApp(home: SessionGate()),
+      ),
+    );
+
+    await tester.pumpAndSettle();
+
+    expect(find.text('تعذر تحميل الخدمات'), findsOneWidget);
+    expect(find.text('تحقق من الاتصال ثم أعد المحاولة.'), findsOneWidget);
+    expect(find.text('إعادة المحاولة'), findsOneWidget);
+  });
 }
