@@ -1,4 +1,3 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -156,6 +155,12 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     if (message.contains('Supabase is not configured')) {
       return 'إعدادات الاتصال بالنظام غير مكتملة.';
     }
+    if (message.toLowerCase().contains('socketexception') ||
+        message.toLowerCase().contains('failed host lookup') ||
+        message.toLowerCase().contains('network is unreachable') ||
+        message.toLowerCase().contains('connection refused')) {
+      return 'لا يوجد اتصال بالإنترنت. اتصل بالشبكة ثم حاول تسجيل الدخول مرة أخرى.';
+    }
     return 'حدث خطأ أثناء تسجيل الدخول. حاول مرة أخرى.';
   }
 
@@ -283,6 +288,9 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                                 key: const Key('login_email'),
                                 controller: _emailController,
                                 keyboardType: TextInputType.emailAddress,
+                                autofillHints: const [AutofillHints.email, AutofillHints.username],
+                                textInputAction: TextInputAction.next,
+                                onFieldSubmitted: (_) => FocusScope.of(context).nextFocus(),
                                 onChanged: (_) {
                                   if (_emailConfirmationRequired) {
                                     setState(
@@ -304,13 +312,21 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                                 key: const Key('login_password'),
                                 controller: _passwordController,
                                 obscureText: !_showPassword,
+                                keyboardType: TextInputType.visiblePassword,
+                                autofillHints: const [AutofillHints.password],
+                                textInputAction: TextInputAction.done,
+                                onFieldSubmitted: (_) => _login(),
                                 decoration: InputDecoration(
                                   labelText: 'كلمة المرور',
                                   prefixIcon: const Icon(Icons.lock_outline),
-                                  suffixIcon: IconButton(
+                                  suffixIcon: Semantics(
+                                    label: _showPassword ? 'إخفاء كلمة المرور' : 'إظهار كلمة المرور',
+                                    button: true,
+                                    child: IconButton(
                                     tooltip: _showPassword ? 'إخفاء كلمة المرور' : 'إظهار كلمة المرور',
                                     onPressed: () => setState(() => _showPassword = !_showPassword),
                                     icon: Icon(_showPassword ? Icons.visibility_off_outlined : Icons.visibility_outlined),
+                                  ),
                                   ),
                                 ),
                                 validator: (value) =>
@@ -348,10 +364,10 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                                 Container(
                                   padding: const EdgeInsets.all(12),
                                   decoration: BoxDecoration(
-                                    color: const Color(0xFFFEE2E2),
+                                    color: Theme.of(context).colorScheme.errorContainer,
                                     borderRadius: BorderRadius.circular(12),
                                     border: Border.all(
-                                      color: const Color(0xFFFCA5A5),
+                                      color: Theme.of(context).colorScheme.error,
                                     ),
                                   ),
                                   child: Row(
@@ -359,14 +375,14 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                                       const Icon(
                                         Icons.error_outline_rounded,
                                         size: 20,
-                                        color: Color(0xFFDC2626),
+                                        color: Theme.of(context).colorScheme.error,
                                       ),
                                       const SizedBox(width: 8),
                                       Expanded(
                                         child: Text(
                                           _error!,
                                           style: const TextStyle(
-                                            color: Color(0xFFDC2626),
+                                            color: Theme.of(context).colorScheme.onErrorContainer,
                                             fontSize: 13,
                                             fontWeight: FontWeight.w600,
                                           ),
@@ -401,13 +417,25 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                                 key: const Key('login_submit'),
                                 onPressed: _loading ? null : _login,
                                 style: FilledButton.styleFrom(
-                                  minimumSize: const Size(0, 52),
+                                  minimumSize: const Size(0, 48),
                                   shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(8),
+                                    borderRadius: BorderRadius.circular(14),
                                   ),
                                 ),
                                 child: _loading
-                                    ? const SizedBox(
+                                    ? const Row(
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          SizedBox.square(
+                                            dimension: 18,
+                                            child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                                          ),
+                                          SizedBox(width: 10),
+                                          Text('جارٍ تسجيل الدخول...'),
+                                        ],
+                                      )
+                                    : const Text(
                                         height: 22,
                                         width: 22,
                                         child: CircularProgressIndicator(
