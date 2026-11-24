@@ -903,11 +903,12 @@ class _ImportStudentsExcelPageState
               final r = rows[index];
               final isDup = r.isDuplicate;
               final hasErr = r.errors.isNotEmpty;
+              final semanticColors = AppColors.of(context);
               final Color badgeColor = hasErr
-                  ? const Color(0xFFDC2626)
+                  ? Theme.of(context).colorScheme.error
                   : isDup
-                  ? const Color(0xFFD97706)
-                  : const Color(0xFF059669);
+                  ? semanticColors.warning.foreground
+                  : semanticColors.present.foreground;
               final String badgeText = hasErr
                   ? 'خطأ'
                   : isDup
@@ -975,23 +976,18 @@ class _ImportStudentsExcelPageState
                       ),
                     ),
                     const SizedBox(width: 8),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 3,
-                      ),
-                      decoration: BoxDecoration(
-                        color: badgeColor.withValues(alpha: 0.12),
-                        borderRadius: BorderRadius.circular(6),
-                      ),
-                      child: Text(
-                        badgeText,
-                        style: TextStyle(
-                          fontSize: 11,
-                          fontWeight: FontWeight.w700,
-                          color: badgeColor,
-                        ),
-                      ),
+                    StatusChip(
+                      label: badgeText,
+                      icon: hasErr
+                          ? Icons.error_outline_rounded
+                          : isDup
+                          ? Icons.copy_rounded
+                          : Icons.check_circle_rounded,
+                      tone: hasErr
+                          ? StatusTone.error
+                          : isDup
+                          ? StatusTone.warning
+                          : StatusTone.success,
                     ),
                     if (hasErr || isDup) ...[
                       const SizedBox(width: 8),
