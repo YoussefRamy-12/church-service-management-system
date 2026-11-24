@@ -1,12 +1,11 @@
 // ignore_for_file: deprecated_member_use
-import '../../../app/theme.dart';
-import '../../../app/ui/components/status_chip.dart';
-
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../app/theme.dart';
 import '../../../app/ui/app_ui.dart';
+import '../../../app/ui/components/status_chip.dart';
 import '../../../core/utils/file_download_helper.dart';
 import '../../auth/presentation/auth_providers.dart';
 import '../../service/domain/entities/service_class.dart';
