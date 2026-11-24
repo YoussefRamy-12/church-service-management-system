@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../../app/ui/app_ui.dart';
+import '../../../app/ui/app_ui.dart';
 import '../domain/entities/case_status.dart';
 import 'absence_prioritization_page.dart';
 import 'follow_up_case_providers.dart';
