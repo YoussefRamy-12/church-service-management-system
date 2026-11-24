@@ -240,7 +240,7 @@ class ServantWorkloadTable extends StatelessWidget {
                 );
               }).toList(),
             ),
-          ),;
+          );
               }
               return Column(
                 children: [
