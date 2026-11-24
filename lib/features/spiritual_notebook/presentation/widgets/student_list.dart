@@ -184,7 +184,7 @@ class _StudentListState extends State<_StudentList> {
                               Icons.meeting_room_outlined,
                               size: 13,
                               color: isDark
-                                  ? const AppDesignColors.darkMutedInk
+                                  ? AppDesignColors.darkMutedInk
                                   : appMutedInk,
                             ),
                             const SizedBox(width: 3),
@@ -194,7 +194,7 @@ class _StudentListState extends State<_StudentList> {
                                 fontSize: 11,
                                 fontWeight: FontWeight.w700,
                                 color: isDark
-                                    ? const AppDesignColors.darkMutedInk
+                                    ? AppDesignColors.darkMutedInk
                                     : appMutedInk,
                               ),
                             ),
@@ -452,8 +452,8 @@ class _StudentListState extends State<_StudentList> {
                                       color: done
                                           ? appSuccess.withValues(alpha: 0.12)
                                           : (isDark
-                                                ? const AppDesignColors.darkSurfaceSubtle
-                                                : const AppDesignColors.lightSurfaceSubtle),
+                                                ? AppDesignColors.darkSurfaceSubtle
+                                                : AppDesignColors.lightSurfaceSubtle),
                                       borderRadius: BorderRadius.circular(6),
                                     ),
                                     child: Text(
@@ -464,7 +464,7 @@ class _StudentListState extends State<_StudentList> {
                                         color: done
                                             ? appSuccess
                                             : (isDark
-                                                  ? const AppDesignColors.darkMutedInk
+                                                  ? AppDesignColors.darkMutedInk
                                                   : appMutedInk),
                                       ),
                                     ),
@@ -476,7 +476,7 @@ class _StudentListState extends State<_StudentList> {
                                       fontWeight: FontWeight.w600,
                                       fontSize: 10,
                                       color: isDark
-                                          ? const AppDesignColors.darkMutedInk
+                                          ? AppDesignColors.darkMutedInk
                                           : appMutedInk,
                                     ),
                                   ),
@@ -485,7 +485,7 @@ class _StudentListState extends State<_StudentList> {
                               const SizedBox(width: 4),
                               Icon(
                                 Icons.chevron_left_rounded,
-                                color: const AppDesignColors.darkMutedInk,
+                                color: AppDesignColors.darkMutedInk,
                                 size: widget.isMobile ? 18 : 20,
                               ),
                             ],
@@ -521,14 +521,14 @@ class _StudentListState extends State<_StudentList> {
           decoration: BoxDecoration(
             color: selected
                 ? activeColor.withValues(alpha: isDark ? 0.25 : 0.12)
-                : (isDark ? const AppDesignColors.darkSurfaceSubtle : const AppDesignColors.lightSurfaceSubtle),
+                : (isDark ? AppDesignColors.darkSurfaceSubtle : AppDesignColors.lightSurfaceSubtle),
             borderRadius: BorderRadius.circular(999),
             border: Border.all(
               color: selected
                   ? activeColor
                   : (isDark
-                        ? const AppDesignColors.darkBorder
-                        : const AppDesignColors.lightBorder),
+                        ? AppDesignColors.darkBorder
+                        : AppDesignColors.lightBorder),
               width: selected ? 1.5 : 1,
             ),
           ),
@@ -553,7 +553,7 @@ class _StudentListState extends State<_StudentList> {
                   fontWeight: selected ? FontWeight.w800 : FontWeight.w600,
                   color: selected
                       ? (isDark ? Colors.white : activeColor)
-                      : (isDark ? const AppDesignColors.darkMutedInk : appMutedInk),
+                      : (isDark ? AppDesignColors.darkMutedInk : appMutedInk),
                 ),
               ),
             ],
@@ -581,14 +581,14 @@ class _StudentListState extends State<_StudentList> {
           decoration: BoxDecoration(
             color: selected
                 ? appPrimary
-                : (isDark ? const AppDesignColors.darkSurfaceSubtle : const AppDesignColors.lightSurfaceSubtle),
+                : (isDark ? AppDesignColors.darkSurfaceSubtle : AppDesignColors.lightSurfaceSubtle),
             borderRadius: BorderRadius.circular(999),
             border: Border.all(
               color: selected
                   ? appPrimary
                   : (isDark
-                        ? const AppDesignColors.darkBorder
-                        : const AppDesignColors.lightBorder),
+                        ? AppDesignColors.darkBorder
+                        : AppDesignColors.lightBorder),
               width: selected ? 1.5 : 1,
             ),
           ),
@@ -612,8 +612,8 @@ class _StudentListState extends State<_StudentList> {
                   color: selected
                       ? Colors.white.withValues(alpha: 0.22)
                       : (isDark
-                            ? const AppDesignColors.darkBorder
-                            : const AppDesignColors.lightBorderSubtle),
+                            ? AppDesignColors.darkBorder
+                            : AppDesignColors.lightBorderSubtle),
                   borderRadius: BorderRadius.circular(999),
                 ),
                 child: Text(
@@ -623,7 +623,7 @@ class _StudentListState extends State<_StudentList> {
                     fontWeight: FontWeight.w700,
                     color: selected
                         ? Colors.white
-                        : (isDark ? const AppDesignColors.darkMutedInk : appMutedInk),
+                        : (isDark ? AppDesignColors.darkMutedInk : appMutedInk),
                   ),
                 ),
               ),
