@@ -175,8 +175,8 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     return Scaffold(
       key: const Key('login_page'),
       body: SafeArea(
-        child: AmbientBackground(
-        intensity: 1.2,
+        child: ColoredBox(
+        color: theme.scaffoldBackgroundColor,
         child: Stack(
           children: [
             Positioned(
@@ -226,16 +226,16 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                                   width: 72,
                                   height: 72,
                                   decoration: BoxDecoration(
-                                    color: const Color(0xFF00236F).withValues(alpha: 0.08),
+                                    color: theme.colorScheme.primary.withValues(alpha: 0.08),
                                     borderRadius: BorderRadius.circular(12),
                                     border: Border.all(
-                                      color: const Color(0xFF00236F).withValues(alpha: 0.20),
+                                      color: theme.colorScheme.primary.withValues(alpha: 0.20),
                                     ),
                                   ),
                                   child: const Icon(
                                     Icons.church_rounded,
                                     size: 36,
-                                    color: Color(0xFF00236F),
+                                    color: theme.colorScheme.primary,
                                   ),
                                 ),
                               ),
@@ -265,9 +265,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                                 textAlign: TextAlign.center,
                                 style: TextStyle(
                                   fontSize: 12,
-                                  color: isDark
-                                      ? const Color(0xFF94A3B8)
-                                      : const Color(0xFF94A3B8),
+                                  color: theme.colorScheme.onSurfaceVariant,
                                   fontWeight: FontWeight.w500,
                                 ),
                               ),
