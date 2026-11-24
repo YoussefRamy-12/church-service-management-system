@@ -1,4 +1,5 @@
 // ignore_for_file: deprecated_member_use
+import '../../../app/theme.dart';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
@@ -503,8 +504,8 @@ class _ImportStudentsExcelPageState
                               style: TextStyle(
                                 fontSize: 12,
                                 color: isDark
-                                    ? const Color(0xFF94A3B8)
-                                    : const Color(0xFF64748B),
+                                    ? const AppDesignColors.darkMutedInk
+                                    : const AppDesignColors.lightMutedInk,
                               ),
                             ),
                             const SizedBox(height: 12),
@@ -594,8 +595,8 @@ class _ImportStudentsExcelPageState
                                     style: TextStyle(
                                       fontSize: 12,
                                       color: isDark
-                                          ? const Color(0xFF94A3B8)
-                                          : const Color(0xFF64748B),
+                                          ? const AppDesignColors.darkMutedInk
+                                          : const AppDesignColors.lightMutedInk,
                                     ),
                                   ),
                                 ],
@@ -685,8 +686,8 @@ class _ImportStudentsExcelPageState
                                       style: TextStyle(
                                         fontSize: 12,
                                         color: isDark
-                                            ? const Color(0xFF94A3B8)
-                                            : const Color(0xFF64748B),
+                                            ? const AppDesignColors.darkMutedInk
+                                            : const AppDesignColors.lightMutedInk,
                                       ),
                                     ),
                                   ],
@@ -935,7 +936,7 @@ class _ImportStudentsExcelPageState
                               r.school!,
                               style: const TextStyle(
                                 fontSize: 11,
-                                color: Color(0xFF64748B),
+                                color: AppDesignColors.lightMutedInk,
                               ),
                             ),
                           if (hasErr || isDup)
@@ -956,7 +957,7 @@ class _ImportStudentsExcelPageState
                         r.phone ?? 'بدون هاتف',
                         style: const TextStyle(
                           fontSize: 12,
-                          color: Color(0xFF64748B),
+                          color: AppDesignColors.lightMutedInk,
                         ),
                       ),
                     ),
