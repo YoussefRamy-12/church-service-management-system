@@ -100,8 +100,8 @@ class _NotebookSettingsState extends ConsumerState<_NotebookSettings> {
                     padding: const EdgeInsets.all(14),
                     decoration: BoxDecoration(
                       color: isDark
-                          ? const AppDesignColors.darkSurfaceSubtle
-                          : const AppDesignColors.darkInk,
+                          ? AppDesignColors.darkSurfaceSubtle
+                          : AppDesignColors.darkInk,
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: const Text(
@@ -119,13 +119,13 @@ class _NotebookSettingsState extends ConsumerState<_NotebookSettings> {
                       ),
                       decoration: BoxDecoration(
                         color: isDark
-                            ? const AppDesignColors.darkSurfaceSubtle
-                            : const AppDesignColors.darkInk,
+                            ? AppDesignColors.darkSurfaceSubtle
+                            : AppDesignColors.darkInk,
                         borderRadius: BorderRadius.circular(10),
                         border: Border.all(
                           color: isDark
-                              ? const AppDesignColors.darkBorder
-                              : const AppDesignColors.lightBorderSubtle,
+                              ? AppDesignColors.darkBorder
+                              : AppDesignColors.lightBorderSubtle,
                           width: 1,
                         ),
                       ),
@@ -390,13 +390,13 @@ class _NotebookSettingsState extends ConsumerState<_NotebookSettings> {
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
                     color: isDark
-                        ? const AppDesignColors.darkSurfaceSubtle
-                        : const AppDesignColors.lightSurfaceSubtle,
+                        ? AppDesignColors.darkSurfaceSubtle
+                        : AppDesignColors.lightSurfaceSubtle,
                     borderRadius: BorderRadius.circular(10),
                     border: Border.all(
                       color: isDark
-                          ? const AppDesignColors.darkBorder
-                          : const AppDesignColors.lightBorderSubtle,
+                          ? AppDesignColors.darkBorder
+                          : AppDesignColors.lightBorderSubtle,
                     ),
                   ),
                   child: Row(
@@ -580,13 +580,13 @@ class _NotebookSettingsState extends ConsumerState<_NotebookSettings> {
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
                       color: isDark
-                          ? const AppDesignColors.darkSurfaceSubtle
-                          : const AppDesignColors.lightSurfaceSubtle,
+                          ? AppDesignColors.darkSurfaceSubtle
+                          : AppDesignColors.lightSurfaceSubtle,
                       borderRadius: BorderRadius.circular(8),
                       border: Border.all(
                         color: isDark
-                            ? const AppDesignColors.darkBorder
-                            : const AppDesignColors.lightBorder,
+                            ? AppDesignColors.darkBorder
+                            : AppDesignColors.lightBorder,
                       ),
                     ),
                     child: Row(
