@@ -43,7 +43,7 @@ class NewServantValues {
 }
 
 class NewServantDialog extends StatefulWidget {
-  const NewServantDialog({required this.stages, required this.classes});
+  const NewServantDialog({super.key, required this.stages, required this.classes});
   final List<Stage> stages;
   final List<ServiceClass> classes;
 
@@ -229,6 +229,7 @@ class NewServantDialogState extends State<NewServantDialog> {
 
 class ServantEditDialog extends StatefulWidget {
   const ServantEditDialog({
+    super.key,
     required this.servant,
     required this.stages,
     required this.classes,
