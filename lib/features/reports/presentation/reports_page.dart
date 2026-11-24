@@ -103,17 +103,17 @@ class _ReportsPageState extends ConsumerState<ReportsPage>
         title: const Text('التقارير والإحصائيات'),
         actions: [
           reportAsync.maybeWhen(
-            data: (report) => OutlinedButton.icon(
-              onPressed: () => _openExportDialog(report),
-              icon: const Icon(Icons.file_download_rounded, size: 18),
-              label: const Text('تصدير Excel / PDF'),
-              style: OutlinedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(horizontal: 12),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-              ),
-            ),
+            data: (report) => MediaQuery.sizeOf(context).width >= 768
+                ? OutlinedButton.icon(
+                    onPressed: () => _openExportDialog(report),
+                    icon: const Icon(Icons.file_download_rounded, size: 18),
+                    label: const Text('تصدير Excel / PDF'),
+                  )
+                : IconButton(
+                    tooltip: 'تصدير التقرير',
+                    onPressed: () => _openExportDialog(report),
+                    icon: const Icon(Icons.file_download_outlined),
+                  ),
             orElse: () => const SizedBox.shrink(),
           ),
           const SizedBox(width: 8),
@@ -253,7 +253,7 @@ class _ReportsPageState extends ConsumerState<ReportsPage>
                 error: (error, stack) => Container(
                   padding: const EdgeInsets.all(32),
                   decoration: BoxDecoration(
-                    color: isDark ? const Color(0xFF131D33) : Colors.white,
+                    color: theme.colorScheme.surface,
                     borderRadius: BorderRadius.circular(16),
                   ),
                   child: Center(
@@ -470,14 +470,14 @@ class _ReportsPageState extends ConsumerState<ReportsPage>
                 title: 'حالات معلقة',
                 value: '${report.followUpAnalytics?.openCases ?? 0}',
                 icon: Icons.pending_actions_rounded,
-                color: const Color(0xFFEF4444),
+                color: AppColors.of(context).absent.foreground,
                 subtitle: 'حالات بانتظار التواصل والحسم',
               ),
               ReportKpiCard(
                 title: 'نسبة الإنجاز',
                 value: '${completionRate.toStringAsFixed(1)}%',
                 icon: Icons.task_alt_rounded,
-                color: const Color(0xFF10B981),
+                color: AppColors.of(context).present.foreground,
                 subtitle: 'الحالات المحسومة والمغلقة بنجاح',
               ),
               ReportKpiCard(
@@ -485,7 +485,7 @@ class _ReportsPageState extends ConsumerState<ReportsPage>
                 value:
                     '${report.followUpAnalytics?.totalActivities ?? report.followUps}',
                 icon: Icons.volunteer_activism_rounded,
-                color: const Color(0xFF00236F),
+                color: theme.colorScheme.primary,
                 subtitle: 'مكالمات، زيارات، وجلسات منفذة',
               ),
             ];
@@ -544,7 +544,7 @@ class _ReportsPageState extends ConsumerState<ReportsPage>
                 title: 'إجمالي المخدومين',
                 value: '${report.students}',
                 icon: Icons.school_rounded,
-                color: const Color(0xFF00236F),
+                color: theme.colorScheme.primary,
                 subtitle: 'التلاميذ المشمولون في نطاق التقرير',
               ),
               ReportKpiCard(
@@ -552,7 +552,7 @@ class _ReportsPageState extends ConsumerState<ReportsPage>
                 value:
                     '${report.studentAnalytics?.activeStudents ?? report.students}',
                 icon: Icons.verified_user_rounded,
-                color: const Color(0xFF10B981),
+                color: AppColors.of(context).present.foreground,
                 subtitle: 'مقيدون بصورة نشطة في الفصول',
               ),
               ReportKpiCard(
@@ -567,7 +567,7 @@ class _ReportsPageState extends ConsumerState<ReportsPage>
                 value:
                     '${report.studentAnalytics?.attendanceTiers["90-100%"] ?? 0}',
                 icon: Icons.star_rounded,
-                color: const Color(0xFF10B981),
+                color: AppColors.of(context).present.foreground,
                 subtitle: 'تلاميذ لم يتخلفوا عن أي اجتماع',
               ),
             ];
@@ -625,7 +625,7 @@ class _ReportsPageState extends ConsumerState<ReportsPage>
                 title: 'إجمالي الخدام',
                 value: '${report.servantWorkloads.length}',
                 icon: Icons.diversity_3_rounded,
-                color: const Color(0xFF00236F),
+                color: theme.colorScheme.primary,
                 subtitle: 'خدام الخدمة والمراحل والفصول',
               ),
               ReportKpiCard(
@@ -633,7 +633,7 @@ class _ReportsPageState extends ConsumerState<ReportsPage>
                 value:
                     '${report.servantWorkloads.fold<int>(0, (sum, s) => sum + s.assignedCasesCount)}',
                 icon: Icons.assignment_ind_rounded,
-                color: const Color(0xFF904D00),
+                color: AppColors.of(context).warning.foreground,
                 subtitle: 'أعباء الافتقاد المسندة للخدام',
               ),
               ReportKpiCard(
@@ -641,7 +641,7 @@ class _ReportsPageState extends ConsumerState<ReportsPage>
                 value:
                     '${report.servantWorkloads.fold<int>(0, (sum, s) => sum + s.completedActivitiesCount)}',
                 icon: Icons.volunteer_activism_rounded,
-                color: const Color(0xFF10B981),
+                color: AppColors.of(context).present.foreground,
                 subtitle: 'مكالمات وزيارات موثقة خلال الفترة',
               ),
             ];
