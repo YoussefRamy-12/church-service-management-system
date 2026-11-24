@@ -163,8 +163,8 @@ class _AppearanceSection extends ConsumerWidget {
           Divider(
             height: 1,
             color: isDark
-                ? const AppDesignColors.darkSurfaceSubtle
-                : const AppDesignColors.lightBorderSubtle,
+                ? AppDesignColors.darkSurfaceSubtle
+                : AppDesignColors.lightBorderSubtle,
           ),
           const SizedBox(height: 20),
           // ── Font Size ──
@@ -224,15 +224,15 @@ class _ChoiceChipTile extends StatelessWidget {
           color: selected
               ? primaryColor.withValues(alpha: isDark ? 0.25 : 0.1)
               : (isDark
-                  ? const AppDesignColors.darkSurfaceSubtle
-                  : const AppDesignColors.lightSurfaceSubtle),
+                  ? AppDesignColors.darkSurfaceSubtle
+                  : AppDesignColors.lightSurfaceSubtle),
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
             color: selected
                 ? primaryColor
                 : (isDark
-                    ? const AppDesignColors.darkBorder
-                    : const AppDesignColors.lightBorder),
+                    ? AppDesignColors.darkBorder
+                    : AppDesignColors.lightBorder),
             width: selected ? 1.8 : 1,
           ),
         ),
@@ -245,8 +245,8 @@ class _ChoiceChipTile extends StatelessWidget {
               color: selected
                   ? primaryColor
                   : (isDark
-                      ? const AppDesignColors.darkMutedInk
-                      : const AppDesignColors.lightMutedInk),
+                      ? AppDesignColors.darkMutedInk
+                      : AppDesignColors.lightMutedInk),
             ),
             const SizedBox(width: 8),
             Text(
@@ -256,7 +256,7 @@ class _ChoiceChipTile extends StatelessWidget {
                 fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
                 color: selected
                     ? primaryColor
-                    : (isDark ? const AppDesignColors.lightBorder : appInk),
+                    : (isDark ? AppDesignColors.lightBorder : appInk),
               ),
             ),
           ],
@@ -432,7 +432,7 @@ class _ProfileRow extends StatelessWidget {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
     final subtextColor =
-        isDark ? const AppDesignColors.darkMutedInk : const AppDesignColors.lightMutedInk;
+        isDark ? AppDesignColors.darkMutedInk : AppDesignColors.lightMutedInk;
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
@@ -644,7 +644,7 @@ class _SecuritySection extends ConsumerWidget {
           Divider(
             height: 1,
             color:
-                isDark ? const AppDesignColors.darkSurfaceSubtle : const AppDesignColors.lightBorderSubtle,
+                isDark ? AppDesignColors.darkSurfaceSubtle : AppDesignColors.lightBorderSubtle,
           ),
           Material(
             color: Colors.transparent,
@@ -980,7 +980,7 @@ class _AboutSection extends StatelessWidget {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
     final subtextColor =
-        isDark ? const AppDesignColors.darkMutedInk : const AppDesignColors.lightMutedInk;
+        isDark ? AppDesignColors.darkMutedInk : AppDesignColors.lightMutedInk;
 
     return SolidCard(
       child: Column(
@@ -1036,7 +1036,7 @@ class _AboutRow extends StatelessWidget {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
     final subtextColor =
-        isDark ? const AppDesignColors.darkMutedInk : const AppDesignColors.lightMutedInk;
+        isDark ? AppDesignColors.darkMutedInk : AppDesignColors.lightMutedInk;
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6),
