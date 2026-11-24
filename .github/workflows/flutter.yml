@@ -2,7 +2,7 @@ name: Flutter CI
 
 on:
   push:
-    branches: [main]
+    branches: [main, ux/mobile-redesign]
   pull_request:
 
 concurrency:
@@ -37,10 +37,12 @@ jobs:
         run: flutter test --reporter expanded --timeout 60s --update-goldens test/sync_center_widget_test.dart
       - name: Generate Task 6 mobile light/dark goldens
         run: flutter test --reporter expanded --timeout 60s --update-goldens test/task6_mobile_golden_test.dart
+      - name: Generate Task 7 notebook and weekly prep mobile goldens
+        run: flutter test --reporter expanded --timeout 60s --update-goldens test/task7_notebook_prep_mobile_golden_test.dart
       - name: Upload golden baselines
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: task-5-and-6-goldens
+          name: task-5-to-7-goldens
           path: test/goldens/
           if-no-files-found: warn
