@@ -247,7 +247,9 @@ class _ReportsPageState extends ConsumerState<ReportsPage>
                 loading: () => LayoutBuilder(
                   builder: (context, constraints) {
                     final scheme = Theme.of(context).colorScheme;
-                    final cardWidth = (constraints.maxWidth - 12) / 2;
+                    final columns = constraints.maxWidth >= 900 ? 4 : 2;
+                    final cardWidth =
+                        (constraints.maxWidth - 12 * (columns - 1)) / columns;
                     return Column(
                       children: [
                         Wrap(
