@@ -346,6 +346,17 @@ class _ImportStudentsExcelPageState
           style: TextStyle(fontWeight: FontWeight.w800),
         ),
       ),
+      bottomNavigationBar: MediaQuery.sizeOf(context).width < 650 &&
+              _parseResult != null &&
+              _successCount == null
+          ? SafeArea(
+              top: false,
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
+                child: _buildImportButton(),
+              ),
+            )
+          : null,
       body: AmbientBackground(
         intensity: 0.4,
         child: Center(
@@ -356,9 +367,15 @@ class _ImportStudentsExcelPageState
                     message: 'جاري تحميل الفصول وإعدادات الاستيراد...',
                   )
                 : ListView(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 20,
-                      vertical: 24,
+                    padding: EdgeInsets.fromLTRB(
+                      MediaQuery.sizeOf(context).width < 650 ? 16 : 20,
+                      20,
+                      MediaQuery.sizeOf(context).width < 650 ? 16 : 20,
+                      MediaQuery.sizeOf(context).width < 650 &&
+                              _parseResult != null &&
+                              _successCount == null
+                          ? 112
+                          : 24,
                     ),
                     children: [
                       // Finished Success Banner
@@ -737,45 +754,8 @@ class _ImportStudentsExcelPageState
                                       label: const Text('تحميل تقرير الأخطاء'),
                                     ),
                                   const Spacer(),
-                                  FilledButton.icon(
-                                    key: const Key(
-                                      'confirm_import_excel_button',
-                                    ),
-                                    onPressed:
-                                        _importing ||
-                                            _parseResult!.validRows.isEmpty
-                                        ? null
-                                        : _executeImport,
-                                    icon: _importing
-                                        ? const SizedBox(
-                                            width: 18,
-                                            height: 18,
-                                            child: CircularProgressIndicator(
-                                              strokeWidth: 2,
-                                              color: Colors.white,
-                                            ),
-                                          )
-                                        : const Icon(
-                                            Icons.check_circle_outline_rounded,
-                                            size: 20,
-                                          ),
-                                    label: Text(
-                                      _importing
-                                          ? 'جاري الاستيراد...'
-                                          : 'تأكيد استيراد ${_parseResult!.validRows.length} طالب',
-                                      style: const TextStyle(
-                                        fontWeight: FontWeight.w800,
-                                        fontSize: 15,
-                                      ),
-                                    ),
-                                    style: FilledButton.styleFrom(
-                                      backgroundColor: const Color(0xFF00236F),
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 24,
-                                        vertical: 14,
-                                      ),
-                                    ),
-                                  ),
+                                  if (MediaQuery.sizeOf(context).width >= 650)
+                                    _buildImportButton(),
                                 ],
                               ),
                             ],
@@ -785,6 +765,39 @@ class _ImportStudentsExcelPageState
                     ],
                   ),
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildImportButton() {
+    return SizedBox(
+      width: double.infinity,
+      child: FilledButton.icon(
+        key: const Key('confirm_import_excel_button'),
+        onPressed: _importing || _parseResult!.validRows.isEmpty
+            ? null
+            : _executeImport,
+        icon: _importing
+            ? const SizedBox(
+                width: 18,
+                height: 18,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  color: Colors.white,
+                ),
+              )
+            : const Icon(Icons.check_circle_outline_rounded, size: 20),
+        label: Text(
+          _importing
+              ? 'جاري الاستيراد...'
+              : 'تأكيد استيراد ${_parseResult!.validRows.length} طالب',
+          style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 15),
+        ),
+        style: FilledButton.styleFrom(
+          backgroundColor: AppDesignColors.primary,
+          minimumSize: const Size.fromHeight(52),
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
         ),
       ),
     );
