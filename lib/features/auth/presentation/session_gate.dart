@@ -150,6 +150,7 @@ class _ServiceChooserState extends ConsumerState<_ServiceChooser> {
         .map((profile) => profile.serviceId)
         .toSet()
         .toList();
+    if (ids.isEmpty) return {};
     final rows = await ref
         .read(supabaseClientProvider)
         .from('services')
