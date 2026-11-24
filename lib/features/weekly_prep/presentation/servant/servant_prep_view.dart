@@ -275,7 +275,7 @@ class _ServantPrepViewState extends ConsumerState<ServantPrepView> {
                     style: TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.w700,
-                      color: Color(0xFF475569),
+                      color: AppDesignColors.lightMutedInk,
                     ),
                   ),
                   for (final stage in widget.stages)
@@ -295,7 +295,7 @@ class _ServantPrepViewState extends ConsumerState<ServantPrepView> {
                   const Icon(
                     Icons.school_outlined,
                     size: 16,
-                    color: Color(0xFF64748B),
+                    color: AppDesignColors.lightMutedInk,
                   ),
                   const SizedBox(width: 6),
                   Text(
@@ -303,7 +303,7 @@ class _ServantPrepViewState extends ConsumerState<ServantPrepView> {
                     style: const TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.w700,
-                      color: Color(0xFF475569),
+                      color: AppDesignColors.lightMutedInk,
                     ),
                   ),
                 ],
@@ -389,7 +389,7 @@ class _ServantPrepViewState extends ConsumerState<ServantPrepView> {
             const Icon(
               Icons.menu_book_outlined,
               size: 48,
-              color: Color(0xFF94A3B8),
+              color: AppDesignColors.darkMutedInk,
             ),
             const SizedBox(height: 14),
             Text(
@@ -402,7 +402,7 @@ class _ServantPrepViewState extends ConsumerState<ServantPrepView> {
             const SizedBox(height: 6),
             const Text(
               'سيتوفر ملف الدرس والتحضير هنا بمجرد أن يقوم القائد برفعه.',
-              style: TextStyle(color: Color(0xFF64748B), fontSize: 13),
+              style: TextStyle(color: AppDesignColors.lightMutedInk, fontSize: 13),
               textAlign: TextAlign.center,
             ),
           ],
@@ -479,14 +479,14 @@ class _ServantPrepViewState extends ConsumerState<ServantPrepView> {
                     decoration: BoxDecoration(
                       color: isCurrentWeek
                           ? appSoftBlue
-                          : const Color(0xFFF1F5F9),
+                          : const AppDesignColors.lightSurfaceSubtle,
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Icon(
                       Icons.menu_book_rounded,
                       color: isCurrentWeek
                           ? appPrimary
-                          : const Color(0xFF64748B),
+                          : const AppDesignColors.lightMutedInk,
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -501,7 +501,7 @@ class _ServantPrepViewState extends ConsumerState<ServantPrepView> {
                             fontWeight: FontWeight.w600,
                             color: isCurrentWeek
                                 ? appPrimary
-                                : const Color(0xFF64748B),
+                                : const AppDesignColors.lightMutedInk,
                           ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
@@ -557,7 +557,7 @@ class _ServantPrepViewState extends ConsumerState<ServantPrepView> {
                 const SizedBox(height: 10),
                 const Text(
                   'ملاحظة: هذا أسبوع سابق (للقراءة والاطلاع فقط). التنزيل وتعديل التحضير متاحان للأسبوع الحالي فقط.',
-                  style: TextStyle(fontSize: 12, color: Color(0xFF64748B)),
+                  style: TextStyle(fontSize: 12, color: AppDesignColors.lightMutedInk),
                 ),
               ],
             ],
@@ -610,7 +610,7 @@ class _ServantPrepViewState extends ConsumerState<ServantPrepView> {
                 style: const TextStyle(
                   fontSize: 13.5,
                   height: 1.5,
-                  color: Color(0xFF475569),
+                  color: AppDesignColors.lightMutedInk,
                 ),
               ),
               const SizedBox(height: 18),
