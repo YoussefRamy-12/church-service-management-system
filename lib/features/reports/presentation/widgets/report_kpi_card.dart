@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../../../app/design/app_colors.dart';
+
 class ReportKpiCard extends StatelessWidget {
   const ReportKpiCard({
     super.key,
@@ -30,8 +32,10 @@ class ReportKpiCard extends StatelessWidget {
       final isPositive = changePercentage! > 0;
       final isZero = changePercentage! == 0;
       final trendColor = isZero
-          ? (isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B))
-          : (isPositive ? const Color(0xFF10B981) : const Color(0xFFEF4444));
+          ? theme.colorScheme.onSurfaceVariant
+          : (isPositive
+              ? AppColors.of(context).present.foreground
+              : AppColors.of(context).absent.foreground);
       final trendIcon = isZero
           ? Icons.remove_rounded
           : (isPositive ? Icons.trending_up_rounded : Icons.trending_down_rounded);
@@ -64,21 +68,12 @@ class ReportKpiCard extends StatelessWidget {
     final cardContent = Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF131D33) : Colors.white,
+        color: theme.colorScheme.surface,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0),
+          color: theme.colorScheme.outlineVariant,
           width: 1.2,
         ),
-        boxShadow: [
-          BoxShadow(
-            color: isDark
-                ? Colors.black.withValues(alpha: 0.2)
-                : const Color(0x080F172A),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -115,8 +110,7 @@ class ReportKpiCard extends StatelessWidget {
                   fontWeight: FontWeight.w600,
                   fontSize: 13,
                   color: isDark
-                      ? const Color(0xFF94A3B8)
-                      : const Color(0xFF475569),
+                      : theme.colorScheme.onSurfaceVariant,
                 ),
               ),
               const SizedBox(height: 4),
@@ -125,7 +119,7 @@ class ReportKpiCard extends StatelessWidget {
                 style: theme.textTheme.headlineMedium?.copyWith(
                   fontWeight: FontWeight.w800,
                   fontSize: 24,
-                  color: isDark ? Colors.white : const Color(0xFF0F172A),
+                  color: theme.colorScheme.onSurface,
                   letterSpacing: -0.5,
                 ),
               ),
@@ -137,9 +131,7 @@ class ReportKpiCard extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                   style: theme.textTheme.bodySmall?.copyWith(
                     fontSize: 11,
-                    color: isDark
-                        ? const Color(0xFF64748B)
-                        : const Color(0xFF64748B),
+                    color: theme.colorScheme.onSurfaceVariant,
                   ),
                 ),
               ],
