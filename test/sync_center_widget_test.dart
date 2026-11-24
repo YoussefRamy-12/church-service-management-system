@@ -8,9 +8,22 @@ import 'package:church_service_management_system/core/config/config_provider.dar
 import 'package:church_service_management_system/core/database/app_database.dart';
 import 'package:church_service_management_system/core/sync/sync_engine.dart';
 import 'package:church_service_management_system/core/sync/sync_engine_provider.dart';
-import 'package:church_service_management_system/core/sync/sync_operation.dart';
 import 'package:church_service_management_system/core/sync/sync_queue_repository.dart';
 import 'package:church_service_management_system/core/sync/sync_center_page.dart';
+
+class _FakeSyncQueueRepository extends SyncQueueRepository {
+  _FakeSyncQueueRepository(super.database);
+
+  int pendingCount = 0;
+  int conflictCount = 0;
+
+  @override
+  Stream<int> watchCountByStatus(String status) =>
+      Stream<int>.value(status == 'pending' ? pendingCount : conflictCount);
+
+  @override
+  Future<List<SyncOperation>> pending() async => const [];
+}
 
 class _NoopTransport implements SyncTransport {
   @override
@@ -22,12 +35,12 @@ class _NoopTransport implements SyncTransport {
 
 void main() {
   late AppDatabase database;
-  late SyncQueueRepository queue;
+  late _FakeSyncQueueRepository queue;
   late SyncEngine engine;
 
   setUp(() {
     database = AppDatabase.forTesting();
-    queue = SyncQueueRepository(database);
+    queue = _FakeSyncQueueRepository(database);
     engine = SyncEngine(
       queue: queue,
       transport: _NoopTransport(),
@@ -75,14 +88,7 @@ void main() {
   });
 
   testWidgets('sync center summarizes conflicts and links to review', (tester) async {
-    const operation = SyncOperation(
-      operationId: 'conflict-1',
-      entityType: 'student',
-      operationType: 'update',
-      payloadJson: '{"id":"student-1"}',
-    );
-    await queue.enqueue(operation);
-    await queue.markConflict(operation.operationId);
+    queue.conflictCount = 1;
 
     await tester.pumpWidget(buildSubject());
     await tester.pump();
