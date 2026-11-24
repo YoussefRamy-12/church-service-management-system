@@ -177,7 +177,7 @@ class _FollowUpHubPageState extends ConsumerState<FollowUpHubPage>
           padding: const EdgeInsets.fromLTRB(16, 16, 16, 80),
           children: [
             // Search Input
-            GlassCard(
+            AppCard(
               borderRadius: 12,
               padding: const EdgeInsets.all(4),
               child: TextField(
@@ -368,7 +368,7 @@ class _FollowUpHubPageState extends ConsumerState<FollowUpHubPage>
           padding: const EdgeInsets.fromLTRB(16, 16, 16, 80),
           children: [
             // Search Input
-            GlassCard(
+            AppCard(
               borderRadius: 12,
               padding: const EdgeInsets.all(4),
               child: TextField(

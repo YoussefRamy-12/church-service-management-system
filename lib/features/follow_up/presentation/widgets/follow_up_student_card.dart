@@ -30,7 +30,7 @@ class FollowUpStudentCard extends StatelessWidget {
         ? semantic.warning.foreground
         : theme.colorScheme.onSurfaceVariant;
 
-    return GlassCard(
+    return AppCard(
       borderRadius: 14,
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       onTap: onTap,

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../../app/design/app_colors.dart';
+
 /// Compact WhatsApp and dialer actions for an existing phone number.
 /// The call action opens the system dialer; it never places a call directly.
 class PhoneContactActions extends StatelessWidget {
@@ -52,7 +54,10 @@ class PhoneContactActions extends StatelessWidget {
           onPressed: _internationalDigits.isEmpty
               ? null
               : () => _launch(context, Uri.https('wa.me', '/$_internationalDigits')),
-          icon: const Icon(Icons.chat_rounded, color: Color(0xFF16A34A)),
+          icon: Icon(
+            Icons.chat_rounded,
+            color: AppColors.of(context).synced.foreground,
+          ),
         ),
         IconButton(
           tooltip: 'فتح الرقم في تطبيق الاتصال',
