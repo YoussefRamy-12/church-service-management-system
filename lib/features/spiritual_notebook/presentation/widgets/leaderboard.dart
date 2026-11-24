@@ -152,13 +152,4 @@ class _LeaderboardState extends State<_Leaderboard> {
     );
   }
 
-  Widget 
-
-  
-
-  
-
-  
-
-  
 }
