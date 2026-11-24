@@ -77,6 +77,7 @@ class ReportFilterBar extends ConsumerWidget {
                           filterNotifier.setPreset(ReportPeriodPreset.lastMeeting),
                     ),
                     _periodButton(
+                      context: context,
                       label: 'الشهر الحالي',
                       preset: ReportPeriodPreset.currentMonth,
                       currentPreset: filter.preset,
@@ -84,6 +85,7 @@ class ReportFilterBar extends ConsumerWidget {
                           filterNotifier.setPreset(ReportPeriodPreset.currentMonth),
                     ),
                     _periodButton(
+                      context: context,
                       label: 'الترم الحالي',
                       preset: ReportPeriodPreset.currentTerm,
                       currentPreset: filter.preset,
@@ -91,6 +93,7 @@ class ReportFilterBar extends ConsumerWidget {
                           filterNotifier.setPreset(ReportPeriodPreset.currentTerm),
                     ),
                     _periodButton(
+                      context: context,
                       label: 'السنة الخدمية',
                       preset: ReportPeriodPreset.serviceYear,
                       currentPreset: filter.preset,
@@ -98,6 +101,7 @@ class ReportFilterBar extends ConsumerWidget {
                           filterNotifier.setPreset(ReportPeriodPreset.serviceYear),
                     ),
                     _periodButton(
+                      context: context,
                       label: 'فترة مخصصة',
                       icon: Icons.calendar_month_rounded,
                       preset: ReportPeriodPreset.custom,
