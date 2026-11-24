@@ -1,4 +1,3 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -8,7 +7,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'auth_providers.dart';
 import '../../../core/network/supabase_client_provider.dart';
 import '../../../app/theme.dart';
-import '../../../app/ui/app_ui.dart';
 
 class LoginPage extends ConsumerStatefulWidget {
   const LoginPage({super.key});
@@ -203,11 +201,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                     horizontal: 24,
                     vertical: 32,
                   ),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(12),
-                    child: BackdropFilter(
-                      filter: ImageFilter.blur(sigmaX: 0, sigmaY: 0),
-                      child: Container(
+                  child: Container(
                         decoration: BoxDecoration(
                           color: cardBg,
                           borderRadius: BorderRadius.circular(12),
@@ -232,7 +226,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                                       color: theme.colorScheme.primary.withValues(alpha: 0.20),
                                     ),
                                   ),
-                                  child: const Icon(
+                                  child: Icon(
                                     Icons.church_rounded,
                                     size: 36,
                                     color: theme.colorScheme.primary,
@@ -358,17 +352,17 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                                   ),
                                   child: Row(
                                     children: [
-                                      const Icon(
+                                      Icon(
                                         Icons.error_outline_rounded,
                                         size: 20,
-                                        color: Theme.of(context).colorScheme.error,
+                                        color: theme.colorScheme.error,
                                       ),
                                       const SizedBox(width: 8),
                                       Expanded(
                                         child: Text(
                                           _error!,
-                                          style: const TextStyle(
-                                            color: Theme.of(context).colorScheme.onErrorContainer,
+                                          style: TextStyle(
+                                            color: theme.colorScheme.onErrorContainer,
                                             fontSize: 13,
                                             fontWeight: FontWeight.w600,
                                           ),
@@ -440,8 +434,6 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                           ),
                         ),
                       ),
-                    ),
-                  ),
                 ),
               ),
             ),
