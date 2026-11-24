@@ -123,6 +123,7 @@ class EarlyRegularDistributionChart extends StatelessWidget {
                   SizedBox(
                     width: itemWidth,
                     child: _statItem(
+                      context: context,
                       label: 'قبل الموعد',
                       count: beforeCount,
                       pct: beforePct,
@@ -166,6 +167,7 @@ class EarlyRegularDistributionChart extends StatelessWidget {
   }
 
   Widget _statItem({
+    required BuildContext context,
     required String label,
     required int count,
     required double pct,
