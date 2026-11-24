@@ -31,13 +31,13 @@ String _date(DateTime d) =>
 
 Color _avatarColor(String name) {
   const palette = <Color>[
-    Color(0xFF00236F),
-    Color(0xFF0D9488),
-    Color(0xFFB45309),
+    AppDesignColors.primary,
+    AppColors.light.synced.foreground,
+    AppColors.light.warning.foreground,
     AppDesignColors.lightMutedInk,
-    Color(0xFF0369A1),
-    Color(0xFF7C3AED),
-    Color(0xFF059669),
+    AppColors.light.excused.foreground,
+    AppColors.light.excused.foreground,
+    AppColors.light.present.foreground,
   ];
   if (name.isEmpty) return palette.first;
   final code = name.codeUnits.fold<int>(0, (v, u) => v + u);
