@@ -296,8 +296,8 @@ extension _NotebookSettingsActions on _NotebookSettingsState {
                             style: TextStyle(
                               fontSize: 11,
                               color: isDark
-                                  ? const Color(0xFF86EFAC)
-                                  : const Color(0xFF0F5132),
+                                  ? AppColors.light.present.background
+                                  : AppColors.light.present.foreground,
                               height: 1.35,
                               fontWeight: FontWeight.w500,
                             ),
