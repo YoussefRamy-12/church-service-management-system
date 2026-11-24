@@ -1,3 +1,5 @@
+// ignore_for_file: invalid_use_of_protected_member
+
 part of '../spiritual_notebook_page.dart';
 
 extension _SpiritualNotebookStudentActions on _SpiritualNotebookStudentPageState {
