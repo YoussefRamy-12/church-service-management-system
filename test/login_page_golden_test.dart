@@ -29,7 +29,8 @@ void main() {
           ),
         ),
       );
-      await tester.pumpAndSettle();
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 300));
 
       await expectLater(
         find.byKey(const Key('login_page')),
