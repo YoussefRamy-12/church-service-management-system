@@ -101,7 +101,7 @@ class _NotebookSettingsState extends ConsumerState<_NotebookSettings> {
                     decoration: BoxDecoration(
                       color: isDark
                           ? AppDesignColors.darkSurfaceSubtle
-                          : AppDesignColors.darkInk,
+                          : AppDesignColors.lightSurface,
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: const Text(
@@ -120,7 +120,7 @@ class _NotebookSettingsState extends ConsumerState<_NotebookSettings> {
                       decoration: BoxDecoration(
                         color: isDark
                             ? AppDesignColors.darkSurfaceSubtle
-                            : AppDesignColors.darkInk,
+                            : AppDesignColors.lightSurface,
                         borderRadius: BorderRadius.circular(10),
                         border: Border.all(
                           color: isDark
