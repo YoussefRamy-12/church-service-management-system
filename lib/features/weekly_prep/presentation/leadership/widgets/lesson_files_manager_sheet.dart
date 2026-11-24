@@ -1,4 +1,5 @@
 import 'dart:typed_data';
+import 'package:church_service_management_system/app/theme.dart';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
@@ -282,7 +283,7 @@ class _LessonFilesManagerSheetState
                       style: const TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w800,
-                        color: Color(0xFF475569),
+                        color: AppDesignColors.lightMutedInk,
                       ),
                     ),
                   ),
@@ -305,9 +306,9 @@ class _LessonFilesManagerSheetState
                             vertical: 10,
                           ),
                           decoration: BoxDecoration(
-                            color: const Color(0xFFF8FAFC),
+                            color: const AppDesignColors.darkInk,
                             borderRadius: BorderRadius.circular(10),
-                            border: Border.all(color: const Color(0xFFE2E8F0)),
+                            border: Border.all(color: const AppDesignColors.lightBorderSubtle),
                           ),
                           child: Row(
                             children: [
@@ -318,7 +319,7 @@ class _LessonFilesManagerSheetState
                                 size: 22,
                                 color: lesson != null
                                     ? Colors.red
-                                    : const Color(0xFF94A3B8),
+                                    : const AppDesignColors.darkMutedInk,
                               ),
                               const SizedBox(width: 12),
                               Expanded(
@@ -337,8 +338,8 @@ class _LessonFilesManagerSheetState
                                       style: TextStyle(
                                         fontSize: 12,
                                         color: lesson != null
-                                            ? const Color(0xFF334155)
-                                            : const Color(0xFF94A3B8),
+                                            ? const AppDesignColors.darkBorder
+                                            : const AppDesignColors.darkMutedInk,
                                       ),
                                     ),
                                   ],
@@ -707,7 +708,7 @@ class _SingleLessonUploadDialogState extends State<_SingleLessonUploadDialog> {
             const SizedBox(height: 8),
             Text(
               'الأسبوع: ${PrepDateFormatter.formatWeek(widget.week)}',
-              style: const TextStyle(color: Color(0xFF64748B)),
+              style: const TextStyle(color: AppDesignColors.lightMutedInk),
             ),
             const SizedBox(height: 16),
             OutlinedButton.icon(
