@@ -211,7 +211,7 @@ class _QuickFollowUpSheetState extends ConsumerState<QuickFollowUpSheet> {
                 builder: (_) => CreateFollowUpCasePage(
                   serviceId: widget.serviceId,
                   preselectedStudent: student,
-                  classId: student.currentClassId ?? '',
+                  classId: student.currentClassId,
                 ),
               ),
             );
