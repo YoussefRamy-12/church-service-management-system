@@ -86,7 +86,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('البريد الإلكتروني أو كلمة المرور غير صحيحة.'), findsOneWidget);
-    expect(find.text('servant@example.com'), findsOneWidget);
+    expect(tester.widget<TextFormField>(find.byKey(const Key('login_email'))).controller!.text, 'servant@example.com');
     expect(find.text('wrong-pass'), findsNothing);
     expect(tester.widget<TextFormField>(find.byKey(const Key('login_password'))).controller!.text, 'wrong-pass');
   });
