@@ -260,9 +260,20 @@ class _ServantSignUpPageState extends ConsumerState<ServantSignUpPage> {
         ),
         if (_error != null) ...[
           const SizedBox(height: 12),
-          Text(
-            _error!,
-            style: TextStyle(color: Theme.of(context).colorScheme.error),
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.errorContainer,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: Theme.of(context).colorScheme.error),
+            ),
+            child: Row(
+              children: [
+                Icon(Icons.error_outline_rounded, color: Theme.of(context).colorScheme.error),
+                const SizedBox(width: 8),
+                Expanded(child: Text(_error!, style: TextStyle(color: Theme.of(context).colorScheme.onErrorContainer))),
+              ],
+            ),
           ),
         ],
         const SizedBox(height: 20),
