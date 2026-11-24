@@ -123,6 +123,7 @@ class ClassComparisonTable extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
 
     if (classComparisons.isEmpty) {
       return const SizedBox.shrink();
@@ -227,8 +228,7 @@ class ClassComparisonTable extends StatelessWidget {
                             style: TextStyle(
                               fontSize: 11,
                               color: isDark
-                                  ? const Color(0xFF94A3B8)
-                                  : const Color(0xFF64748B),
+                                  : theme.colorScheme.onSurfaceVariant,
                             ),
                           ),
                         ],
@@ -269,7 +269,7 @@ class ClassComparisonTable extends StatelessWidget {
                               ),
                               child: Text(
                                 '${c.repeatedAbsencesCount}',
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontWeight: FontWeight.w700,
                                   color: AppColors.of(context).absent.foreground,
                                 ),
@@ -287,7 +287,7 @@ class ClassComparisonTable extends StatelessWidget {
                 );
               }).toList(),
             ),
-          ),;
+          );
               }
               return Column(
                 children: [
