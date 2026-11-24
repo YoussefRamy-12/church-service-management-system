@@ -58,9 +58,22 @@ class _ForgotPasswordPageState extends ConsumerState<ForgotPasswordPage> {
             const Text('أدخل البريد المرتبط بحسابك وسنرسل رابطًا آمنًا لإعادة تعيين كلمة المرور.'),
             const SizedBox(height: 18),
             TextField(controller: _email, keyboardType: TextInputType.emailAddress, autofillHints: const [AutofillHints.email], textInputAction: TextInputAction.done, onSubmitted: (_) => _send(), decoration: const InputDecoration(labelText: 'البريد الإلكتروني')),
-            if (_error != null) Padding(padding: const EdgeInsets.only(top: 12), child: Text(_error!, style: TextStyle(color: Theme.of(context).colorScheme.error))),
+            if (_error != null) Container(
+              margin: const EdgeInsets.only(top: 12),
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.errorContainer,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: Theme.of(context).colorScheme.error),
+              ),
+              child: Row(children: [
+                Icon(Icons.error_outline_rounded, color: Theme.of(context).colorScheme.error),
+                const SizedBox(width: 8),
+                Expanded(child: Text(_error!, style: TextStyle(color: Theme.of(context).colorScheme.onErrorContainer))),
+              ]),
+            ),
             const SizedBox(height: 18),
-            FilledButton(onPressed: _loading ? null : _send, child: _loading ? const CircularProgressIndicator() : const Text('إرسال رابط الاستعادة')),
+            FilledButton(onPressed: _loading ? null : _send, child: _loading ? const Text('جارٍ إرسال الرابط...') : const Text('إرسال رابط الاستعادة')),
           ])),
     )))),
   );
@@ -117,7 +130,7 @@ class _ResetPasswordPageState extends ConsumerState<ResetPasswordPage> {
         TextField(controller: _confirm, obscureText: !_showConfirmPassword, autofillHints: const [AutofillHints.newPassword], textInputAction: TextInputAction.done, onSubmitted: (_) => _save(), decoration: InputDecoration(labelText: 'تأكيد كلمة المرور', suffixIcon: Semantics(button: true, label: _showConfirmPassword ? 'إخفاء كلمة المرور' : 'إظهار كلمة المرور', child: IconButton(tooltip: _showConfirmPassword ? 'إخفاء كلمة المرور' : 'إظهار كلمة المرور', onPressed: () => setState(() => _showConfirmPassword = !_showConfirmPassword), icon: Icon(_showConfirmPassword ? Icons.visibility_off_outlined : Icons.visibility_outlined))))),
         if (_error != null) Padding(padding: const EdgeInsets.only(top: 12), child: Text(_error!, style: TextStyle(color: Theme.of(context).colorScheme.error))),
         const SizedBox(height: 18),
-        FilledButton(onPressed: _loading ? null : _save, child: _loading ? const CircularProgressIndicator() : const Text('حفظ كلمة المرور')),
+        FilledButton(onPressed: _loading ? null : _save, child: _loading ? const Text('جارٍ حفظ كلمة المرور...') : const Text('حفظ كلمة المرور')),
       ])),
     )))),
   );
