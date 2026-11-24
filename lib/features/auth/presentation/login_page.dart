@@ -423,23 +423,11 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                                   ),
                                 ),
                                 child: _loading
-                                    ? const Row(
-                                        mainAxisAlignment: MainAxisAlignment.center,
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          SizedBox.square(
-                                            dimension: 18,
-                                            child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
-                                          ),
-                                          SizedBox(width: 10),
-                                          Text('جارٍ تسجيل الدخول...'),
-                                        ],
-                                      )
-                                    : const Text(
-                                        height: 22,
-                                        width: 22,
-                                        child: CircularProgressIndicator(
-                                          strokeWidth: 2.5,
+                                    ? const Text(
+                                        'جارٍ تسجيل الدخول...',
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w700,
                                           color: Colors.white,
                                         ),
                                       )
