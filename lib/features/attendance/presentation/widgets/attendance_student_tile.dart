@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
-import '../../../../app/ui/app_ui.dart';
+import '../../../../app/design/app_colors.dart';
+import '../../../../app/design/app_radii.dart';
+import '../../../../app/design/app_spacing.dart';
+import '../../../../app/ui/components/status_chip.dart';
 import '../../../students/domain/entities/student.dart';
 import '../../domain/entities/attendance_record.dart';
 
@@ -12,8 +15,7 @@ class AttendanceStudentTile extends StatelessWidget {
     required this.readOnly,
     required this.classColor,
     required this.classLabel,
-    required this.attendanceLabel,
-    required this.attendanceColor,
+    required this.attendanceTimingLabel,
     required this.onCheckIn,
     required this.onEditTime,
   });
@@ -24,193 +26,214 @@ class AttendanceStudentTile extends StatelessWidget {
   final bool readOnly;
   final Color classColor;
   final String classLabel;
-  final String attendanceLabel;
-  final Color attendanceColor;
+  final String attendanceTimingLabel;
   final VoidCallback onCheckIn;
   final VoidCallback onEditTime;
 
   @override
   Widget build(BuildContext context) {
     final isPresent = record != null;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final theme = Theme.of(context);
+    final palette = AppColors.of(context);
 
-    return SolidCard(
-      key: ValueKey(student.id),
-      padding: const EdgeInsets.symmetric(
-        horizontal: 12,
-        vertical: 10,
-      ),
-      borderRadius: 12,
-      child: Row(
-        children: [
-          // Avatar (Solid surface, no gradient/glow)
-          Container(
-            width: 42,
-            height: 42,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: isPresent
-                  ? const Color(0xFF059669).withValues(alpha: 0.12)
-                  : (student.isPending
-                      ? const Color(0xFFD97706).withValues(alpha: 0.10)
-                      : (isDark
-                          ? const Color(0xFF1E293B)
-                          : const Color(0xFFF1F5F9))),
-              border: Border.all(
-                color: isPresent
-                    ? const Color(0xFF059669).withValues(alpha: 0.30)
-                    : (student.isPending
-                        ? const Color(0xFFD97706).withValues(alpha: 0.25)
-                        : (isDark
-                            ? const Color(0xFF334155)
-                            : const Color(0xFFE2E8F0))),
-              ),
-            ),
-            alignment: Alignment.center,
-            child: isPresent
-                ? const Icon(
-                    Icons.check_rounded,
-                    color: Color(0xFF059669),
-                    size: 20,
-                  )
-                : Text(
-                    student.name.isNotEmpty
-                        ? student.name.characters.first
-                        : 'ت',
-                    style: TextStyle(
-                      fontWeight: FontWeight.w700,
-                      fontSize: 15,
-                      color: isDark
-                          ? const Color(0xFFCBD5E1)
-                          : const Color(0xFF334155),
-                    ),
-                  ),
+    final statusWidget = isPresent
+        ? StatusChip(
+            status: AppStatus.present,
+            label: attendanceTimingLabel.isNotEmpty
+                ? 'حاضر • $attendanceTimingLabel'
+                : 'حاضر',
+          )
+        : const StatusChip(
+            status: AppStatus.absent,
+            label: 'غير مسجل',
+          );
+
+    return Material(
+      color: theme.colorScheme.surface,
+      borderRadius: BorderRadius.circular(AppRadii.card),
+      child: InkWell(
+        key: ValueKey('student_tile_${student.id}'),
+        onTap: readOnly
+            ? null
+            : (isPresent ? onEditTime : onCheckIn),
+        onLongPress: readOnly ? null : (isPresent ? onEditTime : null),
+        borderRadius: BorderRadius.circular(AppRadii.card),
+        child: Container(
+          constraints: const BoxConstraints(minHeight: 56),
+          padding: const EdgeInsets.symmetric(
+            horizontal: AppSpacing.sm,
+            vertical: AppSpacing.xs,
           ),
-          const SizedBox(width: 12),
-
-          // Student Details
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  student.name,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.w800,
-                    fontSize: 15,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(AppRadii.card),
+            border: Border.all(
+              color: isPresent
+                  ? palette.present.foreground.withValues(alpha: 0.3)
+                  : theme.colorScheme.outlineVariant,
+              width: 1,
+            ),
+          ),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              // Avatar with initials / first character
+              Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: isPresent
+                      ? palette.present.background
+                      : (student.isPending
+                          ? palette.pending.background
+                          : theme.colorScheme.surfaceContainerHighest),
+                  border: Border.all(
+                    color: isPresent
+                        ? palette.present.foreground.withValues(alpha: 0.4)
+                        : (student.isPending
+                            ? palette.pending.foreground.withValues(alpha: 0.3)
+                            : theme.colorScheme.outlineVariant),
                   ),
                 ),
-                const SizedBox(height: 4),
-                Wrap(
-                  spacing: 6,
-                  runSpacing: 4,
-                  crossAxisAlignment: WrapCrossAlignment.center,
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 3,
-                      ),
-                      decoration: BoxDecoration(
-                        color: classColor.withValues(alpha: .10),
-                        borderRadius: BorderRadius.circular(999),
-                        border: Border.all(color: classColor.withValues(alpha: .30)),
-                      ),
-                      child: Text(
-                        classLabel,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
+                alignment: Alignment.center,
+                child: isPresent
+                    ? Icon(
+                        Icons.check_rounded,
+                        color: palette.present.foreground,
+                        size: 20,
+                      )
+                    : Text(
+                        student.name.isNotEmpty
+                            ? student.name.characters.first
+                            : 'ت',
                         style: TextStyle(
-                          color: classColor,
-                          fontSize: 10,
                           fontWeight: FontWeight.w700,
+                          fontSize: 16,
+                          color: student.isPending
+                              ? palette.pending.foreground
+                              : theme.colorScheme.onSurface,
                         ),
                       ),
+              ),
+              const SizedBox(width: AppSpacing.sm),
+
+              // Student Details: Name, class chip, pending chip, check-in time
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      student.name,
+                      style: theme.textTheme.titleSmall?.copyWith(
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: -0.2,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
                     ),
-                    if (student.isPending)
-                      const GlassBadge(
-                        label: 'بانتظار الاعتماد',
-                        color: Color(0xFFD97706),
-                        showDot: true,
-                      ),
-                    if (isPresent) ...[
-                      GlassBadge(
-                        label: attendanceLabel,
-                        color: attendanceColor,
-                        showDot: false,
-                      ),
-                      Text(
-                        TimeOfDay.fromDateTime(
-                          record!.checkedInAt,
-                        ).format(context),
-                        style: TextStyle(
-                          fontSize: 11,
-                          fontWeight: FontWeight.w600,
-                          color: isDark
-                              ? const Color(0xFF94A3B8)
-                              : const Color(0xFF64748B),
-                        ),
-                      ),
-                    ] else ...[
-                      Text(
-                        'غير مسجل',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: isDark
-                              ? const Color(0xFF64748B)
-                              : const Color(0xFF94A3B8),
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ],
+                    const SizedBox(height: 2),
+                    Wrap(
+                      spacing: 6,
+                      runSpacing: 2,
+                      crossAxisAlignment: WrapCrossAlignment.center,
+                      children: [
+                        if (classLabel.isNotEmpty)
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 6,
+                              vertical: 2,
+                            ),
+                            decoration: BoxDecoration(
+                              color: classColor.withValues(alpha: 0.12),
+                              borderRadius: BorderRadius.circular(AppRadii.chip),
+                            ),
+                            child: Text(
+                              classLabel,
+                              style: TextStyle(
+                                color: classColor,
+                                fontSize: 10,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                          ),
+                        if (student.isPending)
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 6,
+                              vertical: 2,
+                            ),
+                            decoration: BoxDecoration(
+                              color: palette.pending.background,
+                              borderRadius: BorderRadius.circular(AppRadii.chip),
+                            ),
+                            child: Text(
+                              'بانتظار الاعتماد',
+                              style: TextStyle(
+                                color: palette.pending.foreground,
+                                fontSize: 10,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                          ),
+                        if (isPresent)
+                          Text(
+                            TimeOfDay.fromDateTime(record!.checkedInAt)
+                                .format(context),
+                            style: theme.textTheme.labelSmall?.copyWith(
+                              color: theme.colorScheme.onSurfaceVariant,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                      ],
+                    ),
                   ],
                 ),
-              ],
-            ),
-          ),
+              ),
 
-          // Action Button
-          if (isPresent)
-            OutlinedButton.icon(
-              onPressed: readOnly ? null : onEditTime,
-              icon: const Icon(
-                Icons.access_time_rounded,
-                size: 16,
-              ),
-              label: const Text('تعديل'),
-              style: OutlinedButton.styleFrom(
-                minimumSize: const Size(80, 40),
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 10,
+              const SizedBox(width: AppSpacing.xs),
+
+              // Status Chip (icon + Arabic label + color)
+              statusWidget,
+
+              // Trailing action button (Edit time when present, checkmark when not marked, spinner when busy)
+              if (isBusy)
+                const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: AppSpacing.xs),
+                  child: SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  ),
+                )
+              else if (isPresent && !readOnly)
+                IconButton(
+                  icon: const Icon(Icons.access_time_rounded, size: 18),
+                  tooltip: 'تعديل وقت الحضور',
+                  onPressed: onEditTime,
+                  style: IconButton.styleFrom(
+                    visualDensity: VisualDensity.compact,
+                    minimumSize: const Size(36, 36),
+                  ),
+                )
+              else if (!isPresent && !readOnly)
+                IconButton(
+                  key: ValueKey('checkin_btn_${student.id}'),
+                  icon: Icon(
+                    Icons.how_to_reg_outlined,
+                    size: 20,
+                    color: palette.present.foreground,
+                  ),
+                  tooltip: 'تسجيل الحضور',
+                  onPressed: onCheckIn,
+                  style: IconButton.styleFrom(
+                    visualDensity: VisualDensity.compact,
+                    minimumSize: const Size(36, 36),
+                  ),
                 ),
-              ),
-            )
-          else
-            FilledButton.icon(
-              onPressed: readOnly || isBusy ? null : onCheckIn,
-              icon: isBusy
-                  ? const SizedBox(
-                      width: 14,
-                      height: 14,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        color: Colors.white,
-                      ),
-                    )
-                  : const Icon(
-                      Icons.how_to_reg_rounded,
-                      size: 18,
-                    ),
-              label: const Text('تسجيل'),
-              style: FilledButton.styleFrom(
-                backgroundColor: const Color(0xFF059669),
-                minimumSize: const Size(88, 42),
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 14,
-                ),
-              ),
-            ),
-        ],
+            ],
+          ),
+        ),
       ),
     );
   }

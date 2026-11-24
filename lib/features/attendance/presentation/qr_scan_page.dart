@@ -2,17 +2,19 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 
+import '../../../app/design/app_colors.dart';
+import '../../../app/design/app_radii.dart';
+import '../../../app/design/app_spacing.dart';
 import '../../students/domain/entities/student.dart';
 
-/// Redesigned, responsive QR Scanner screen adhering to Diakonia Stewardship design system.
+/// Full-screen mobile-optimized QR Scanner adhering to the Warm Navy design system.
 ///
-/// Implements Impeccable Operate-mode ergonomics:
-/// - In-frame camera preview with hardware-accelerated clipping & RTL isolation
-/// - Animated laser sweep and glowing precision reticles
-/// - Responsive adaptation between narrow phones, tablets, and desktop viewports
-/// - Immediate servant feedback with haptics and clear attendance confirmation
-/// - Manual search fallback when cameras or QR codes fail
-/// - Strict hardware lifecycle teardown on dismissal
+/// Ergonomics:
+/// - Full-screen camera canvas with safe viewfinder reticles
+/// - Immediate feedback with differentiated haptics (success / already present / not found)
+/// - Clear result panel for each scanning state
+/// - One-handed manual search fallback
+/// - Zero hardcoded arbitrary colors; uses design tokens
 class QrScanPage extends StatefulWidget {
   const QrScanPage({
     super.key,
@@ -117,7 +119,7 @@ class _QrScanPageState extends State<QrScanPage>
     final inFlight = _startOperation;
     if (inFlight != null) {
       try {
-        await inFlight;
+        await inFlight.timeout(const Duration(milliseconds: 150));
       } catch (_) {}
     }
     await _stopCamera();
@@ -138,7 +140,7 @@ class _QrScanPageState extends State<QrScanPage>
     if (value.isEmpty) return;
 
     _handlingResult = true;
-    HapticFeedback.mediumImpact();
+    _laserAnimController.stop();
     await _stopCamera();
     if (!mounted || _closing) return;
 
@@ -150,6 +152,17 @@ class _QrScanPageState extends State<QrScanPage>
       }
     }
 
+    if (student != null) {
+      final alreadyPresent = widget.presentStudentIds.contains(student.id);
+      if (alreadyPresent) {
+        HapticFeedback.selectionClick();
+      } else {
+        HapticFeedback.mediumImpact();
+      }
+    } else {
+      HapticFeedback.heavyImpact();
+    }
+
     setState(() {
       _scannedStudent = student;
       _unknownCode = student == null;
@@ -158,6 +171,7 @@ class _QrScanPageState extends State<QrScanPage>
 
   Future<void> _resumeScanning() async {
     if (_closing || _controllerDisposed) return;
+    _laserAnimController.repeat(reverse: true);
     setState(() {
       _scannedStudent = null;
       _unknownCode = false;
@@ -199,6 +213,7 @@ class _QrScanPageState extends State<QrScanPage>
   }
 
   void _openManualSearch() async {
+    _laserAnimController.stop();
     await _pauseCamera();
     if (!mounted || _closing) return;
 
@@ -215,12 +230,19 @@ class _QrScanPageState extends State<QrScanPage>
     if (!mounted || _closing) return;
 
     if (selected != null) {
+      final alreadyPresent = widget.presentStudentIds.contains(selected.id);
+      if (alreadyPresent) {
+        HapticFeedback.selectionClick();
+      } else {
+        HapticFeedback.mediumImpact();
+      }
       setState(() {
         _scannedStudent = selected;
         _unknownCode = false;
         _handlingResult = true;
       });
     } else {
+      _laserAnimController.repeat(reverse: true);
       await _startCamera();
     }
   }
@@ -240,6 +262,7 @@ class _QrScanPageState extends State<QrScanPage>
 
   @override
   Widget build(BuildContext context) {
+    final colors = AppColors.of(context);
     final student = _scannedStudent;
     final alreadyPresent =
         student != null && widget.presentStudentIds.contains(student.id);
@@ -250,52 +273,75 @@ class _QrScanPageState extends State<QrScanPage>
         if (!didPop) _closeScanner();
       },
       child: Scaffold(
-        backgroundColor: const Color(0xFF0B1120),
-        body: SafeArea(
-          child: LayoutBuilder(
-            builder: (context, constraints) {
-              // Stable fixed viewfinder size (does not fluctuate when resizing the browser window)
-              const viewfinderSize = 250.0;
-
-              return Column(
-                children: [
-                  // Top Navigation & Utility Header
-                  _buildHeader(context),
-
-                  // Middle Viewfinder Section
-                  Expanded(
-                    child: Center(
-                      child: SingleChildScrollView(
-                        physics: const ClampingScrollPhysics(),
-                        padding: const EdgeInsets.symmetric(vertical: 8),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            // Viewfinder Container
-                            _buildViewfinder(
-                              size: viewfinderSize,
-                              student: student,
-                            ),
-
-                            const SizedBox(height: 16),
-
-                            // Sub-frame instruction badge
-                            _buildInstructionBadge(student: student),
-                          ],
+        backgroundColor: AppDesignColors.darkCanvas,
+        body: Stack(
+          children: [
+            // 1. Full-screen Camera Canvas
+            Positioned.fill(
+              child: !_closing && !_controllerDisposed && _cameraError == null
+                  ? Directionality(
+                      textDirection: TextDirection.ltr,
+                      child: MobileScanner(
+                        controller: _controller,
+                        onDetect: _onDetect,
+                        fit: BoxFit.cover,
+                      ),
+                    )
+                  : Container(
+                      color: AppDesignColors.darkCanvas,
+                      child: Center(
+                        child: Icon(
+                          _cameraError != null
+                              ? Icons.videocam_off_rounded
+                              : Icons.qr_code_scanner_rounded,
+                          color: _cameraError != null
+                              ? colors.conflict.foreground.withValues(alpha: 0.6)
+                              : AppDesignColors.darkBorder,
+                          size: 64,
                         ),
                       ),
                     ),
-                  ),
+            ),
 
-                  // Bottom Action / Review Section
-                  _buildBottomSection(
-                    student: student,
-                    alreadyPresent: alreadyPresent,
-                  ),
-                ],
-              );
-            },
-          ),
+            // 2. Viewfinder Reticles & Overlay
+            Positioned.fill(
+              child: SafeArea(
+                child: Column(
+                  children: [
+                    _buildHeader(context),
+                    Expanded(
+                      child: Center(
+                        child: SingleChildScrollView(
+                          physics: const ClampingScrollPhysics(),
+                          padding: const EdgeInsets.symmetric(vertical: 8),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              _buildViewfinder(
+                                size: 250.0,
+                                student: student,
+                                colors: colors,
+                              ),
+                              const SizedBox(height: AppSpacing.md),
+                              _buildInstructionBadge(
+                                student: student,
+                                colors: colors,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                    _buildBottomSection(
+                      student: student,
+                      alreadyPresent: alreadyPresent,
+                      colors: colors,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -303,26 +349,30 @@ class _QrScanPageState extends State<QrScanPage>
 
   Widget _buildHeader(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.md,
+        vertical: AppSpacing.sm,
+      ),
       decoration: const BoxDecoration(
-        color: Color(0xFF131D33),
+        color: AppDesignColors.darkSurface,
         border: Border(
-          bottom: BorderSide(color: Color(0xFF1E293B), width: 1),
+          bottom: BorderSide(color: AppDesignColors.darkBorderSubtle, width: 1),
         ),
       ),
       child: Row(
         children: [
-          // Close button
+          // Large Close button (minimum 44x44 tap target)
           IconButton(
             onPressed: _closing ? null : () => _closeScanner(),
-            icon: const Icon(Icons.close_rounded, color: Colors.white),
+            icon: const Icon(Icons.arrow_back_rounded, color: AppDesignColors.darkInk),
             tooltip: 'إغلاق الكاميرا',
             style: IconButton.styleFrom(
-              backgroundColor: const Color(0xFF1E293B),
-              padding: const EdgeInsets.all(10),
+              backgroundColor: AppDesignColors.darkSurfaceSubtle,
+              minimumSize: const Size(44, 44),
+              padding: const EdgeInsets.all(AppSpacing.xs),
             ),
           ),
-          const SizedBox(width: 14),
+          const SizedBox(width: AppSpacing.sm),
 
           // Title & active context
           Expanded(
@@ -333,7 +383,7 @@ class _QrScanPageState extends State<QrScanPage>
                 const Text(
                   'تسجيل الحضور بالرمز',
                   style: TextStyle(
-                    color: Color(0xFFF8FAFC),
+                    color: AppDesignColors.darkInk,
                     fontSize: 17,
                     fontWeight: FontWeight.w800,
                     letterSpacing: -0.2,
@@ -342,7 +392,7 @@ class _QrScanPageState extends State<QrScanPage>
                 Text(
                   'المسجلين: ${widget.presentStudentIds.length} من ${widget.students.length}',
                   style: const TextStyle(
-                    color: Color(0xFF94A3B8),
+                    color: AppDesignColors.darkMutedInk,
                     fontSize: 12,
                     fontWeight: FontWeight.w500,
                   ),
@@ -367,30 +417,30 @@ class _QrScanPageState extends State<QrScanPage>
                   isTorchOn
                       ? Icons.flash_on_rounded
                       : Icons.flash_off_rounded,
-                  color: isTorchOn ? const Color(0xFFFACC15) : Colors.white70,
+                  color: isTorchOn ? AppDesignColors.darkGold : AppDesignColors.darkMutedInk,
                 ),
                 tooltip: isTorchOn ? 'إطفاء الكشاف' : 'تشغيل الكشاف',
                 style: IconButton.styleFrom(
-                  backgroundColor: isTorchOn
-                      ? const Color(0xFF854D0E).withValues(alpha: 0.3)
-                      : const Color(0xFF1E293B),
-                  padding: const EdgeInsets.all(10),
+                  backgroundColor: AppDesignColors.darkSurfaceSubtle,
+                  minimumSize: const Size(44, 44),
+                  padding: const EdgeInsets.all(AppSpacing.xs),
                 ),
               );
             },
           ),
-          const SizedBox(width: 8),
+          const SizedBox(width: AppSpacing.xs),
 
           // Camera Direction Switch (Front/Back)
           IconButton(
             onPressed: _closing || _controllerDisposed
                 ? null
                 : () => _controller.switchCamera(),
-            icon: const Icon(Icons.flip_camera_ios_rounded, color: Colors.white70),
+            icon: const Icon(Icons.flip_camera_ios_rounded, color: AppDesignColors.darkMutedInk),
             tooltip: 'تبديل الكاميرا',
             style: IconButton.styleFrom(
-              backgroundColor: const Color(0xFF1E293B),
-              padding: const EdgeInsets.all(10),
+              backgroundColor: AppDesignColors.darkSurfaceSubtle,
+              minimumSize: const Size(44, 44),
+              padding: const EdgeInsets.all(AppSpacing.xs),
             ),
           ),
         ],
@@ -401,15 +451,16 @@ class _QrScanPageState extends State<QrScanPage>
   Widget _buildViewfinder({
     required double size,
     required Student? student,
+    required AppColors colors,
   }) {
     final hasError = _cameraError != null;
     final isSuccess = student != null;
 
     final borderColor = isSuccess
-        ? const Color(0xFF10B981)
+        ? colors.present.foreground
         : hasError
-            ? const Color(0xFFEF4444)
-            : const Color(0xFF38BDF8);
+            ? colors.conflict.foreground
+            : AppDesignColors.primaryContainer;
 
     return SizedBox(
       width: size,
@@ -417,37 +468,18 @@ class _QrScanPageState extends State<QrScanPage>
       child: Stack(
         fit: StackFit.expand,
         children: [
-          // 1. Camera Canvas (Strictly clipped & LTR isolated)
-          ClipRRect(
-            borderRadius: BorderRadius.circular(20),
-            child: Container(
-              color: const Color(0xFF0F172A),
-              child: !_closing && !_controllerDisposed && !hasError
-                  ? Directionality(
-                      textDirection: TextDirection.ltr,
-                      child: SizedBox.expand(
-                        child: MobileScanner(
-                          controller: _controller,
-                          onDetect: _onDetect,
-                          fit: BoxFit.cover,
-                        ),
-                      ),
-                    )
-                  : Center(
-                      child: Icon(
-                        hasError
-                            ? Icons.videocam_off_rounded
-                            : Icons.qr_code_scanner_rounded,
-                        color: hasError
-                            ? const Color(0xFFEF4444).withValues(alpha: 0.4)
-                            : Colors.white24,
-                        size: 52,
-                      ),
-                    ),
+          // Reticle boundary container
+          Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(AppRadii.card),
+              border: Border.all(
+                color: borderColor.withValues(alpha: 0.35),
+                width: 1,
+              ),
             ),
           ),
 
-          // 2. Animated Laser Sweep Line (Only active while scanning)
+          // Animated Laser Sweep Line (Only active while scanning)
           if (!isSuccess && !hasError && !_closing)
             AnimatedBuilder(
               animation: _laserPosition,
@@ -456,19 +488,13 @@ class _QrScanPageState extends State<QrScanPage>
                   alignment: Alignment(0, (_laserPosition.value * 2.0) - 1.0),
                   child: Container(
                     height: 2.5,
-                    margin: const EdgeInsets.symmetric(horizontal: 16),
+                    margin: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
                     decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [
-                          const Color(0xFF38BDF8).withValues(alpha: 0.0),
-                          const Color(0xFF38BDF8),
-                          const Color(0xFF38BDF8).withValues(alpha: 0.0),
-                        ],
-                      ),
+                      color: AppDesignColors.primaryContainer,
                       boxShadow: [
                         BoxShadow(
-                          color: const Color(0xFF38BDF8).withValues(alpha: 0.8),
-                          blurRadius: 8,
+                          color: AppDesignColors.primaryContainer.withValues(alpha: 0.6),
+                          blurRadius: 6,
                           spreadRadius: 1,
                         ),
                       ],
@@ -478,28 +504,28 @@ class _QrScanPageState extends State<QrScanPage>
               },
             ),
 
-          // 3. Precision Corner Reticles
+          // Precision Corner Reticles
           CustomPaint(
             painter: _ScannerReticlePainter(
               color: borderColor,
-              borderRadius: 20.0,
+              borderRadius: AppRadii.card,
               strokeWidth: 3.5,
               reticleLength: 28.0,
             ),
           ),
 
-          // 4. Success Overlay Animation
+          // Success Overlay Animation
           if (isSuccess)
             Container(
               decoration: BoxDecoration(
-                color: const Color(0xFF059669).withValues(alpha: 0.25),
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: const Color(0xFF10B981), width: 2),
+                color: colors.present.background.withValues(alpha: 0.5),
+                borderRadius: BorderRadius.circular(AppRadii.card),
+                border: Border.all(color: colors.present.foreground, width: 2),
               ),
-              child: const Center(
+              child: Center(
                 child: Icon(
                   Icons.check_circle_rounded,
-                  color: Color(0xFF10B981),
+                  color: colors.present.foreground,
                   size: 68,
                 ),
               ),
@@ -509,23 +535,30 @@ class _QrScanPageState extends State<QrScanPage>
     );
   }
 
-  Widget _buildInstructionBadge({required Student? student}) {
+  Widget _buildInstructionBadge({
+    required Student? student,
+    required AppColors colors,
+  }) {
     if (_cameraError != null) {
       return Container(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
+        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.xs),
         decoration: BoxDecoration(
-          color: const Color(0xFF7F1D1D).withValues(alpha: 0.4),
-          borderRadius: BorderRadius.circular(999),
-          border: Border.all(color: const Color(0xFFEF4444), width: 0.8),
+          color: colors.conflict.background,
+          borderRadius: BorderRadius.circular(AppRadii.chip),
+          border: Border.all(color: colors.conflict.foreground, width: 0.8),
         ),
-        child: const Row(
+        child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.error_outline_rounded, color: Color(0xFFFCA5A5), size: 16),
-            SizedBox(width: 8),
-            Text(
-              'تعذر قراءة الكاميرا — استخدم البحث اليدوي أدناه',
-              style: TextStyle(color: Color(0xFFFCA5A5), fontSize: 12),
+            Icon(Icons.error_outline_rounded, color: colors.conflict.foreground, size: 16),
+            const SizedBox(width: AppSpacing.xs),
+            Flexible(
+              child: Text(
+                'تعذر قراءة الكاميرا — استخدم البحث اليدوي أدناه',
+                style: TextStyle(color: colors.conflict.foreground, fontSize: 12),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
             ),
           ],
         ),
@@ -534,23 +567,27 @@ class _QrScanPageState extends State<QrScanPage>
 
     if (student != null) {
       return Container(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
+        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.xs),
         decoration: BoxDecoration(
-          color: const Color(0xFF064E3B).withValues(alpha: 0.6),
-          borderRadius: BorderRadius.circular(999),
-          border: Border.all(color: const Color(0xFF10B981), width: 0.8),
+          color: colors.present.background,
+          borderRadius: BorderRadius.circular(AppRadii.chip),
+          border: Border.all(color: colors.present.foreground, width: 0.8),
         ),
-        child: const Row(
+        child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.check_rounded, color: Color(0xFF6EE7B7), size: 16),
-            SizedBox(width: 8),
-            Text(
-              'تم التعرف على الطالب بنجاح',
-              style: TextStyle(
-                color: Color(0xFF6EE7B7),
-                fontSize: 12,
-                fontWeight: FontWeight.w700,
+            Icon(Icons.check_rounded, color: colors.present.foreground, size: 16),
+            const SizedBox(width: AppSpacing.xs),
+            Flexible(
+              child: Text(
+                'تم التعرف على الطالب بنجاح',
+                style: TextStyle(
+                  color: colors.present.foreground,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w700,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
               ),
             ),
           ],
@@ -559,20 +596,24 @@ class _QrScanPageState extends State<QrScanPage>
     }
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
+      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.xs),
       decoration: BoxDecoration(
-        color: const Color(0xFF1E293B).withValues(alpha: 0.8),
-        borderRadius: BorderRadius.circular(999),
-        border: Border.all(color: const Color(0xFF334155), width: 0.8),
+        color: AppDesignColors.darkSurfaceSubtle,
+        borderRadius: BorderRadius.circular(AppRadii.chip),
+        border: Border.all(color: AppDesignColors.darkBorder, width: 0.8),
       ),
       child: const Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(Icons.crop_free_rounded, color: Color(0xFF38BDF8), size: 16),
-          SizedBox(width: 8),
-          Text(
-            'ضع رمز الاستجابة السريعة (QR) داخل الإطار',
-            style: TextStyle(color: Color(0xFFCBD5E1), fontSize: 12),
+          Icon(Icons.crop_free_rounded, color: AppDesignColors.darkMutedInk, size: 16),
+          SizedBox(width: AppSpacing.xs),
+          Flexible(
+            child: Text(
+              'ضع رمز الاستجابة السريعة (QR) داخل الإطار',
+              style: TextStyle(color: AppDesignColors.darkInk, fontSize: 12),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
           ),
         ],
       ),
@@ -582,23 +623,24 @@ class _QrScanPageState extends State<QrScanPage>
   Widget _buildBottomSection({
     required Student? student,
     required bool alreadyPresent,
+    required AppColors colors,
   }) {
     if (_cameraError != null) {
       return Container(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(AppSpacing.md),
         decoration: const BoxDecoration(
-          color: Color(0xFF131D33),
-          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+          color: AppDesignColors.darkSurface,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(AppRadii.bottomSheet)),
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
               _cameraError!,
-              style: const TextStyle(color: Color(0xFF94A3B8), fontSize: 13),
+              style: const TextStyle(color: AppDesignColors.darkMutedInk, fontSize: 13),
               textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: AppSpacing.sm),
             Row(
               children: [
                 Expanded(
@@ -607,19 +649,20 @@ class _QrScanPageState extends State<QrScanPage>
                     icon: const Icon(Icons.refresh_rounded),
                     label: const Text('إعادة تشغيل الكاميرا'),
                     style: OutlinedButton.styleFrom(
-                      foregroundColor: Colors.white,
-                      side: const BorderSide(color: Color(0xFF334155)),
+                      foregroundColor: AppDesignColors.darkInk,
+                      side: const BorderSide(color: AppDesignColors.darkBorder),
                     ),
                   ),
                 ),
-                const SizedBox(width: 12),
+                const SizedBox(width: AppSpacing.sm),
                 Expanded(
                   child: FilledButton.icon(
                     onPressed: _openManualSearch,
                     icon: const Icon(Icons.search_rounded),
                     label: const Text('البحث اليدوي'),
                     style: FilledButton.styleFrom(
-                      backgroundColor: const Color(0xFF1E3A8A),
+                      backgroundColor: AppDesignColors.primary,
+                      foregroundColor: AppDesignColors.onPrimary,
                     ),
                   ),
                 ),
@@ -632,52 +675,54 @@ class _QrScanPageState extends State<QrScanPage>
 
     if (_unknownCode) {
       return Container(
-        padding: const EdgeInsets.all(20),
+        key: const Key('qr_unknown_panel'),
+        padding: const EdgeInsets.all(AppSpacing.md),
         decoration: const BoxDecoration(
-          color: Color(0xFF131D33),
-          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-          border: Border(top: BorderSide(color: Color(0xFF1E293B))),
+          color: AppDesignColors.darkSurface,
+          borderRadius: BorderRadius.vertical(top: Radius.circular(AppRadii.bottomSheet)),
+          border: Border(top: BorderSide(color: AppDesignColors.darkBorderSubtle)),
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.person_off_rounded, color: Color(0xFFF59E0B), size: 36),
-            const SizedBox(height: 8),
+            Icon(Icons.person_off_rounded, color: colors.warning.foreground, size: 36),
+            const SizedBox(height: AppSpacing.xs),
             const Text(
               'الرمز غير مسجل في هذه القائمة',
               style: TextStyle(
-                color: Colors.white,
+                color: AppDesignColors.darkInk,
                 fontWeight: FontWeight.w700,
                 fontSize: 16,
               ),
             ),
             const SizedBox(height: 4),
             const Text(
-              'تأكد من أن الكود يخص تلميذاً في خدمة هذا الاجتماع.',
-              style: TextStyle(color: Color(0xFF94A3B8), fontSize: 13),
+              'تأكد من أن الكود يخص تلميذًا في خدمة هذا الاجتماع.',
+              style: TextStyle(color: AppDesignColors.darkMutedInk, fontSize: 13),
               textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 14),
+            const SizedBox(height: AppSpacing.sm),
             Row(
               children: [
                 Expanded(
                   child: OutlinedButton(
                     onPressed: _resumeScanning,
                     style: OutlinedButton.styleFrom(
-                      foregroundColor: Colors.white,
-                      side: const BorderSide(color: Color(0xFF334155)),
+                      foregroundColor: AppDesignColors.darkInk,
+                      side: const BorderSide(color: AppDesignColors.darkBorder),
                     ),
                     child: const Text('مسح رمز آخر'),
                   ),
                 ),
-                const SizedBox(width: 10),
+                const SizedBox(width: AppSpacing.sm),
                 Expanded(
                   child: FilledButton.icon(
                     onPressed: _openManualSearch,
                     icon: const Icon(Icons.search_rounded),
                     label: const Text('بحث بالاسم'),
                     style: FilledButton.styleFrom(
-                      backgroundColor: const Color(0xFF1E3A8A),
+                      backgroundColor: AppDesignColors.primary,
+                      foregroundColor: AppDesignColors.onPrimary,
                     ),
                   ),
                 ),
@@ -692,6 +737,7 @@ class _QrScanPageState extends State<QrScanPage>
       return _StudentReviewPanel(
         student: student,
         alreadyPresent: alreadyPresent,
+        colors: colors,
         onCancel: _resumeScanning,
         onConfirm: alreadyPresent ? null : () => _closeScanner(student.id),
       );
@@ -699,26 +745,29 @@ class _QrScanPageState extends State<QrScanPage>
 
     // Default Bottom Actions while scanning
     return Container(
-      padding: const EdgeInsets.fromLTRB(20, 12, 20, 16),
+      padding: const EdgeInsets.fromLTRB(AppSpacing.md, AppSpacing.sm, AppSpacing.md, AppSpacing.md),
       decoration: const BoxDecoration(
-        color: Color(0xFF131D33),
+        color: AppDesignColors.darkSurface,
         border: Border(
-          top: BorderSide(color: Color(0xFF1E293B), width: 1),
+          top: BorderSide(color: AppDesignColors.darkBorderSubtle, width: 1),
         ),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          OutlinedButton.icon(
-            onPressed: _openManualSearch,
-            icon: const Icon(Icons.search_rounded, size: 20),
-            label: const Text('بحث يدوي عن تلميذ بالاسم'),
-            style: OutlinedButton.styleFrom(
-              foregroundColor: const Color(0xFF94A3B8),
-              side: const BorderSide(color: Color(0xFF334155)),
-              padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 12),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
+          Flexible(
+            child: OutlinedButton.icon(
+              key: const Key('qr_manual_search_btn'),
+              onPressed: _openManualSearch,
+              icon: const Icon(Icons.search_rounded, size: 20),
+              label: const Text('بحث يدوي عن تلميذ بالاسم'),
+              style: OutlinedButton.styleFrom(
+                foregroundColor: AppDesignColors.darkInk,
+                side: const BorderSide(color: AppDesignColors.darkBorder),
+                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: 12),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(AppRadii.control),
+                ),
               ),
             ),
           ),
@@ -796,39 +845,35 @@ class _ScannerReticlePainter extends CustomPainter {
       oldDelegate.reticleLength != reticleLength;
 }
 
-/// High-density, dignified Student Review Card
+/// Student Review Card in QR Scan
 class _StudentReviewPanel extends StatelessWidget {
   const _StudentReviewPanel({
     required this.student,
     required this.alreadyPresent,
+    required this.colors,
     required this.onCancel,
     required this.onConfirm,
   });
 
   final Student student;
   final bool alreadyPresent;
+  final AppColors colors;
   final VoidCallback onCancel;
   final VoidCallback? onConfirm;
 
   @override
   Widget build(BuildContext context) {
     return Container(
+      key: ValueKey(alreadyPresent ? 'qr_already_present_panel' : 'qr_success_panel'),
       width: double.infinity,
       constraints: const BoxConstraints(maxHeight: 330),
-      padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
+      padding: const EdgeInsets.fromLTRB(AppSpacing.md, AppSpacing.sm, AppSpacing.md, AppSpacing.md),
       decoration: const BoxDecoration(
-        color: Color(0xFF131D33),
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        color: AppDesignColors.darkSurface,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(AppRadii.bottomSheet)),
         border: Border(
-          top: BorderSide(color: Color(0xFF1E3A8A), width: 1.5),
+          top: BorderSide(color: AppDesignColors.primaryContainer, width: 1.5),
         ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black45,
-            blurRadius: 24,
-            offset: Offset(0, -6),
-          ),
-        ],
       ),
       child: SingleChildScrollView(
         physics: const ClampingScrollPhysics(),
@@ -841,17 +886,17 @@ class _StudentReviewPanel extends StatelessWidget {
               children: [
                 CircleAvatar(
                   radius: 28,
-                  backgroundColor: const Color(0xFF1E3A8A),
+                  backgroundColor: AppDesignColors.primaryContainer,
                   child: Text(
                     student.name.isEmpty ? '؟' : student.name.characters.first,
                     style: const TextStyle(
-                      color: Colors.white,
+                      color: AppDesignColors.onPrimary,
                       fontSize: 22,
                       fontWeight: FontWeight.w800,
                     ),
                   ),
                 ),
-                const SizedBox(width: 14),
+                const SizedBox(width: AppSpacing.sm),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -859,7 +904,7 @@ class _StudentReviewPanel extends StatelessWidget {
                       Text(
                         student.name,
                         style: const TextStyle(
-                          color: Colors.white,
+                          color: AppDesignColors.darkInk,
                           fontSize: 18,
                           fontWeight: FontWeight.w800,
                           letterSpacing: -0.2,
@@ -877,36 +922,36 @@ class _StudentReviewPanel extends StatelessWidget {
                             ),
                             decoration: BoxDecoration(
                               color: student.isApproved
-                                  ? const Color(0xFF059669).withValues(alpha: 0.2)
-                                  : const Color(0xFF904D00).withValues(alpha: 0.2),
-                              borderRadius: BorderRadius.circular(6),
+                                  ? colors.present.background
+                                  : colors.pending.background,
+                              borderRadius: BorderRadius.circular(AppRadii.chip),
                             ),
                             child: Text(
                               student.isApproved ? 'معتمد' : 'بانتظار الاعتماد',
                               style: TextStyle(
                                 color: student.isApproved
-                                    ? const Color(0xFF34D399)
-                                    : const Color(0xFFFBBF24),
+                                    ? colors.present.foreground
+                                    : colors.pending.foreground,
                                 fontSize: 11,
                                 fontWeight: FontWeight.w700,
                               ),
                             ),
                           ),
                           if (student.isDeacon) ...[
-                            const SizedBox(width: 8),
+                            const SizedBox(width: AppSpacing.xs),
                             Container(
                               padding: const EdgeInsets.symmetric(
                                 horizontal: 8,
                                 vertical: 2,
                               ),
                               decoration: BoxDecoration(
-                                color: const Color(0xFF0284C7).withValues(alpha: 0.2),
-                                borderRadius: BorderRadius.circular(6),
+                                color: colors.excused.background,
+                                borderRadius: BorderRadius.circular(AppRadii.chip),
                               ),
-                              child: const Text(
+                              child: Text(
                                 'شماس',
                                 style: TextStyle(
-                                  color: Color(0xFF38BDF8),
+                                  color: colors.excused.foreground,
                                   fontSize: 11,
                                   fontWeight: FontWeight.w700,
                                 ),
@@ -923,14 +968,14 @@ class _StudentReviewPanel extends StatelessWidget {
                       ? Icons.check_circle_rounded
                       : Icons.how_to_reg_rounded,
                   color: alreadyPresent
-                      ? const Color(0xFF10B981)
-                      : const Color(0xFF38BDF8),
+                      ? colors.present.foreground
+                      : AppDesignColors.primaryContainer,
                   size: 30,
                 ),
               ],
             ),
 
-            const SizedBox(height: 14),
+            const SizedBox(height: AppSpacing.sm),
 
             // Metadata Chips
             Wrap(
@@ -955,7 +1000,7 @@ class _StudentReviewPanel extends StatelessWidget {
               ],
             ),
 
-            const SizedBox(height: 16),
+            const SizedBox(height: AppSpacing.md),
 
             // Actions & Status
             if (alreadyPresent)
@@ -963,21 +1008,21 @@ class _StudentReviewPanel extends StatelessWidget {
                 width: double.infinity,
                 padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 14),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF064E3B).withValues(alpha: 0.4),
-                  borderRadius: BorderRadius.circular(10),
+                  color: colors.present.background,
+                  borderRadius: BorderRadius.circular(AppRadii.card),
                   border: Border.all(
-                    color: const Color(0xFF10B981).withValues(alpha: 0.5),
+                    color: colors.present.foreground.withValues(alpha: 0.5),
                   ),
                 ),
-                child: const Row(
+                child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(Icons.done_all_rounded, color: Color(0xFF34D399), size: 18),
-                    SizedBox(width: 8),
+                    Icon(Icons.done_all_rounded, color: colors.present.foreground, size: 18),
+                    const SizedBox(width: AppSpacing.xs),
                     Text(
-                      'تم تسجيل حضور هذا التلميذ مسبقاً في هذا الاجتماع',
+                      'تم تسجيل حضور هذا التلميذ مسبقًا في هذا الاجتماع',
                       style: TextStyle(
-                        color: Color(0xFF34D399),
+                        color: colors.present.foreground,
                         fontSize: 13,
                         fontWeight: FontWeight.w700,
                       ),
@@ -986,7 +1031,7 @@ class _StudentReviewPanel extends StatelessWidget {
                 ),
               ),
 
-            const SizedBox(height: 12),
+            const SizedBox(height: AppSpacing.sm),
 
             Row(
               children: [
@@ -994,29 +1039,29 @@ class _StudentReviewPanel extends StatelessWidget {
                   child: OutlinedButton(
                     onPressed: onCancel,
                     style: OutlinedButton.styleFrom(
-                      foregroundColor: const Color(0xFFCBD5E1),
-                      side: const BorderSide(color: Color(0xFF334155)),
+                      foregroundColor: AppDesignColors.darkInk,
+                      side: const BorderSide(color: AppDesignColors.darkBorder),
                       padding: const EdgeInsets.symmetric(vertical: 13),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
+                        borderRadius: BorderRadius.circular(AppRadii.control),
                       ),
                     ),
                     child: Text(alreadyPresent ? 'مسح تلميذ آخر' : 'إلغاء ومتابعة'),
                   ),
                 ),
                 if (!alreadyPresent) ...[
-                  const SizedBox(width: 12),
+                  const SizedBox(width: AppSpacing.sm),
                   Expanded(
                     child: FilledButton.icon(
                       onPressed: onConfirm,
                       icon: const Icon(Icons.check_rounded, size: 20),
                       label: const Text('تسجيل الحضور'),
                       style: FilledButton.styleFrom(
-                        backgroundColor: const Color(0xFF059669),
-                        foregroundColor: Colors.white,
+                        backgroundColor: colors.present.foreground,
+                        foregroundColor: AppDesignColors.onPrimary,
                         padding: const EdgeInsets.symmetric(vertical: 13),
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
+                          borderRadius: BorderRadius.circular(AppRadii.control),
                         ),
                       ),
                     ),
@@ -1041,18 +1086,18 @@ class _ReviewChip extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
       decoration: BoxDecoration(
-        color: const Color(0xFF1E293B),
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: const Color(0xFF334155), width: 0.8),
+        color: AppDesignColors.darkSurfaceSubtle,
+        borderRadius: BorderRadius.circular(AppRadii.chip),
+        border: Border.all(color: AppDesignColors.darkBorder, width: 0.8),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 14, color: const Color(0xFF94A3B8)),
+          Icon(icon, size: 14, color: AppDesignColors.darkMutedInk),
           const SizedBox(width: 6),
           Text(
             label,
-            style: const TextStyle(color: Color(0xFFCBD5E1), fontSize: 12),
+            style: const TextStyle(color: AppDesignColors.darkInk, fontSize: 12),
           ),
         ],
       ),
@@ -1080,6 +1125,7 @@ class _ManualStudentSearchSheetState extends State<_ManualStudentSearchSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = AppColors.of(context);
     final filtered = widget.students.where((s) {
       if (_query.isEmpty) return true;
       final q = _query.toLowerCase();
@@ -1092,10 +1138,10 @@ class _ManualStudentSearchSheetState extends State<_ManualStudentSearchSheet> {
     return Container(
       height: MediaQuery.sizeOf(context).height * 0.75,
       decoration: const BoxDecoration(
-        color: Color(0xFF131D33),
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        color: AppDesignColors.darkSurface,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(AppRadii.bottomSheet)),
         border: Border(
-          top: BorderSide(color: Color(0xFF1E3A8A), width: 1.5),
+          top: BorderSide(color: AppDesignColors.primaryContainer, width: 1.5),
         ),
       ),
       child: Column(
@@ -1107,7 +1153,7 @@ class _ManualStudentSearchSheetState extends State<_ManualStudentSearchSheet> {
               width: 36,
               height: 4,
               decoration: BoxDecoration(
-                color: const Color(0xFF334155),
+                color: AppDesignColors.darkBorder,
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
@@ -1115,14 +1161,14 @@ class _ManualStudentSearchSheetState extends State<_ManualStudentSearchSheet> {
 
           // Header
           Padding(
-            padding: const EdgeInsets.fromLTRB(20, 0, 20, 12),
+            padding: const EdgeInsets.fromLTRB(AppSpacing.md, 0, AppSpacing.md, AppSpacing.sm),
             child: Row(
               children: [
                 const Expanded(
                   child: Text(
-                    'بحث وتحديد تلميذ يدوياً',
+                    'بحث وتحديد تلميذ يدويًا',
                     style: TextStyle(
-                      color: Colors.white,
+                      color: AppDesignColors.darkInk,
                       fontSize: 17,
                       fontWeight: FontWeight.w800,
                     ),
@@ -1130,7 +1176,7 @@ class _ManualStudentSearchSheetState extends State<_ManualStudentSearchSheet> {
                 ),
                 IconButton(
                   onPressed: () => Navigator.pop(context),
-                  icon: const Icon(Icons.close_rounded, color: Colors.white70),
+                  icon: const Icon(Icons.close_rounded, color: AppDesignColors.darkMutedInk),
                 ),
               ],
             ),
@@ -1138,28 +1184,28 @@ class _ManualStudentSearchSheetState extends State<_ManualStudentSearchSheet> {
 
           // Search Field
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
+            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
             child: TextField(
               autofocus: true,
-              style: const TextStyle(color: Colors.white),
+              style: const TextStyle(color: AppDesignColors.darkInk),
               decoration: InputDecoration(
                 filled: true,
-                fillColor: const Color(0xFF0F172A),
+                fillColor: AppDesignColors.darkCanvas,
                 hintText: 'ابحث بالاسم، رقم الهاتف، أو كود التلميذ...',
-                hintStyle: const TextStyle(color: Color(0xFF64748B)),
-                prefixIcon: const Icon(Icons.search_rounded, color: Color(0xFF94A3B8)),
+                hintStyle: const TextStyle(color: AppDesignColors.darkMutedInk),
+                prefixIcon: const Icon(Icons.search_rounded, color: AppDesignColors.darkMutedInk),
                 contentPadding: const EdgeInsets.symmetric(horizontal: 16),
                 border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10),
-                  borderSide: const BorderSide(color: Color(0xFF334155)),
+                  borderRadius: BorderRadius.circular(AppRadii.control),
+                  borderSide: const BorderSide(color: AppDesignColors.darkBorder),
                 ),
                 enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10),
-                  borderSide: const BorderSide(color: Color(0xFF334155)),
+                  borderRadius: BorderRadius.circular(AppRadii.control),
+                  borderSide: const BorderSide(color: AppDesignColors.darkBorder),
                 ),
                 focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10),
-                  borderSide: const BorderSide(color: Color(0xFF38BDF8), width: 1.5),
+                  borderRadius: BorderRadius.circular(AppRadii.control),
+                  borderSide: const BorderSide(color: AppDesignColors.primaryContainer, width: 1.5),
                 ),
               ),
               onChanged: (val) => setState(() => _query = val.trim()),
@@ -1174,67 +1220,70 @@ class _ManualStudentSearchSheetState extends State<_ManualStudentSearchSheet> {
                 ? const Center(
                     child: Text(
                       'لا توجد نتائج مطابقة للبحث',
-                      style: TextStyle(color: Color(0xFF64748B)),
+                      style: TextStyle(color: AppDesignColors.darkMutedInk),
                     ),
                   )
                 : ListView.separated(
-                    padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
+                    padding: const EdgeInsets.fromLTRB(AppSpacing.md, AppSpacing.xs, AppSpacing.md, AppSpacing.lg),
                     itemCount: filtered.length,
                     separatorBuilder: (context, index) =>
-                        const Divider(color: Color(0xFF1E293B), height: 1),
+                        const Divider(color: AppDesignColors.darkBorderSubtle, height: 1),
                     itemBuilder: (context, index) {
                       final student = filtered[index];
                       final isPresent = widget.presentIds.contains(student.id);
 
-                      return ListTile(
-                        onTap: () => Navigator.pop(context, student),
-                        contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 10,
-                          vertical: 4,
-                        ),
-                        leading: CircleAvatar(
-                          radius: 20,
-                          backgroundColor: const Color(0xFF1E293B),
-                          child: Text(
-                            student.name.isEmpty
-                                ? '؟'
-                                : student.name.characters.first,
-                            style: const TextStyle(
-                              color: Color(0xFF38BDF8),
-                              fontWeight: FontWeight.w700,
+                      return Material(
+                        color: Colors.transparent,
+                        child: ListTile(
+                          onTap: () => Navigator.pop(context, student),
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 4,
+                          ),
+                          leading: CircleAvatar(
+                            radius: 20,
+                            backgroundColor: AppDesignColors.darkSurfaceSubtle,
+                            child: Text(
+                              student.name.isEmpty
+                                  ? '؟'
+                                  : student.name.characters.first,
+                              style: const TextStyle(
+                                color: AppDesignColors.darkInk,
+                                fontWeight: FontWeight.w700,
+                              ),
                             ),
                           ),
-                        ),
-                        title: Text(
-                          student.name,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.w700,
-                            fontSize: 15,
+                          title: Text(
+                            student.name,
+                            style: const TextStyle(
+                              color: AppDesignColors.darkInk,
+                              fontWeight: FontWeight.w700,
+                              fontSize: 15,
+                            ),
                           ),
-                        ),
-                        subtitle: Text(
-                          [
-                            if (student.grade?.isNotEmpty == true) student.grade!,
-                            if (student.school?.isNotEmpty == true) student.school!,
-                            if (student.phone?.isNotEmpty == true) student.phone!,
-                          ].join(' • '),
-                          style: const TextStyle(
-                            color: Color(0xFF94A3B8),
-                            fontSize: 12,
+                          subtitle: Text(
+                            [
+                              if (student.grade?.isNotEmpty == true) student.grade!,
+                              if (student.school?.isNotEmpty == true) student.school!,
+                              if (student.phone?.isNotEmpty == true) student.phone!,
+                            ].join(' • '),
+                            style: const TextStyle(
+                              color: AppDesignColors.darkMutedInk,
+                              fontSize: 12,
+                            ),
                           ),
+                          trailing: isPresent
+                              ? Chip(
+                                  label: const Text('مسجل', style: TextStyle(fontSize: 11)),
+                                  backgroundColor: colors.present.background,
+                                  labelStyle: TextStyle(color: colors.present.foreground),
+                                  visualDensity: VisualDensity.compact,
+                                )
+                              : const Icon(
+                                  Icons.chevron_left_rounded,
+                                  color: AppDesignColors.darkMutedInk,
+                                ),
                         ),
-                        trailing: isPresent
-                            ? const Chip(
-                                label: Text('مسجل', style: TextStyle(fontSize: 11)),
-                                backgroundColor: Color(0xFF064E3B),
-                                labelStyle: TextStyle(color: Color(0xFF34D399)),
-                                visualDensity: VisualDensity.compact,
-                              )
-                            : const Icon(
-                                Icons.chevron_left_rounded,
-                                color: Color(0xFF64748B),
-                              ),
                       );
                     },
                   ),

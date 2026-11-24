@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import '../../../../app/ui/app_ui.dart';
+import '../../../../app/design/app_colors.dart';
+import '../../../../app/design/app_radii.dart';
+import '../../../../app/design/app_spacing.dart';
 import 'attendance_filter.dart';
 
 class AttendanceSearchFilterBar extends StatelessWidget {
@@ -12,6 +14,7 @@ class AttendanceSearchFilterBar extends StatelessWidget {
     required this.totalCount,
     required this.presentCount,
     required this.absentCount,
+    this.pendingCount = 0,
   });
 
   final String query;
@@ -21,76 +24,112 @@ class AttendanceSearchFilterBar extends StatelessWidget {
   final int totalCount;
   final int presentCount;
   final int absentCount;
+  final int pendingCount;
 
   @override
   Widget build(BuildContext context) {
-    return SolidCard(
+    final theme = Theme.of(context);
+    final palette = AppColors.of(context);
+
+    return Container(
       padding: const EdgeInsets.symmetric(
-        horizontal: 14,
-        vertical: 10,
+        horizontal: AppSpacing.md,
+        vertical: AppSpacing.xs,
       ),
-      margin: const EdgeInsets.only(bottom: 12),
-      borderRadius: 12,
+      color: theme.colorScheme.surface,
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        mainAxisSize: MainAxisSize.min,
         children: [
+          // Search Field
           TextField(
             onChanged: onQueryChanged,
+            textInputAction: TextInputAction.search,
             decoration: InputDecoration(
               isDense: true,
-              prefixIcon: const Icon(
-                Icons.search_rounded,
-                size: 22,
-              ),
-              hintText: 'ابحث باسم التلميذ...',
+              hintText: 'ابحث عن تلميذ...',
+              prefixIcon: const Icon(Icons.search_rounded, size: 20),
               suffixIcon: query.isNotEmpty
                   ? IconButton(
-                      icon: const Icon(
-                        Icons.clear_rounded,
-                        size: 18,
-                      ),
+                      tooltip: 'مسح البحث',
+                      icon: const Icon(Icons.clear_rounded, size: 18),
                       onPressed: () => onQueryChanged(''),
                     )
                   : null,
               contentPadding: const EdgeInsets.symmetric(
-                horizontal: 14,
-                vertical: 12,
+                horizontal: AppSpacing.sm,
+                vertical: 10,
               ),
-              border: InputBorder.none,
-              enabledBorder: InputBorder.none,
-              focusedBorder: InputBorder.none,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(AppRadii.control),
+                borderSide: BorderSide(color: theme.colorScheme.outlineVariant),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(AppRadii.control),
+                borderSide: BorderSide(color: theme.colorScheme.outlineVariant),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(AppRadii.control),
+                borderSide: BorderSide(
+                  color: theme.colorScheme.primary,
+                  width: 1.5,
+                ),
+              ),
             ),
           ),
-          const Divider(height: 12),
+
+          const SizedBox(height: AppSpacing.xs),
+
+          // Filter Chips: الكل / حاضر / غير مسجل
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             child: Row(
               children: [
-                AttendanceFilterChipButton(
+                _FilterChip(
+                  key: const Key('attendance_filter_all'),
                   label: 'الكل ($totalCount)',
                   selected: filter == AttendanceFilter.all,
                   onTap: () => onFilterChanged(AttendanceFilter.all),
+                  activeForeground: theme.colorScheme.onPrimary,
+                  activeBackground: theme.colorScheme.primary,
+                  inactiveForeground: theme.colorScheme.onSurface,
+                  inactiveBackground: theme.colorScheme.surfaceContainerHighest,
                 ),
-                const SizedBox(width: 6),
-                AttendanceFilterChipButton(
+                const SizedBox(width: AppSpacing.xs),
+                _FilterChip(
+                  key: const Key('attendance_filter_present'),
                   label: 'حاضر ($presentCount)',
                   selected: filter == AttendanceFilter.present,
-                  color: const Color(0xFF059669),
                   onTap: () => onFilterChanged(AttendanceFilter.present),
+                  activeForeground: palette.present.foreground,
+                  activeBackground: palette.present.background,
+                  inactiveForeground: palette.present.foreground,
+                  inactiveBackground: palette.present.background.withValues(alpha: 0.35),
                 ),
-                const SizedBox(width: 6),
-                AttendanceFilterChipButton(
-                  label: 'غائب ($absentCount)',
+                const SizedBox(width: AppSpacing.xs),
+                _FilterChip(
+                  key: const Key('attendance_filter_absent'),
+                  label: 'غير مسجل ($absentCount)',
                   selected: filter == AttendanceFilter.absent,
-                  color: const Color(0xFFDC2626),
                   onTap: () => onFilterChanged(AttendanceFilter.absent),
+                  activeForeground: palette.absent.foreground,
+                  activeBackground: palette.absent.background,
+                  inactiveForeground: palette.absent.foreground,
+                  inactiveBackground: palette.absent.background.withValues(alpha: 0.35),
                 ),
-                const SizedBox(width: 6),
-                AttendanceFilterChipButton(
-                  label: 'بانتظار الاعتماد',
-                  selected: filter == AttendanceFilter.pending,
-                  color: const Color(0xFFD97706),
-                  onTap: () => onFilterChanged(AttendanceFilter.pending),
-                ),
+                if (pendingCount > 0) ...[
+                  const SizedBox(width: AppSpacing.xs),
+                  _FilterChip(
+                    key: const Key('attendance_filter_pending'),
+                    label: 'بانتظار الاعتماد ($pendingCount)',
+                    selected: filter == AttendanceFilter.pending,
+                    onTap: () => onFilterChanged(AttendanceFilter.pending),
+                    activeForeground: palette.pending.foreground,
+                    activeBackground: palette.pending.background,
+                    inactiveForeground: palette.pending.foreground,
+                    inactiveBackground: palette.pending.background.withValues(alpha: 0.35),
+                  ),
+                ],
               ],
             ),
           ),
@@ -100,39 +139,42 @@ class AttendanceSearchFilterBar extends StatelessWidget {
   }
 }
 
-class AttendanceFilterChipButton extends StatelessWidget {
-  const AttendanceFilterChipButton({
+class _FilterChip extends StatelessWidget {
+  const _FilterChip({
     super.key,
     required this.label,
     required this.selected,
     required this.onTap,
-    this.color,
+    required this.activeForeground,
+    required this.activeBackground,
+    required this.inactiveForeground,
+    required this.inactiveBackground,
   });
 
   final String label;
   final bool selected;
   final VoidCallback onTap;
-  final Color? color;
+  final Color activeForeground;
+  final Color activeBackground;
+  final Color inactiveForeground;
+  final Color inactiveBackground;
 
   @override
   Widget build(BuildContext context) {
-    final effectiveColor = color ?? const Color(0xFF00236F);
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(999),
+      borderRadius: BorderRadius.circular(AppRadii.chip),
       child: AnimatedContainer(
-        duration: const Duration(milliseconds: 160),
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+        duration: const Duration(milliseconds: 140),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
         decoration: BoxDecoration(
-          color: selected
-              ? effectiveColor
-              : effectiveColor.withValues(alpha: 0.08),
-          borderRadius: BorderRadius.circular(999),
+          color: selected ? activeBackground : inactiveBackground,
+          borderRadius: BorderRadius.circular(AppRadii.chip),
           border: Border.all(
             color: selected
-                ? effectiveColor
-                : effectiveColor.withValues(alpha: 0.20),
-            width: 1,
+                ? activeForeground.withValues(alpha: 0.5)
+                : Colors.transparent,
+            width: selected ? 1.5 : 1,
           ),
         ),
         child: Text(
@@ -140,7 +182,7 @@ class AttendanceFilterChipButton extends StatelessWidget {
           style: TextStyle(
             fontSize: 12,
             fontWeight: selected ? FontWeight.w800 : FontWeight.w600,
-            color: selected ? Colors.white : effectiveColor,
+            color: selected ? activeForeground : inactiveForeground,
           ),
         ),
       ),

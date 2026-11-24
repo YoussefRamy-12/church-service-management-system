@@ -1,147 +1,230 @@
 import 'package:flutter/material.dart';
-import '../../../../app/ui/app_ui.dart';
-import 'attendance_counters.dart';
+import '../../../../app/design/app_colors.dart';
+import '../../../../app/design/app_radii.dart';
+import '../../../../app/design/app_spacing.dart';
+import '../../../../app/ui/components/sync_badge.dart';
 
 class AttendanceSessionHeader extends StatelessWidget {
   const AttendanceSessionHeader({
     super.key,
-    required this.readOnly,
-    required this.allStudentsMode,
-    required this.meetingTime,
-    required this.earlyAttendanceMinutes,
-    required this.openingQrScanner,
-    required this.onOpenQrScanner,
-    required this.totalCount,
+    required this.className,
+    required this.meetingName,
+    required this.meetingDateFormatted,
     required this.presentCount,
     required this.absentCount,
-    required this.earlyCount,
-    required this.beforeMeetingCount,
-    required this.normalCount,
+    required this.totalCount,
+    required this.isPendingSync,
+    required this.readOnly,
+    this.onSyncNow,
   });
 
-  final bool readOnly;
-  final bool allStudentsMode;
-  final TimeOfDay meetingTime;
-  final int earlyAttendanceMinutes;
-  final bool openingQrScanner;
-  final VoidCallback onOpenQrScanner;
-  final int totalCount;
+  final String className;
+  final String meetingName;
+  final String meetingDateFormatted;
   final int presentCount;
   final int absentCount;
-  final int earlyCount;
-  final int beforeMeetingCount;
-  final int normalCount;
+  final int totalCount;
+  final bool isPendingSync;
+  final bool readOnly;
+  final VoidCallback? onSyncNow;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
+    final palette = AppColors.of(context);
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        if (readOnly)
-          Container(
-            margin: const EdgeInsets.only(bottom: 12),
-            padding: const EdgeInsets.all(14),
-            decoration: BoxDecoration(
-              color: const Color(0xFF64748B).withValues(alpha: .10),
-              borderRadius: BorderRadius.circular(14),
-            ),
-            child: const Row(
-              children: [
-                Icon(Icons.lock_outline_rounded),
-                SizedBox(width: 10),
-                Expanded(
-                  child: Text(
-                    'اجتماع سابق — العرض فقط، تم إيقاف تعديل وتسجيل الحضور.',
-                  ),
-                ),
-              ],
-            ),
+    return Container(
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surface,
+        border: Border(
+          bottom: BorderSide(
+            color: theme.colorScheme.outlineVariant,
+            width: 1,
           ),
-        GlassContainer(
-          padding: const EdgeInsets.all(16),
-          margin: const EdgeInsets.only(bottom: 14),
-          borderRadius: 12,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Row(
+        ),
+      ),
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.md,
+        vertical: AppSpacing.sm,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // Read-only banner
+          if (readOnly)
+            Container(
+              key: const Key('attendance_read_only_banner'),
+              margin: const EdgeInsets.only(bottom: AppSpacing.xs),
+              padding: const EdgeInsets.symmetric(
+                horizontal: AppSpacing.sm,
+                vertical: AppSpacing.xs,
+              ),
+              decoration: BoxDecoration(
+                color: palette.warning.background,
+                borderRadius: BorderRadius.circular(AppRadii.card),
+                border: Border.all(
+                  color: palette.warning.foreground.withValues(alpha: 0.35),
+                ),
+              ),
+              child: Row(
                 children: [
-                  Container(
-                    padding: const EdgeInsets.all(10),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF00236F).withValues(alpha: 0.08),
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(
-                        color: const Color(0xFF00236F).withValues(alpha: 0.15),
-                      ),
-                    ),
-                    child: const Icon(
-                      Icons.event_note_rounded,
-                      color: Color(0xFF00236F),
-                      size: 20,
-                    ),
+                  Icon(
+                    Icons.lock_outline_rounded,
+                    color: palette.warning.foreground,
+                    size: 18,
                   ),
-                  const SizedBox(width: 12),
+                  const SizedBox(width: AppSpacing.xs),
                   Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          allStudentsMode
-                              ? 'جلسة حضور الخدمة العامة'
-                              : 'جلسة الحضور الميداني',
-                          style: const TextStyle(
-                            fontWeight: FontWeight.w800,
-                            fontSize: 16,
-                          ),
-                        ),
-                        const SizedBox(height: 2),
-                        Text(
-                          'بداية الاجتماع: ${meetingTime.format(context)} • الحضور المبكر حتى ${TimeOfDay.fromDateTime(DateTime(2020, 1, 1, meetingTime.hour, meetingTime.minute).add(Duration(minutes: earlyAttendanceMinutes))).format(context)}',
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: isDark
-                                ? const Color(0xFF94A3B8)
-                                : const Color(0xFF64748B),
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ],
+                    child: Text(
+                      'عرض فقط — اجتماع سابق، تم إيقاف تعديل وتسجيل الحضور.',
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: palette.warning.foreground,
+                        fontWeight: FontWeight.w700,
+                      ),
                     ),
                   ),
-                  if (!readOnly)
-                    FilledButton.icon(
-                      onPressed: openingQrScanner ? null : onOpenQrScanner,
-                      icon: const Icon(
-                        Icons.qr_code_scanner_rounded,
-                        size: 20,
-                      ),
-                      label: const Text('مسح QR'),
-                      style: FilledButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 12,
-                        ),
-                      ),
-                    ),
                 ],
               ),
-              const SizedBox(height: 16),
-              AttendanceCounters(
-                totalCount: totalCount,
-                presentCount: presentCount,
-                absentCount: absentCount,
-                earlyCount: earlyCount,
-                beforeMeetingCount: beforeMeetingCount,
-                normalCount: normalCount,
+            ),
+
+          // Top Title Row: Class Name, Meeting date, SyncBadge
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      className,
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: -0.2,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      '$meetingName • $meetingDateFormatted',
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: theme.colorScheme.onSurfaceVariant,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: AppSpacing.xs),
+              SyncBadge(
+                state: isPendingSync ? SyncState.pending : SyncState.synced,
+                label: isPendingSync ? 'تم التسجيل محليًا' : 'تمت المزامنة',
+                onTap: onSyncNow,
               ),
             ],
           ),
+
+          const SizedBox(height: AppSpacing.sm),
+
+          // Live Counters: Present / Not Marked / Total
+          Row(
+            children: [
+              Expanded(
+                child: _LiveCounterPill(
+                  label: 'حاضر',
+                  value: '$presentCount',
+                  icon: Icons.check_circle_rounded,
+                  foreground: palette.present.foreground,
+                  background: palette.present.background,
+                ),
+              ),
+              const SizedBox(width: AppSpacing.xs),
+              Expanded(
+                child: _LiveCounterPill(
+                  label: 'غير مسجل',
+                  value: '$absentCount',
+                  icon: Icons.cancel_outlined,
+                  foreground: palette.absent.foreground,
+                  background: palette.absent.background,
+                ),
+              ),
+              const SizedBox(width: AppSpacing.xs),
+              Expanded(
+                child: _LiveCounterPill(
+                  label: 'إجمالي',
+                  value: '$totalCount',
+                  icon: Icons.groups_rounded,
+                  foreground: theme.colorScheme.onSurface,
+                  background: theme.colorScheme.surfaceContainerHighest,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _LiveCounterPill extends StatelessWidget {
+  const _LiveCounterPill({
+    required this.label,
+    required this.value,
+    required this.icon,
+    required this.foreground,
+    required this.background,
+  });
+
+  final String label;
+  final String value;
+  final IconData icon;
+  final Color foreground;
+  final Color background;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.xs,
+        vertical: 6,
+      ),
+      decoration: BoxDecoration(
+        color: background,
+        borderRadius: BorderRadius.circular(AppRadii.card),
+        border: Border.all(
+          color: foreground.withValues(alpha: 0.25),
         ),
-      ],
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(icon, size: 14, color: foreground),
+          const SizedBox(width: 4),
+          Flexible(
+            child: Text(
+              '$label: ',
+              style: TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.w600,
+                color: foreground,
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+          Text(
+            value,
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w800,
+              color: foreground,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

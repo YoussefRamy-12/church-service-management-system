@@ -12,11 +12,13 @@ class SyncBadge extends StatelessWidget {
     required this.state,
     this.count = 0,
     this.onTap,
+    this.label,
   });
 
   final SyncState state;
   final int count;
   final VoidCallback? onTap;
+  final String? label;
 
   @override
   Widget build(BuildContext context) {
@@ -31,7 +33,7 @@ class SyncBadge extends StatelessWidget {
       SyncState.pending => Icons.hourglass_top,
       SyncState.conflict => Icons.warning,
     };
-    final label = switch (state) {
+    final effectiveLabel = label ?? switch (state) {
       SyncState.synced => 'تمت المزامنة',
       SyncState.pending => count > 0
           ? 'في انتظار المزامنة ($count)'
@@ -51,7 +53,7 @@ class SyncBadge extends StatelessWidget {
           Icon(icon, size: 16, color: semantic.foreground),
           const SizedBox(width: 4),
           Text(
-            label,
+            effectiveLabel,
             style: Theme.of(context).textTheme.labelSmall?.copyWith(
                   color: semantic.foreground,
                   fontWeight: FontWeight.w600,
@@ -60,10 +62,10 @@ class SyncBadge extends StatelessWidget {
         ],
       ),
     );
-    if (onTap == null) return Semantics(label: label, child: badge);
+    if (onTap == null) return Semantics(label: effectiveLabel, child: badge);
     return Semantics(
       button: true,
-      label: label,
+      label: effectiveLabel,
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(AppRadii.chip),
