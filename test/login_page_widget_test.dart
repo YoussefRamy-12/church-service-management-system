@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:supabase_flutter/supabase_flutter.dart' show SupabaseClient;
 import 'package:church_service_management_system/core/network/supabase_client_provider.dart';
 import 'package:church_service_management_system/features/auth/presentation/login_page.dart';
 import 'package:church_service_management_system/features/auth/presentation/auth_providers.dart';
