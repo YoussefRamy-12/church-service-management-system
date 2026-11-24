@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../app/design/app_colors.dart';
 import '../../domain/analytics_models.dart';
 
 class ServantWorkloadTable extends StatelessWidget {
@@ -8,6 +9,96 @@ class ServantWorkloadTable extends StatelessWidget {
   });
 
   final List<ServantWorkloadMetric> servantWorkloads;
+
+  Widget _buildMobileCard(
+    BuildContext context,
+    ServantWorkloadMetric item,
+  ) {
+    final theme = Theme.of(context);
+    final roleLabel = switch (item.role) {
+      'overall_leader' => 'أمين الخدمة',
+      'overall_helper' => 'مساعد أمين الخدمة',
+      'stage_leader' => 'أمين المرحلة',
+      'class_leader' => 'أمين الفصل',
+      'class_servant' => 'خادم فصل',
+      _ => item.role,
+    };
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(12, 8, 12, 8),
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: theme.colorScheme.surface,
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: theme.colorScheme.outlineVariant),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(item.servantName, style: theme.textTheme.titleMedium),
+            const SizedBox(height: 6),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                Chip(
+                  avatar: Icon(
+                    Icons.badge_outlined,
+                    size: 15,
+                    color: theme.colorScheme.primary,
+                  ),
+                  label: Text(roleLabel),
+                  visualDensity: VisualDensity.compact,
+                ),
+                Chip(
+                  avatar: const Icon(Icons.groups_outlined, size: 15),
+                  label: Text(item.className ?? 'إشراف عام'),
+                  visualDensity: VisualDensity.compact,
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Wrap(
+              spacing: 16,
+              runSpacing: 8,
+              children: [
+                _countMetric(context, 'حالات مسندة', item.assignedCasesCount),
+                _countMetric(
+                  context,
+                  'أنشطة منفذة',
+                  item.completedActivitiesCount,
+                  valueColor: AppColors.of(context).present.foreground,
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _countMetric(
+    BuildContext context,
+    String label,
+    int value, {
+    Color? valueColor,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(label, style: Theme.of(context).textTheme.bodySmall),
+        const SizedBox(height: 2),
+        Text(
+          '$value',
+          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+            fontWeight: FontWeight.w700,
+            color: valueColor,
+          ),
+        ),
+      ],
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -24,10 +115,10 @@ class ServantWorkloadTable extends StatelessWidget {
 
     return Container(
       decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF131D33) : Colors.white,
+        color: theme.colorScheme.surface,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0),
+          color: theme.colorScheme.outlineVariant,
           width: 1.2,
         ),
       ),
@@ -44,12 +135,12 @@ class ServantWorkloadTable extends StatelessWidget {
                     Container(
                       padding: const EdgeInsets.all(6),
                       decoration: BoxDecoration(
-                        color: const Color(0xFF00236F).withValues(alpha: 0.1),
+                        color: theme.colorScheme.primaryContainer,
                         borderRadius: BorderRadius.circular(8),
                       ),
-                      child: const Icon(
+                      child: Icon(
                         Icons.diversity_3_rounded,
-                        color: Color(0xFF00236F),
+                        color: theme.colorScheme.primary,
                         size: 20,
                       ),
                     ),
@@ -68,18 +159,21 @@ class ServantWorkloadTable extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w600,
-                    color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                    color: theme.colorScheme.onSurfaceVariant,
                   ),
                 ),
               ],
             ),
           ),
           const Divider(height: 1),
-          SingleChildScrollView(
+          LayoutBuilder(
+            builder: (context, constraints) {
+              if (constraints.maxWidth >= 768) {
+                return SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             child: DataTable(
               headingRowColor: WidgetStateProperty.all(
-                isDark ? const Color(0xFF182234) : const Color(0xFFF8FAFC),
+                theme.colorScheme.surfaceContainerLow,
               ),
               dataRowMinHeight: 52,
               dataRowMaxHeight: 56,
@@ -113,7 +207,7 @@ class ServantWorkloadTable extends StatelessWidget {
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                         decoration: BoxDecoration(
-                          color: const Color(0xFF00236F).withValues(alpha: isDark ? 0.2 : 0.08),
+                          color: theme.colorScheme.primaryContainer,
                           borderRadius: BorderRadius.circular(6),
                         ),
                         child: Text(
@@ -121,7 +215,7 @@ class ServantWorkloadTable extends StatelessWidget {
                           style: const TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.w600,
-                            color: Color(0xFF00236F),
+                            color: theme.colorScheme.primary,
                           ),
                         ),
                       ),
@@ -138,7 +232,7 @@ class ServantWorkloadTable extends StatelessWidget {
                         '${sw.completedActivitiesCount}',
                         style: const TextStyle(
                           fontWeight: FontWeight.w700,
-                          color: Color(0xFF10B981),
+                          color: AppColors.of(context).present.foreground,
                         ),
                       ),
                     ),
@@ -146,6 +240,15 @@ class ServantWorkloadTable extends StatelessWidget {
                 );
               }).toList(),
             ),
+          ),;
+              }
+              return Column(
+                children: [
+                  for (final item in servantWorkloads)
+                    _buildMobileCard(context, item),
+                ],
+              );
+            },
           ),
         ],
       ),

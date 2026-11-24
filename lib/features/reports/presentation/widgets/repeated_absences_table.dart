@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:url_launcher/url_launcher.dart';
+import '../../../../core/ui/phone_contact_actions.dart';
+import '../../../../app/design/app_colors.dart';
 import '../../domain/analytics_models.dart';
 
 class RepeatedAbsencesTable extends StatelessWidget {
@@ -21,10 +22,10 @@ class RepeatedAbsencesTable extends StatelessWidget {
       return Container(
         padding: const EdgeInsets.all(32),
         decoration: BoxDecoration(
-          color: isDark ? const Color(0xFF131D33) : Colors.white,
+          color: theme.colorScheme.surface,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0),
+            color: theme.colorScheme.outlineVariant,
             width: 1.2,
           ),
         ),
@@ -35,12 +36,12 @@ class RepeatedAbsencesTable extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF10B981).withValues(alpha: 0.1),
+                  color: AppColors.of(context).present.background,
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(
+                child: Icon(
                   Icons.verified_user_rounded,
-                  color: Color(0xFF10B981),
+                  color: AppColors.of(context).present.foreground,
                   size: 32,
                 ),
               ),
@@ -54,7 +55,7 @@ class RepeatedAbsencesTable extends StatelessWidget {
                 'جميع التلاميذ المسجلين يلتزمون بالحضور دون انقطاع مستمر.',
                 style: TextStyle(
                   fontSize: 12,
-                  color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                  color: theme.colorScheme.onSurfaceVariant,
                 ),
               ),
             ],
@@ -85,12 +86,12 @@ class RepeatedAbsencesTable extends StatelessWidget {
                     Container(
                       padding: const EdgeInsets.all(6),
                       decoration: BoxDecoration(
-                        color: const Color(0xFFEF4444).withValues(alpha: 0.1),
+                        color: AppColors.of(context).absent.background,
                         borderRadius: BorderRadius.circular(8),
                       ),
-                      child: const Icon(
+                      child: Icon(
                         Icons.person_off_rounded,
-                        color: Color(0xFFEF4444),
+                        color: AppColors.of(context).absent.foreground,
                         size: 20,
                       ),
                     ),
@@ -132,8 +133,8 @@ class RepeatedAbsencesTable extends StatelessWidget {
               final item = repeatedAbsences[index];
               final isSevere = item.consecutiveMissedMeetings >= 3;
               final badgeColor = isSevere
-                  ? const Color(0xFFEF4444)
-                  : const Color(0xFFF59E0B);
+                  ? AppColors.of(context).absent.foreground
+                  : AppColors.of(context).pending.foreground;
 
               return InkWell(
                 onTap: onStudentTap != null ? () => onStudentTap!(item) : null,
@@ -147,7 +148,7 @@ class RepeatedAbsencesTable extends StatelessWidget {
                       CircleAvatar(
                         radius: 20,
                         backgroundColor:
-                            badgeColor.withValues(alpha: isDark ? 0.2 : 0.1),
+                            badgeColor.withValues(alpha: theme.brightness == Brightness.dark ? 0.2 : 0.1),
                         child: Text(
                           '${item.consecutiveMissedMeetings}',
                           style: TextStyle(
@@ -174,37 +175,23 @@ class RepeatedAbsencesTable extends StatelessWidget {
                               '${item.className} • آخر حضور: ${item.lastAttendedDate ?? "لم يسجل حضور مؤخراً"}',
                               style: TextStyle(
                                 fontSize: 12,
-                                color: isDark
-                                    ? const Color(0xFF94A3B8)
-                                    : const Color(0xFF64748B),
+                                color: theme.colorScheme.onSurfaceVariant,
                               ),
                             ),
                           ],
                         ),
                       ),
                       if (item.phone != null && item.phone!.isNotEmpty) ...[
-                        IconButton(
-                          tooltip: 'الاتصال بالتلميذ / ولي الأمر',
-                          icon: const Icon(
-                            Icons.phone_in_talk_rounded,
-                            color: Color(0xFF10B981),
-                            size: 20,
-                          ),
-                          onPressed: () async {
-                            final uri = Uri.parse('tel:${item.phone}');
-                            if (await canLaunchUrl(uri)) {
-                              await launchUrl(uri);
-                            }
-                          },
+                        PhoneContactActions(
+                          phone: item.phone!,
+                          compact: true,
                         ),
                       ],
                       const SizedBox(width: 4),
                       Icon(
                         Icons.chevron_left_rounded,
                         size: 20,
-                        color: isDark
-                            ? const Color(0xFF64748B)
-                            : const Color(0xFF94A3B8),
+                        color: theme.colorScheme.onSurfaceVariant,
                       ),
                     ],
                   ),
