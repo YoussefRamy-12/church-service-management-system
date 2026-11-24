@@ -244,11 +244,106 @@ class _ReportsPageState extends ConsumerState<ReportsPage>
 
               // Report Data Content
               reportAsync.when(
-                loading: () => const Padding(
-                  padding: EdgeInsets.symmetric(vertical: 60),
-                  child: LoadingView(
-                    message: 'جاري معالجة وحساب بيانات التقرير المعتمدة...',
-                  ),
+                loading: () => LayoutBuilder(
+                  builder: (context, constraints) {
+                    final scheme = Theme.of(context).colorScheme;
+                    final cardWidth = (constraints.maxWidth - 12) / 2;
+                    return Column(
+                      children: [
+                        Wrap(
+                          spacing: 12,
+                          runSpacing: 12,
+                          children: [
+                            for (var index = 0; index < 4; index++)
+                              Container(
+                                width: cardWidth,
+                                height: 132,
+                                decoration: BoxDecoration(
+                                  color: scheme.surface,
+                                  borderRadius: BorderRadius.circular(14),
+                                  border: Border.all(
+                                    color: scheme.outlineVariant,
+                                  ),
+                                ),
+                                padding: const EdgeInsets.all(14),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Container(
+                                      width: 42,
+                                      height: 42,
+                                      decoration: BoxDecoration(
+                                        color: scheme.surfaceContainerHighest,
+                                        borderRadius: BorderRadius.circular(10),
+                                      ),
+                                    ),
+                                    Container(
+                                      width: cardWidth * 0.62,
+                                      height: 12,
+                                      decoration: BoxDecoration(
+                                        color: scheme.surfaceContainerHighest,
+                                        borderRadius: BorderRadius.circular(6),
+                                      ),
+                                    ),
+                                    Container(
+                                      width: cardWidth * 0.42,
+                                      height: 20,
+                                      decoration: BoxDecoration(
+                                        color: scheme.surfaceContainerLow,
+                                        borderRadius: BorderRadius.circular(6),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                          ],
+                        ),
+                        const SizedBox(height: 18),
+                        Container(
+                          height: 240,
+                          width: double.infinity,
+                          decoration: BoxDecoration(
+                            color: scheme.surface,
+                            borderRadius: BorderRadius.circular(14),
+                            border: Border.all(color: scheme.outlineVariant),
+                          ),
+                          padding: const EdgeInsets.all(16),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Container(
+                                width: 190,
+                                height: 14,
+                                decoration: BoxDecoration(
+                                  color: scheme.surfaceContainerHighest,
+                                  borderRadius: BorderRadius.circular(6),
+                                ),
+                              ),
+                              const Spacer(),
+                              Row(
+                                crossAxisAlignment: CrossAxisAlignment.end,
+                                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                children: [
+                                  for (final height in [72.0, 118.0, 88.0, 146.0, 104.0])
+                                    Container(
+                                      width: 24,
+                                      height: height,
+                                      decoration: BoxDecoration(
+                                        color: scheme.surfaceContainerHighest,
+                                        borderRadius: const BorderRadius.vertical(
+                                          top: Radius.circular(6),
+                                        ),
+                                      ),
+                                    ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    );
+                  },
                 ),
                 error: (error, stack) => Container(
                   padding: const EdgeInsets.all(32),

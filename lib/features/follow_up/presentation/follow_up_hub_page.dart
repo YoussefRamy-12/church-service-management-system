@@ -309,7 +309,58 @@ class _FollowUpHubPageState extends ConsumerState<FollowUpHubPage>
           ],
         );
       },
-      loading: () => const LoadingView(message: 'جاري تحميل طلاب النطاق المصرح...'),
+      loading: () => ListView.separated(
+        padding: const EdgeInsets.fromLTRB(16, 16, 16, 80),
+        itemCount: 5,
+        separatorBuilder: (_, _) => const SizedBox(height: 10),
+        itemBuilder: (context, index) {
+          final scheme = Theme.of(context).colorScheme;
+          return AppCard(
+            padding: const EdgeInsets.all(14),
+            child: Row(
+              children: [
+                CircleAvatar(
+                  backgroundColor: scheme.surfaceContainerHighest,
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        height: 14,
+                        width: 150,
+                        decoration: BoxDecoration(
+                          color: scheme.surfaceContainerHighest,
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Container(
+                        height: 10,
+                        width: 210,
+                        decoration: BoxDecoration(
+                          color: scheme.surfaceContainerLow,
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Container(
+                  width: 42,
+                  height: 14,
+                  decoration: BoxDecoration(
+                    color: scheme.surfaceContainerHighest,
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                ),
+              ],
+            ),
+          );
+        },
+      ),
       error: (err, _) => EmptyState(
         icon: Icons.error_outline_rounded,
         title: 'تعذر تحميل الطلاب',
