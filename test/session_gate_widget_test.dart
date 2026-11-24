@@ -23,7 +23,8 @@ void main() {
       ),
     );
 
-    await tester.pumpAndSettle();
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
 
     expect(find.text('الحساب غير مرتبط بدور نشط في الخدمة.'), findsOneWidget);
   });
@@ -41,7 +42,8 @@ void main() {
       ),
     );
 
-    await tester.pumpAndSettle();
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
 
     expect(find.text('لا توجد خدمات مرتبطة'), findsOneWidget);
     expect(find.text('تواصل مع مسؤول النظام لربط حسابك بخدمة.'), findsOneWidget);
@@ -60,7 +62,8 @@ void main() {
       ),
     );
 
-    await tester.pumpAndSettle();
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
 
     expect(
       find.text('تعذر تحميل صلاحيات الحساب. تحقق من الاتصال ثم حاول مرة أخرى.'),
@@ -96,7 +99,8 @@ void main() {
       ),
     );
 
-    await tester.pumpAndSettle();
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 300));
 
     expect(find.text('تعذر تحميل الخدمات'), findsOneWidget);
     expect(find.text('تحقق من الاتصال ثم أعد المحاولة.'), findsOneWidget);
