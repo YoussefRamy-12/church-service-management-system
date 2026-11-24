@@ -229,7 +229,7 @@ class ServantWorkloadTable extends StatelessWidget {
                     DataCell(
                       Text(
                         '${sw.completedActivitiesCount}',
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontWeight: FontWeight.w700,
                           color: AppColors.of(context).present.foreground,
                         ),
