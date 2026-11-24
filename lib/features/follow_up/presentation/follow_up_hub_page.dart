@@ -12,6 +12,7 @@ import 'weekly_follow_up_page.dart';
 import 'widgets/follow_up_activity_card.dart';
 import 'widgets/follow_up_case_card.dart';
 import 'widgets/follow_up_student_card.dart';
+import 'widgets/quick_follow_up_sheet.dart';
 
 enum _StudentFilter { all, mostAbsent, needsFollowUp, previouslyFollowedUp }
 
@@ -291,6 +292,15 @@ class _FollowUpHubPageState extends ConsumerState<FollowUpHubPage>
                           serviceId: widget.serviceId,
                           studentItem: item,
                         ),
+                      ),
+                    ),
+                    onLogFollowUp: () => showModalBottomSheet<void>(
+                      context: context,
+                      isScrollControlled: true,
+                      useSafeArea: true,
+                      builder: (_) => QuickFollowUpSheet(
+                        serviceId: widget.serviceId,
+                        item: item,
                       ),
                     ),
                   ),
