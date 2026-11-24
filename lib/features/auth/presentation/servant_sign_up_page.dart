@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import 'auth_providers.dart';
-import '../../../app/ui/app_ui.dart';
 
 class ServantSignUpPage extends ConsumerStatefulWidget {
   const ServantSignUpPage({super.key});
@@ -99,23 +98,27 @@ class _ServantSignUpPageState extends ConsumerState<ServantSignUpPage> {
       key: const Key('servant_signup_page'),
       appBar: AppBar(title: const Text('إنشاء حساب خادم')),
       body: SafeArea(
-        child: AmbientBackground(
-        intensity: 0.9,
-        child: Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 460),
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
-              child: GlassCard(
-                borderRadius: 12,
-                padding: const EdgeInsets.all(28),
-                hoverElevation: false,
-                child: _submitted ? _success() : _form(),
+        child: ColoredBox(
+          color: Theme.of(context).scaffoldBackgroundColor,
+          child: Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 460),
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+                child: Container(
+                  padding: const EdgeInsets.all(24),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.surface,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
+                  ),
+                  child: _submitted ? _success() : _form(),
+                ),
               ),
             ),
           ),
         ),
-      )),
+      ),
     );
   }
 
