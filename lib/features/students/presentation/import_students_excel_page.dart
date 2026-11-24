@@ -255,7 +255,7 @@ class _ImportStudentsExcelPageState
           FilledButton(
             onPressed: () => Navigator.pop(dialogCtx, true),
             style: FilledButton.styleFrom(
-              backgroundColor: const Color(0xFF00236F),
+              backgroundColor: AppDesignColors.primary,
             ),
             child: const Text('تأكيد الاستيراد'),
           ),
@@ -410,7 +410,7 @@ class _ImportStudentsExcelPageState
                                   children: [
                                     const Icon(
                                       Icons.lock_outline_rounded,
-                                      color: Color(0xFF00236F),
+                                      color: AppDesignColors.primary,
                                       size: 20,
                                     ),
                                     const SizedBox(width: 10),
@@ -419,7 +419,7 @@ class _ImportStudentsExcelPageState
                                         'الوجهة محددة بفصلك المصرح لك إدارته: ${_lockedClassLabel ?? ''}',
                                         style: const TextStyle(
                                           fontWeight: FontWeight.w700,
-                                          color: Color(0xFF00236F),
+                                          color: AppDesignColors.primary,
                                         ),
                                       ),
                                     ),
@@ -683,7 +683,7 @@ class _ImportStudentsExcelPageState
                                       const Icon(
                                         Icons.cloud_upload_outlined,
                                         size: 44,
-                                        color: Color(0xFF00236F),
+                                        color: AppDesignColors.primary,
                                       ),
                                     const SizedBox(height: 12),
                                     Text(
@@ -811,7 +811,7 @@ class _ImportStudentsExcelPageState
           child: _summaryStatCard(
             'إجمالي الصفوف',
             res.totalRows.toString(),
-            const Color(0xFF00236F),
+            AppDesignColors.primary,
             Icons.format_list_numbered_rounded,
           ),
         ),
@@ -1078,7 +1078,7 @@ class _ImportStudentsExcelPageState
       padding: const EdgeInsetsDirectional.only(start: 6, bottom: 8),
       child: Row(
         children: [
-          Icon(icon, size: 20, color: const Color(0xFF00236F)),
+          Icon(icon, size: 20, color: AppDesignColors.primary),
           const SizedBox(width: 8),
           Expanded(
             child: Text(
