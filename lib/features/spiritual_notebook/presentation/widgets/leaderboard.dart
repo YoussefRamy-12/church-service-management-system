@@ -90,7 +90,7 @@ class _LeaderboardState extends State<_Leaderboard> {
                             Icons.meeting_room_outlined,
                             size: 13,
                             color: isDark
-                                ? const AppDesignColors.darkMutedInk
+                                ? AppDesignColors.darkMutedInk
                                 : appMutedInk,
                           ),
                           const SizedBox(width: 3),
@@ -100,7 +100,7 @@ class _LeaderboardState extends State<_Leaderboard> {
                               fontSize: 11,
                               fontWeight: FontWeight.w700,
                               color: isDark
-                                  ? const AppDesignColors.darkMutedInk
+                                  ? AppDesignColors.darkMutedInk
                                   : appMutedInk,
                             ),
                           ),
@@ -170,14 +170,14 @@ class _LeaderboardState extends State<_Leaderboard> {
           decoration: BoxDecoration(
             color: selected
                 ? appPrimary
-                : (isDark ? const AppDesignColors.darkSurfaceSubtle : const AppDesignColors.lightSurfaceSubtle),
+                : (isDark ? AppDesignColors.darkSurfaceSubtle : AppDesignColors.lightSurfaceSubtle),
             borderRadius: BorderRadius.circular(999),
             border: Border.all(
               color: selected
                   ? appPrimary
                   : (isDark
-                        ? const AppDesignColors.darkBorder
-                        : const AppDesignColors.lightBorder),
+                        ? AppDesignColors.darkBorder
+                        : AppDesignColors.lightBorder),
               width: selected ? 1.5 : 1,
             ),
           ),
@@ -201,8 +201,8 @@ class _LeaderboardState extends State<_Leaderboard> {
                   color: selected
                       ? Colors.white.withValues(alpha: 0.22)
                       : (isDark
-                            ? const AppDesignColors.darkBorder
-                            : const AppDesignColors.lightBorderSubtle),
+                            ? AppDesignColors.darkBorder
+                            : AppDesignColors.lightBorderSubtle),
                   borderRadius: BorderRadius.circular(999),
                 ),
                 child: Text(
@@ -212,7 +212,7 @@ class _LeaderboardState extends State<_Leaderboard> {
                     fontWeight: FontWeight.w700,
                     color: selected
                         ? Colors.white
-                        : (isDark ? const AppDesignColors.darkMutedInk : appMutedInk),
+                        : (isDark ? AppDesignColors.darkMutedInk : appMutedInk),
                   ),
                 ),
               ),
@@ -397,9 +397,9 @@ class _LeaderboardState extends State<_Leaderboard> {
         horizontal: isMobile ? 10 : 16,
         vertical: isMobile ? 12 : 16,
       ),
-      color: isDark ? const AppDesignColors.darkSurface : Colors.white,
+      color: isDark ? AppDesignColors.darkSurface : Colors.white,
       border: Border.all(
-        color: isDark ? const AppDesignColors.darkSurfaceSubtle : const AppDesignColors.lightBorderSubtle,
+        color: isDark ? AppDesignColors.darkSurfaceSubtle : AppDesignColors.lightBorderSubtle,
         width: 1.2,
       ),
       child: Column(
@@ -436,7 +436,7 @@ class _LeaderboardState extends State<_Leaderboard> {
                     score: scores[second['id']] ?? 0,
                     rank: 2,
                     rankLabel: 'المركز الثاني',
-                    accentColor: const AppDesignColors.lightMutedInk,
+                    accentColor: AppDesignColors.lightMutedInk,
                     icon: Icons.military_tech_rounded,
                     height: h2,
                     isDark: isDark,
@@ -571,7 +571,7 @@ class _LeaderboardState extends State<_Leaderboard> {
                   style: TextStyle(
                     fontSize: 10,
                     fontWeight: FontWeight.w600,
-                    color: isDark ? const AppDesignColors.darkMutedInk : appMutedInk,
+                    color: isDark ? AppDesignColors.darkMutedInk : appMutedInk,
                   ),
                 ),
               ],
@@ -595,7 +595,7 @@ class _LeaderboardState extends State<_Leaderboard> {
 
     final (Color badgeColor, IconData rankIcon) = switch (rank) {
       1 => (const Color(0xFFD97706), Icons.workspace_premium_rounded),
-      2 => (const AppDesignColors.lightMutedInk, Icons.military_tech_rounded),
+      2 => (AppDesignColors.lightMutedInk, Icons.military_tech_rounded),
       3 => (const Color(0xFFB45309), Icons.military_tech_rounded),
       _ => (appPrimary, Icons.numbers_rounded),
     };
