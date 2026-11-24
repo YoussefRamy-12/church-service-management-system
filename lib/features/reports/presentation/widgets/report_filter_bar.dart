@@ -23,7 +23,6 @@ class ReportFilterBar extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
     final filter = ref.watch(reportFilterProvider);
     final filterNotifier = ref.read(reportFilterProvider.notifier);
     final scopeAsync = ref.watch(reportUserScopeProvider(serviceId));
@@ -211,7 +210,7 @@ class ReportFilterBar extends ConsumerWidget {
                     child: DropdownButtonFormField<String?>(
                       initialValue: filter.stageId,
                       isDense: true,
-                      decoration: _dropdownDecoration('المرحلة', isDark),
+                      decoration: _dropdownDecoration('المرحلة'),
                       items: [
                         const DropdownMenuItem(
                           value: null,
@@ -237,7 +236,7 @@ class ReportFilterBar extends ConsumerWidget {
                     child: DropdownButtonFormField<String?>(
                       initialValue: filter.classId,
                       isDense: true,
-                      decoration: _dropdownDecoration('الفصل (الأسرة)', isDark),
+                      decoration: _dropdownDecoration('الفصل (الأسرة)'),
                       items: [
                         const DropdownMenuItem(
                           value: null,
@@ -314,17 +313,9 @@ class ReportFilterBar extends ConsumerWidget {
     final activeLabels = <String>[
       periodLabel,
       if (filter.stageId != null)
-        availableStages
-            .where((stage) => stage.id == filter.stageId)
-            .map((stage) => stage.name as String)
-            .firstOrNull ??
-            'مرحلة محددة',
+        _optionName(availableStages, filter.stageId!, 'مرحلة محددة'),
       if (filter.classId != null)
-        availableClasses
-            .where((item) => item.id == filter.classId)
-            .map((item) => item.name as String)
-            .firstOrNull ??
-            'فصل محدد',
+        _optionName(availableClasses, filter.classId!, 'فصل محدد'),
       if (filter.compareWithPrevious) 'مقارنة بالفترة السابقة',
     ];
 
@@ -468,7 +459,15 @@ class ReportFilterBar extends ConsumerWidget {
     );
   }
 
-  InputDecoration _dropdownDecoration(String label, bool isDark) {
+  String _optionName(List<dynamic> options, String id, String fallback) {
+    for (final option in options) {
+      if (option.id == id) return option.name as String;
+    }
+    return fallback;
+  }
+
+  InputDecoration _dropdownDecoration(String label) {
+    final scheme = Theme.of(context).colorScheme;
     return InputDecoration(
       labelText: label,
       labelStyle: TextStyle(
@@ -485,7 +484,7 @@ class ReportFilterBar extends ConsumerWidget {
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(8),
         borderSide: BorderSide(
-          color: isDark ? const Color(0xFF334155) : const Color(0xFFCBD5E1),
+          color: scheme.outlineVariant,
         ),
       ),
     );
