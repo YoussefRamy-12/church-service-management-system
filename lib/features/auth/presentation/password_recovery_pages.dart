@@ -128,7 +128,20 @@ class _ResetPasswordPageState extends ConsumerState<ResetPasswordPage> {
         TextField(controller: _password, obscureText: !_showPassword, autofillHints: const [AutofillHints.newPassword], textInputAction: TextInputAction.next, decoration: InputDecoration(labelText: 'كلمة المرور الجديدة', suffixIcon: Semantics(button: true, label: _showPassword ? 'إخفاء كلمة المرور' : 'إظهار كلمة المرور', child: IconButton(tooltip: _showPassword ? 'إخفاء كلمة المرور' : 'إظهار كلمة المرور', onPressed: () => setState(() => _showPassword = !_showPassword), icon: Icon(_showPassword ? Icons.visibility_off_outlined : Icons.visibility_outlined))))),
         const SizedBox(height: 12),
         TextField(controller: _confirm, obscureText: !_showConfirmPassword, autofillHints: const [AutofillHints.newPassword], textInputAction: TextInputAction.done, onSubmitted: (_) => _save(), decoration: InputDecoration(labelText: 'تأكيد كلمة المرور', suffixIcon: Semantics(button: true, label: _showConfirmPassword ? 'إخفاء كلمة المرور' : 'إظهار كلمة المرور', child: IconButton(tooltip: _showConfirmPassword ? 'إخفاء كلمة المرور' : 'إظهار كلمة المرور', onPressed: () => setState(() => _showConfirmPassword = !_showConfirmPassword), icon: Icon(_showConfirmPassword ? Icons.visibility_off_outlined : Icons.visibility_outlined))))),
-        if (_error != null) Padding(padding: const EdgeInsets.only(top: 12), child: Text(_error!, style: TextStyle(color: Theme.of(context).colorScheme.error))),
+        if (_error != null) Container(
+          margin: const EdgeInsets.only(top: 12),
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.errorContainer,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: Theme.of(context).colorScheme.error),
+          ),
+          child: Row(children: [
+            Icon(Icons.error_outline_rounded, color: Theme.of(context).colorScheme.error),
+            const SizedBox(width: 8),
+            Expanded(child: Text(_error!, style: TextStyle(color: Theme.of(context).colorScheme.onErrorContainer))),
+          ]),
+        ),
         const SizedBox(height: 18),
         FilledButton(onPressed: _loading ? null : _save, child: _loading ? const Text('جارٍ حفظ كلمة المرور...') : const Text('حفظ كلمة المرور')),
       ])),
