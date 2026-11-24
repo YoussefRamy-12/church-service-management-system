@@ -406,120 +406,80 @@ class _SystemAdminHomePageState extends ConsumerState<SystemAdminHomePage> {
                       message:
                           'أضف خدمة إلى النظام أولًا لتتمكن من استكشاف بقية الشاشات.',
                     ),
-                  for (final service in services)
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 12),
-                      child: GlassCard(
-                        key: Key('admin_service_${service['id']}'),
-                        borderRadius: 12,
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 14,
+                  LayoutBuilder(
+                    builder: (context, constraints) {
+                      final columns = constraints.maxWidth >= 768 ? 2 : 1;
+                      return GridView.builder(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        itemCount: services.length,
+                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: columns,
+                          crossAxisSpacing: 12,
+                          mainAxisSpacing: 12,
+                          mainAxisExtent: 150,
                         ),
-                        onTap: () =>
-                            context.go('/service/${service['id']}/dashboard'),
-                        child: Row(
-                          children: [
-                            Container(
-                              width: 44,
-                              height: 44,
-                              decoration: BoxDecoration(
-                                color: const Color(0xFF00236F).withValues(alpha: 0.08),
-                                borderRadius: BorderRadius.circular(12),
-                                border: Border.all(
-                                  color: const Color(0xFF00236F).withValues(alpha: 0.20),
-                                ),
-                              ),
-                              child: const Icon(
-                                Icons.church_rounded,
-                                color: Color(0xFF00236F),
-                                size: 22,
-                              ),
-                            ),
-                            const SizedBox(width: 16),
-                            Expanded(
+                        itemBuilder: (context, index) {
+                          final service = services[index];
+                          return Card(
+                            key: Key('admin_service_${service['id']}'),
+                            child: Padding(
+                              padding: const EdgeInsets.all(12),
                               child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
+                                crossAxisAlignment: CrossAxisAlignment.stretch,
                                 children: [
-                                  Text(
-                                    service['name']?.toString() ??
-                                        'خدمة بدون اسم',
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.w800,
-                                      fontSize: 16,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 4),
                                   Row(
                                     children: [
-                                      Icon(
-                                        Icons.location_on_outlined,
-                                        size: 14,
-                                        color: Theme.of(
-                                          context,
-                                        ).colorScheme.onSurfaceVariant,
-                                      ),
-                                      const SizedBox(width: 4),
-                                      Text(
-                                        service['church_name'] ??
-                                            'كنيسة غير محددة',
-                                        style: TextStyle(
-                                          fontSize: 13,
-                                          color: Theme.of(
-                                            context,
-                                          ).colorScheme.onSurfaceVariant,
+                                      Icon(Icons.church_rounded, color: Theme.of(context).colorScheme.primary, size: 24),
+                                      const SizedBox(width: 8),
+                                      Expanded(
+                                        child: Text(
+                                          service['name']?.toString() ?? 'خدمة بدون اسم',
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: Theme.of(context).textTheme.titleMedium,
                                         ),
                                       ),
-                                      if (service['meeting_start_time'] !=
-                                          null) ...[
-                                        const SizedBox(width: 10),
-                                        Icon(
-                                          Icons.schedule_rounded,
-                                          size: 14,
-                                          color: Theme.of(
-                                            context,
-                                          ).colorScheme.onSurfaceVariant,
-                                        ),
-                                        const SizedBox(width: 4),
-                                        Text(
-                                          '${service['meeting_start_time']}',
-                                          style: TextStyle(
-                                            fontSize: 13,
-                                            color: Theme.of(
-                                              context,
-                                            ).colorScheme.onSurfaceVariant,
-                                          ),
-                                        ),
-                                      ],
+                                      IconButton(
+                                        key: Key('admin_service_edit_${service['id']}'),
+                                        tooltip: 'تعديل الخدمة',
+                                        onPressed: () => _editService(service),
+                                        icon: const Icon(Icons.edit_outlined),
+                                      ),
+                                      IconButton(
+                                        key: Key('admin_service_delete_${service['id']}'),
+                                        tooltip: 'حذف الخدمة',
+                                        onPressed: () => _deleteService(service),
+                                        icon: Icon(Icons.delete_outline_rounded, color: Theme.of(context).colorScheme.error),
+                                      ),
                                     ],
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    service['church_name']?.toString() ?? 'كنيسة غير محددة',
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: Theme.of(context).textTheme.bodySmall,
+                                  ),
+                                  if (service['meeting_start_time'] != null)
+                                    Text('موعد الاجتماع: ${service['meeting_start_time']}', style: Theme.of(context).textTheme.bodySmall),
+                                  const Spacer(),
+                                  Align(
+                                    alignment: AlignmentDirectional.centerEnd,
+                                    child: TextButton.icon(
+                                      onPressed: () => context.go('/service/${service['id']}/dashboard'),
+                                      icon: const Icon(Icons.open_in_new, size: 16),
+                                      label: const Text('فتح الخدمة'),
+                                    ),
                                   ),
                                 ],
                               ),
                             ),
-                            IconButton(
-                              key: Key('admin_service_edit_${service['id']}'),
-                              tooltip: 'تعديل الخدمة',
-                              onPressed: () => _editService(service),
-                              icon: const Icon(Icons.edit_outlined),
-                            ),
-                            IconButton(
-                              key: Key('admin_service_delete_${service['id']}'),
-                              tooltip: 'حذف الخدمة',
-                              onPressed: () => _deleteService(service),
-                              icon: const Icon(
-                                Icons.delete_outline_rounded,
-                                color: Color(0xFFEF4444),
-                              ),
-                            ),
-                            const SizedBox(width: 4),
-                            Icon(
-                              Icons.chevron_left_rounded,
-                              color: Theme.of(context).colorScheme.primary,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
+                          );
+                        },
+                      );
+                    },
+                  ),
                 ],
               );
             },
