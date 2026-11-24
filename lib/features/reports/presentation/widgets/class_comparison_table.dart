@@ -227,8 +227,7 @@ class ClassComparisonTable extends StatelessWidget {
                             c.stageName,
                             style: TextStyle(
                               fontSize: 11,
-                              color: isDark
-                                  : theme.colorScheme.onSurfaceVariant,
+                              color: theme.colorScheme.onSurfaceVariant,
                             ),
                           ),
                         ],
