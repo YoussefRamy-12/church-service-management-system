@@ -77,6 +77,8 @@ class _ResetPasswordPageState extends ConsumerState<ResetPasswordPage> {
   final _password = TextEditingController();
   final _confirm = TextEditingController();
   bool _loading = false;
+  bool _showPassword = false;
+  bool _showConfirmPassword = false;
   String? _error;
 
   @override
@@ -110,9 +112,9 @@ class _ResetPasswordPageState extends ConsumerState<ResetPasswordPage> {
       child: GlassCard(padding: const EdgeInsets.all(28), child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.stretch, children: [
         const Text('اختر كلمة مرور جديدة لحسابك.'),
         const SizedBox(height: 16),
-        TextField(controller: _password, obscureText: true, autofillHints: const [AutofillHints.newPassword], textInputAction: TextInputAction.next, decoration: const InputDecoration(labelText: 'كلمة المرور الجديدة')),
+        TextField(controller: _password, obscureText: !_showPassword, autofillHints: const [AutofillHints.newPassword], textInputAction: TextInputAction.next, decoration: InputDecoration(labelText: 'كلمة المرور الجديدة', suffixIcon: Semantics(button: true, label: _showPassword ? 'إخفاء كلمة المرور' : 'إظهار كلمة المرور', child: IconButton(tooltip: _showPassword ? 'إخفاء كلمة المرور' : 'إظهار كلمة المرور', onPressed: () => setState(() => _showPassword = !_showPassword), icon: Icon(_showPassword ? Icons.visibility_off_outlined : Icons.visibility_outlined))))),
         const SizedBox(height: 12),
-        TextField(controller: _confirm, obscureText: true, autofillHints: const [AutofillHints.newPassword], textInputAction: TextInputAction.done, onSubmitted: (_) => _save(), decoration: const InputDecoration(labelText: 'تأكيد كلمة المرور')),
+        TextField(controller: _confirm, obscureText: !_showConfirmPassword, autofillHints: const [AutofillHints.newPassword], textInputAction: TextInputAction.done, onSubmitted: (_) => _save(), decoration: InputDecoration(labelText: 'تأكيد كلمة المرور', suffixIcon: Semantics(button: true, label: _showConfirmPassword ? 'إخفاء كلمة المرور' : 'إظهار كلمة المرور', child: IconButton(tooltip: _showConfirmPassword ? 'إخفاء كلمة المرور' : 'إظهار كلمة المرور', onPressed: () => setState(() => _showConfirmPassword = !_showConfirmPassword), icon: Icon(_showConfirmPassword ? Icons.visibility_off_outlined : Icons.visibility_outlined))))),
         if (_error != null) Padding(padding: const EdgeInsets.only(top: 12), child: Text(_error!, style: TextStyle(color: Theme.of(context).colorScheme.error))),
         const SizedBox(height: 18),
         FilledButton(onPressed: _loading ? null : _save, child: _loading ? const CircularProgressIndicator() : const Text('حفظ كلمة المرور')),
