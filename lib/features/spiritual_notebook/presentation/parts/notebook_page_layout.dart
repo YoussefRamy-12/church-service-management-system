@@ -15,10 +15,10 @@ Widget _buildTopHeader(
       return Container(
         padding: const EdgeInsets.fromLTRB(14, 10, 14, 8),
         decoration: BoxDecoration(
-          color: isDark ? const AppDesignColors.darkSurface : Colors.white,
+          color: isDark ? AppDesignColors.darkSurface : Colors.white,
           border: Border(
             bottom: BorderSide(
-              color: isDark ? const AppDesignColors.darkSurfaceSubtle : const AppDesignColors.lightBorderSubtle,
+              color: isDark ? AppDesignColors.darkSurfaceSubtle : AppDesignColors.lightBorderSubtle,
               width: 1,
             ),
           ),
@@ -61,7 +61,7 @@ Widget _buildTopHeader(
                           : Icons.insights_outlined,
                       size: 20,
                     ),
-                    color: _showMetrics ? appPrimary : const AppDesignColors.darkMutedInk,
+                    color: _showMetrics ? appPrimary : AppDesignColors.darkMutedInk,
                     tooltip: _showMetrics
                         ? 'إخفاء الإحصائيات'
                         : 'إظهار الإحصائيات',
@@ -101,13 +101,13 @@ Widget _buildTopHeader(
                   ),
                   decoration: BoxDecoration(
                     color: isDark
-                        ? const AppDesignColors.darkSurfaceSubtle
-                        : const AppDesignColors.lightSurfaceSubtle,
+                        ? AppDesignColors.darkSurfaceSubtle
+                        : AppDesignColors.lightSurfaceSubtle,
                     borderRadius: BorderRadius.circular(999),
                     border: Border.all(
                       color: isDark
-                          ? const AppDesignColors.darkBorder
-                          : const AppDesignColors.lightBorder,
+                          ? AppDesignColors.darkBorder
+                          : AppDesignColors.lightBorder,
                     ),
                   ),
                   child: Row(
@@ -182,10 +182,10 @@ Widget _buildTopHeader(
     return Container(
       padding: const EdgeInsets.fromLTRB(24, 16, 24, 14),
       decoration: BoxDecoration(
-        color: isDark ? const AppDesignColors.darkSurface : Colors.white,
+        color: isDark ? AppDesignColors.darkSurface : Colors.white,
         border: Border(
           bottom: BorderSide(
-            color: isDark ? const AppDesignColors.darkSurfaceSubtle : const AppDesignColors.lightBorderSubtle,
+            color: isDark ? AppDesignColors.darkSurfaceSubtle : AppDesignColors.lightBorderSubtle,
             width: 1.2,
           ),
         ),
@@ -227,7 +227,7 @@ Widget _buildTopHeader(
                   'متابعة وتشجيع الحياة الروحية للتلاميذ وتوثيق الأنشطة أسبوعياً',
                   style: TextStyle(
                     fontSize: 12,
-                    color: isDark ? const AppDesignColors.darkMutedInk : appMutedInk,
+                    color: isDark ? AppDesignColors.darkMutedInk : appMutedInk,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
@@ -250,13 +250,13 @@ Widget _buildTopHeader(
                 ),
                 decoration: BoxDecoration(
                   color: isDark
-                      ? const AppDesignColors.darkSurfaceSubtle
-                      : const AppDesignColors.lightSurfaceSubtle,
+                      ? AppDesignColors.darkSurfaceSubtle
+                      : AppDesignColors.lightSurfaceSubtle,
                   borderRadius: BorderRadius.circular(999),
                   border: Border.all(
                     color: isDark
-                        ? const AppDesignColors.darkBorder
-                        : const AppDesignColors.lightBorder,
+                        ? AppDesignColors.darkBorder
+                        : AppDesignColors.lightBorder,
                   ),
                 ),
                 child: Row(
@@ -444,8 +444,8 @@ Widget _buildTabBar({
           padding: const EdgeInsets.all(3),
           decoration: BoxDecoration(
             color: Theme.of(context).brightness == Brightness.dark
-                ? const AppDesignColors.darkSurfaceSubtle
-                : const AppDesignColors.lightSurfaceSubtle,
+                ? AppDesignColors.darkSurfaceSubtle
+                : AppDesignColors.lightSurfaceSubtle,
             borderRadius: BorderRadius.circular(10),
           ),
           child: Row(
