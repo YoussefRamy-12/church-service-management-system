@@ -306,7 +306,7 @@ class _LessonFilesManagerSheetState
                             vertical: 10,
                           ),
                           decoration: BoxDecoration(
-                            color: AppDesignColors.darkInk,
+                            color: AppDesignColors.lightSurface,
                             borderRadius: BorderRadius.circular(10),
                             border: Border.all(color: AppDesignColors.lightBorderSubtle),
                           ),
