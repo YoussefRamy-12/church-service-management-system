@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
 
+import '../../../app/design/app_colors.dart';
+
 import '../../auth/presentation/auth_providers.dart';
 import '../../auth/domain/entities/servant_profile.dart';
 import '../../service/domain/entities/service_class.dart';
@@ -30,6 +32,7 @@ class ServantManagementPage extends ConsumerStatefulWidget {
 class _ServantManagementPageState extends ConsumerState<ServantManagementPage> {
   String search = '';
   String statusFilter = 'all';
+  String roleFilter = 'all';
   List<Stage> stages = [];
   List<ServiceClass> classes = [];
 
@@ -113,7 +116,9 @@ class _ServantManagementPageState extends ConsumerState<ServantManagementPage> {
               final matchesStatus =
                   statusFilter == 'all' ||
                   servant.accountStatus == statusFilter;
-              return matchesSearch && matchesStatus;
+              final matchesRole =
+                  roleFilter == 'all' || servant.role == roleFilter;
+              return matchesSearch && matchesStatus && matchesRole;
             }).toList();
 
             final activeCount = all
@@ -128,7 +133,6 @@ class _ServantManagementPageState extends ConsumerState<ServantManagementPage> {
               child: ListView(
                 padding: const EdgeInsets.fromLTRB(20, 16, 20, 32),
                 children: [
-                  // Metrics Ribbon (Responsive Metric Grid)
                   ResponsiveMetricGrid(
                     spacing: 10,
                     children: [
@@ -136,29 +140,27 @@ class _ServantManagementPageState extends ConsumerState<ServantManagementPage> {
                         label: 'إجمالي الخدام',
                         value: '${all.length}',
                         icon: Icons.people_outline_rounded,
-                        color: const Color(0xFF00236F),
+                        color: Theme.of(context).colorScheme.primary,
                       ),
                       ModernMetricCard(
                         label: 'نشط',
                         value: '$activeCount',
                         icon: Icons.check_circle_outline_rounded,
-                        color: const Color(0xFF10B981),
+                        color: AppColors.of(context).present.foreground,
                       ),
                       ModernMetricCard(
                         label: 'معلق',
                         value: '$pendingCount',
                         icon: Icons.hourglass_top_rounded,
-                        color: const Color(0xFFF59E0B),
+                        color: AppColors.of(context).pending.foreground,
                       ),
                     ],
                   ),
-                  const SizedBox(height: 14),
-                  // Search & Filter Card
-                  GlassCard(
-                    borderRadius: 12,
+                  const SizedBox(height: 16),
+                  AppCard(
                     padding: const EdgeInsets.all(12),
-                    hoverElevation: false,
                     child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         TextField(
                           decoration: InputDecoration(
@@ -167,10 +169,8 @@ class _ServantManagementPageState extends ConsumerState<ServantManagementPage> {
                             prefixIcon: const Icon(Icons.search_rounded),
                             suffixIcon: search.isNotEmpty
                                 ? IconButton(
-                                    icon: const Icon(
-                                      Icons.clear_rounded,
-                                      size: 18,
-                                    ),
+                                    tooltip: 'مسح البحث',
+                                    icon: const Icon(Icons.clear_rounded),
                                     onPressed: () =>
                                         setState(() => search = ''),
                                   )
@@ -179,183 +179,125 @@ class _ServantManagementPageState extends ConsumerState<ServantManagementPage> {
                           onChanged: (value) => setState(() => search = value),
                         ),
                         const SizedBox(height: 12),
-                        SegmentedButton<String>(
-                          segments: const [
-                            ButtonSegment(value: 'all', label: Text('الكل')),
-                            ButtonSegment(value: 'active', label: Text('نشط')),
-                            ButtonSegment(
-                              value: 'pending',
-                              label: Text('معلق'),
-                            ),
-                            ButtonSegment(
-                              value: 'inactive',
-                              label: Text('غير نشط'),
-                            ),
+                        Text(
+                          'الدور',
+                          style: Theme.of(context).textTheme.labelLarge,
+                        ),
+                        const SizedBox(height: 6),
+                        Wrap(
+                          spacing: 8,
+                          runSpacing: 8,
+                          children: [
+                            for (final option in const [
+                              ('all', 'كل الأدوار'),
+                              ('overall_leader', 'أمين الخدمة'),
+                              ('overall_helper', 'أمين مساعد'),
+                              ('stage_leader', 'أمين المرحلة'),
+                              ('class_leader', 'أمين الفصل'),
+                              ('class_servant', 'خادم الفصل'),
+                            ])
+                              ChoiceChip(
+                                label: Text(option.$2),
+                                selected: roleFilter == option.$1,
+                                onSelected: (_) => setState(
+                                  () => roleFilter = option.$1,
+                                ),
+                              ),
                           ],
-                          selected: {statusFilter},
-                          onSelectionChanged: (value) =>
-                              setState(() => statusFilter = value.first),
+                        ),
+                        const SizedBox(height: 10),
+                        Text(
+                          'حالة الحساب',
+                          style: Theme.of(context).textTheme.labelLarge,
+                        ),
+                        const SizedBox(height: 6),
+                        Wrap(
+                          spacing: 8,
+                          runSpacing: 8,
+                          children: [
+                            for (final option in const [
+                              ('all', 'الكل'),
+                              ('active', 'نشط'),
+                              ('pending', 'معلق'),
+                              ('inactive', 'غير نشط'),
+                            ])
+                              ChoiceChip(
+                                label: Text(option.$2),
+                                selected: statusFilter == option.$1,
+                                onSelected: (_) => setState(
+                                  () => statusFilter = option.$1,
+                                ),
+                              ),
+                          ],
                         ),
                       ],
                     ),
                   ),
-                  const SizedBox(height: 14),
+                  const SizedBox(height: 16),
                   if (filtered.isEmpty)
-                    GlassCard(
-                      borderRadius: 12,
-                      padding: const EdgeInsets.all(32),
-                      child: Center(
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(
-                              Icons.search_off_rounded,
-                              size: 40,
-                              color: Theme.of(
-                                context,
-                              ).colorScheme.onSurfaceVariant,
-                            ),
-                            const SizedBox(height: 12),
-                            const Text(
-                              'لا توجد بيانات مطابقة للبحث أو التصفية.',
-                              style: TextStyle(fontWeight: FontWeight.w700),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  for (final servant in filtered)
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 10),
-                      child: GlassCard(
-                        borderRadius: 12,
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 14,
-                          vertical: 12,
-                        ),
-                        onTap: () => _openEditor(servant),
-                        child: Row(
-                          children: [
-                            // Initial Avatar (Solid surface, no gradient)
-                            Container(
-                              width: 42,
-                              height: 42,
-                              decoration: BoxDecoration(
-                                color: servant.accountStatus == 'active'
-                                    ? const Color(0xFF00236F).withValues(alpha: 0.08)
-                                    : servant.accountStatus == 'pending'
-                                    ? const Color(0xFFF59E0B).withValues(alpha: 0.12)
-                                    : const Color(0xFF64748B).withValues(alpha: 0.10),
-                                shape: BoxShape.circle,
-                                border: Border.all(
-                                  color: servant.accountStatus == 'active'
-                                      ? const Color(0xFF00236F).withValues(alpha: 0.20)
-                                      : servant.accountStatus == 'pending'
-                                      ? const Color(0xFFF59E0B).withValues(alpha: 0.25)
-                                      : const Color(0xFF64748B).withValues(alpha: 0.20),
-                                ),
-                              ),
-                              child: Center(
-                                child: Text(
-                                  servant.name.isEmpty
-                                      ? '؟'
-                                      : servant.name.characters.first,
-                                  style: TextStyle(
-                                    color: servant.accountStatus == 'active'
-                                        ? const Color(0xFF00236F)
-                                        : servant.accountStatus == 'pending'
-                                        ? const Color(0xFFB45309)
-                                        : const Color(0xFF475569),
-                                    fontWeight: FontWeight.w700,
-                                    fontSize: 16,
-                                  ),
-                                ),
-                              ),
-                            ),
-                            const SizedBox(width: 12),
-                            // Servant Info
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    servant.name,
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.w800,
-                                      fontSize: 15,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 4),
-                                  Row(
-                                    children: [
-                                      GlassBadge(
-                                        label: _roleLabel(servant.role),
-                                        color: const Color(0xFF00236F),
-                                        showDot: false,
-                                      ),
-                                      const SizedBox(width: 6),
-                                      GlassBadge(
-                                        label: _statusLabel(
-                                          servant.accountStatus,
-                                        ),
-                                        color: servant.accountStatus == 'active'
-                                            ? const Color(0xFF10B981)
-                                            : servant.accountStatus == 'pending'
-                                            ? const Color(0xFFF59E0B)
-                                            : const Color(0xFF94A3B8),
-                                      ),
-                                    ],
-                                  ),
-                                  if (servant.phone != null &&
-                                      servant.phone!.isNotEmpty) ...[
-                                    const SizedBox(height: 4),
-                                    Row(
-                                      children: [
-                                        Icon(
-                                          Icons.phone_outlined,
-                                          size: 13,
-                                          color: Theme.of(
-                                            context,
-                                          ).colorScheme.onSurfaceVariant,
-                                        ),
-                                        const SizedBox(width: 4),
-                                        Expanded(
-                                          child: SelectableText(
-                                            servant.phone!,
-                                            style: TextStyle(
-                                              fontSize: 12,
-                                              color: Theme.of(context).colorScheme.onSurfaceVariant,
-                                            ),
+                    const EmptyState(
+                      icon: Icons.people_outline_rounded,
+                      title: 'لا توجد خدام مطابقة',
+                      message: 'جرّب تغيير البحث أو عوامل التصفية.',
+                    )
+                  else
+                    LayoutBuilder(
+                      builder: (context, constraints) {
+                        if (constraints.maxWidth >= 768) {
+                          return AppCard(
+                            padding: const EdgeInsets.all(8),
+                            child: SingleChildScrollView(
+                              scrollDirection: Axis.horizontal,
+                              child: DataTable(
+                                columnSpacing: 28,
+                                headingRowHeight: 48,
+                                dataRowMinHeight: 56,
+                                dataRowMaxHeight: 64,
+                                columns: const [
+                                  DataColumn(label: Text('الخادم')),
+                                  DataColumn(label: Text('الدور')),
+                                  DataColumn(label: Text('النطاق')),
+                                  DataColumn(label: Text('الحالة')),
+                                  DataColumn(label: Text('إجراءات')),
+                                ],
+                                rows: [
+                                  for (final servant in filtered)
+                                    DataRow(
+                                      onSelectChanged: (_) =>
+                                          _openEditor(servant),
+                                      cells: [
+                                        DataCell(Text(servant.name)),
+                                        DataCell(Text(_roleLabel(servant.role))),
+                                        DataCell(Text(_assignmentLabel(servant))),
+                                        DataCell(_statusBadge(context, servant)),
+                                        DataCell(
+                                          _servantActionsMenu(
+                                            servant,
+                                            isSuperAdmin,
                                           ),
                                         ),
-                                        PhoneContactActions(phone: servant.phone!, compact: true),
                                       ],
                                     ),
-                                  ],
                                 ],
                               ),
                             ),
-                            // Actions
-                            if (isSuperAdmin)
-                              IconButton(
-                                key: Key('servant_delete_${servant.id}'),
-                                tooltip: 'حذف الخادم',
-                                icon: const Icon(
-                                  Icons.delete_outline_rounded,
-                                  color: Color(0xFFEF4444),
-                                ),
-                                onPressed: () => _deleteServant(servant),
-                              )
-                            else
-                              Icon(
-                                Icons.chevron_left_rounded,
-                                color: Theme.of(
+                          );
+                        }
+
+                        return Column(
+                          children: [
+                            for (final servant in filtered)
+                              Padding(
+                                padding: const EdgeInsets.only(bottom: 10),
+                                child: _buildMobileServantCard(
                                   context,
-                                ).colorScheme.onSurfaceVariant,
+                                  servant,
+                                  isSuperAdmin,
+                                ),
                               ),
                           ],
-                        ),
-                      ),
+                        );
+                      },
                     ),
                 ],
               ),
@@ -364,6 +306,157 @@ class _ServantManagementPageState extends ConsumerState<ServantManagementPage> {
         ),
       ),
     );
+  }
+
+  Widget _buildMobileServantCard(
+    BuildContext context,
+    ServantProfile servant,
+    bool isSuperAdmin,
+  ) {
+    final scheme = Theme.of(context).colorScheme;
+    return AppCard(
+      onTap: () => _openEditor(servant),
+      padding: const EdgeInsets.all(14),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          CircleAvatar(
+            backgroundColor: scheme.primaryContainer,
+            foregroundColor: scheme.onPrimaryContainer,
+            child: Text(
+              servant.name.isEmpty ? '؟' : servant.name.characters.first,
+              style: const TextStyle(fontWeight: FontWeight.w700),
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  servant.name,
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+                const SizedBox(height: 6),
+                Wrap(
+                  spacing: 6,
+                  runSpacing: 6,
+                  children: [
+                    _roleBadge(context, servant),
+                    _statusBadge(context, servant),
+                  ],
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  _assignmentLabel(servant),
+                  style: Theme.of(context).textTheme.bodySmall,
+                ),
+                if (servant.phone != null && servant.phone!.isNotEmpty) ...[
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: SelectableText(
+                          servant.phone!,
+                          style: Theme.of(context).textTheme.bodySmall,
+                        ),
+                      ),
+                      PhoneContactActions(
+                        phone: servant.phone!,
+                        compact: true,
+                      ),
+                    ],
+                  ),
+                ],
+              ],
+            ),
+          ),
+          const SizedBox(width: 4),
+          _servantActionsMenu(servant, isSuperAdmin),
+        ],
+      ),
+    );
+  }
+
+  Widget _roleBadge(BuildContext context, ServantProfile servant) {
+    final scheme = Theme.of(context).colorScheme;
+    return Chip(
+      avatar: Icon(Icons.badge_outlined, size: 16, color: scheme.primary),
+      label: Text(_roleLabel(servant.role)),
+      visualDensity: VisualDensity.compact,
+      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+    );
+  }
+
+  Widget _statusBadge(BuildContext context, ServantProfile servant) {
+    final semantic = AppColors.of(context);
+    final pair = switch (servant.accountStatus) {
+      'active' => semantic.present,
+      'pending' => semantic.pending,
+      _ => semantic.absent,
+    };
+    final icon = switch (servant.accountStatus) {
+      'active' => Icons.check_circle_outline_rounded,
+      'pending' => Icons.hourglass_top_rounded,
+      _ => Icons.block_outlined,
+    };
+    return Chip(
+      avatar: Icon(icon, size: 16, color: pair.foreground),
+      label: Text(
+        _statusLabel(servant.accountStatus),
+        style: TextStyle(color: pair.foreground),
+      ),
+      backgroundColor: pair.background,
+      side: BorderSide(color: pair.foreground.withValues(alpha: 0.25)),
+      visualDensity: VisualDensity.compact,
+      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+    );
+  }
+
+  Widget _servantActionsMenu(
+    ServantProfile servant,
+    bool isSuperAdmin,
+  ) {
+    return PopupMenuButton<String>(
+      tooltip: 'إجراءات الخادم',
+      onSelected: (action) {
+        if (action == 'edit') _openEditor(servant);
+        if (action == 'delete') _deleteServant(servant);
+      },
+      itemBuilder: (context) => [
+        const PopupMenuItem(
+          value: 'edit',
+          child: ListTile(
+            dense: true,
+            leading: Icon(Icons.edit_outlined),
+            title: Text('تعديل البيانات'),
+          ),
+        ),
+        if (isSuperAdmin)
+          const PopupMenuItem(
+            value: 'delete',
+            child: ListTile(
+              dense: true,
+              leading: Icon(Icons.delete_outline_rounded),
+              title: Text('حذف ملف الخادم'),
+            ),
+          ),
+      ],
+    );
+  }
+
+  String _assignmentLabel(ServantProfile servant) {
+    if (servant.classId != null) {
+      for (final item in classes) {
+        if (item.id == servant.classId) return item.name;
+      }
+    }
+    if (servant.stageId != null) {
+      for (final item in stages) {
+        if (item.id == servant.stageId) return item.name;
+      }
+    }
+    return 'نطاق الخدمة بالكامل';
   }
 
   Future<void> _openEditor(ServantProfile servant) async {
