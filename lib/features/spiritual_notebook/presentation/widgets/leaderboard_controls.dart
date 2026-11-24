@@ -85,9 +85,9 @@ extension _LeaderboardControls on _LeaderboardState {
       final studentName = student['name'] as String? ?? 'بدون اسم';
 
       final (Color badgeColor, IconData rankIcon) = switch (rank) {
-        1 => (const Color(0xFFD97706), Icons.workspace_premium_rounded),
+        1 => (AppDesignColors.lightGold, Icons.workspace_premium_rounded),
         2 => (AppDesignColors.lightMutedInk, Icons.military_tech_rounded),
-        3 => (const Color(0xFFB45309), Icons.military_tech_rounded),
+        3 => (AppColors.light.warning.foreground, Icons.military_tech_rounded),
         _ => (appPrimary, Icons.numbers_rounded),
       };
 
