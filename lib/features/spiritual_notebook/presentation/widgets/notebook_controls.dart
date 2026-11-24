@@ -51,7 +51,7 @@ class _TabButton extends StatelessWidget {
                 size: 16,
                 color: selected
                     ? (isDark ? Colors.white : appPrimary)
-                    : (isDark ? const AppDesignColors.darkMutedInk : appMutedInk),
+                    : (isDark ? AppDesignColors.darkMutedInk : appMutedInk),
               ),
               const SizedBox(width: 6),
               Flexible(
@@ -64,7 +64,7 @@ class _TabButton extends StatelessWidget {
                     fontWeight: selected ? FontWeight.w800 : FontWeight.w600,
                     color: selected
                         ? (isDark ? Colors.white : appPrimary)
-                        : (isDark ? const AppDesignColors.darkMutedInk : appMutedInk),
+                        : (isDark ? AppDesignColors.darkMutedInk : appMutedInk),
                   ),
                 ),
               ),
@@ -81,8 +81,8 @@ class _TabButton extends StatelessWidget {
                               ? Colors.white.withValues(alpha: 0.2)
                               : appPrimary.withValues(alpha: 0.1))
                         : (isDark
-                              ? const AppDesignColors.darkBorder
-                              : const AppDesignColors.lightBorderSubtle),
+                              ? AppDesignColors.darkBorder
+                              : AppDesignColors.lightBorderSubtle),
                     borderRadius: BorderRadius.circular(999),
                   ),
                   child: Text(
@@ -92,7 +92,7 @@ class _TabButton extends StatelessWidget {
                       fontWeight: FontWeight.w700,
                       color: selected
                           ? (isDark ? Colors.white : appPrimary)
-                          : (isDark ? const AppDesignColors.darkMutedInk : appMutedInk),
+                          : (isDark ? AppDesignColors.darkMutedInk : appMutedInk),
                     ),
                   ),
                 ),
@@ -128,7 +128,7 @@ class _CompactMetricTile extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
       decoration: BoxDecoration(
-        color: isDark ? const AppDesignColors.darkSurface : Colors.white,
+        color: isDark ? AppDesignColors.darkSurface : Colors.white,
         borderRadius: BorderRadius.circular(10),
         border: Border.all(
           color: isDark
@@ -161,7 +161,7 @@ class _CompactMetricTile extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 11,
                     fontWeight: FontWeight.w600,
-                    color: isDark ? const AppDesignColors.darkMutedInk : appMutedInk,
+                    color: isDark ? AppDesignColors.darkMutedInk : appMutedInk,
                   ),
                 ),
                 const SizedBox(height: 1),
