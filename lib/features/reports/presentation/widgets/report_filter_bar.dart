@@ -132,7 +132,7 @@ class ReportFilterBar extends ConsumerWidget {
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      const Icon(
+                      Icon(
                         Icons.event_available_rounded,
                         size: 16,
                         color: theme.colorScheme.primary,

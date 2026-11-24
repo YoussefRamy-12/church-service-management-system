@@ -211,7 +211,7 @@ class ServantWorkloadTable extends StatelessWidget {
                         ),
                         child: Text(
                           roleLabel,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.w600,
                             color: theme.colorScheme.primary,

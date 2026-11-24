@@ -199,7 +199,7 @@ class FollowUpStudentCard extends StatelessWidget {
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      const Icon(
+                      Icon(
                         Icons.folder_open_rounded,
                         size: 13,
                         color: theme.colorScheme.primary,
@@ -207,7 +207,7 @@ class FollowUpStudentCard extends StatelessWidget {
                       const SizedBox(width: 4),
                       Text(
                         '${item.activeCasesCount} حالات مفتوحة',
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 11,
                           fontWeight: FontWeight.w700,
                           color: theme.colorScheme.primary,
