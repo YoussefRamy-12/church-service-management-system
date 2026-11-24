@@ -6,12 +6,13 @@ on:
   pull_request:
 
 concurrency:
-  group: flutter-ci-${{ github.event.pull_request.number || github.ref }}
+  group: flutter-ci-${{ github.event.pull_request.number || github.ref }}-${{ github.sha }}
   cancel-in-progress: true
 
 jobs:
   analyze-and-test:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
       - uses: subosito/flutter-action@v2
@@ -33,10 +34,8 @@ jobs:
       - name: Generate login goldens
         run: flutter test --reporter expanded --timeout 60s --update-goldens test/login_page_golden_test.dart
       - name: Generate sync center goldens
-        if: always()
         run: flutter test --reporter expanded --timeout 60s --update-goldens test/sync_center_widget_test.dart
       - name: Generate Task 6 mobile light/dark goldens
-        if: always()
         run: flutter test --reporter expanded --timeout 60s --update-goldens test/task6_mobile_golden_test.dart
       - name: Upload golden baselines
         if: always()
