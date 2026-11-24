@@ -42,5 +42,26 @@ void main() {
     expect(find.text('لا توجد خدمات مرتبطة'), findsOneWidget);
     expect(find.text('تواصل مع مسؤول النظام لربط حسابك بخدمة.'), findsOneWidget);
   });
+  testWidgets('service picker shows an error state with retry action', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          currentSessionIdentityProvider.overrideWith((ref) async {
+            throw Exception('profile lookup failed');
+          }),
+        ],
+        child: const MaterialApp(home: SessionGate()),
+      ),
+    );
 
+    await tester.pumpAndSettle();
+
+    expect(
+      find.text('تعذر تحميل صلاحيات الحساب. تحقق من الاتصال ثم حاول مرة أخرى.'),
+      findsOneWidget,
+    );
+    expect(find.text('إعادة المحاولة'), findsOneWidget);
+  });
 }
