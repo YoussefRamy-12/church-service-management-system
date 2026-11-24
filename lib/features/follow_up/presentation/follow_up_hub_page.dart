@@ -313,7 +313,13 @@ class _FollowUpHubPageState extends ConsumerState<FollowUpHubPage>
       error: (err, _) => EmptyState(
         icon: Icons.error_outline_rounded,
         title: 'تعذر تحميل الطلاب',
-        message: '$err',
+        message: 'تحقق من الاتصال ثم حاول تحديث القائمة.',
+        action: FilledButton.icon(
+          onPressed: () =>
+              ref.invalidate(followUpStudentItemsProvider(widget.serviceId)),
+          icon: const Icon(Icons.refresh_rounded),
+          label: const Text('إعادة المحاولة'),
+        ),
       ),
     );
   }
