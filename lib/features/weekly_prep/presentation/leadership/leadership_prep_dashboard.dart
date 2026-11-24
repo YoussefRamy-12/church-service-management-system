@@ -75,14 +75,21 @@ class _LeadershipPrepDashboardState
     showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
+      useSafeArea: true,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      builder: (ctx) => LessonFilesManagerSheet(
-        serviceId: widget.serviceId,
-        stages: widget.stages,
-        weeks: widget.weeks,
-        lessons: widget.lessons,
+      builder: (ctx) => Padding(
+        padding: EdgeInsets.only(bottom: MediaQuery.viewInsetsOf(ctx).bottom),
+        child: SafeArea(
+          top: false,
+          child: LessonFilesManagerSheet(
+            serviceId: widget.serviceId,
+            stages: widget.stages,
+            weeks: widget.weeks,
+            lessons: widget.lessons,
+          ),
+        ),
       ),
     );
   }
