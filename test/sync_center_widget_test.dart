@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:church_service_management_system/app/theme.dart';
 
 import 'package:church_service_management_system/core/config/config_provider.dart';
 import 'package:church_service_management_system/core/database/app_database.dart';
@@ -45,7 +46,7 @@ void main() {
           syncEngineProvider.overrideWithValue(engine),
           offlineSyncEnabledProvider.overrideWithValue(true),
         ],
-        child: const MaterialApp(home: SyncCenterPage()),
+        child: MaterialApp(theme: buildAppTheme(), home: const SyncCenterPage()),
       );
 
   testWidgets('sync center matches the empty-state golden', (tester) async {
