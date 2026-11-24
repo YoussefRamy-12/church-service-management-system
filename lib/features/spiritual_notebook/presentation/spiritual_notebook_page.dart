@@ -21,7 +21,7 @@ Color _avatarColor(String name) {
     Color(0xFF00236F),
     Color(0xFF0D9488),
     Color(0xFFB45309),
-    Color(0xFF475569),
+    AppDesignColors.lightMutedInk,
     Color(0xFF0369A1),
     Color(0xFF7C3AED),
     Color(0xFF059669),
@@ -244,10 +244,10 @@ class _SpiritualNotebookPageState extends ConsumerState<SpiritualNotebookPage> {
       return Container(
         padding: const EdgeInsets.fromLTRB(14, 10, 14, 8),
         decoration: BoxDecoration(
-          color: isDark ? const Color(0xFF131D33) : Colors.white,
+          color: isDark ? const AppDesignColors.darkSurface : Colors.white,
           border: Border(
             bottom: BorderSide(
-              color: isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0),
+              color: isDark ? const AppDesignColors.darkSurfaceSubtle : const AppDesignColors.lightBorderSubtle,
               width: 1,
             ),
           ),
@@ -290,7 +290,7 @@ class _SpiritualNotebookPageState extends ConsumerState<SpiritualNotebookPage> {
                           : Icons.insights_outlined,
                       size: 20,
                     ),
-                    color: _showMetrics ? appPrimary : const Color(0xFF94A3B8),
+                    color: _showMetrics ? appPrimary : const AppDesignColors.darkMutedInk,
                     tooltip: _showMetrics
                         ? 'إخفاء الإحصائيات'
                         : 'إظهار الإحصائيات',
@@ -330,13 +330,13 @@ class _SpiritualNotebookPageState extends ConsumerState<SpiritualNotebookPage> {
                   ),
                   decoration: BoxDecoration(
                     color: isDark
-                        ? const Color(0xFF1E293B)
-                        : const Color(0xFFF1F5F9),
+                        ? const AppDesignColors.darkSurfaceSubtle
+                        : const AppDesignColors.lightSurfaceSubtle,
                     borderRadius: BorderRadius.circular(999),
                     border: Border.all(
                       color: isDark
-                          ? const Color(0xFF334155)
-                          : const Color(0xFFCBD5E1),
+                          ? const AppDesignColors.darkBorder
+                          : const AppDesignColors.lightBorder,
                     ),
                   ),
                   child: Row(
@@ -411,10 +411,10 @@ class _SpiritualNotebookPageState extends ConsumerState<SpiritualNotebookPage> {
     return Container(
       padding: const EdgeInsets.fromLTRB(24, 16, 24, 14),
       decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF131D33) : Colors.white,
+        color: isDark ? const AppDesignColors.darkSurface : Colors.white,
         border: Border(
           bottom: BorderSide(
-            color: isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0),
+            color: isDark ? const AppDesignColors.darkSurfaceSubtle : const AppDesignColors.lightBorderSubtle,
             width: 1.2,
           ),
         ),
@@ -456,7 +456,7 @@ class _SpiritualNotebookPageState extends ConsumerState<SpiritualNotebookPage> {
                   'متابعة وتشجيع الحياة الروحية للتلاميذ وتوثيق الأنشطة أسبوعياً',
                   style: TextStyle(
                     fontSize: 12,
-                    color: isDark ? const Color(0xFF94A3B8) : appMutedInk,
+                    color: isDark ? const AppDesignColors.darkMutedInk : appMutedInk,
                     fontWeight: FontWeight.w500,
                   ),
                 ),
@@ -479,13 +479,13 @@ class _SpiritualNotebookPageState extends ConsumerState<SpiritualNotebookPage> {
                 ),
                 decoration: BoxDecoration(
                   color: isDark
-                      ? const Color(0xFF1E293B)
-                      : const Color(0xFFF1F5F9),
+                      ? const AppDesignColors.darkSurfaceSubtle
+                      : const AppDesignColors.lightSurfaceSubtle,
                   borderRadius: BorderRadius.circular(999),
                   border: Border.all(
                     color: isDark
-                        ? const Color(0xFF334155)
-                        : const Color(0xFFCBD5E1),
+                        ? const AppDesignColors.darkBorder
+                        : const AppDesignColors.lightBorder,
                   ),
                 ),
                 child: Row(
@@ -673,8 +673,8 @@ class _SpiritualNotebookPageState extends ConsumerState<SpiritualNotebookPage> {
           padding: const EdgeInsets.all(3),
           decoration: BoxDecoration(
             color: Theme.of(context).brightness == Brightness.dark
-                ? const Color(0xFF1E293B)
-                : const Color(0xFFF1F5F9),
+                ? const AppDesignColors.darkSurfaceSubtle
+                : const AppDesignColors.lightSurfaceSubtle,
             borderRadius: BorderRadius.circular(10),
           ),
           child: Row(
@@ -764,7 +764,7 @@ class _TabButton extends StatelessWidget {
                 size: 16,
                 color: selected
                     ? (isDark ? Colors.white : appPrimary)
-                    : (isDark ? const Color(0xFF94A3B8) : appMutedInk),
+                    : (isDark ? const AppDesignColors.darkMutedInk : appMutedInk),
               ),
               const SizedBox(width: 6),
               Flexible(
@@ -777,7 +777,7 @@ class _TabButton extends StatelessWidget {
                     fontWeight: selected ? FontWeight.w800 : FontWeight.w600,
                     color: selected
                         ? (isDark ? Colors.white : appPrimary)
-                        : (isDark ? const Color(0xFF94A3B8) : appMutedInk),
+                        : (isDark ? const AppDesignColors.darkMutedInk : appMutedInk),
                   ),
                 ),
               ),
@@ -794,8 +794,8 @@ class _TabButton extends StatelessWidget {
                               ? Colors.white.withValues(alpha: 0.2)
                               : appPrimary.withValues(alpha: 0.1))
                         : (isDark
-                              ? const Color(0xFF334155)
-                              : const Color(0xFFE2E8F0)),
+                              ? const AppDesignColors.darkBorder
+                              : const AppDesignColors.lightBorderSubtle),
                     borderRadius: BorderRadius.circular(999),
                   ),
                   child: Text(
@@ -805,7 +805,7 @@ class _TabButton extends StatelessWidget {
                       fontWeight: FontWeight.w700,
                       color: selected
                           ? (isDark ? Colors.white : appPrimary)
-                          : (isDark ? const Color(0xFF94A3B8) : appMutedInk),
+                          : (isDark ? const AppDesignColors.darkMutedInk : appMutedInk),
                     ),
                   ),
                 ),
@@ -841,7 +841,7 @@ class _CompactMetricTile extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
       decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF131D33) : Colors.white,
+        color: isDark ? const AppDesignColors.darkSurface : Colors.white,
         borderRadius: BorderRadius.circular(10),
         border: Border.all(
           color: isDark
@@ -874,7 +874,7 @@ class _CompactMetricTile extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 11,
                     fontWeight: FontWeight.w600,
-                    color: isDark ? const Color(0xFF94A3B8) : appMutedInk,
+                    color: isDark ? const AppDesignColors.darkMutedInk : appMutedInk,
                   ),
                 ),
                 const SizedBox(height: 1),
@@ -1098,7 +1098,7 @@ class _StudentListState extends State<_StudentList> {
                               Icons.meeting_room_outlined,
                               size: 13,
                               color: isDark
-                                  ? const Color(0xFF94A3B8)
+                                  ? const AppDesignColors.darkMutedInk
                                   : appMutedInk,
                             ),
                             const SizedBox(width: 3),
@@ -1108,7 +1108,7 @@ class _StudentListState extends State<_StudentList> {
                                 fontSize: 11,
                                 fontWeight: FontWeight.w700,
                                 color: isDark
-                                    ? const Color(0xFF94A3B8)
+                                    ? const AppDesignColors.darkMutedInk
                                     : appMutedInk,
                               ),
                             ),
@@ -1366,8 +1366,8 @@ class _StudentListState extends State<_StudentList> {
                                       color: done
                                           ? appSuccess.withValues(alpha: 0.12)
                                           : (isDark
-                                                ? const Color(0xFF1E293B)
-                                                : const Color(0xFFF1F5F9)),
+                                                ? const AppDesignColors.darkSurfaceSubtle
+                                                : const AppDesignColors.lightSurfaceSubtle),
                                       borderRadius: BorderRadius.circular(6),
                                     ),
                                     child: Text(
@@ -1378,7 +1378,7 @@ class _StudentListState extends State<_StudentList> {
                                         color: done
                                             ? appSuccess
                                             : (isDark
-                                                  ? const Color(0xFF94A3B8)
+                                                  ? const AppDesignColors.darkMutedInk
                                                   : appMutedInk),
                                       ),
                                     ),
@@ -1390,7 +1390,7 @@ class _StudentListState extends State<_StudentList> {
                                       fontWeight: FontWeight.w600,
                                       fontSize: 10,
                                       color: isDark
-                                          ? const Color(0xFF94A3B8)
+                                          ? const AppDesignColors.darkMutedInk
                                           : appMutedInk,
                                     ),
                                   ),
@@ -1399,7 +1399,7 @@ class _StudentListState extends State<_StudentList> {
                               const SizedBox(width: 4),
                               Icon(
                                 Icons.chevron_left_rounded,
-                                color: const Color(0xFF94A3B8),
+                                color: const AppDesignColors.darkMutedInk,
                                 size: widget.isMobile ? 18 : 20,
                               ),
                             ],
@@ -1435,14 +1435,14 @@ class _StudentListState extends State<_StudentList> {
           decoration: BoxDecoration(
             color: selected
                 ? activeColor.withValues(alpha: isDark ? 0.25 : 0.12)
-                : (isDark ? const Color(0xFF1E293B) : const Color(0xFFF1F5F9)),
+                : (isDark ? const AppDesignColors.darkSurfaceSubtle : const AppDesignColors.lightSurfaceSubtle),
             borderRadius: BorderRadius.circular(999),
             border: Border.all(
               color: selected
                   ? activeColor
                   : (isDark
-                        ? const Color(0xFF334155)
-                        : const Color(0xFFCBD5E1)),
+                        ? const AppDesignColors.darkBorder
+                        : const AppDesignColors.lightBorder),
               width: selected ? 1.5 : 1,
             ),
           ),
@@ -1467,7 +1467,7 @@ class _StudentListState extends State<_StudentList> {
                   fontWeight: selected ? FontWeight.w800 : FontWeight.w600,
                   color: selected
                       ? (isDark ? Colors.white : activeColor)
-                      : (isDark ? const Color(0xFF94A3B8) : appMutedInk),
+                      : (isDark ? const AppDesignColors.darkMutedInk : appMutedInk),
                 ),
               ),
             ],
@@ -1495,14 +1495,14 @@ class _StudentListState extends State<_StudentList> {
           decoration: BoxDecoration(
             color: selected
                 ? appPrimary
-                : (isDark ? const Color(0xFF1E293B) : const Color(0xFFF1F5F9)),
+                : (isDark ? const AppDesignColors.darkSurfaceSubtle : const AppDesignColors.lightSurfaceSubtle),
             borderRadius: BorderRadius.circular(999),
             border: Border.all(
               color: selected
                   ? appPrimary
                   : (isDark
-                        ? const Color(0xFF334155)
-                        : const Color(0xFFCBD5E1)),
+                        ? const AppDesignColors.darkBorder
+                        : const AppDesignColors.lightBorder),
               width: selected ? 1.5 : 1,
             ),
           ),
@@ -1526,8 +1526,8 @@ class _StudentListState extends State<_StudentList> {
                   color: selected
                       ? Colors.white.withValues(alpha: 0.22)
                       : (isDark
-                            ? const Color(0xFF334155)
-                            : const Color(0xFFE2E8F0)),
+                            ? const AppDesignColors.darkBorder
+                            : const AppDesignColors.lightBorderSubtle),
                   borderRadius: BorderRadius.circular(999),
                 ),
                 child: Text(
@@ -1537,7 +1537,7 @@ class _StudentListState extends State<_StudentList> {
                     fontWeight: FontWeight.w700,
                     color: selected
                         ? Colors.white
-                        : (isDark ? const Color(0xFF94A3B8) : appMutedInk),
+                        : (isDark ? const AppDesignColors.darkMutedInk : appMutedInk),
                   ),
                 ),
               ),
@@ -2105,7 +2105,7 @@ class _SpiritualNotebookStudentPageState
                       SolidCard(
                         borderRadius: 14,
                         padding: const EdgeInsets.all(16),
-                        color: isDark ? const Color(0xFF1E293B) : appSoftBlue,
+                        color: isDark ? const AppDesignColors.darkSurfaceSubtle : appSoftBlue,
                         border: Border.all(
                           color: appPrimary.withValues(alpha: 0.3),
                           width: 1.2,
@@ -2414,7 +2414,7 @@ class _LeaderboardState extends State<_Leaderboard> {
                             Icons.meeting_room_outlined,
                             size: 13,
                             color: isDark
-                                ? const Color(0xFF94A3B8)
+                                ? const AppDesignColors.darkMutedInk
                                 : appMutedInk,
                           ),
                           const SizedBox(width: 3),
@@ -2424,7 +2424,7 @@ class _LeaderboardState extends State<_Leaderboard> {
                               fontSize: 11,
                               fontWeight: FontWeight.w700,
                               color: isDark
-                                  ? const Color(0xFF94A3B8)
+                                  ? const AppDesignColors.darkMutedInk
                                   : appMutedInk,
                             ),
                           ),
@@ -2494,14 +2494,14 @@ class _LeaderboardState extends State<_Leaderboard> {
           decoration: BoxDecoration(
             color: selected
                 ? appPrimary
-                : (isDark ? const Color(0xFF1E293B) : const Color(0xFFF1F5F9)),
+                : (isDark ? const AppDesignColors.darkSurfaceSubtle : const AppDesignColors.lightSurfaceSubtle),
             borderRadius: BorderRadius.circular(999),
             border: Border.all(
               color: selected
                   ? appPrimary
                   : (isDark
-                        ? const Color(0xFF334155)
-                        : const Color(0xFFCBD5E1)),
+                        ? const AppDesignColors.darkBorder
+                        : const AppDesignColors.lightBorder),
               width: selected ? 1.5 : 1,
             ),
           ),
@@ -2525,8 +2525,8 @@ class _LeaderboardState extends State<_Leaderboard> {
                   color: selected
                       ? Colors.white.withValues(alpha: 0.22)
                       : (isDark
-                            ? const Color(0xFF334155)
-                            : const Color(0xFFE2E8F0)),
+                            ? const AppDesignColors.darkBorder
+                            : const AppDesignColors.lightBorderSubtle),
                   borderRadius: BorderRadius.circular(999),
                 ),
                 child: Text(
@@ -2536,7 +2536,7 @@ class _LeaderboardState extends State<_Leaderboard> {
                     fontWeight: FontWeight.w700,
                     color: selected
                         ? Colors.white
-                        : (isDark ? const Color(0xFF94A3B8) : appMutedInk),
+                        : (isDark ? const AppDesignColors.darkMutedInk : appMutedInk),
                   ),
                 ),
               ),
@@ -2721,9 +2721,9 @@ class _LeaderboardState extends State<_Leaderboard> {
         horizontal: isMobile ? 10 : 16,
         vertical: isMobile ? 12 : 16,
       ),
-      color: isDark ? const Color(0xFF131D33) : Colors.white,
+      color: isDark ? const AppDesignColors.darkSurface : Colors.white,
       border: Border.all(
-        color: isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0),
+        color: isDark ? const AppDesignColors.darkSurfaceSubtle : const AppDesignColors.lightBorderSubtle,
         width: 1.2,
       ),
       child: Column(
@@ -2760,7 +2760,7 @@ class _LeaderboardState extends State<_Leaderboard> {
                     score: scores[second['id']] ?? 0,
                     rank: 2,
                     rankLabel: 'المركز الثاني',
-                    accentColor: const Color(0xFF64748B),
+                    accentColor: const AppDesignColors.lightMutedInk,
                     icon: Icons.military_tech_rounded,
                     height: h2,
                     isDark: isDark,
@@ -2895,7 +2895,7 @@ class _LeaderboardState extends State<_Leaderboard> {
                   style: TextStyle(
                     fontSize: 10,
                     fontWeight: FontWeight.w600,
-                    color: isDark ? const Color(0xFF94A3B8) : appMutedInk,
+                    color: isDark ? const AppDesignColors.darkMutedInk : appMutedInk,
                   ),
                 ),
               ],
@@ -2919,7 +2919,7 @@ class _LeaderboardState extends State<_Leaderboard> {
 
     final (Color badgeColor, IconData rankIcon) = switch (rank) {
       1 => (const Color(0xFFD97706), Icons.workspace_premium_rounded),
-      2 => (const Color(0xFF64748B), Icons.military_tech_rounded),
+      2 => (const AppDesignColors.lightMutedInk, Icons.military_tech_rounded),
       3 => (const Color(0xFFB45309), Icons.military_tech_rounded),
       _ => (appPrimary, Icons.numbers_rounded),
     };
@@ -3103,8 +3103,8 @@ class _NotebookSettingsState extends ConsumerState<_NotebookSettings> {
                     padding: const EdgeInsets.all(14),
                     decoration: BoxDecoration(
                       color: isDark
-                          ? const Color(0xFF1E293B)
-                          : const Color(0xFFF8FAFC),
+                          ? const AppDesignColors.darkSurfaceSubtle
+                          : const AppDesignColors.darkInk,
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: const Text(
@@ -3122,13 +3122,13 @@ class _NotebookSettingsState extends ConsumerState<_NotebookSettings> {
                       ),
                       decoration: BoxDecoration(
                         color: isDark
-                            ? const Color(0xFF1E293B)
-                            : const Color(0xFFF8FAFC),
+                            ? const AppDesignColors.darkSurfaceSubtle
+                            : const AppDesignColors.darkInk,
                         borderRadius: BorderRadius.circular(10),
                         border: Border.all(
                           color: isDark
-                              ? const Color(0xFF334155)
-                              : const Color(0xFFE2E8F0),
+                              ? const AppDesignColors.darkBorder
+                              : const AppDesignColors.lightBorderSubtle,
                           width: 1,
                         ),
                       ),
@@ -3393,13 +3393,13 @@ class _NotebookSettingsState extends ConsumerState<_NotebookSettings> {
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
                     color: isDark
-                        ? const Color(0xFF1E293B)
-                        : const Color(0xFFF1F5F9),
+                        ? const AppDesignColors.darkSurfaceSubtle
+                        : const AppDesignColors.lightSurfaceSubtle,
                     borderRadius: BorderRadius.circular(10),
                     border: Border.all(
                       color: isDark
-                          ? const Color(0xFF334155)
-                          : const Color(0xFFE2E8F0),
+                          ? const AppDesignColors.darkBorder
+                          : const AppDesignColors.lightBorderSubtle,
                     ),
                   ),
                   child: Row(
@@ -3583,13 +3583,13 @@ class _NotebookSettingsState extends ConsumerState<_NotebookSettings> {
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
                       color: isDark
-                          ? const Color(0xFF1E293B)
-                          : const Color(0xFFF1F5F9),
+                          ? const AppDesignColors.darkSurfaceSubtle
+                          : const AppDesignColors.lightSurfaceSubtle,
                       borderRadius: BorderRadius.circular(8),
                       border: Border.all(
                         color: isDark
-                            ? const Color(0xFF334155)
-                            : const Color(0xFFCBD5E1),
+                            ? const AppDesignColors.darkBorder
+                            : const AppDesignColors.lightBorder,
                       ),
                     ),
                     child: Row(
