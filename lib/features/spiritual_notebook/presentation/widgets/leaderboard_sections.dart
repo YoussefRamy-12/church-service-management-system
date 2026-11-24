@@ -190,7 +190,7 @@ extension _LeaderboardSections on _LeaderboardState {
               children: [
                 Icon(
                   Icons.workspace_premium_rounded,
-                  color: Color(0xFFD97706),
+                  color: AppDesignColors.lightGold,
                   size: 20,
                 ),
                 SizedBox(width: 6),
@@ -234,7 +234,7 @@ extension _LeaderboardSections on _LeaderboardState {
                       score: scores[first['id']] ?? 0,
                       rank: 1,
                       rankLabel: 'المركز الأول',
-                      accentColor: const Color(0xFFD97706),
+                      accentColor: AppDesignColors.lightGold,
                       icon: Icons.workspace_premium_rounded,
                       height: h1,
                       isDark: isDark,
@@ -250,7 +250,7 @@ extension _LeaderboardSections on _LeaderboardState {
                       score: scores[third['id']] ?? 0,
                       rank: 3,
                       rankLabel: 'المركز الثالث',
-                      accentColor: const Color(0xFFB45309),
+                      accentColor: AppColors.light.warning.foreground,
                       icon: Icons.military_tech_rounded,
                       height: h3,
                       isDark: isDark,
