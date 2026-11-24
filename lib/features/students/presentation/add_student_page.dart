@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
+import '../../../app/design/app_colors.dart';
 import '../../../app/ui/app_ui.dart';
 import '../../../core/config/config_provider.dart';
 import '../../../core/network/network_error_formatter.dart';
@@ -187,7 +188,7 @@ class _AddStudentPageState extends ConsumerState<AddStudentPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('يرجى تصحيح الحقول المطلوبة قبل المتابعة.'),
-          backgroundColor: Color(0xFFDC2626),
+          backgroundColor: AppDesignColors.lightError,
         ),
       );
       return;
@@ -206,7 +207,7 @@ class _AddStudentPageState extends ConsumerState<AddStudentPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(familyError),
-          backgroundColor: const Color(0xFFDC2626),
+          backgroundColor: AppDesignColors.lightError,
         ),
       );
       return;
@@ -216,7 +217,7 @@ class _AddStudentPageState extends ConsumerState<AddStudentPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('يرجى تحديد الفصل الدراسي للتلميذ.'),
-          backgroundColor: Color(0xFFDC2626),
+          backgroundColor: AppDesignColors.lightError,
         ),
       );
       return;
@@ -291,7 +292,7 @@ class _AddStudentPageState extends ConsumerState<AddStudentPage> {
                 ? 'تم تسجيل التلميذ بنجاح وحفظه محليًا للمزامنة والاعتماد.'
                 : 'تم تسجيل التلميذ بنجاح وبانتظار الاعتماد.',
           ),
-          backgroundColor: const Color(0xFF059669),
+          backgroundColor: AppColors.of(context).present.foreground,
         ),
       );
 
@@ -304,7 +305,7 @@ class _AddStudentPageState extends ConsumerState<AddStudentPage> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('تعذر تسجيل التلميذ: ${NetworkErrorFormatter.format(error)}'),
-            backgroundColor: const Color(0xFFDC2626),
+            backgroundColor: AppDesignColors.lightError,
           ),
         );
       }
@@ -352,14 +353,12 @@ class _AddStudentPageState extends ConsumerState<AddStudentPage> {
                               Container(
                                 padding: const EdgeInsets.all(12),
                                 decoration: BoxDecoration(
-                                  color: const Color(
-                                    0xFF00236F,
-                                  ).withValues(alpha: 0.1),
+                                  color: AppDesignColors.primary.withValues(alpha: 0.1),
                                   shape: BoxShape.circle,
                                 ),
                                 child: const Icon(
                                   Icons.person_add_rounded,
-                                  color: Color(0xFF00236F),
+                                  color: AppDesignColors.primary,
                                   size: 28,
                                 ),
                               ),
@@ -383,8 +382,8 @@ class _AddStudentPageState extends ConsumerState<AddStudentPage> {
                                       style: TextStyle(
                                         fontSize: 12,
                                         color: isDark
-                                            ? const Color(0xFF94A3B8)
-                                            : const Color(0xFF64748B),
+                                            ? AppDesignColors.darkMutedInk
+                                            : AppDesignColors.lightMutedInk,
                                       ),
                                     ),
                                   ],
@@ -409,6 +408,7 @@ class _AddStudentPageState extends ConsumerState<AddStudentPage> {
                               TextFormField(
                                 key: const Key('add_student_name'),
                                 controller: _name,
+                                keyboardType: TextInputType.name,
                                 decoration: const InputDecoration(
                                   labelText: 'الاسم الكامل للطالب *',
                                   hintText: 'مثال: كيرلس أمير عزيز خليل',
@@ -503,6 +503,7 @@ class _AddStudentPageState extends ConsumerState<AddStudentPage> {
                                         flex: isWide ? 1 : 0,
                                         child: TextFormField(
                                           controller: _school,
+                                          keyboardType: TextInputType.text,
                                           decoration: const InputDecoration(
                                             labelText: 'المدرسة',
                                             prefixIcon: Icon(
@@ -525,22 +526,22 @@ class _AddStudentPageState extends ConsumerState<AddStudentPage> {
                                           ),
                                           decoration: BoxDecoration(
                                             color: isDark
-                                                ? const Color(0xFF1E293B)
-                                                : const Color(0xFFF8FAFC),
+                                                ? AppDesignColors.darkSurfaceSubtle
+                                                : AppDesignColors.lightSurfaceSubtle,
                                             borderRadius: BorderRadius.circular(
                                               12,
                                             ),
                                             border: Border.all(
                                               color: isDark
-                                                  ? const Color(0xFF334155)
-                                                  : const Color(0xFFE2E8F0),
+                                                  ? AppDesignColors.darkBorder
+                                                  : AppDesignColors.lightBorderSubtle,
                                             ),
                                           ),
                                           child: Row(
                                             children: [
                                               const Icon(
                                                 Icons.church_outlined,
-                                                color: Color(0xFF00236F),
+                                                color: AppDesignColors.primary,
                                               ),
                                               const SizedBox(width: 10),
                                               const Expanded(
@@ -750,6 +751,7 @@ class _AddStudentPageState extends ConsumerState<AddStudentPage> {
                                         flex: isWide ? 1 : 0,
                                         child: TextFormField(
                                           controller: _motherName,
+                                          keyboardType: TextInputType.name,
                                           decoration: const InputDecoration(
                                             labelText: 'اسم الأم',
                                             hintText: 'مثال: مريم نبيل',
@@ -895,17 +897,17 @@ class _AddStudentPageState extends ConsumerState<AddStudentPage> {
                                   padding: const EdgeInsets.all(12),
                                   margin: const EdgeInsets.only(bottom: 16),
                                   decoration: BoxDecoration(
-                                    color: const Color(0xFFEFF4FF),
+                                    color: theme.colorScheme.primary.withValues(alpha: 0.08),
                                     borderRadius: BorderRadius.circular(10),
                                     border: Border.all(
-                                      color: const Color(0xFFDCE9FF),
+                                      color: theme.colorScheme.primary.withValues(alpha: 0.2),
                                     ),
                                   ),
                                   child: Row(
                                     children: [
                                       const Icon(
                                         Icons.lock_outline_rounded,
-                                        color: Color(0xFF00236F),
+                                        color: AppDesignColors.primary,
                                         size: 20,
                                       ),
                                       const SizedBox(width: 10),
@@ -914,7 +916,7 @@ class _AddStudentPageState extends ConsumerState<AddStudentPage> {
                                           'التسكين محدد بفصلك المسند: ${_lockedClassLabel ?? ''}',
                                           style: const TextStyle(
                                             fontWeight: FontWeight.w700,
-                                            color: Color(0xFF00236F),
+                                            color: AppDesignColors.primary,
                                           ),
                                         ),
                                       ),
@@ -1030,6 +1032,7 @@ class _AddStudentPageState extends ConsumerState<AddStudentPage> {
                               const SizedBox(height: 16),
                               TextFormField(
                                 controller: _confessor,
+                                keyboardType: TextInputType.text,
                                 decoration: const InputDecoration(
                                   labelText: 'أب الاعتراف',
                                   hintText: 'مثال: أبونا بيشوي',
@@ -1056,6 +1059,7 @@ class _AddStudentPageState extends ConsumerState<AddStudentPage> {
                             children: [
                               TextFormField(
                                 controller: _medicalNotes,
+                                keyboardType: TextInputType.multiline,
                                 decoration: const InputDecoration(
                                   labelText: 'ملاحظات صحية أو حساسية',
                                   hintText:
@@ -1110,6 +1114,7 @@ class _AddStudentPageState extends ConsumerState<AddStudentPage> {
                           margin: const EdgeInsets.only(bottom: 24),
                           child: TextFormField(
                             controller: _generalNotes,
+                            keyboardType: TextInputType.multiline,
                             decoration: const InputDecoration(
                               labelText: 'ملاحظات عامة',
                               hintText: 'أي ملاحظات إضافية عن التلميذ...',
@@ -1120,58 +1125,81 @@ class _AddStudentPageState extends ConsumerState<AddStudentPage> {
                           ),
                         ),
 
-                        // Action Buttons
-                        Row(
-                          children: [
-                            Expanded(
-                              child: OutlinedButton(
-                                onPressed: _saving
-                                    ? null
-                                    : () => Navigator.of(context).pop(),
-                                style: OutlinedButton.styleFrom(
-                                  minimumSize: const Size(0, 52),
-                                ),
-                                child: const Text('إلغاء'),
-                              ),
-                            ),
-                            const SizedBox(width: 14),
-                            Expanded(
-                              flex: 2,
-                              child: FilledButton.icon(
-                                key: const Key('add_student_submit'),
-                                onPressed: _saving ? null : _submit,
-                                style: FilledButton.styleFrom(
-                                  minimumSize: const Size(0, 52),
-                                  backgroundColor: const Color(0xFF00236F),
-                                ),
-                                icon: _saving
-                                    ? const SizedBox(
-                                        width: 20,
-                                        height: 20,
-                                        child: CircularProgressIndicator(
-                                          strokeWidth: 2,
-                                          color: Colors.white,
-                                        ),
-                                      )
-                                    : const Icon(
-                                        Icons.check_circle_outline_rounded,
-                                      ),
-                                label: Text(
-                                  _saving
-                                      ? 'جاري الحفظ والترميز...'
-                                      : 'تسجيل التلميذ في الخدمة',
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.w800,
-                                    fontSize: 15,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
+                        const SizedBox(height: 16),
                       ],
                     ),
                   ),
+          ),
+        ),
+      ),
+      bottomNavigationBar: Container(
+        decoration: BoxDecoration(
+          color: theme.colorScheme.surface,
+          border: Border(
+            top: BorderSide(
+              color: theme.colorScheme.outlineVariant,
+            ),
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.04),
+              blurRadius: 8,
+              offset: const Offset(0, -2),
+            ),
+          ],
+        ),
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+        child: SafeArea(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 860),
+            child: Row(
+              children: [
+                Expanded(
+                  child: OutlinedButton(
+                    onPressed: _saving
+                        ? null
+                        : () => Navigator.of(context).pop(),
+                    style: OutlinedButton.styleFrom(
+                      minimumSize: const Size(0, 48),
+                    ),
+                    child: const Text('إلغاء'),
+                  ),
+                ),
+                const SizedBox(width: 14),
+                Expanded(
+                  flex: 2,
+                  child: FilledButton.icon(
+                    key: const Key('add_student_submit'),
+                    onPressed: _saving ? null : _submit,
+                    style: FilledButton.styleFrom(
+                      minimumSize: const Size(0, 48),
+                      backgroundColor: theme.colorScheme.primary,
+                    ),
+                    icon: _saving
+                        ? const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Colors.white,
+                            ),
+                          )
+                        : const Icon(
+                            Icons.check_circle_outline_rounded,
+                          ),
+                    label: Text(
+                      _saving
+                          ? 'جاري الحفظ والترميز...'
+                          : 'تسجيل التلميذ في الخدمة',
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w800,
+                        fontSize: 15,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -1183,14 +1211,14 @@ class _AddStudentPageState extends ConsumerState<AddStudentPage> {
       padding: const EdgeInsets.only(bottom: 12, right: 4),
       child: Row(
         children: [
-          Icon(icon, color: const Color(0xFF00236F), size: 20),
+          Icon(icon, color: AppDesignColors.primary, size: 20),
           const SizedBox(width: 8),
           Text(
             title,
             style: const TextStyle(
               fontSize: 15,
               fontWeight: FontWeight.w800,
-              color: Color(0xFF00236F),
+              color: AppDesignColors.primary,
             ),
           ),
         ],

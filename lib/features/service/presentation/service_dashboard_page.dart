@@ -1,21 +1,22 @@
-// ignore_for_file: prefer_interpolation_to_compose_strings
-
-import 'package:church_service_management_system/app/ui/app_ui.dart';
-import '../../../app/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+
+import '../../../app/design/app_colors.dart';
+import '../../../app/ui/app_ui.dart';
+import '../../../app/ui/components/empty_state.dart' as comp;
+import '../../../core/sync/sync_engine_provider.dart';
 import '../../auth/presentation/auth_providers.dart';
 import '../../students/domain/entities/student.dart';
-import '../../students/presentation/student_providers.dart';
 import '../../students/presentation/add_student_page.dart';
 import '../../students/presentation/student_details_page.dart';
-
+import '../../students/presentation/student_providers.dart';
 import 'service_providers.dart';
 
 class ServiceDashboardPage extends ConsumerStatefulWidget {
   const ServiceDashboardPage({super.key, required this.serviceId});
   final String serviceId;
+
   @override
   ConsumerState<ServiceDashboardPage> createState() =>
       _ServiceDashboardPageState();
@@ -102,8 +103,6 @@ class _ServiceDashboardPageState extends ConsumerState<ServiceDashboardPage> {
       if (mounted) setState(() => _scopeLoaded = true);
     }
     try {
-      // The server applies the selected service/class RLS scope before this
-      // result is cached for the offline-first dashboard.
       await students.refreshStudentsForService(widget.serviceId);
     } catch (_) {
       // Continue to show previously cached rows when offline.
@@ -114,6 +113,7 @@ class _ServiceDashboardPageState extends ConsumerState<ServiceDashboardPage> {
   Widget build(BuildContext context) {
     final repository = ref.watch(serviceRepositoryProvider);
     final profile = ref.watch(currentServantProfileProvider);
+
     return FutureBuilder(
       future: repository.getService(widget.serviceId),
       builder: (context, snapshot) {
@@ -125,7 +125,7 @@ class _ServiceDashboardPageState extends ConsumerState<ServiceDashboardPage> {
         }
         if (snapshot.hasError) {
           return Scaffold(
-            body: EmptyState(
+            body: comp.EmptyState(
               icon: Icons.cloud_off_rounded,
               title: 'تعذر تحميل لوحة الخدمة',
               message: 'تحقق من الاتصال وحاول مرة أخرى.',
@@ -139,7 +139,7 @@ class _ServiceDashboardPageState extends ConsumerState<ServiceDashboardPage> {
         }
         if (service == null) {
           return const Scaffold(
-            body: EmptyState(
+            body: comp.EmptyState(
               icon: Icons.church_outlined,
               title: 'الخدمة غير متاحة',
               message:
@@ -147,22 +147,24 @@ class _ServiceDashboardPageState extends ConsumerState<ServiceDashboardPage> {
             ),
           );
         }
+
         final role = profile.hasValue ? profile.value?.role : null;
         final isClassServant = role == 'class_servant';
-        final assignedClassId = profile.hasValue
-            ? profile.value?.classId
-            : null;
-        final canManage =
-            ref.watch(isSuperAdminProvider) ||
+        final assignedClassId =
+            profile.hasValue ? profile.value?.classId : null;
+        final canManage = ref.watch(isSuperAdminProvider) ||
             role == 'overall_leader' ||
             role == 'overall_helper' ||
             role == 'leader' ||
             role == 'helper';
         final isSuperAdmin = ref.watch(isSuperAdminProvider);
+
         return Scaffold(
           body: LayoutBuilder(
             builder: (context, constraints) {
               final wide = constraints.maxWidth >= 900;
+              final isMobile = constraints.maxWidth < 600;
+
               return ListView(
                 padding: EdgeInsets.fromLTRB(
                   wide ? 32 : 16,
@@ -171,66 +173,105 @@ class _ServiceDashboardPageState extends ConsumerState<ServiceDashboardPage> {
                   40,
                 ),
                 children: [
-                  ResponsiveHeaderRow(
-                    title: 'لوحة الخدمة',
-                    action: FilledButton.icon(
-                      key: const Key('dashboard_attendance'),
-                      onPressed: () => context.go(
-                        '/service/' + widget.serviceId + '/attendance',
-                      ),
-                      icon: const Icon(Icons.fact_check_rounded),
-                      label: const Text('تسجيل الحضور'),
-                    ),
+                  // Header Row with screen title
+                  Text(
+                    'لوحة الخدمة',
+                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                          fontWeight: FontWeight.w800,
+                        ),
                   ),
                   const SizedBox(height: 16),
-                  SolidCard(
-                    borderRadius: 14,
-                    padding: const EdgeInsets.all(18),
-                    child: Row(
-                      children: [
-                        Container(
-                          width: 48,
-                          height: 48,
-                          decoration: BoxDecoration(
-                            color: appPrimary.withValues(alpha: 0.10),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: const Icon(
-                            Icons.church_rounded,
-                            color: appPrimary,
-                            size: 26,
-                          ),
-                        ),
-                        const SizedBox(width: 16),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+
+                  // Service Identity & Single Primary Button CTA
+                  Card(
+                    elevation: 0,
+                    margin: EdgeInsets.zero,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14),
+                      side: BorderSide(
+                        color: Theme.of(context).colorScheme.outlineVariant,
+                      ),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(18),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Row(
                             children: [
-                              Text(
-                                service.name,
-                                style: Theme.of(context).textTheme.titleLarge
-                                    ?.copyWith(
-                                      fontWeight: FontWeight.w800,
-                                      letterSpacing: -0.2,
-                                    ),
+                              Container(
+                                width: 48,
+                                height: 48,
+                                decoration: BoxDecoration(
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .primary
+                                      .withValues(alpha: 0.10),
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Icon(
+                                  Icons.church_rounded,
+                                  color: Theme.of(context).colorScheme.primary,
+                                  size: 26,
+                                ),
                               ),
-                              const SizedBox(height: 4),
-                              Text(
-                                service.churchName,
-                                style: TextStyle(
-                                  color: Theme.of(
-                                    context,
-                                  ).colorScheme.onSurfaceVariant,
-                                  fontWeight: FontWeight.w500,
+                              const SizedBox(width: 16),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      service.name,
+                                      style: Theme.of(context)
+                                          .textTheme
+                                          .titleLarge
+                                          ?.copyWith(
+                                            fontWeight: FontWeight.w800,
+                                            letterSpacing: -0.2,
+                                          ),
+                                    ),
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      service.churchName,
+                                      style: TextStyle(
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .onSurfaceVariant,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ),
                             ],
                           ),
-                        ),
-                      ],
+                          const SizedBox(height: 16),
+                          FilledButton.icon(
+                            key: const Key('dashboard_attendance'),
+                            onPressed: () => context.go(
+                              '/service/${widget.serviceId}/attendance',
+                            ),
+                            style: FilledButton.styleFrom(
+                              minimumSize: const Size.fromHeight(48),
+                              backgroundColor:
+                                  Theme.of(context).colorScheme.primary,
+                            ),
+                            icon: const Icon(Icons.fact_check_rounded),
+                            label: const Text(
+                              'تسجيل الحضور',
+                              style: TextStyle(
+                                fontWeight: FontWeight.w700,
+                                fontSize: 16,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                   const SizedBox(height: 20),
+
+                  // Data streams for students & sync queue (Needs attention & Metric cards)
                   StreamBuilder<List<Student>>(
                     stream: ref
                         .watch(studentRepositoryProvider)
@@ -240,47 +281,226 @@ class _ServiceDashboardPageState extends ConsumerState<ServiceDashboardPage> {
                           studentSnapshot.data ?? const <Student>[];
                       final visibleStudents = isClassServant
                           ? students
-                                .where(
-                                  (student) =>
-                                      assignedClassId != null &&
-                                      (student.currentClassId ==
-                                              assignedClassId ||
-                                          student.proposedClassId ==
-                                              assignedClassId),
-                                )
-                                .toList()
+                              .where(
+                                (student) =>
+                                    assignedClassId != null &&
+                                    (student.currentClassId ==
+                                            assignedClassId ||
+                                        student.proposedClassId ==
+                                            assignedClassId),
+                              )
+                              .toList()
                           : students;
-                      return ResponsiveMetricGrid(
-                        children: [
-                          ModernMetricCard(
-                            label: 'إجمالي التلاميذ',
-                            value: studentSnapshot.hasData
-                                ? '${visibleStudents.length}'
-                                : '—',
-                            icon: Icons.groups_rounded,
-                            color: Theme.of(context).colorScheme.primary,
-                          ),
-                          ModernMetricCard(
-                            label: 'معتمدون',
-                            value: studentSnapshot.hasData
-                                ? '${visibleStudents.where((student) => student.isApproved).length}'
-                                : '—',
-                            icon: Icons.verified_rounded,
-                            color: const Color(0xFF059669),
-                          ),
-                          ModernMetricCard(
-                            label: 'بانتظار الاعتماد',
-                            value: studentSnapshot.hasData
-                                ? '${visibleStudents.where((student) => student.isPending).length}'
-                                : '—',
-                            icon: Icons.pending_actions_rounded,
-                            color: const Color(0xFF904D00),
-                          ),
-                        ],
+
+                      return StreamBuilder<int>(
+                        stream: ref
+                            .watch(syncQueueRepositoryProvider)
+                            .watchCountByStatus('conflict'),
+                        builder: (context, conflictSnapshot) {
+                          final conflictCount = conflictSnapshot.data ?? 0;
+                          final pendingCount = visibleStudents
+                              .where((student) => student.isPending)
+                              .length;
+                          final unassignedCount = visibleStudents
+                              .where(
+                                (student) =>
+                                    student.currentClassId == null &&
+                                    student.proposedClassId == null,
+                              )
+                              .length;
+
+                          return Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              // "Needs attention" block (ONLY from existing providers)
+                              if (pendingCount > 0 ||
+                                  unassignedCount > 0 ||
+                                  conflictCount > 0) ...[
+                                Card(
+                                  key: const Key('dashboard_needs_attention'),
+                                  elevation: 0,
+                                  color: AppColors.of(context)
+                                      .warning
+                                      .background
+                                      .withValues(alpha: 0.35),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                    side: BorderSide(
+                                      color: AppColors.of(context)
+                                          .warning
+                                          .foreground
+                                          .withValues(alpha: 0.35),
+                                    ),
+                                  ),
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(14),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Row(
+                                          children: [
+                                            Icon(
+                                              Icons.warning_amber_rounded,
+                                              size: 20,
+                                              color: AppColors.of(context)
+                                                  .warning
+                                                  .foreground,
+                                            ),
+                                            const SizedBox(width: 8),
+                                            Text(
+                                              'يحتاج متابعة',
+                                              style: TextStyle(
+                                                fontWeight: FontWeight.w800,
+                                                color: AppColors.of(context)
+                                                  .warning
+                                                  .foreground,
+                                                fontSize: 14,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        const SizedBox(height: 10),
+                                        Wrap(
+                                          spacing: 8,
+                                          runSpacing: 8,
+                                          children: [
+                                            if (pendingCount > 0)
+                                              ActionChip(
+                                                avatar: const Icon(
+                                                  Icons.hourglass_top_rounded,
+                                                  size: 16,
+                                                ),
+                                                label: Text(
+                                                  '$pendingCount بانتظار الاعتماد',
+                                                ),
+                                                onPressed: () => context.go(
+                                                  '/service/${widget.serviceId}/students',
+                                                ),
+                                              ),
+                                            if (unassignedCount > 0)
+                                              ActionChip(
+                                                avatar: const Icon(
+                                                  Icons.person_outline,
+                                                  size: 16,
+                                                ),
+                                                label: Text(
+                                                  '$unassignedCount غير مسكن بفصل',
+                                                ),
+                                                onPressed: () => context.go(
+                                                  '/service/${widget.serviceId}/students',
+                                                ),
+                                              ),
+                                            if (conflictCount > 0)
+                                              ActionChip(
+                                                avatar: const Icon(
+                                                  Icons.sync_problem_rounded,
+                                                  size: 16,
+                                                ),
+                                                label: Text(
+                                                  '$conflictCount تعارض مزامنة',
+                                                ),
+                                                onPressed: () => context
+                                                    .push('/sync/conflicts'),
+                                              ),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(height: 16),
+                              ],
+
+                              // Responsive metric cards (2 columns on mobile, tappable to students list)
+                              GridView.count(
+                                crossAxisCount: isMobile
+                                    ? 2
+                                    : (constraints.maxWidth < 900 ? 3 : 3),
+                                crossAxisSpacing: 12,
+                                mainAxisSpacing: 12,
+                                shrinkWrap: true,
+                                physics:
+                                    const NeverScrollableScrollPhysics(),
+                                childAspectRatio: isMobile ? 1.6 : 2.2,
+                                children: [
+                                  _metricCard(
+                                    label: isClassServant
+                                        ? 'تلاميذ الفصل'
+                                        : 'إجمالي التلاميذ',
+                                    value: studentSnapshot.hasData
+                                        ? '${visibleStudents.length}'
+                                        : '—',
+                                    icon: Icons.groups_rounded,
+                                    color:
+                                        Theme.of(context).colorScheme.primary,
+                                    onTap: () => context.go(
+                                      '/service/${widget.serviceId}/students',
+                                    ),
+                                  ),
+                                  _metricCard(
+                                    label: 'معتمدون',
+                                    value: studentSnapshot.hasData
+                                        ? '${visibleStudents.where((student) => student.isApproved).length}'
+                                        : '—',
+                                    icon: Icons.verified_rounded,
+                                    color: AppColors.of(context)
+                                        .present
+                                        .foreground,
+                                    onTap: () => context.go(
+                                      '/service/${widget.serviceId}/students',
+                                    ),
+                                  ),
+                                  _metricCard(
+                                    label: 'بانتظار الاعتماد',
+                                    value: studentSnapshot.hasData
+                                        ? '${visibleStudents.where((student) => student.isPending).length}'
+                                        : '—',
+                                    icon: Icons.pending_actions_rounded,
+                                    color: AppColors.of(context)
+                                        .pending
+                                        .foreground,
+                                    onTap: () => context.go(
+                                      '/service/${widget.serviceId}/students',
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 8),
+
+                              // Offline note
+                              Row(
+                                children: [
+                                  Icon(
+                                    Icons.cloud_done_outlined,
+                                    size: 14,
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .onSurfaceVariant,
+                                  ),
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    'بيانات محفوظة محليًا',
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .bodySmall
+                                        ?.copyWith(
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .onSurfaceVariant,
+                                        ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          );
+                        },
                       );
                     },
                   ),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 20),
+
+                  // Role-scoped: class servant scope card
                   if (isClassServant)
                     Card(
                       key: const Key('class_servant_dashboard_scope'),
@@ -293,24 +513,27 @@ class _ServiceDashboardPageState extends ConsumerState<ServiceDashboardPage> {
                           !_scopeLoaded
                               ? 'جاري تحميل بيانات الفصل...'
                               : _assignedClassLabel ??
-                                    'لم يتم العثور على الفصل المرتبط بحسابك.',
+                                  'لم يتم العثور على الفصل المرتبط بحسابك.',
                         ),
                         onTap:
                             _assignedStageId == null || assignedClassId == null
-                            ? null
-                            : () => context.go(
-                                '/service/${widget.serviceId}/stage/$_assignedStageId/class/$assignedClassId',
-                              ),
-                        trailing: _scopeLoaded && _assignedClassLabel == null
-                            ? IconButton(
-                                tooltip: 'إعادة تحميل بيانات الفصل',
-                                onPressed: _refreshDashboardData,
-                                icon: const Icon(Icons.refresh_rounded),
-                              )
-                            : const Icon(Icons.chevron_left_rounded),
+                                ? null
+                                : () => context.go(
+                                      '/service/${widget.serviceId}/stage/$_assignedStageId/class/$assignedClassId',
+                                    ),
+                        trailing:
+                            _scopeLoaded && _assignedClassLabel == null
+                                ? IconButton(
+                                    tooltip: 'إعادة تحميل بيانات الفصل',
+                                    onPressed: _refreshDashboardData,
+                                    icon: const Icon(Icons.refresh_rounded),
+                                  )
+                                : const Icon(Icons.chevron_left_rounded),
                       ),
                     ),
                   if (isClassServant) const SizedBox(height: 16),
+
+                  // Role-scoped: class servant students overview
                   if (isClassServant && assignedClassId != null)
                     StreamBuilder<List<Student>>(
                       stream: ref
@@ -333,7 +556,9 @@ class _ServiceDashboardPageState extends ConsumerState<ServiceDashboardPage> {
                               children: [
                                 Text(
                                   'تلاميذ فصلك',
-                                  style: Theme.of(context).textTheme.titleMedium
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .titleMedium
                                       ?.copyWith(fontWeight: FontWeight.w800),
                                 ),
                                 const SizedBox(height: 8),
@@ -360,7 +585,7 @@ class _ServiceDashboardPageState extends ConsumerState<ServiceDashboardPage> {
                                       student.isPending
                                           ? 'بانتظار الاعتماد'
                                           : student.school ??
-                                                'لا توجد مدرسة مسجلة',
+                                              'لا توجد مدرسة مسجلة',
                                     ),
                                     onTap: () => Navigator.of(context).push(
                                       MaterialPageRoute<void>(
@@ -385,11 +610,13 @@ class _ServiceDashboardPageState extends ConsumerState<ServiceDashboardPage> {
                     ),
                   if (isClassServant && assignedClassId != null)
                     const SizedBox(height: 16),
+
+                  // Quick Actions
                   Text(
                     'الوصول السريع',
                     style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.w800,
-                    ),
+                          fontWeight: FontWeight.w800,
+                        ),
                   ),
                   const SizedBox(height: 12),
                   Wrap(
@@ -401,7 +628,7 @@ class _ServiceDashboardPageState extends ConsumerState<ServiceDashboardPage> {
                         icon: Icons.school_rounded,
                         label: 'التلاميذ',
                         onTap: () => context.go(
-                          '/service/' + widget.serviceId + '/students',
+                          '/service/${widget.serviceId}/students',
                         ),
                       ),
                       _QuickAction(
@@ -414,7 +641,7 @@ class _ServiceDashboardPageState extends ConsumerState<ServiceDashboardPage> {
                         icon: Icons.history_edu_rounded,
                         label: 'المتابعة',
                         onTap: () => context.go(
-                          '/service/' + widget.serviceId + '/follow-up',
+                          '/service/${widget.serviceId}/follow-up',
                         ),
                       ),
                       if (canManage)
@@ -423,7 +650,7 @@ class _ServiceDashboardPageState extends ConsumerState<ServiceDashboardPage> {
                           icon: Icons.bar_chart_rounded,
                           label: 'التقارير',
                           onTap: () => context.go(
-                            '/service/' + widget.serviceId + '/reports',
+                            '/service/${widget.serviceId}/reports',
                           ),
                         ),
                       if (isSuperAdmin)
@@ -441,18 +668,20 @@ class _ServiceDashboardPageState extends ConsumerState<ServiceDashboardPage> {
                           icon: Icons.groups_rounded,
                           label: 'الخدام',
                           onTap: () => context.go(
-                            '/service/' + widget.serviceId + '/servants',
+                            '/service/${widget.serviceId}/servants',
                           ),
                         ),
                     ],
                   ),
+
+                  // Role-scoped: Stages & classes exploration (non-class-servant)
                   if (!isClassServant) ...[
                     const SizedBox(height: 28),
                     Text(
                       'المراحل والفصول',
                       style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                        fontWeight: FontWeight.w800,
-                      ),
+                            fontWeight: FontWeight.w800,
+                          ),
                     ),
                     const SizedBox(height: 12),
                     StreamBuilder(
@@ -461,10 +690,10 @@ class _ServiceDashboardPageState extends ConsumerState<ServiceDashboardPage> {
                         final allStages = stageSnapshot.data ?? const [];
                         final stages = isClassServant
                             ? allStages
-                                  .where(
-                                    (stage) => stage.id == _assignedStageId,
-                                  )
-                                  .toList()
+                                .where(
+                                  (stage) => stage.id == _assignedStageId,
+                                )
+                                .toList()
                             : allStages;
                         if (stageSnapshot.hasError) {
                           return Card(
@@ -494,7 +723,8 @@ class _ServiceDashboardPageState extends ConsumerState<ServiceDashboardPage> {
                           return const Card(
                             child: Padding(
                               padding: EdgeInsets.all(24),
-                              child: Center(child: CircularProgressIndicator()),
+                              child:
+                                  Center(child: CircularProgressIndicator()),
                             ),
                           );
                         }
@@ -502,7 +732,8 @@ class _ServiceDashboardPageState extends ConsumerState<ServiceDashboardPage> {
                           return const Card(
                             child: Padding(
                               padding: EdgeInsets.all(24),
-                              child: Center(child: CircularProgressIndicator()),
+                              child:
+                                  Center(child: CircularProgressIndicator()),
                             ),
                           );
                         }
@@ -515,9 +746,9 @@ class _ServiceDashboardPageState extends ConsumerState<ServiceDashboardPage> {
                                   Icon(
                                     Icons.school_outlined,
                                     size: 42,
-                                    color: Theme.of(
-                                      context,
-                                    ).colorScheme.onSurfaceVariant,
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .onSurfaceVariant,
                                   ),
                                   const SizedBox(height: 10),
                                   const Text(
@@ -526,9 +757,9 @@ class _ServiceDashboardPageState extends ConsumerState<ServiceDashboardPage> {
                                   const SizedBox(height: 4),
                                   Text(
                                     'ستظهر بيانات الخدمة هنا بعد المزامنة.',
-                                    style: Theme.of(
-                                      context,
-                                    ).textTheme.bodySmall,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .bodySmall,
                                   ),
                                 ],
                               ),
@@ -541,8 +772,9 @@ class _ServiceDashboardPageState extends ConsumerState<ServiceDashboardPage> {
                                 (stage) => Card(
                                   margin: const EdgeInsets.only(bottom: 10),
                                   child: ExpansionTile(
-                                    key: Key('dashboard_stage_' + stage.id),
-                                    leading: const Icon(Icons.layers_outlined),
+                                    key: Key('dashboard_stage_${stage.id}'),
+                                    leading:
+                                        const Icon(Icons.layers_outlined),
                                     title: Text(
                                       stage.name,
                                       style: const TextStyle(
@@ -577,12 +809,12 @@ class _ServiceDashboardPageState extends ConsumerState<ServiceDashboardPage> {
                                               classSnapshot.data ?? const [];
                                           final visibleClasses = isClassServant
                                               ? classes
-                                                    .where(
-                                                      (item) =>
-                                                          item.id ==
-                                                          assignedClassId,
-                                                    )
-                                                    .toList()
+                                                  .where(
+                                                    (item) =>
+                                                        item.id ==
+                                                        assignedClassId,
+                                                  )
+                                                  .toList()
                                               : classes;
                                           if (classSnapshot.hasError) {
                                             return Padding(
@@ -619,8 +851,7 @@ class _ServiceDashboardPageState extends ConsumerState<ServiceDashboardPage> {
                                                 .map(
                                                   (item) => ListTile(
                                                     key: Key(
-                                                      'dashboard_class_' +
-                                                          item.id,
+                                                      'dashboard_class_${item.id}',
                                                     ),
                                                     leading: const Icon(
                                                       Icons.groups_outlined,
@@ -655,6 +886,71 @@ class _ServiceDashboardPageState extends ConsumerState<ServiceDashboardPage> {
       },
     );
   }
+
+  Widget _metricCard({
+    required String label,
+    required String value,
+    required IconData icon,
+    required Color color,
+    required VoidCallback onTap,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(12),
+      child: Card(
+        elevation: 0,
+        margin: EdgeInsets.zero,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+          side: BorderSide(
+            color: Theme.of(context).colorScheme.outlineVariant,
+          ),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+          child: Row(
+            children: [
+              Container(
+                width: 38,
+                height: 38,
+                decoration: BoxDecoration(
+                  color: color.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Icon(icon, color: color, size: 20),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      label,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color:
+                                Theme.of(context).colorScheme.onSurfaceVariant,
+                            fontWeight: FontWeight.w600,
+                          ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      value,
+                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                            fontWeight: FontWeight.w800,
+                          ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
 }
 
 class _QuickAction extends StatelessWidget {
@@ -664,6 +960,7 @@ class _QuickAction extends StatelessWidget {
     required this.label,
     required this.onTap,
   });
+
   final IconData icon;
   final String label;
   final VoidCallback onTap;
@@ -671,29 +968,30 @@ class _QuickAction extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
+    final scheme = theme.colorScheme;
+
     return ActionChip(
       avatar: Icon(
         icon,
-        size: 20,
-        color: isDark ? appAccentViolet : appPrimary,
+        size: 18,
+        color: scheme.primary,
       ),
       label: Text(
         label,
         style: TextStyle(
           fontWeight: FontWeight.w700,
           fontSize: 13,
-          color: isDark ? Colors.white : appInk,
+          color: scheme.onSurface,
         ),
       ),
       onPressed: onTap,
-      backgroundColor: isDark ? const Color(0xFF1E293B) : Colors.white,
+      backgroundColor: scheme.surface,
       side: BorderSide(
-        color: isDark ? const Color(0xFF334155) : const Color(0xFFC5C5D3),
+        color: scheme.outlineVariant,
         width: 1.0,
       ),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
     );
   }
 }
