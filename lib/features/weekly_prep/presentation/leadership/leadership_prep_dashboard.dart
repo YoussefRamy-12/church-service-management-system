@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../app/theme.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../app/ui/app_ui.dart';
 import '../../../auth/domain/entities/servant_profile.dart';
@@ -314,7 +315,7 @@ class _LeadershipPrepDashboardState
                             'لم يسلم',
                             style: TextStyle(
                               fontSize: 12,
-                              color: Color(0xFF94A3B8),
+                              color: AppDesignColors.darkMutedInk,
                               fontWeight: FontWeight.w600,
                             ),
                           ),
@@ -361,7 +362,7 @@ class _LeadershipPrepDashboardState
                                             vertical: 1.5,
                                           ),
                                           decoration: BoxDecoration(
-                                            color: const Color(0xFFF1F5F9),
+                                            color: const AppDesignColors.lightSurfaceSubtle,
                                             borderRadius: BorderRadius.circular(
                                               6,
                                             ),
@@ -370,7 +371,7 @@ class _LeadershipPrepDashboardState
                                             'أنت',
                                             style: TextStyle(
                                               fontSize: 10,
-                                              color: Color(0xFF64748B),
+                                              color: AppDesignColors.lightMutedInk,
                                               fontWeight: FontWeight.w700,
                                             ),
                                           ),
@@ -383,7 +384,7 @@ class _LeadershipPrepDashboardState
                                     '${prep.stageName ?? 'المرحلة'} • ${prep.className ?? 'الفصل'}',
                                     style: const TextStyle(
                                       fontSize: 11.5,
-                                      color: Color(0xFF64748B),
+                                      color: AppDesignColors.lightMutedInk,
                                     ),
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
@@ -401,7 +402,7 @@ class _LeadershipPrepDashboardState
                             'تاريخ الإرسال: $submittedDateStr',
                             style: const TextStyle(
                               fontSize: 11,
-                              color: Color(0xFF94A3B8),
+                              color: AppDesignColors.darkMutedInk,
                             ),
                           ),
                         ],
@@ -450,14 +451,14 @@ class _LeadershipPrepDashboardState
                                       vertical: 2,
                                     ),
                                     decoration: BoxDecoration(
-                                      color: const Color(0xFFF1F5F9),
+                                      color: const AppDesignColors.lightSurfaceSubtle,
                                       borderRadius: BorderRadius.circular(6),
                                     ),
                                     child: const Text(
                                       'أنت',
                                       style: TextStyle(
                                         fontSize: 10.5,
-                                        color: Color(0xFF64748B),
+                                        color: AppDesignColors.lightMutedInk,
                                         fontWeight: FontWeight.w700,
                                       ),
                                     ),
@@ -470,7 +471,7 @@ class _LeadershipPrepDashboardState
                               '${prep.stageName ?? 'المرحلة'} • ${prep.className ?? 'الفصل'}${submittedDateStr != null ? ' • تاريخ الإرسال: $submittedDateStr' : ''}',
                               style: const TextStyle(
                                 fontSize: 12,
-                                color: Color(0xFF64748B),
+                                color: AppDesignColors.lightMutedInk,
                               ),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
