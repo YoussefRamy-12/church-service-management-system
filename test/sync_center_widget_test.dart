@@ -63,7 +63,7 @@ void main() {
       find.byType(SyncCenterPage),
       matchesGoldenFile('goldens/sync_center_empty.png'),
     );
-  });
+  }, tags: ['golden']);
 
   testWidgets('sync center shows the synchronized empty state', (tester) async {
     await tester.pumpWidget(buildSubject());
