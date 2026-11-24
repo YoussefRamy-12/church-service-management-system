@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../app/ui/app_ui.dart';
+import '../../../app/ui/components/status_chip.dart';
 import '../../../core/config/config_provider.dart';
 import '../../../core/database/database_provider.dart';
 import '../../../core/network/network_error_formatter.dart';
@@ -312,14 +313,13 @@ class _ExportPageState extends ConsumerState<ExportPage> {
           children: [
             if (exporting)
               const StatusChip(
+                status: AppStatus.pending,
                 label: 'جارٍ تجهيز ملف Excel',
-                icon: Icons.hourglass_top_rounded,
               ),
             if (_exportCompleted)
               const StatusChip(
+                status: AppStatus.synced,
                 label: 'تم إنشاء ملف Excel بنجاح',
-                icon: Icons.check_circle_rounded,
-                tone: StatusTone.success,
               ),
             if (exporting || _exportCompleted) const SizedBox(height: 12),
             DropdownButtonFormField<String>(
