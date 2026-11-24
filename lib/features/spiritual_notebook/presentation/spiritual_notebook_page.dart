@@ -18,6 +18,7 @@ part 'pages/student_notebook_page.dart';
 part 'widgets/leaderboard.dart';
 part 'widgets/leaderboard_sections.dart';
 part 'widgets/notebook_settings.dart';
+part 'widgets/notebook_settings_actions.dart';
 
 final spiritualNotebookRepositoryProvider = Provider(
   (ref) => SpiritualNotebookRepository(Supabase.instance.client),
