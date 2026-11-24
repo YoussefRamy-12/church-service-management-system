@@ -77,7 +77,7 @@ class EarlyRegularDistributionChart extends StatelessWidget {
                     Expanded(
                       flex: (beforePct * 10).toInt().clamp(1, 1000),
                       child: Container(
-                        color: AppColors.of(context).present.foreground,
+                        color: AppColors.of(context).accent.foreground,
                         alignment: Alignment.center,
                       ),
                     ),
@@ -127,7 +127,7 @@ class EarlyRegularDistributionChart extends StatelessWidget {
                       label: 'قبل الموعد',
                       count: beforeCount,
                       pct: beforePct,
-                      color: AppColors.of(context).present.foreground,
+                      color: AppColors.of(context).accent.foreground,
                     ),
                   ),
                   SizedBox(
