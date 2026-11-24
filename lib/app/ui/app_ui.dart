@@ -455,6 +455,8 @@ class EmptyState extends StatelessWidget {
   }
 }
 
+enum StatusTone { neutral, success, warning, error }
+
 class StatusBanner extends StatelessWidget {
   const StatusBanner({
     super.key,
