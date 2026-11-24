@@ -100,7 +100,7 @@ class _ServantSignUpPageState extends ConsumerState<ServantSignUpPage> {
         intensity: 0.9,
         child: Center(
           child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 580),
+            constraints: const BoxConstraints(maxWidth: 460),
             child: SingleChildScrollView(
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
               child: GlassCard(
@@ -185,6 +185,9 @@ class _ServantSignUpPageState extends ConsumerState<ServantSignUpPage> {
           key: const Key('signup_email'),
           controller: _email,
           keyboardType: TextInputType.emailAddress,
+          autofillHints: const [AutofillHints.email, AutofillHints.username],
+          textInputAction: TextInputAction.next,
+          onFieldSubmitted: (_) => FocusScope.of(context).nextFocus(),
           decoration: const InputDecoration(labelText: 'البريد الإلكتروني'),
           validator: (value) => value == null || !value.contains('@')
               ? 'أدخل بريدًا إلكترونيًا صحيحًا'
@@ -204,6 +207,9 @@ class _ServantSignUpPageState extends ConsumerState<ServantSignUpPage> {
           key: const Key('signup_password'),
           controller: _password,
           obscureText: true,
+          autofillHints: const [AutofillHints.newPassword],
+          textInputAction: TextInputAction.next,
+          onFieldSubmitted: (_) => FocusScope.of(context).nextFocus(),
           decoration: const InputDecoration(labelText: 'كلمة المرور'),
           validator: (value) => value == null || value.length < 8
               ? 'استخدم 8 أحرف على الأقل'
@@ -214,6 +220,9 @@ class _ServantSignUpPageState extends ConsumerState<ServantSignUpPage> {
           key: const Key('signup_confirm_password'),
           controller: _confirmPassword,
           obscureText: true,
+          autofillHints: const [AutofillHints.newPassword],
+          textInputAction: TextInputAction.done,
+          onFieldSubmitted: (_) => _submit(),
           decoration: const InputDecoration(labelText: 'تأكيد كلمة المرور'),
           validator: (value) =>
               value != _password.text ? 'كلمتا المرور غير متطابقتين' : null,
@@ -230,10 +239,7 @@ class _ServantSignUpPageState extends ConsumerState<ServantSignUpPage> {
           key: const Key('signup_submit'),
           onPressed: _loading || _birthDate == null ? null : _submit,
           child: _loading
-              ? const SizedBox.square(
-                  dimension: 20,
-                  child: CircularProgressIndicator(strokeWidth: 2),
-                )
+              ? const Text('جارٍ إنشاء الحساب...')
               : const Text('إنشاء الحساب وإرسال الطلب'),
         ),
         TextButton(
