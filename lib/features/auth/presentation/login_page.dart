@@ -174,7 +174,8 @@ class _LoginPageState extends ConsumerState<LoginPage> {
 
     return Scaffold(
       key: const Key('login_page'),
-      body: AmbientBackground(
+      body: SafeArea(
+        child: AmbientBackground(
         intensity: 1.2,
         child: Stack(
           children: [
@@ -448,6 +449,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
             ),
           ],
         ),
+      ),
       ),
     );
   }
