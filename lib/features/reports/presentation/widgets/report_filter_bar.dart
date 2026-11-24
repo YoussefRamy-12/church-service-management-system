@@ -127,35 +127,44 @@ class ReportFilterBar extends ConsumerWidget {
                   ],
                 );
 
-                final dateIndicator = Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                  decoration: BoxDecoration(
-                    color: theme.colorScheme.surfaceContainerHighest,
-                    borderRadius: BorderRadius.circular(8),
+                final dateIndicator = ConstrainedBox(
+                  constraints: BoxConstraints(
+                    maxWidth: constraints.maxWidth < 640
+                        ? constraints.maxWidth
+                        : 360,
                   ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        Icons.event_available_rounded,
-                        size: 16,
-                        color: theme.colorScheme.primary,
-                      ),
-                      const SizedBox(width: 6),
-                      Flexible(
-                        child: Text(
-                        'الفترة: ${formatter.format(filter.start)} – ${formatter.format(filter.end)}',
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                          color: theme.colorScheme.onSurface,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 6,
+                    ),
+                    decoration: BoxDecoration(
+                      color: theme.colorScheme.surfaceContainerHighest,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          Icons.event_available_rounded,
+                          size: 16,
+                          color: theme.colorScheme.primary,
                         ),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      ),
-                    ],
+                        const SizedBox(width: 6),
+                        Flexible(
+                          child: Text(
+                            'الفترة: ${formatter.format(filter.start)} – ${formatter.format(filter.end)}',
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                              color: theme.colorScheme.onSurface,
+                            ),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 );
 
