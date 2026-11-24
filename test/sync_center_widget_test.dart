@@ -55,7 +55,8 @@ void main() {
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
     await tester.pumpWidget(buildSubject());
-    await tester.pumpAndSettle();
+    await tester.pump();
+      await tester.pump(const Duration(milliseconds: 300));
 
     expect(find.text('كل شيء متزامن'), findsOneWidget);
     await expectLater(
@@ -66,7 +67,8 @@ void main() {
 
   testWidgets('sync center shows the synchronized empty state', (tester) async {
     await tester.pumpWidget(buildSubject());
-    await tester.pumpAndSettle();
+    await tester.pump();
+      await tester.pump(const Duration(milliseconds: 300));
 
     expect(find.text('كل شيء متزامن'), findsOneWidget);
     expect(find.text('لا توجد تغييرات معلقة أو تعارضات. بيانات هذا الجهاز متزامنة.'), findsOneWidget);
@@ -83,7 +85,8 @@ void main() {
     await queue.markConflict(operation.operationId);
 
     await tester.pumpWidget(buildSubject());
-    await tester.pumpAndSettle();
+    await tester.pump();
+      await tester.pump(const Duration(milliseconds: 300));
 
     expect(find.text('تعارضات تحتاج مراجعة (1)'), findsOneWidget);
     expect(find.text('مراجعة التعارضات (1)'), findsOneWidget);
