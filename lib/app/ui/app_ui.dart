@@ -528,58 +528,6 @@ class StatusBanner extends StatelessWidget {
   }
 }
 
-enum StatusTone { neutral, success, warning, error }
-
-/// Compact semantic status indicator. Status is always communicated by icon,
-/// label and tone rather than color alone.
-class StatusChip extends StatelessWidget {
-  const StatusChip({
-    super.key,
-    required this.label,
-    required this.icon,
-    this.tone = StatusTone.neutral,
-  });
-
-  final String label;
-  final IconData icon;
-  final StatusTone tone;
-
-  @override
-  Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-    final semanticColors = AppColors.of(context);
-    final color = switch (tone) {
-      StatusTone.success => semanticColors.present.foreground,
-      StatusTone.warning => semanticColors.warning.foreground,
-      StatusTone.error => scheme.error,
-      StatusTone.neutral => scheme.primary,
-    };
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.10),
-        borderRadius: BorderRadius.circular(999),
-        border: Border.all(color: color.withValues(alpha: 0.28)),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: 14, color: color),
-          const SizedBox(width: 4),
-          Text(
-            label,
-            style: TextStyle(
-              color: color,
-              fontSize: 12,
-              fontWeight: FontWeight.w700,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
 
 class LoadingView extends StatelessWidget {
   const LoadingView({super.key, this.message});
