@@ -242,6 +242,30 @@ class _ExportPageState extends ConsumerState<ExportPage> {
     }
   }
 
+  Widget _buildExportButton() {
+    return SizedBox(
+      width: double.infinity,
+      child: FilledButton.icon(
+        onPressed: exporting ? null : _export,
+        icon: exporting
+            ? const SizedBox(
+                width: 18,
+                height: 18,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  color: Colors.white,
+                ),
+              )
+            : const Icon(Icons.download_rounded),
+        label: Text(exporting ? 'جاري التصدير...' : 'تصدير Excel'),
+        style: FilledButton.styleFrom(
+          minimumSize: const Size.fromHeight(52),
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     if (loading) {
@@ -262,14 +286,24 @@ class _ExportPageState extends ConsumerState<ExportPage> {
       const DropdownMenuItem(value: 'class', child: Text('فصل')),
       const DropdownMenuItem(value: 'students', child: Text('تلاميذ محددون')),
     ];
+    final isMobile = MediaQuery.sizeOf(context).width < 650;
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.graduationOnly ? 'تصدير بيانات التخرج' : 'التصدير'),
       ),
+      bottomNavigationBar: isMobile
+          ? SafeArea(
+              top: false,
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
+                child: _buildExportButton(),
+              ),
+            )
+          : null,
       body: AppContent(
         maxWidth: 760,
         child: ListView(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+          padding: EdgeInsets.fromLTRB(16, 20, 16, isMobile ? 104 : 24),
           children: [
             DropdownButtonFormField<String>(
               initialValue: scope,
@@ -412,11 +446,7 @@ class _ExportPageState extends ConsumerState<ExportPage> {
               ),
             ),
             const SizedBox(height: 20),
-            FilledButton.icon(
-              onPressed: exporting ? null : _export,
-              icon: const Icon(Icons.download_rounded),
-              label: Text(exporting ? 'جاري التصدير...' : 'تصدير Excel'),
-            ),
+            if (!isMobile) _buildExportButton(),
           ],
         ),
       ),
