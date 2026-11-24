@@ -14,6 +14,8 @@ import 'package:church_service_management_system/features/reports/presentation/w
 import 'package:church_service_management_system/features/servants/presentation/servant_role_filter.dart';
 import 'package:church_service_management_system/features/students/domain/entities/student.dart';
 
+import 'goldens/golden_test_helper.dart';
+
 class _FixedReportFilterNotifier extends ReportFilterNotifier {
   @override
   ReportFilter build() => ReportFilter(
@@ -82,6 +84,10 @@ Widget _reportFilterScreen(ThemeData theme) {
 }
 
 void main() {
+  setUpAll(() async {
+    await ensureGoldenTestSetup();
+  });
+
   for (final mode in [
     ('light', AppTheme.light),
     ('dark', AppTheme.dark),

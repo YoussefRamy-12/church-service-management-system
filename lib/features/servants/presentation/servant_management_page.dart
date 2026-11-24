@@ -103,9 +103,7 @@ class _ServantManagementPageState extends ConsumerState<ServantManagementPage> {
           ),
         ],
       ),
-      body: AmbientBackground(
-        intensity: 0.5,
-        child: StreamBuilder<List<ServantProfile>>(
+      body: StreamBuilder<List<ServantProfile>>(
           stream: repository.watchForService(widget.serviceId),
           builder: (context, snapshot) {
             if (snapshot.hasError) {
@@ -345,7 +343,6 @@ class _ServantManagementPageState extends ConsumerState<ServantManagementPage> {
             );
           },
         ),
-      ),
     );
   }
 

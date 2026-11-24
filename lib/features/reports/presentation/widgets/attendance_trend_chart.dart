@@ -46,10 +46,14 @@ class AttendanceTrendChart extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          Wrap(
+            spacing: 12,
+            runSpacing: 8,
+            alignment: WrapAlignment.spaceBetween,
+            crossAxisAlignment: WrapCrossAlignment.center,
             children: [
               Row(
+                mainAxisSize: MainAxisSize.min,
                 children: [
                   Container(
                     padding: const EdgeInsets.all(6),
@@ -64,16 +68,19 @@ class AttendanceTrendChart extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(width: 10),
-                  Text(
-                    'تطور الحضور عبر الاجتماعات',
-                    style: theme.textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.w800,
-                      fontSize: 15,
+                  Flexible(
+                    child: Text(
+                      'تطور الحضور عبر الاجتماعات',
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w800,
+                        fontSize: 15,
+                      ),
                     ),
                   ),
                 ],
               ),
               Row(
+                mainAxisSize: MainAxisSize.min,
                 children: [
                   _legendItem(AppColors.of(context).present.foreground, Icons.schedule_rounded, 'حضور مبكر'),
                   const SizedBox(width: 12),

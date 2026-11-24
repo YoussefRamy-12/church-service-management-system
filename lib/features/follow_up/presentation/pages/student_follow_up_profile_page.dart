@@ -51,9 +51,7 @@ class StudentFollowUpProfilePage extends ConsumerWidget {
           ),
         ],
       ),
-      body: AmbientBackground(
-        intensity: 0.4,
-        child: AppContent(
+      body: AppContent(
           maxWidth: 900,
           child: ListView(
             padding: const EdgeInsets.fromLTRB(16, 16, 16, 40),
@@ -329,7 +327,6 @@ class StudentFollowUpProfilePage extends ConsumerWidget {
             ],
           ),
         ),
-      ),
     );
   }
 

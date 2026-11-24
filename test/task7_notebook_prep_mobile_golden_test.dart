@@ -15,9 +15,17 @@ import 'package:church_service_management_system/features/spiritual_notebook/dat
 import 'package:church_service_management_system/features/spiritual_notebook/presentation/spiritual_notebook_page.dart';
 import 'package:church_service_management_system/features/weekly_prep/presentation/servant/servant_prep_view.dart';
 
+import 'goldens/golden_test_helper.dart';
+
 class _FakeSpiritualNotebookRepository extends SpiritualNotebookRepository {
   _FakeSpiritualNotebookRepository()
-      : super(SupabaseClient('http://localhost:54321', 'test-anon-key'));
+      : super(
+          SupabaseClient(
+            'http://localhost:54321',
+            'test-anon-key',
+            authOptions: const AuthClientOptions(autoRefreshToken: false),
+          ),
+        );
 
   @override
   Future<List<Map<String, dynamic>>> students(String serviceId) async => [];
@@ -50,6 +58,7 @@ const _leader = ServantProfile(
 
 void main() {
   setUpAll(() async {
+    await ensureGoldenTestSetup();
     await initializeDateFormatting('ar', null);
   });
 

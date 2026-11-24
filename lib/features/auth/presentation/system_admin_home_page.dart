@@ -219,9 +219,7 @@ class _SystemAdminHomePageState extends ConsumerState<SystemAdminHomePage> {
           ),
         ],
       ),
-      body: AmbientBackground(
-        intensity: 0.5,
-        child: AppContent(
+      body: AppContent(
           maxWidth: 1100,
           child: FutureBuilder<List<Map<String, dynamic>>>(
             future: _services,
@@ -485,7 +483,6 @@ class _SystemAdminHomePageState extends ConsumerState<SystemAdminHomePage> {
             },
           ),
         ),
-      ),
     );
   }
 }

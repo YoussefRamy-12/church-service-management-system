@@ -1176,6 +1176,7 @@ class _ManualStudentSearchSheetState extends State<_ManualStudentSearchSheet> {
                 ),
                 IconButton(
                   onPressed: () => Navigator.pop(context),
+                  tooltip: 'إغلاق',
                   icon: const Icon(Icons.close_rounded, color: AppDesignColors.darkMutedInk),
                 ),
               ],

@@ -3,8 +3,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
-import 'package:supabase_flutter/supabase_flutter.dart' show SupabaseClient;
+import 'package:supabase_flutter/supabase_flutter.dart'
+    show AuthClientOptions, SupabaseClient;
 
+import 'package:church_service_management_system/core/config/config_provider.dart';
 import 'package:church_service_management_system/core/network/supabase_client_provider.dart';
 
 import 'package:church_service_management_system/features/auth/presentation/auth_providers.dart';
@@ -36,6 +38,7 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
+          offlineSyncEnabledProvider.overrideWithValue(false),
           currentSessionIdentityProvider.overrideWith(
             (ref) async => const MultiServiceServantIdentity([]),
           ),
@@ -55,6 +58,7 @@ void main() {
   ) async {
     await tester.pumpWidget(
       ProviderScope(
+        retry: (_, _) => null,
         overrides: [
           currentSessionIdentityProvider.overrideWith((ref) async {
             throw Exception('profile lookup failed');
@@ -77,18 +81,22 @@ void main() {
   testWidgets('service picker shows retry when service names cannot load', (
     tester,
   ) async {
+    final httpClient = MockClient(
+      (_) async => http.Response('{"message":"unavailable"}', 503),
+    );
+    addTearDown(httpClient.close);
     final client = SupabaseClient(
       'http://127.0.0.1:1',
       'test-key',
-      httpClient: MockClient(
-        (_) async => http.Response('{"message":"unavailable"}', 503),
-      ),
+      authOptions: const AuthClientOptions(autoRefreshToken: false),
+      httpClient: httpClient,
     );
-    addTearDown(client.dispose);
 
     await tester.pumpWidget(
       ProviderScope(
+        retry: (_, _) => null,
         overrides: [
+          offlineSyncEnabledProvider.overrideWithValue(false),
           supabaseClientProvider.overrideWithValue(client),
           currentSessionIdentityProvider.overrideWith(
             (ref) async => const MultiServiceServantIdentity([
@@ -108,7 +116,9 @@ void main() {
     );
 
     await tester.pump();
-    await tester.pump(const Duration(milliseconds: 300));
+    await tester.pump(const Duration(seconds: 10));
+    await tester.pump(const Duration(seconds: 10));
+    await tester.pump();
 
     expect(find.text('تعذر تحميل الخدمات'), findsOneWidget);
     expect(find.text('تحقق من الاتصال ثم أعد المحاولة.'), findsOneWidget);

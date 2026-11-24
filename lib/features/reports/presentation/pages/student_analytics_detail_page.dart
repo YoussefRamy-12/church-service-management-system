@@ -25,9 +25,7 @@ class StudentAnalyticsDetailPage extends ConsumerWidget {
       appBar: AppBar(
         title: Text(student.studentName),
       ),
-      body: AmbientBackground(
-        intensity: 0.4,
-        child: AppContent(
+      body: AppContent(
           maxWidth: 720,
           child: ListView(
             padding: const EdgeInsets.fromLTRB(20, 16, 20, 32),
@@ -159,7 +157,6 @@ class StudentAnalyticsDetailPage extends ConsumerWidget {
             ],
           ),
         ),
-      ),
     );
   }
 

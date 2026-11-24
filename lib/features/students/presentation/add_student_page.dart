@@ -328,9 +328,7 @@ class _AddStudentPageState extends ConsumerState<AddStudentPage> {
           style: TextStyle(fontWeight: FontWeight.w800),
         ),
       ),
-      body: AmbientBackground(
-        intensity: 0.4,
-        child: Center(
+      body: Center(
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 860),
             child: _loadingStructure
@@ -344,7 +342,7 @@ class _AddStudentPageState extends ConsumerState<AddStudentPage> {
                       ),
                       children: [
                         // Header Intro Card
-                        GlassContainer(
+                        AppSurface(
                           padding: const EdgeInsets.all(18),
                           borderRadius: 12,
                           margin: const EdgeInsets.only(bottom: 24),
@@ -1131,7 +1129,6 @@ class _AddStudentPageState extends ConsumerState<AddStudentPage> {
                   ),
           ),
         ),
-      ),
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
           color: theme.colorScheme.surface,
@@ -1208,7 +1205,7 @@ class _AddStudentPageState extends ConsumerState<AddStudentPage> {
 
   Widget _buildSectionHeader(String title, IconData icon) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 12, right: 4),
+      padding: const EdgeInsetsDirectional.only(bottom: 12, start: 4),
       child: Row(
         children: [
           Icon(icon, color: AppDesignColors.primary, size: 20),

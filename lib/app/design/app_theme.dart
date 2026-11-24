@@ -131,6 +131,13 @@ abstract final class AppTheme {
           elevation: 0,
           shape: controlShape,
           textStyle: textTheme.labelLarge,
+        ).copyWith(
+          overlayColor: WidgetStateProperty.resolveWith((states) {
+            if (states.contains(WidgetState.focused)) return focus.withValues(alpha: 0.20);
+            if (states.contains(WidgetState.hovered)) return Colors.white.withValues(alpha: 0.08);
+            if (states.contains(WidgetState.pressed)) return Colors.white.withValues(alpha: 0.12);
+            return null;
+          }),
         ),
       ),
       outlinedButtonTheme: OutlinedButtonThemeData(
@@ -141,6 +148,13 @@ abstract final class AppTheme {
           side: borderSide,
           shape: controlShape,
           textStyle: textTheme.labelLarge,
+        ).copyWith(
+          overlayColor: WidgetStateProperty.resolveWith((states) {
+            if (states.contains(WidgetState.focused)) return focus.withValues(alpha: 0.16);
+            if (states.contains(WidgetState.hovered)) return focus.withValues(alpha: 0.08);
+            if (states.contains(WidgetState.pressed)) return focus.withValues(alpha: 0.12);
+            return null;
+          }),
         ),
       ),
       textButtonTheme: TextButtonThemeData(
@@ -149,6 +163,13 @@ abstract final class AppTheme {
           foregroundColor: actionForeground,
           shape: controlShape,
           textStyle: textTheme.labelLarge,
+        ).copyWith(
+          overlayColor: WidgetStateProperty.resolveWith((states) {
+            if (states.contains(WidgetState.focused)) return focus.withValues(alpha: 0.16);
+            if (states.contains(WidgetState.hovered)) return focus.withValues(alpha: 0.08);
+            if (states.contains(WidgetState.pressed)) return focus.withValues(alpha: 0.12);
+            return null;
+          }),
         ),
       ),
       inputDecorationTheme: InputDecorationTheme(
@@ -302,6 +323,14 @@ abstract final class AppTheme {
         style: IconButton.styleFrom(
           minimumSize: const Size(44, 44),
           tapTargetSize: MaterialTapTargetSize.padded,
+          focusColor: focus.withValues(alpha: 0.16),
+        ).copyWith(
+          overlayColor: WidgetStateProperty.resolveWith((states) {
+            if (states.contains(WidgetState.focused)) return focus.withValues(alpha: 0.16);
+            if (states.contains(WidgetState.hovered)) return focus.withValues(alpha: 0.08);
+            if (states.contains(WidgetState.pressed)) return focus.withValues(alpha: 0.12);
+            return null;
+          }),
         ),
       ),
       tooltipTheme: TooltipThemeData(

@@ -68,7 +68,13 @@ Import package:church_service_management_system/app/ui/components/app_components
 - AppSectionHeader(title:, subtitle:, action:): section hierarchy.
 - AppListTile(title:, subtitle:, leading:, trailing:, onTap:): RTL-safe row, minimum 56px.
 
-Use AppSurface and AppCard from app_ui.dart for opaque, flat surfaces. The deprecated AmbientBackground and GlassContainer wrappers exist only to preserve existing call sites; blur and opacity are ignored.
+Use AppSurface and AppCard from app_ui.dart for opaque, flat surfaces.
+
+## Quality pass updates
+
+- `AmbientBackground` removed (deprecated, all call sites migrated to direct scaffold children).
+- `GlassContainer` removed (deprecated, migrated to `AppSurface`).
+- Text scale 1.3 golden tests added in `test/task8_text_scale_golden_test.dart`.
 
 ## Font assets
 

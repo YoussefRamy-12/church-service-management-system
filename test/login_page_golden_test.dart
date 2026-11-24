@@ -8,7 +8,12 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:church_service_management_system/app/theme.dart';
 import 'package:church_service_management_system/features/auth/presentation/login_page.dart';
 
+import 'goldens/golden_test_helper.dart';
+
 void main() {
+  setUpAll(() async {
+    await ensureGoldenTestSetup();
+  });
   final cases = <({String name, Size size, ThemeData theme, String file})>[
     (name: 'mobile light', size: const Size(390, 844), theme: buildAppTheme(), file: 'login_mobile_light.png'),
     (name: 'mobile dark', size: const Size(390, 844), theme: buildAppDarkTheme(), file: 'login_mobile_dark.png'),

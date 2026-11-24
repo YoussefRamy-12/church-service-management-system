@@ -125,9 +125,7 @@ class _ReportsPageState extends ConsumerState<ReportsPage>
           const SizedBox(width: 8),
         ],
       ),
-      body: AmbientBackground(
-        intensity: 0.5,
-        child: AppContent(
+      body: AppContent(
           maxWidth: 1200,
           child: ListView(
             padding: const EdgeInsets.fromLTRB(20, 16, 20, 32),
@@ -414,7 +412,6 @@ class _ReportsPageState extends ConsumerState<ReportsPage>
             ],
           ),
         ),
-      ),
     );
   }
 

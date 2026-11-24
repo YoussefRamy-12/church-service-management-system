@@ -212,8 +212,7 @@ class AttendanceStudentTile extends StatelessWidget {
                   tooltip: 'تعديل وقت الحضور',
                   onPressed: onEditTime,
                   style: IconButton.styleFrom(
-                    visualDensity: VisualDensity.compact,
-                    minimumSize: const Size(36, 36),
+                    minimumSize: const Size(44, 44),
                   ),
                 )
               else if (!isPresent && !readOnly)
@@ -227,8 +226,7 @@ class AttendanceStudentTile extends StatelessWidget {
                   tooltip: 'تسجيل الحضور',
                   onPressed: onCheckIn,
                   style: IconButton.styleFrom(
-                    visualDensity: VisualDensity.compact,
-                    minimumSize: const Size(36, 36),
+                    minimumSize: const Size(44, 44),
                   ),
                 ),
             ],

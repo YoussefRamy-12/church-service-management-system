@@ -357,9 +357,7 @@ class _ImportStudentsExcelPageState
               ),
             )
           : null,
-      body: AmbientBackground(
-        intensity: 0.4,
-        child: Center(
+      body: Center(
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 860),
             child: _loadingStructure
@@ -766,7 +764,6 @@ class _ImportStudentsExcelPageState
                   ),
           ),
         ),
-      ),
     );
   }
 

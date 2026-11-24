@@ -87,7 +87,23 @@ void main() {
 
     expect(find.text('البريد الإلكتروني أو كلمة المرور غير صحيحة.'), findsOneWidget);
     expect(tester.widget<TextFormField>(find.byKey(const Key('login_email'))).controller!.text, 'servant@example.com');
-    expect(find.text('wrong-pass'), findsNothing);
+    expect(
+      find.byWidgetPredicate(
+        (w) => w is Text && (w.data?.contains('wrong-pass') ?? false),
+      ),
+      findsNothing,
+    );
+    expect(
+      tester
+          .widget<EditableText>(
+            find.descendant(
+              of: find.byKey(const Key('login_password')),
+              matching: find.byType(EditableText),
+            ),
+          )
+          .obscureText,
+      isTrue,
+    );
     expect(tester.widget<TextFormField>(find.byKey(const Key('login_password'))).controller!.text, 'wrong-pass');
   });
 

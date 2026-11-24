@@ -87,11 +87,15 @@ class FollowUpStudentCard extends StatelessWidget {
                           color: theme.colorScheme.onSurfaceVariant,
                         ),
                         const SizedBox(width: 4),
-                        Text(
-                          item.className,
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: theme.colorScheme.onSurfaceVariant,
+                        Expanded(
+                          child: Text(
+                            item.className,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: theme.colorScheme.onSurfaceVariant,
+                            ),
                           ),
                         ),
                       ],

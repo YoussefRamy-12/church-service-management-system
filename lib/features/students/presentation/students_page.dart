@@ -132,9 +132,7 @@ class _StudentsPageState extends ConsumerState<StudentsPage> {
           ),
         ],
       ),
-      body: AmbientBackground(
-        intensity: 0.5,
-        child: Column(
+      body: Column(
           children: [
             if (!isClassScoped)
               Padding(
@@ -175,7 +173,6 @@ class _StudentsPageState extends ConsumerState<StudentsPage> {
             ),
           ],
         ),
-      ),
     );
   }
 

@@ -173,8 +173,7 @@ class _ServiceChooserState extends ConsumerState<_ServiceChooser> {
         ),
       ],
     ),
-    body: AmbientBackground(
-      child: Center(
+    body: Center(
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 760),
           child: ListView(
@@ -285,7 +284,6 @@ class _ServiceChooserState extends ConsumerState<_ServiceChooser> {
           ),
         ),
       ),
-    ),
   );
 
   String _roleLabel(String role) => formatRoleLabel(role);
@@ -411,9 +409,7 @@ class _PendingRegistrationState extends ConsumerState<_PendingRegistration> {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-    body: AmbientBackground(
-      intensity: 0.8,
-      child: Center(
+    body: Center(
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 540),
           child: SingleChildScrollView(
@@ -639,7 +635,6 @@ class _PendingRegistrationState extends ConsumerState<_PendingRegistration> {
           ),
         ),
       ),
-    ),
   );
 }
 
@@ -665,8 +660,7 @@ class _SessionError extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-    body: AmbientBackground(
-      child: Center(
+    body: Center(
         child: Padding(
           padding: const EdgeInsets.all(32),
           child: GlassCard(
@@ -704,6 +698,5 @@ class _SessionError extends StatelessWidget {
           ),
         ),
       ),
-    ),
   );
 }

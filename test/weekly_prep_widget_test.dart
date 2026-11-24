@@ -7,6 +7,7 @@ import 'package:church_service_management_system/features/auth/domain/entities/s
 import 'package:church_service_management_system/features/service/domain/entities/stage.dart';
 import 'package:church_service_management_system/features/weekly_prep/domain/preparation_review.dart';
 import 'package:church_service_management_system/features/weekly_prep/domain/preparation_status.dart';
+import 'package:church_service_management_system/features/weekly_prep/domain/repositories/weekly_preparation_repository.dart';
 import 'package:church_service_management_system/features/weekly_prep/domain/weekly_lesson.dart';
 import 'package:church_service_management_system/features/weekly_prep/domain/weekly_preparation.dart';
 import 'package:church_service_management_system/features/weekly_prep/presentation/leadership/widgets/preparation_metrics_row.dart';
@@ -15,6 +16,66 @@ import 'package:church_service_management_system/features/weekly_prep/presentati
 import 'package:church_service_management_system/features/weekly_prep/presentation/servant/widgets/preparation_status_badge.dart';
 import 'package:church_service_management_system/features/weekly_prep/presentation/servant/widgets/review_feedback_card.dart';
 import 'package:church_service_management_system/features/weekly_prep/presentation/weekly_prep_providers.dart';
+
+/// Minimal in-memory fake that avoids opening a real Drift database.
+/// Used to prevent the test runner from hanging in tearDownAll due to
+/// undisposed Drift stream subscriptions.
+class _FakeWeeklyPreparationRepository implements WeeklyPreparationRepository {
+  final WeeklyPreparation Function(String lessonId, String servantProfileId) _getPrep;
+
+  _FakeWeeklyPreparationRepository(this._getPrep);
+
+  @override
+  Future<WeeklyPreparation> getPreparation({
+    required String lessonId,
+    required String servantProfileId,
+  }) async => _getPrep(lessonId, servantProfileId);
+
+  @override
+  Future<WeeklyPreparation> submitPreparation({
+    required String lessonId,
+    required String servantProfileId,
+  }) => throw UnimplementedError();
+
+  @override
+  Future<WeeklyPreparation> resubmitPreparation({
+    required String lessonId,
+    required String servantProfileId,
+  }) => throw UnimplementedError();
+
+  @override
+  Future<void> reviewPreparation({
+    required String lessonId,
+    required String servantProfileId,
+    required PreparationStatus action,
+    String? note,
+  }) => throw UnimplementedError();
+
+  @override
+  Future<List<PreparationReview>> getReviewHistory({
+    required String lessonId,
+    required String servantProfileId,
+  }) async => const [];
+
+  @override
+  Future<List<WeeklyPreparation>> listPreparationsForDashboard({
+    required String serviceId,
+    String? stageId,
+    String? classId,
+    DateTime? weekStart,
+    PreparationStatus? statusFilter,
+  }) async => const [];
+
+  @override
+  Future<Map<PreparationStatus, int>> getStatusCounts({
+    required String serviceId,
+    String? stageId,
+    DateTime? weekStart,
+  }) async => const {};
+
+  @override
+  Stream<void> watchChanges({required String serviceId}) => const Stream.empty();
+}
 
 void main() {
   setUpAll(() async {
@@ -162,9 +223,14 @@ void main() {
         updatedAt: testMonday,
       );
 
+      final fakeRepo = _FakeWeeklyPreparationRepository(
+        (lessonId, servantProfileId) => prep,
+      );
+
       await tester.pumpWidget(
         ProviderScope(
           overrides: [
+            weeklyPreparationRepositoryProvider.overrideWithValue(fakeRepo),
             servantPreparationProvider((
               lessonId: testLesson.id,
               servantProfileId: testServant.id,
@@ -210,9 +276,14 @@ void main() {
           updatedAt: DateTime.utc(2026, 11, 9, 12, 0),
         );
 
+        final fakeRepo = _FakeWeeklyPreparationRepository(
+          (lessonId, servantProfileId) => prep,
+        );
+
         await tester.pumpWidget(
           ProviderScope(
             overrides: [
+              weeklyPreparationRepositoryProvider.overrideWithValue(fakeRepo),
               servantPreparationProvider((
                 lessonId: testLesson.id,
                 servantProfileId: testServant.id,

@@ -285,3 +285,8 @@ Every data-driven screen must define:
 - Keep light and dark themes equivalent in information hierarchy and component behavior.
 - Mobile attendance check-in is the primary optimization target; desktop tables remain fully functional.
 - Every status uses color + icon + Arabic label; every action remains keyboard accessible and has a visible focus state.
+
+## 8. Quality pass notes
+
+- Deprecated wrappers (`AmbientBackground` and `GlassContainer`) removed after migrating all call sites.
+- Text scale golden tests added at 1.3 (`test/task8_text_scale_golden_test.dart`).

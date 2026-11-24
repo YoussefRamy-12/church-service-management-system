@@ -130,9 +130,7 @@ class _MeetingListPageState extends ConsumerState<MeetingListPage> {
               ),
             )
           : null,
-      body: AmbientBackground(
-        intensity: 0.5,
-        child: StreamBuilder(
+      body: StreamBuilder(
           stream: repo.watchMeetings(widget.serviceId),
           builder: (context, snapshot) {
             final rawMeetings = snapshot.data ?? const [];
@@ -379,7 +377,6 @@ class _MeetingListPageState extends ConsumerState<MeetingListPage> {
             );
           },
         ),
-      ),
     );
   }
 

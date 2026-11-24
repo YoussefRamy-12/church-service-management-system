@@ -103,9 +103,7 @@ class _FollowUpHubPageState extends ConsumerState<FollowUpHubPage>
           ],
         ),
       ),
-      body: AmbientBackground(
-        intensity: 0.35,
-        child: AppContent(
+      body: AppContent(
           maxWidth: 960,
           child: TabBarView(
             controller: _tabController,
@@ -116,7 +114,6 @@ class _FollowUpHubPageState extends ConsumerState<FollowUpHubPage>
             ],
           ),
         ),
-      ),
       floatingActionButton: FloatingActionButton.extended(
         icon: const Icon(Icons.add_task_rounded),
         label: const Text('فتح حالة متابعة'),
@@ -457,7 +454,7 @@ class _FollowUpHubPageState extends ConsumerState<FollowUpHubPage>
                     final count = cases.where((c) => c.status == status).length;
                     final isSelected = _caseStatusFilter == status;
                     return Padding(
-                      padding: const EdgeInsets.only(left: 8),
+                      padding: const EdgeInsetsDirectional.only(start: 8),
                       child: ChoiceChip(
                         selected: isSelected,
                         label: Text('${status.arabicLabel} ($count)'),

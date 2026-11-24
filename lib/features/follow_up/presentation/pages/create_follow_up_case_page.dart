@@ -71,9 +71,7 @@ class _CreateFollowUpCasePageState
       appBar: AppBar(
         title: const Text('فتح حالة متابعة جديدة'),
       ),
-      body: AmbientBackground(
-        intensity: 0.3,
-        child: AppContent(
+      body: AppContent(
           maxWidth: 680,
           child: SingleChildScrollView(
             padding: const EdgeInsets.all(20),
@@ -351,7 +349,6 @@ class _CreateFollowUpCasePageState
             ),
           ),
         ),
-      ),
     );
   }
 

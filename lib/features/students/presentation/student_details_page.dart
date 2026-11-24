@@ -387,7 +387,7 @@ class _StudentDetailsPageState extends ConsumerState<StudentDetailsPage> {
             // Single contextual primary: approve OR edit, never both
             if (student.isPending && canApprove)
               Padding(
-                padding: const EdgeInsets.only(left: 8),
+                padding: const EdgeInsetsDirectional.only(start: 8),
                 child: FilledButton.icon(
                   key: const Key('student_approve'),
                   onPressed: _isDeleting ? null : _approve,

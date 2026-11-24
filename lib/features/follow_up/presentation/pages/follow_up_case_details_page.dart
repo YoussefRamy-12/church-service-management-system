@@ -54,9 +54,7 @@ class FollowUpCaseDetailsPage extends ConsumerWidget {
           ),
         ],
       ),
-      body: AmbientBackground(
-        intensity: 0.35,
-        child: AppContent(
+      body: AppContent(
           maxWidth: 900,
           child: caseAsync.when(
             data: (caseItem) {
@@ -391,7 +389,6 @@ class FollowUpCaseDetailsPage extends ConsumerWidget {
             ),
           ),
         ),
-      ),
     );
   }
 

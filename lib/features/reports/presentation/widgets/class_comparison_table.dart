@@ -146,30 +146,35 @@ class ClassComparisonTable extends StatelessWidget {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(6),
-                      decoration: BoxDecoration(
-                        color: theme.colorScheme.primaryContainer,
-                        borderRadius: BorderRadius.circular(8),
+                Expanded(
+                  child: Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(6),
+                        decoration: BoxDecoration(
+                          color: theme.colorScheme.primaryContainer,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Icon(
+                          Icons.table_chart_rounded,
+                          color: theme.colorScheme.primary,
+                          size: 20,
+                        ),
                       ),
-                      child: Icon(
-                        Icons.table_chart_rounded,
-                        color: theme.colorScheme.primary,
-                        size: 20,
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Text(
+                          'مقارنة الحضور والالتزام بين فصول الخدمة',
+                          style: theme.textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.w800,
+                            fontSize: 16,
+                          ),
+                        ),
                       ),
-                    ),
-                    const SizedBox(width: 10),
-                    Text(
-                      'مقارنة الحضور والالتزام بين فصول الخدمة',
-                      style: theme.textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.w800,
-                        fontSize: 16,
-                      ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
+                const SizedBox(width: 8),
                 Text(
                   '${classComparisons.length} فصول',
                   style: TextStyle(
