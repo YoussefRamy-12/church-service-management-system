@@ -49,7 +49,7 @@ class EarlyRegularDistributionChart extends StatelessWidget {
                   color: theme.colorScheme.primaryContainer,
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: const Icon(
+                child: Icon(
                   Icons.timelapse_rounded,
                   color: AppColors.of(context).present.foreground,
                   size: 20,
