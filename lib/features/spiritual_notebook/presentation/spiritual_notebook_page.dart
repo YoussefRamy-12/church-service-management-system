@@ -10,6 +10,7 @@ import '../data/spiritual_notebook_repository.dart';
 import '../domain/weekly_period.dart';
 
 part 'parts/notebook_page_state.dart';
+part 'parts/notebook_page_layout.dart';
 part 'widgets/notebook_controls.dart';
 part 'widgets/student_list.dart';
 part 'pages/student_notebook_page.dart';
