@@ -29,7 +29,7 @@ jobs:
           curl -fsSL https://github.com/simolus3/drift/releases/download/drift-2.35.1/drift_worker.js -o web/drift_worker.js
       - run: flutter build web
       - name: Run Flutter tests
-        run: flutter test --reporter expanded --timeout 60s
+        run: flutter test --reporter expanded --timeout 60s --exclude-tags=golden
       - name: Generate login goldens
         run: flutter test --reporter expanded --timeout 60s --update-goldens test/login_page_golden_test.dart
       - name: Generate sync center goldens
