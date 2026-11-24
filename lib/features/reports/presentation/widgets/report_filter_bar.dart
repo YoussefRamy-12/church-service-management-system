@@ -143,13 +143,17 @@ class ReportFilterBar extends ConsumerWidget {
                         color: theme.colorScheme.primary,
                       ),
                       const SizedBox(width: 6),
-                      Text(
+                      Flexible(
+                        child: Text(
                         'الفترة: ${formatter.format(filter.start)} – ${formatter.format(filter.end)}',
                         style: TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.w600,
                           color: theme.colorScheme.onSurface,
                         ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
                       ),
                     ],
                   ),
@@ -214,6 +218,7 @@ class ReportFilterBar extends ConsumerWidget {
                     child: DropdownButtonFormField<String?>(
                       initialValue: filter.stageId,
                       isDense: true,
+                      isExpanded: true,
                       decoration: _dropdownDecoration(context, 'المرحلة'),
                       items: [
                         const DropdownMenuItem(
@@ -240,6 +245,7 @@ class ReportFilterBar extends ConsumerWidget {
                     child: DropdownButtonFormField<String?>(
                       initialValue: filter.classId,
                       isDense: true,
+                      isExpanded: true,
                       decoration: _dropdownDecoration(context, 'الفصل (الأسرة)'),
                       items: [
                         const DropdownMenuItem(
