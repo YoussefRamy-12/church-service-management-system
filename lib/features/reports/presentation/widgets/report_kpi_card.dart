@@ -109,8 +109,7 @@ class ReportKpiCard extends StatelessWidget {
                 style: theme.textTheme.bodyMedium?.copyWith(
                   fontWeight: FontWeight.w600,
                   fontSize: 13,
-                  color: isDark
-                      : theme.colorScheme.onSurfaceVariant,
+                  color: theme.colorScheme.onSurfaceVariant,
                 ),
               ),
               const SizedBox(height: 4),
