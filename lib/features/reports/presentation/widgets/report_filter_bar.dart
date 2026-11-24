@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
+import '../../../../app/design/app_colors.dart';
 import '../../domain/report_filter.dart';
 import '../report_providers.dart';
 
@@ -11,11 +12,13 @@ class ReportFilterBar extends ConsumerWidget {
     required this.serviceId,
     required this.stages,
     required this.classes,
+    this.forceExpanded = false,
   });
 
   final String serviceId;
   final List<dynamic> stages;
   final List<dynamic> classes;
+  final bool forceExpanded;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -43,13 +46,13 @@ class ReportFilterBar extends ConsumerWidget {
       return scope.accessibleClassIds?.contains(c.id) ?? false;
     }).toList();
 
-    return Container(
+    final expandedContent = Container(
       margin: const EdgeInsets.only(bottom: 20),
       decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF131D33) : Colors.white,
+        color: theme.colorScheme.surface,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: isDark ? const Color(0xFF1E293B) : const Color(0xFFE2E8F0),
+          color: theme.colorScheme.outlineVariant,
           width: 1.2,
         ),
       ),
@@ -125,9 +128,7 @@ class ReportFilterBar extends ConsumerWidget {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                   decoration: BoxDecoration(
-                    color: isDark
-                        ? const Color(0xFF1E293B)
-                        : const Color(0xFFF1F5F9),
+                    color: theme.colorScheme.surfaceContainerHighest,
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Row(
@@ -136,7 +137,7 @@ class ReportFilterBar extends ConsumerWidget {
                       const Icon(
                         Icons.event_available_rounded,
                         size: 16,
-                        color: Color(0xFF00236F),
+                        color: theme.colorScheme.primary,
                       ),
                       const SizedBox(width: 6),
                       Text(
@@ -144,7 +145,7 @@ class ReportFilterBar extends ConsumerWidget {
                         style: TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.w600,
-                          color: isDark ? Colors.white : const Color(0xFF334155),
+                          color: theme.colorScheme.onSurface,
                         ),
                       ),
                     ],
@@ -196,7 +197,7 @@ class ReportFilterBar extends ConsumerWidget {
                       style: TextStyle(
                         fontWeight: FontWeight.w700,
                         fontSize: 13,
-                        color: isDark ? Colors.white : const Color(0xFF0F172A),
+                        color: theme.colorScheme.onSurface,
                       ),
                     ),
                   ],
@@ -279,9 +280,7 @@ class ReportFilterBar extends ConsumerWidget {
                           style: TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.w600,
-                            color: isDark
-                                ? const Color(0xFFCBD5E1)
-                                : const Color(0xFF334155),
+                            color: theme.colorScheme.onSurfaceVariant,
                           ),
                         ),
                       ],
@@ -303,6 +302,125 @@ class ReportFilterBar extends ConsumerWidget {
         ],
       ),
     );
+    if (forceExpanded) return expandedContent;
+
+    final periodLabel = switch (filter.preset) {
+      ReportPeriodPreset.lastMeeting => 'اجتماع الجمعة الماضي',
+      ReportPeriodPreset.currentMonth => 'الشهر الحالي',
+      ReportPeriodPreset.currentTerm => 'الترم الحالي',
+      ReportPeriodPreset.serviceYear => 'السنة الخدمية',
+      ReportPeriodPreset.custom => 'فترة مخصصة',
+    };
+    final activeLabels = <String>[
+      periodLabel,
+      if (filter.stageId != null)
+        availableStages
+            .where((stage) => stage.id == filter.stageId)
+            .map((stage) => stage.name as String)
+            .firstOrNull ??
+            'مرحلة محددة',
+      if (filter.classId != null)
+        availableClasses
+            .where((item) => item.id == filter.classId)
+            .map((item) => item.name as String)
+            .firstOrNull ??
+            'فصل محدد',
+      if (filter.compareWithPrevious) 'مقارنة بالفترة السابقة',
+    ];
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        if (constraints.maxWidth >= 768) return expandedContent;
+        return Container(
+          margin: const EdgeInsets.only(bottom: 16),
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: theme.colorScheme.surface,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: theme.colorScheme.outlineVariant),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Row(
+                children: [
+                  Icon(Icons.filter_alt_outlined,
+                      color: theme.colorScheme.primary),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      'الفلاتر النشطة',
+                      style: theme.textTheme.titleSmall,
+                    ),
+                  ),
+                  OutlinedButton.icon(
+                    onPressed: () => showModalBottomSheet<void>(
+                      context: context,
+                      isScrollControlled: true,
+                      useSafeArea: true,
+                      builder: (sheetContext) => SafeArea(
+                        child: Padding(
+                          padding: EdgeInsets.only(
+                            left: 16,
+                            right: 16,
+                            top: 16,
+                            bottom: MediaQuery.viewInsetsOf(sheetContext).bottom + 16,
+                          ),
+                          child: SingleChildScrollView(
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      child: Text(
+                                        'تصفية التقارير',
+                                        style: theme.textTheme.titleLarge,
+                                      ),
+                                    ),
+                                    IconButton(
+                                      tooltip: 'إغلاق',
+                                      onPressed: () => Navigator.pop(sheetContext),
+                                      icon: const Icon(Icons.close_rounded),
+                                    ),
+                                  ],
+                                ),
+                                ReportFilterBar(
+                                  serviceId: serviceId,
+                                  stages: stages,
+                                  classes: classes,
+                                  forceExpanded: true,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    icon: const Icon(Icons.tune_rounded, size: 18),
+                    label: const Text('تصفية'),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              Wrap(
+                spacing: 6,
+                runSpacing: 6,
+                children: [
+                  for (final label in activeLabels)
+                    Chip(
+                      avatar: const Icon(Icons.check_circle_outline, size: 15),
+                      label: Text(label),
+                      visualDensity: VisualDensity.compact,
+                    ),
+                ],
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 
   Widget _periodButton({
@@ -321,8 +439,8 @@ class ReportFilterBar extends ConsumerWidget {
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
         decoration: BoxDecoration(
           color: isSelected
-              ? const Color(0xFF00236F)
-              : const Color(0xFF00236F).withValues(alpha: 0.06),
+              ? Theme.of(context).colorScheme.primary
+              : Theme.of(context).colorScheme.surfaceContainerLow,
           borderRadius: BorderRadius.circular(8),
         ),
         child: Row(
@@ -332,7 +450,7 @@ class ReportFilterBar extends ConsumerWidget {
               Icon(
                 icon,
                 size: 14,
-                color: isSelected ? Colors.white : const Color(0xFF00236F),
+                color: isSelected ? Theme.of(context).colorScheme.onPrimary : Theme.of(context).colorScheme.primary,
               ),
               const SizedBox(width: 5),
             ],
@@ -341,7 +459,7 @@ class ReportFilterBar extends ConsumerWidget {
               style: TextStyle(
                 fontSize: 12,
                 fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,
-                color: isSelected ? Colors.white : const Color(0xFF00236F),
+                color: isSelected ? Theme.of(context).colorScheme.onPrimary : Theme.of(context).colorScheme.primary,
               ),
             ),
           ],
@@ -355,13 +473,13 @@ class ReportFilterBar extends ConsumerWidget {
       labelText: label,
       labelStyle: TextStyle(
         fontSize: 11,
-        color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+        color: Theme.of(context).colorScheme.onSurfaceVariant,
       ),
       contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(8),
         borderSide: BorderSide(
-          color: isDark ? const Color(0xFF334155) : const Color(0xFFCBD5E1),
+          color: Theme.of(context).colorScheme.outlineVariant,
         ),
       ),
       enabledBorder: OutlineInputBorder(
