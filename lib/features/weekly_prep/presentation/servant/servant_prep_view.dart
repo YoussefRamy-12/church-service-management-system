@@ -200,12 +200,21 @@ class _ServantPrepViewState extends ConsumerState<ServantPrepView> {
     showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
+      useSafeArea: true,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      builder: (context) => PreparationHistorySheet(
-        reviews: reviews,
-        lessonFileName: lesson.fileName,
+      builder: (context) => Padding(
+        padding: EdgeInsets.only(
+          bottom: MediaQuery.viewInsetsOf(context).bottom,
+        ),
+        child: SafeArea(
+          top: false,
+          child: PreparationHistorySheet(
+            reviews: reviews,
+            lessonFileName: lesson.fileName,
+          ),
+        ),
       ),
     );
   }
