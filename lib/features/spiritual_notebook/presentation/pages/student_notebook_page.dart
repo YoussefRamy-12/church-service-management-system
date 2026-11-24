@@ -556,7 +556,7 @@ class _SpiritualNotebookStudentPageState
                       SolidCard(
                         borderRadius: 14,
                         padding: const EdgeInsets.all(16),
-                        color: isDark ? const AppDesignColors.darkSurfaceSubtle : appSoftBlue,
+                        color: isDark ? AppDesignColors.darkSurfaceSubtle : appSoftBlue,
                         border: Border.all(
                           color: appPrimary.withValues(alpha: 0.3),
                           width: 1.2,
