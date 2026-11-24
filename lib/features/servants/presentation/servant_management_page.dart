@@ -107,6 +107,67 @@ class _ServantManagementPageState extends ConsumerState<ServantManagementPage> {
         child: StreamBuilder<List<ServantProfile>>(
           stream: repository.watchForService(widget.serviceId),
           builder: (context, snapshot) {
+            if (snapshot.hasError) {
+              return AppContent(
+                child: EmptyState(
+                  icon: Icons.cloud_off_outlined,
+                  title: 'تعذر تحميل قائمة الخدام',
+                  message: 'تحقق من الاتصال ثم حاول التحديث مرة أخرى.',
+                  action: FilledButton.icon(
+                    onPressed: () async {
+                      await repository.refresh(widget.serviceId);
+                    },
+                    icon: const Icon(Icons.refresh_rounded),
+                    label: const Text('إعادة المحاولة'),
+                  ),
+                ),
+              );
+            }
+            if (!snapshot.hasData) {
+              final scheme = Theme.of(context).colorScheme;
+              return AppContent(
+                child: ListView.separated(
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  itemCount: 4,
+                  separatorBuilder: (_, _) => const SizedBox(height: 10),
+                  itemBuilder: (context, index) => AppCard(
+                    padding: const EdgeInsets.all(16),
+                    child: Row(
+                      children: [
+                        CircleAvatar(
+                          backgroundColor: scheme.surfaceContainerHighest,
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Container(
+                                height: 14,
+                                width: 150,
+                                decoration: BoxDecoration(
+                                  color: scheme.surfaceContainerHighest,
+                                  borderRadius: BorderRadius.circular(6),
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              Container(
+                                height: 10,
+                                width: 210,
+                                decoration: BoxDecoration(
+                                  color: scheme.surfaceContainerLow,
+                                  borderRadius: BorderRadius.circular(6),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              );
+            }
             final all = snapshot.data ?? const <ServantProfile>[];
             final filtered = all.where((servant) {
               final matchesSearch =
