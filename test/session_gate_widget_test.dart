@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:http/http.dart' as http;
+import 'package:http/testing.dart';
 import 'package:supabase_flutter/supabase_flutter.dart' show SupabaseClient;
 
 import 'package:church_service_management_system/core/network/supabase_client_provider.dart';
@@ -75,7 +77,13 @@ void main() {
   testWidgets('service picker shows retry when service names cannot load', (
     tester,
   ) async {
-    final client = SupabaseClient('http://127.0.0.1:1', 'test-key');
+    final client = SupabaseClient(
+      'http://127.0.0.1:1',
+      'test-key',
+      httpClient: MockClient(
+        (_) async => http.Response('{"message":"unavailable"}', 503),
+      ),
+    );
     addTearDown(client.dispose);
 
     await tester.pumpWidget(
