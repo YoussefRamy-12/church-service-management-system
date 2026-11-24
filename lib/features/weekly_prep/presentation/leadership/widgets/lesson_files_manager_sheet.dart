@@ -306,9 +306,9 @@ class _LessonFilesManagerSheetState
                             vertical: 10,
                           ),
                           decoration: BoxDecoration(
-                            color: const AppDesignColors.darkInk,
+                            color: AppDesignColors.darkInk,
                             borderRadius: BorderRadius.circular(10),
-                            border: Border.all(color: const AppDesignColors.lightBorderSubtle),
+                            border: Border.all(color: AppDesignColors.lightBorderSubtle),
                           ),
                           child: Row(
                             children: [
@@ -319,7 +319,7 @@ class _LessonFilesManagerSheetState
                                 size: 22,
                                 color: lesson != null
                                     ? Colors.red
-                                    : const AppDesignColors.darkMutedInk,
+                                    : AppDesignColors.darkMutedInk,
                               ),
                               const SizedBox(width: 12),
                               Expanded(
@@ -338,8 +338,8 @@ class _LessonFilesManagerSheetState
                                       style: TextStyle(
                                         fontSize: 12,
                                         color: lesson != null
-                                            ? const AppDesignColors.darkBorder
-                                            : const AppDesignColors.darkMutedInk,
+                                            ? AppDesignColors.darkBorder
+                                            : AppDesignColors.darkMutedInk,
                                       ),
                                     ),
                                   ],
