@@ -435,32 +435,33 @@ extension _SpiritualNotebookPageLayout on _SpiritualNotebookPageState {
     }
 
   Widget _buildTabBar({
-      required bool isMobile,
-      required int totalStudents,
-      required bool canConfigure,
-    }) {
-      return Center(
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 600),
-          child: Container(
-            padding: const EdgeInsets.all(3),
-            decoration: BoxDecoration(
-              color: Theme.of(context).brightness == Brightness.dark
-                  ? AppDesignColors.darkSurfaceSubtle
-                  : AppDesignColors.lightSurfaceSubtle,
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Row(
-              children: [
-                Expanded(
-                  child: _TabButton(
-                    label: isMobile ? 'الدَّفاتر' : 'دفاتر التلاميذ',
-                    count: '$totalStudents',
-                    icon: Icons.menu_book_rounded,
-                    selected: tab == 0,
-                    onTap: () => setState(() => tab = 0),
-                  ),
+    required bool isMobile,
+    required int totalStudents,
+    required bool canConfigure,
+  }) {
+    return Center(
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 600),
+        child: Container(
+          padding: const EdgeInsets.all(3),
+          decoration: BoxDecoration(
+            color: Theme.of(context).brightness == Brightness.dark
+                ? AppDesignColors.darkSurfaceSubtle
+                : AppDesignColors.lightSurfaceSubtle,
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Row(
+            children: [
+              Expanded(
+                child: _TabButton(
+                  label: isMobile ? 'الدَّفاتر' : 'لوحة المتابعة',
+                  count: isMobile ? '$totalStudents' : null,
+                  icon: Icons.menu_book_rounded,
+                  selected: isMobile ? tab == 0 : tab != 2,
+                  onTap: () => setState(() => tab = 0),
                 ),
+              ),
+              if (isMobile)
                 Expanded(
                   child: _TabButton(
                     label: 'لوحة الشرف',
@@ -469,19 +470,19 @@ extension _SpiritualNotebookPageLayout on _SpiritualNotebookPageState {
                     onTap: () => setState(() => tab = 1),
                   ),
                 ),
-                if (canConfigure)
-                  Expanded(
-                    child: _TabButton(
-                      label: isMobile ? 'الإعدادات' : 'الإعدادات والأنشطة',
-                      icon: Icons.tune_rounded,
-                      selected: tab == 2,
-                      onTap: () => setState(() => tab = 2),
-                    ),
+              if (canConfigure)
+                Expanded(
+                  child: _TabButton(
+                    label: isMobile ? 'الإعدادات' : 'الإعدادات والأنشطة',
+                    icon: Icons.tune_rounded,
+                    selected: tab == 2,
+                    onTap: () => setState(() => tab = 2),
                   ),
-              ],
-            ),
+                ),
+            ],
           ),
         ),
-      );
-    }
+      ),
+    );
+  }
   }
