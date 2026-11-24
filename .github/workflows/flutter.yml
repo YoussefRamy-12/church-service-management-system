@@ -25,7 +25,7 @@ jobs:
           curl -fsSL https://github.com/simolus3/drift/releases/download/drift-2.35.1/drift_worker.js -o web/drift_worker.js
       - run: flutter build web
       - name: Generate golden baselines
-        run: flutter test --update-goldens
+        run: flutter test --update-goldens test/login_page_golden_test.dart test/sync_center_widget_test.dart
       - name: Upload golden baselines
         if: always()
         uses: actions/upload-artifact@v4
