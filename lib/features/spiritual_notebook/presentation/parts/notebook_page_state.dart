@@ -121,7 +121,7 @@ class _SpiritualNotebookPageState extends ConsumerState<SpiritualNotebookPage> {
                     ),
 
                     // Metrics Grid (shown on student notebooks tab, collapsible)
-                    if (_showMetrics && tab == 0)
+                    if (_showMetrics && (isMobile ? tab == 0 : tab != 2))
                       Padding(
                         padding: EdgeInsets.fromLTRB(
                           isMobile ? 12 : 20,
@@ -156,30 +156,66 @@ class _SpiritualNotebookPageState extends ConsumerState<SpiritualNotebookPage> {
 
                     // Active Tab Content
                     Expanded(
-                      child: switch (tab) {
-                        0 => _StudentList(
-                          students: d.students,
-                          submissions: d.submissions,
-                          period: period,
-                          isMobile: isMobile,
-                          onOpen: (s) => context.go(
-                            '/service/${widget.serviceId}/spiritual-notebook/student/${s['id']}',
-                          ),
-                        ),
-                        1 => _Leaderboard(
-                          students: d.students,
-                          submissions: d.submissions,
-                          weekStart: weekStartStr,
-                          isMobile: isMobile,
-                        ),
-                        _ => _NotebookSettings(
-                          serviceId: widget.serviceId,
-                          activities: d.activities,
-                          settings: d.settings,
-                          isMobile: isMobile,
-                          onSaved: refresh,
-                        ),
-                      },
+                      child: isMobile
+                          ? switch (tab) {
+                              0 => _StudentList(
+                                students: d.students,
+                                submissions: d.submissions,
+                                period: period,
+                                isMobile: true,
+                                onOpen: (s) => context.go(
+                                  '/service/${widget.serviceId}/spiritual-notebook/student/${s['id']}',
+                                ),
+                              ),
+                              1 => _Leaderboard(
+                                students: d.students,
+                                submissions: d.submissions,
+                                weekStart: weekStartStr,
+                                isMobile: true,
+                              ),
+                              _ => _NotebookSettings(
+                                serviceId: widget.serviceId,
+                                activities: d.activities,
+                                settings: d.settings,
+                                isMobile: true,
+                                onSaved: refresh,
+                              ),
+                            }
+                          : tab == 2 && canConfigure
+                          ? _NotebookSettings(
+                              serviceId: widget.serviceId,
+                              activities: d.activities,
+                              settings: d.settings,
+                              isMobile: false,
+                              onSaved: refresh,
+                            )
+                          : Row(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                Expanded(
+                                  flex: 3,
+                                  child: _StudentList(
+                                    students: d.students,
+                                    submissions: d.submissions,
+                                    period: period,
+                                    isMobile: false,
+                                    onOpen: (s) => context.go(
+                                      '/service/${widget.serviceId}/spiritual-notebook/student/${s['id']}',
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 16),
+                                Expanded(
+                                  flex: 2,
+                                  child: _Leaderboard(
+                                    students: d.students,
+                                    submissions: d.submissions,
+                                    weekStart: weekStartStr,
+                                    isMobile: false,
+                                  ),
+                                ),
+                              ],
+                            ),
                     ),
                   ],
                 );
