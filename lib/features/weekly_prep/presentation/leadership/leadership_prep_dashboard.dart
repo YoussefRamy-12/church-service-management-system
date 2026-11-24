@@ -362,7 +362,7 @@ class _LeadershipPrepDashboardState
                                             vertical: 1.5,
                                           ),
                                           decoration: BoxDecoration(
-                                            color: const AppDesignColors.lightSurfaceSubtle,
+                                            color: AppDesignColors.lightSurfaceSubtle,
                                             borderRadius: BorderRadius.circular(
                                               6,
                                             ),
@@ -451,7 +451,7 @@ class _LeadershipPrepDashboardState
                                       vertical: 2,
                                     ),
                                     decoration: BoxDecoration(
-                                      color: const AppDesignColors.lightSurfaceSubtle,
+                                      color: AppDesignColors.lightSurfaceSubtle,
                                       borderRadius: BorderRadius.circular(6),
                                     ),
                                     child: const Text(
