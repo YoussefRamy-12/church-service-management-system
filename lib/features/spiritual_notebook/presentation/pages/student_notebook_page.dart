@@ -39,12 +39,14 @@ class _SpiritualNotebookStudentPageState
       data = _load();
     }
   }
+
   @override
   void dispose() {
     bonus.dispose();
     reason.dispose();
     super.dispose();
   }
+
   @override
   Widget build(BuildContext context) {
     final role = ref.watch(currentServantProfileProvider).value?.role;
@@ -62,7 +64,8 @@ class _SpiritualNotebookStudentPageState
               child: EmptyState(
                 icon: Icons.error_outline_rounded,
                 title: 'تعذر فتح دفتر التلميذ',
-                message: 'تعذر تحميل بيانات التلميذ. تحقق من الاتصال ثم أعد المحاولة.',
+                message:
+                    'تعذر تحميل بيانات التلميذ. تحقق من الاتصال ثم أعد المحاولة.',
                 action: FilledButton(
                   onPressed: () => setState(() => data = _load()),
                   child: const Text('إعادة المحاولة'),
@@ -102,21 +105,25 @@ class _SpiritualNotebookStudentPageState
               tooltip: 'رجوع',
               onPressed: () => context.pop(),
             ),
-            title: const Text('دفتر التلميذ الروحي', maxLines: 1, overflow: TextOverflow.ellipsis),
+            title: const Text(
+              'دفتر التلميذ الروحي',
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
             actions: [
               ..._buildStudentNavigationActions(context, theme),
               if (MediaQuery.sizeOf(context).width >= 600)
                 Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 12),
-                child: Center(
-                  child: GlassBadge(
-                    label: period.label,
-                    color: Theme.of(context).colorScheme.primary,
-                    icon: Icons.calendar_month_rounded,
-                    showDot: false,
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
+                  child: Center(
+                    child: GlassBadge(
+                      label: period.label,
+                      color: Theme.of(context).colorScheme.primary,
+                      icon: Icons.calendar_month_rounded,
+                      showDot: false,
+                    ),
                   ),
                 ),
-              ),
             ],
           ),
           bottomNavigationBar: _buildStickySubmitBar(
@@ -154,7 +161,10 @@ class _SpiritualNotebookStudentPageState
                               studentName.trim().isNotEmpty
                                   ? studentName.trim().characters.first
                                   : 'ت',
-                              style: TextStyle(fontWeight: FontWeight.w800, fontSize: isMobile ? 20 : 24),
+                              style: TextStyle(
+                                fontWeight: FontWeight.w800,
+                                fontSize: isMobile ? 20 : 24,
+                              ),
                             ),
                           ),
                           SizedBox(
@@ -162,16 +172,42 @@ class _SpiritualNotebookStudentPageState
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(studentName, maxLines: 2, overflow: TextOverflow.ellipsis, style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800, fontSize: isMobile ? 16 : 18, letterSpacing: -0.2)),
+                                Text(
+                                  studentName,
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: theme.textTheme.titleMedium?.copyWith(
+                                    fontWeight: FontWeight.w800,
+                                    fontSize: isMobile ? 16 : 18,
+                                    letterSpacing: -0.2,
+                                  ),
+                                ),
                                 const SizedBox(height: 2),
-                                Text('${cls?['name'] ?? 'بدون فصل'} • ${stage?['name'] ?? 'بدون مرحلة'}', maxLines: 2, overflow: TextOverflow.ellipsis, style: TextStyle(color: theme.colorScheme.onSurfaceVariant, fontWeight: FontWeight.w600, fontSize: isMobile ? 12 : 14)),
+                                Text(
+                                  '${cls?['name'] ?? 'بدون فصل'} • ${stage?['name'] ?? 'بدون مرحلة'}',
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(
+                                    color: theme.colorScheme.onSurfaceVariant,
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: isMobile ? 12 : 14,
+                                  ),
+                                ),
                               ],
                             ),
                           ),
                           if (existing != null)
-                            const GlassBadge(label: 'مسجَّل', color: appSuccess, icon: Icons.check_circle_rounded)
+                            const GlassBadge(
+                              label: 'مسجَّل',
+                              color: appSuccess,
+                              icon: Icons.check_circle_rounded,
+                            )
                           else
-                            const GlassBadge(label: 'بانتظار التسجيل', color: appWarning, icon: Icons.access_time_rounded),
+                            const GlassBadge(
+                              label: 'بانتظار التسجيل',
+                              color: appWarning,
+                              icon: Icons.access_time_rounded,
+                            ),
                         ],
                       ),
                     ),
@@ -216,11 +252,11 @@ class _SpiritualNotebookStudentPageState
                                         ),
                                       ),
                                     ),
-                                    child: Column(
+                                    child: const Column(
                                       crossAxisAlignment:
                                           CrossAxisAlignment.start,
                                       children: [
-                                        const Text(
+                                        Text(
                                           'إجمالي النقاط المسجلة',
                                           style: TextStyle(
                                             fontSize: 13,
@@ -228,10 +264,10 @@ class _SpiritualNotebookStudentPageState
                                             color: appSuccess,
                                           ),
                                         ),
-                                        const SizedBox(height: 2),
+                                        SizedBox(height: 2),
                                         Text(
                                           'تعذر إتمام العملية. حاول مرة أخرى.',
-                                          style: const TextStyle(
+                                          style: TextStyle(
                                             fontSize: 20,
                                             fontWeight: FontWeight.w800,
                                             color: appSuccess,
@@ -248,14 +284,18 @@ class _SpiritualNotebookStudentPageState
                                     child: Container(
                                       padding: const EdgeInsets.all(12),
                                       decoration: BoxDecoration(
-                                        color: Theme.of(context).colorScheme.primary.withValues(
-                                          alpha: isDark ? 0.15 : 0.08,
-                                        ),
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .primary
+                                            .withValues(
+                                              alpha: isDark ? 0.15 : 0.08,
+                                            ),
                                         borderRadius: BorderRadius.circular(10),
                                         border: Border.all(
-                                          color: Theme.of(context).colorScheme.primary.withValues(
-                                            alpha: 0.25,
-                                          ),
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .primary
+                                              .withValues(alpha: 0.25),
                                         ),
                                       ),
                                       child: Column(
@@ -267,9 +307,9 @@ class _SpiritualNotebookStudentPageState
                                             style: TextStyle(
                                               fontSize: 13,
                                               fontWeight: FontWeight.w600,
-                                              color: Theme.of(context)
-                                                  .colorScheme
-                                                  .primary,
+                                              color: Theme.of(
+                                                context,
+                                              ).colorScheme.primary,
                                             ),
                                           ),
                                           const SizedBox(height: 2),
@@ -278,9 +318,9 @@ class _SpiritualNotebookStudentPageState
                                             style: TextStyle(
                                               fontSize: 20,
                                               fontWeight: FontWeight.w800,
-                                              color: Theme.of(context)
-                                                  .colorScheme
-                                                  .primary,
+                                              color: Theme.of(
+                                                context,
+                                              ).colorScheme.primary,
                                             ),
                                           ),
                                         ],
@@ -338,116 +378,125 @@ class _SpiritualNotebookStudentPageState
                       const SizedBox(height: 18),
 
                       if (!isMobile) ...[
-                      // Bottom Action Summary Card (Responsive for thumb reach)
-                      SolidCard(
-                        borderRadius: 14,
-                        padding: const EdgeInsets.all(16),
-                        color: isDark ? AppDesignColors.darkSurfaceSubtle : appSoftBlue,
-                        border: Border.all(
-                          color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3),
-                          width: 1.2,
-                        ),
-                        child: isMobile
-                            ? Column(
-                                crossAxisAlignment: CrossAxisAlignment.stretch,
-                                children: [
-                                  Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      const Text(
-                                        'مجموع نقاط الأسبوع:',
-                                        style: TextStyle(
-                                          fontWeight: FontWeight.w700,
-                                          fontSize: 14,
-                                          color: appMutedInk,
-                                        ),
-                                      ),
-                                      Text(
-                                        '$grandTotal نقطة',
-                                        style: TextStyle(
-                                          fontWeight: FontWeight.w800,
-                                          fontSize: 22,
-                                          color: Theme.of(context)
-                                              .colorScheme
-                                              .primary,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  const SizedBox(height: 12),
-                                  FilledButton.icon(
-                                    style: FilledButton.styleFrom(
-                                      backgroundColor: Theme.of(context).colorScheme.primary,
-                                      foregroundColor: Colors.white,
-                                      padding: const EdgeInsets.symmetric(
-                                        vertical: 12,
-                                      ),
-                                    ),
-                                    onPressed: saving ? null : () => _submitRecord(),
-                                    icon: const Icon(
-                                      Icons.check_circle_rounded,
-                                    ),
-                                    label: Text(
-                                      saving
-                                          ? 'جارٍ الحفظ...'
-                                          : 'حفظ النوتة',
-                                    ),
-                                  ),
-                                ],
-                              )
-                            : Row(
-                                children: [
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
+                        // Bottom Action Summary Card (Responsive for thumb reach)
+                        SolidCard(
+                          borderRadius: 14,
+                          padding: const EdgeInsets.all(16),
+                          color: isDark
+                              ? AppDesignColors.darkSurfaceSubtle
+                              : appSoftBlue,
+                          border: Border.all(
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.primary.withValues(alpha: 0.3),
+                            width: 1.2,
+                          ),
+                          child: isMobile
+                              ? Column(
+                                  crossAxisAlignment:
+                                      CrossAxisAlignment.stretch,
+                                  children: [
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
                                       children: [
                                         const Text(
-                                          'مجموع نقاط الأسبوع',
+                                          'مجموع نقاط الأسبوع:',
                                           style: TextStyle(
-                                            fontWeight: FontWeight.w600,
-                                            fontSize: 13,
+                                            fontWeight: FontWeight.w700,
+                                            fontSize: 14,
                                             color: appMutedInk,
                                           ),
                                         ),
-                                        const SizedBox(height: 2),
                                         Text(
                                           '$grandTotal نقطة',
                                           style: TextStyle(
                                             fontWeight: FontWeight.w800,
-                                            fontSize: 24,
-                                            color: Theme.of(context)
-                                                .colorScheme
-                                                .primary,
-                                            letterSpacing: -0.3,
+                                            fontSize: 22,
+                                            color: Theme.of(
+                                              context,
+                                            ).colorScheme.primary,
                                           ),
                                         ),
                                       ],
                                     ),
-                                  ),
-                                  FilledButton.icon(
-                                    style: FilledButton.styleFrom(
-                                      backgroundColor: Theme.of(context).colorScheme.primary,
-                                      foregroundColor: Colors.white,
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 22,
-                                        vertical: 14,
+                                    const SizedBox(height: 12),
+                                    FilledButton.icon(
+                                      style: FilledButton.styleFrom(
+                                        backgroundColor: Theme.of(
+                                          context,
+                                        ).colorScheme.primary,
+                                        foregroundColor: Colors.white,
+                                        padding: const EdgeInsets.symmetric(
+                                          vertical: 12,
+                                        ),
+                                      ),
+                                      onPressed: saving
+                                          ? null
+                                          : () => _submitRecord(),
+                                      icon: const Icon(
+                                        Icons.check_circle_rounded,
+                                      ),
+                                      label: Text(
+                                        saving ? 'جارٍ الحفظ...' : 'حفظ النوتة',
                                       ),
                                     ),
-                                    onPressed: saving ? null : () => _submitRecord(),
-                                    icon: const Icon(
-                                      Icons.check_circle_rounded,
+                                  ],
+                                )
+                              : Row(
+                                  children: [
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          const Text(
+                                            'مجموع نقاط الأسبوع',
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.w600,
+                                              fontSize: 13,
+                                              color: appMutedInk,
+                                            ),
+                                          ),
+                                          const SizedBox(height: 2),
+                                          Text(
+                                            '$grandTotal نقطة',
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.w800,
+                                              fontSize: 24,
+                                              color: Theme.of(
+                                                context,
+                                              ).colorScheme.primary,
+                                              letterSpacing: -0.3,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
                                     ),
-                                    label: Text(
-                                      saving
-                                          ? 'جارٍ الحفظ...'
-                                          : 'حفظ النوتة',
+                                    FilledButton.icon(
+                                      style: FilledButton.styleFrom(
+                                        backgroundColor: Theme.of(
+                                          context,
+                                        ).colorScheme.primary,
+                                        foregroundColor: Colors.white,
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 22,
+                                          vertical: 14,
+                                        ),
+                                      ),
+                                      onPressed: saving
+                                          ? null
+                                          : () => _submitRecord(),
+                                      icon: const Icon(
+                                        Icons.check_circle_rounded,
+                                      ),
+                                      label: Text(
+                                        saving ? 'جارٍ الحفظ...' : 'حفظ النوتة',
+                                      ),
                                     ),
-                                  ),
-                                ],
-                              ),
-                      ),
+                                  ],
+                                ),
+                        ),
                       ],
                     ],
                   ],
@@ -459,8 +508,6 @@ class _SpiritualNotebookStudentPageState
       },
     );
   }
-
-
 }
 
 class _StudentFormData {

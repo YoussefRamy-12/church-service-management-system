@@ -76,9 +76,9 @@ class _ClassStudentsPageState extends ConsumerState<ClassStudentsPage> {
     } catch (e) {
       debugPrint('Presentation operation failed: $e');
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('تعذر إتمام العملية. حاول مرة أخرى.')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('تعذر إتمام العملية. حاول مرة أخرى.')),
+        );
       }
     } finally {
       if (mounted) setState(() => _downloadingClassCards = false);
@@ -141,10 +141,8 @@ class _ClassStudentsPageState extends ConsumerState<ClassStudentsPage> {
                       debugPrint('Presentation operation failed: $error');
                       if (!context.mounted) return;
                       ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(
-                            'تعذر إتمام العملية. حاول مرة أخرى.',
-                          ),
+                        const SnackBar(
+                          content: Text('تعذر إتمام العملية. حاول مرة أخرى.'),
                         ),
                       );
                     }

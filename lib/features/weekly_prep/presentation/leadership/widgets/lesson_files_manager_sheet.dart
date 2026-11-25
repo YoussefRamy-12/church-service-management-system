@@ -75,9 +75,9 @@ class _LessonFilesManagerSheetState
     } catch (e) {
       debugPrint('Presentation operation failed: $e');
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('تعذر إتمام العملية. حاول مرة أخرى.')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('تعذر إتمام العملية. حاول مرة أخرى.')),
+        );
       }
     }
   }
@@ -118,9 +118,9 @@ class _LessonFilesManagerSheetState
     } catch (e) {
       debugPrint('Presentation operation failed: $e');
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('تعذر إتمام العملية. حاول مرة أخرى.')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('تعذر إتمام العملية. حاول مرة أخرى.')),
+        );
       }
     } finally {
       if (mounted) setState(() => _saving = false);
@@ -232,9 +232,9 @@ class _LessonFilesManagerSheetState
     } catch (e) {
       debugPrint('Presentation operation failed: $e');
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('تعذر إتمام العملية. حاول مرة أخرى.')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('تعذر إتمام العملية. حاول مرة أخرى.')),
+        );
       }
     }
   }
@@ -312,7 +312,9 @@ class _LessonFilesManagerSheetState
                           decoration: BoxDecoration(
                             color: AppDesignColors.lightSurface,
                             borderRadius: BorderRadius.circular(10),
-                            border: Border.all(color: AppDesignColors.lightBorderSubtle),
+                            border: Border.all(
+                              color: AppDesignColors.lightBorderSubtle,
+                            ),
                           ),
                           child: Row(
                             children: [

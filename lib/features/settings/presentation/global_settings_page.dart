@@ -32,10 +32,7 @@ class GlobalSettingsPage extends ConsumerWidget {
           padding: const EdgeInsets.symmetric(vertical: 24),
           children: [
             // ── 1. Appearance ──────────────────────────────────
-            const _SectionHeader(
-              icon: Icons.palette_rounded,
-              title: 'المظهر',
-            ),
+            const _SectionHeader(icon: Icons.palette_rounded, title: 'المظهر'),
             const SizedBox(height: 8),
             const _AppearanceSection(),
 
@@ -52,10 +49,7 @@ class GlobalSettingsPage extends ConsumerWidget {
             const SizedBox(height: 32),
 
             // ── 3. Account Security ───────────────────────────
-            const _SectionHeader(
-              icon: Icons.lock_rounded,
-              title: 'الأمان',
-            ),
+            const _SectionHeader(icon: Icons.lock_rounded, title: 'الأمان'),
             const SizedBox(height: 8),
             const _SecuritySection(),
 
@@ -153,9 +147,8 @@ class _AppearanceSection extends ConsumerWidget {
                   icon: mode.icon,
                   label: mode.label,
                   selected: settings.themeMode == mode,
-                  onTap: () => ref
-                      .read(appSettingsProvider.notifier)
-                      .setThemeMode(mode),
+                  onTap: () =>
+                      ref.read(appSettingsProvider.notifier).setThemeMode(mode),
                 ),
             ],
           ),
@@ -184,9 +177,8 @@ class _AppearanceSection extends ConsumerWidget {
                   icon: Icons.format_size_rounded,
                   label: size.label,
                   selected: settings.fontSize == size,
-                  onTap: () => ref
-                      .read(appSettingsProvider.notifier)
-                      .setFontSize(size),
+                  onTap: () =>
+                      ref.read(appSettingsProvider.notifier).setFontSize(size),
                 ),
             ],
           ),
@@ -224,15 +216,15 @@ class _ChoiceChipTile extends StatelessWidget {
           color: selected
               ? primaryColor.withValues(alpha: isDark ? 0.25 : 0.1)
               : (isDark
-                  ? AppDesignColors.darkSurfaceSubtle
-                  : AppDesignColors.lightSurfaceSubtle),
+                    ? AppDesignColors.darkSurfaceSubtle
+                    : AppDesignColors.lightSurfaceSubtle),
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
             color: selected
                 ? primaryColor
                 : (isDark
-                    ? AppDesignColors.darkBorder
-                    : AppDesignColors.lightBorder),
+                      ? AppDesignColors.darkBorder
+                      : AppDesignColors.lightBorder),
             width: selected ? 1.8 : 1,
           ),
         ),
@@ -245,8 +237,8 @@ class _ChoiceChipTile extends StatelessWidget {
               color: selected
                   ? primaryColor
                   : (isDark
-                      ? AppDesignColors.darkMutedInk
-                      : AppDesignColors.lightMutedInk),
+                        ? AppDesignColors.darkMutedInk
+                        : AppDesignColors.lightMutedInk),
             ),
             const SizedBox(width: 8),
             Text(
@@ -289,7 +281,7 @@ class _ProfileSection extends ConsumerWidget {
           ),
         ),
       ),
-      error: (e, _) => SolidCard(
+      error: (e, _) => const SolidCard(
         child: EmptyState(
           icon: Icons.error_outline,
           title: 'تعذر تحميل الملف الشخصي',
@@ -392,23 +384,16 @@ class _ProfileSection extends ConsumerWidget {
   }
 
   String _statusLabel(String status) => switch (status) {
-        'active' => 'نشط',
-        'pending' => 'بانتظار التفعيل',
-        'inactive' => 'غير نشط',
-        _ => status,
-      };
+    'active' => 'نشط',
+    'pending' => 'بانتظار التفعيل',
+    'inactive' => 'غير نشط',
+    _ => status,
+  };
 
-  void _showEditProfile(
-    BuildContext context,
-    WidgetRef ref,
-    dynamic profile,
-  ) {
+  void _showEditProfile(BuildContext context, WidgetRef ref, dynamic profile) {
     showDialog<void>(
       context: context,
-      builder: (_) => _EditProfileDialog(
-        profile: profile,
-        ref: ref,
-      ),
+      builder: (_) => _EditProfileDialog(profile: profile, ref: ref),
     );
   }
 }
@@ -431,19 +416,16 @@ class _ProfileRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
-    final subtextColor =
-        isDark ? AppDesignColors.darkMutedInk : AppDesignColors.lightMutedInk;
+    final subtextColor = isDark
+        ? AppDesignColors.darkMutedInk
+        : AppDesignColors.lightMutedInk;
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(
-            icon,
-            size: iconSize ?? 20,
-            color: subtextColor,
-          ),
+          Icon(icon, size: iconSize ?? 20, color: subtextColor),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
@@ -518,9 +500,7 @@ class _EditProfileDialogState extends State<_EditProfileDialog> {
       await repo.updatePersonalProfile(
         servantId: widget.profile.id,
         name: _nameCtrl.text.trim(),
-        phone: _phoneCtrl.text.trim().isEmpty
-            ? null
-            : _phoneCtrl.text.trim(),
+        phone: _phoneCtrl.text.trim().isEmpty ? null : _phoneCtrl.text.trim(),
       );
       // Refresh identity / profile providers so the UI reflects the change.
       widget.ref.invalidate(currentSessionIdentityProvider);
@@ -644,8 +624,9 @@ class _SecuritySection extends ConsumerWidget {
           ),
           Divider(
             height: 1,
-            color:
-                isDark ? AppDesignColors.darkSurfaceSubtle : AppDesignColors.lightBorderSubtle,
+            color: isDark
+                ? AppDesignColors.darkSurfaceSubtle
+                : AppDesignColors.lightBorderSubtle,
           ),
           Material(
             color: Colors.transparent,
@@ -744,9 +725,7 @@ class _ChangePasswordDialogState extends State<_ChangePasswordDialog> {
     });
     try {
       final authRepo = widget.ref.read(authRepositoryProvider);
-      final verified = await authRepo.verifyCurrentPassword(
-        _currentCtrl.text,
-      );
+      final verified = await authRepo.verifyCurrentPassword(_currentCtrl.text);
       if (!verified) {
         setState(() => _error = 'كلمة المرور الحالية غير صحيحة.');
         return;
@@ -784,15 +763,16 @@ class _ChangePasswordDialogState extends State<_ChangePasswordDialog> {
                   labelText: 'كلمة المرور الحالية',
                   prefixIcon: const Icon(Icons.lock_outline),
                   suffixIcon: IconButton(
-                    icon: Icon(_showCurrent
-                        ? Icons.visibility_off_rounded
-                        : Icons.visibility_rounded),
+                    icon: Icon(
+                      _showCurrent
+                          ? Icons.visibility_off_rounded
+                          : Icons.visibility_rounded,
+                    ),
                     onPressed: () =>
                         setState(() => _showCurrent = !_showCurrent),
                   ),
                 ),
-                validator: (v) =>
-                    (v == null || v.isEmpty) ? 'مطلوب' : null,
+                validator: (v) => (v == null || v.isEmpty) ? 'مطلوب' : null,
                 textInputAction: TextInputAction.next,
               ),
               const SizedBox(height: 16),
@@ -803,11 +783,12 @@ class _ChangePasswordDialogState extends State<_ChangePasswordDialog> {
                   labelText: 'كلمة المرور الجديدة',
                   prefixIcon: const Icon(Icons.lock_rounded),
                   suffixIcon: IconButton(
-                    icon: Icon(_showNew
-                        ? Icons.visibility_off_rounded
-                        : Icons.visibility_rounded),
-                    onPressed: () =>
-                        setState(() => _showNew = !_showNew),
+                    icon: Icon(
+                      _showNew
+                          ? Icons.visibility_off_rounded
+                          : Icons.visibility_rounded,
+                    ),
+                    onPressed: () => setState(() => _showNew = !_showNew),
                   ),
                 ),
                 validator: (v) {
@@ -825,9 +806,11 @@ class _ChangePasswordDialogState extends State<_ChangePasswordDialog> {
                   labelText: 'تأكيد كلمة المرور الجديدة',
                   prefixIcon: const Icon(Icons.lock_rounded),
                   suffixIcon: IconButton(
-                    icon: Icon(_showConfirm
-                        ? Icons.visibility_off_rounded
-                        : Icons.visibility_rounded),
+                    icon: Icon(
+                      _showConfirm
+                          ? Icons.visibility_off_rounded
+                          : Icons.visibility_rounded,
+                    ),
                     onPressed: () =>
                         setState(() => _showConfirm = !_showConfirm),
                   ),
@@ -981,8 +964,9 @@ class _AboutSection extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
-    final subtextColor =
-        isDark ? AppDesignColors.darkMutedInk : AppDesignColors.lightMutedInk;
+    final subtextColor = isDark
+        ? AppDesignColors.darkMutedInk
+        : AppDesignColors.lightMutedInk;
 
     return SolidCard(
       child: Column(
@@ -1037,8 +1021,9 @@ class _AboutRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
-    final subtextColor =
-        isDark ? AppDesignColors.darkMutedInk : AppDesignColors.lightMutedInk;
+    final subtextColor = isDark
+        ? AppDesignColors.darkMutedInk
+        : AppDesignColors.lightMutedInk;
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6),

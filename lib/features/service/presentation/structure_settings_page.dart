@@ -47,9 +47,9 @@ class _StructureSettingsPageState extends ConsumerState<StructureSettingsPage> {
     } catch (error) {
       debugPrint('Presentation operation failed: $error');
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('تعذر إتمام العملية. حاول مرة أخرى.')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('تعذر إتمام العملية. حاول مرة أخرى.')),
+        );
       }
     } finally {
       if (mounted) setState(() => saving = false);
@@ -75,9 +75,9 @@ class _StructureSettingsPageState extends ConsumerState<StructureSettingsPage> {
     } catch (error) {
       debugPrint('Presentation operation failed: $error');
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('تعذر إتمام العملية. حاول مرة أخرى.')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('تعذر إتمام العملية. حاول مرة أخرى.')),
+        );
       }
     } finally {
       if (mounted) setState(() => saving = false);
@@ -127,9 +127,9 @@ class _StructureSettingsPageState extends ConsumerState<StructureSettingsPage> {
     } catch (error) {
       debugPrint('Presentation operation failed: $error');
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('تعذر إتمام العملية. حاول مرة أخرى.')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('تعذر إتمام العملية. حاول مرة أخرى.')),
+        );
       }
     } finally {
       if (mounted) setState(() => saving = false);
@@ -160,11 +160,7 @@ class _StructureSettingsPageState extends ConsumerState<StructureSettingsPage> {
       debugPrint('Presentation operation failed: $error');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              'تعذر إتمام العملية. حاول مرة أخرى.',
-            ),
-          ),
+          const SnackBar(content: Text('تعذر إتمام العملية. حاول مرة أخرى.')),
         );
       }
     } finally {
@@ -195,9 +191,9 @@ class _StructureSettingsPageState extends ConsumerState<StructureSettingsPage> {
     } catch (error) {
       debugPrint('Presentation operation failed: $error');
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('تعذر إتمام العملية. حاول مرة أخرى.')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('تعذر إتمام العملية. حاول مرة أخرى.')),
+        );
       }
     } finally {
       if (mounted) setState(() => saving = false);
@@ -228,11 +224,7 @@ class _StructureSettingsPageState extends ConsumerState<StructureSettingsPage> {
       debugPrint('Presentation operation failed: $error');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              'تعذر إتمام العملية. حاول مرة أخرى.',
-            ),
-          ),
+          const SnackBar(content: Text('تعذر إتمام العملية. حاول مرة أخرى.')),
         );
       }
     } finally {
@@ -314,9 +306,7 @@ class _StructureSettingsPageState extends ConsumerState<StructureSettingsPage> {
                       leading: const Icon(Icons.layers_outlined),
                       title: Text(
                         stage.name,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.w700,
-                        ),
+                        style: const TextStyle(fontWeight: FontWeight.w700),
                       ),
                       trailing: Row(
                         mainAxisSize: MainAxisSize.min,
@@ -335,7 +325,10 @@ class _StructureSettingsPageState extends ConsumerState<StructureSettingsPage> {
                             onPressed: saving
                                 ? null
                                 : () => _deleteStage(stage.id, stage.name),
-                            icon: const Icon(Icons.delete_outline_rounded, size: 20),
+                            icon: const Icon(
+                              Icons.delete_outline_rounded,
+                              size: 20,
+                            ),
                           ),
                         ],
                       ),
@@ -384,7 +377,10 @@ class _StructureSettingsPageState extends ConsumerState<StructureSettingsPage> {
                                                   stage.id,
                                                   item.name,
                                                 ),
-                                          icon: const Icon(Icons.edit_outlined, size: 18),
+                                          icon: const Icon(
+                                            Icons.edit_outlined,
+                                            size: 18,
+                                          ),
                                         ),
                                         IconButton(
                                           visualDensity: VisualDensity.compact,

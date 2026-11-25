@@ -80,9 +80,9 @@ class _SystemAdminHomePageState extends ConsumerState<SystemAdminHomePage> {
     } catch (error) {
       debugPrint('Presentation operation failed: $error');
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text('تعذر إنشاء الخدمة. حاول مرة أخرى.')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('تعذر إنشاء الخدمة. حاول مرة أخرى.')),
+        );
       }
     }
   }
@@ -111,9 +111,9 @@ class _SystemAdminHomePageState extends ConsumerState<SystemAdminHomePage> {
     } catch (error) {
       debugPrint('Presentation operation failed: $error');
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(const SnackBar(content: Text('تعذر تعديل الخدمة. حاول مرة أخرى.')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('تعذر تعديل الخدمة. حاول مرة أخرى.')),
+        );
       }
     }
   }
@@ -154,7 +154,7 @@ class _SystemAdminHomePageState extends ConsumerState<SystemAdminHomePage> {
       debugPrint('Presentation operation failed: $error');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
+          const SnackBar(
             content: Text(
               'تعذر حذف الخدمة. قد تحتوي على مراحل أو سجلات مرتبطة.',
             ),
@@ -223,271 +223,301 @@ class _SystemAdminHomePageState extends ConsumerState<SystemAdminHomePage> {
         ],
       ),
       body: AppContent(
-          maxWidth: 1100,
-          child: FutureBuilder<List<Map<String, dynamic>>>(
-            future: _services,
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return const LoadingView(message: 'جاري تحميل الخدمات...');
-              }
-              if (snapshot.hasError) {
-                return EmptyState(
-                  icon: Icons.cloud_off_rounded,
-                  title: 'تعذر تحميل الخدمات',
-                  message:
-                      'تحقق من إعداد الاتصال أو صلاحية مسؤول النظام للوصول إلى الخدمات.',
-                  action: OutlinedButton.icon(
-                    onPressed: _reloadServices,
-                    icon: const Icon(Icons.refresh),
-                    label: const Text('إعادة المحاولة'),
-                  ),
-                );
-              }
-              final services = snapshot.data ?? const [];
-              return ListView(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 20,
-                  vertical: 24,
+        maxWidth: 1100,
+        child: FutureBuilder<List<Map<String, dynamic>>>(
+          future: _services,
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const LoadingView(message: 'جاري تحميل الخدمات...');
+            }
+            if (snapshot.hasError) {
+              return EmptyState(
+                icon: Icons.cloud_off_rounded,
+                title: 'تعذر تحميل الخدمات',
+                message:
+                    'تحقق من إعداد الاتصال أو صلاحية مسؤول النظام للوصول إلى الخدمات.',
+                action: OutlinedButton.icon(
+                  onPressed: _reloadServices,
+                  icon: const Icon(Icons.refresh),
+                  label: const Text('إعادة المحاولة'),
                 ),
-                children: [
-                  Text(
-                    'لوحة مسؤول النظام',
-                    style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                      fontWeight: FontWeight.w900,
+              );
+            }
+            final services = snapshot.data ?? const [];
+            return ListView(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+              children: [
+                Text(
+                  'لوحة مسؤول النظام',
+                  style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  'إدارة جميع الخدمات والخدام في المنظومة بكل سهولة.',
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    fontSize: 14,
+                  ),
+                ),
+                const SizedBox(height: 20),
+                Row(
+                  children: [
+                    _AdminSummary(
+                      icon: Icons.church_rounded,
+                      label: 'الخدمات المتاحة',
+                      value: '${services.length}',
+                      color: Theme.of(context).colorScheme.primary,
                     ),
-                  ),
-                  const SizedBox(height: 6),
-                  Text(
-                    'إدارة جميع الخدمات والخدام في المنظومة بكل سهولة.',
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
-                      fontSize: 14,
+                    const SizedBox(width: 14),
+                    const _AdminSummary(
+                      icon: Icons.admin_panel_settings_rounded,
+                      label: 'نوع الحساب',
+                      value: 'مسؤول النظام',
+                      color: Color(0xFF10B981),
                     ),
-                  ),
-                  const SizedBox(height: 20),
-                  Row(
-                    children: [
-                      _AdminSummary(
-                        icon: Icons.church_rounded,
-                        label: 'الخدمات المتاحة',
-                        value: '${services.length}',
-                        color: Theme.of(context).colorScheme.primary,
-                      ),
-                      const SizedBox(width: 14),
-                      const _AdminSummary(
-                        icon: Icons.admin_panel_settings_rounded,
-                        label: 'نوع الحساب',
-                        value: 'مسؤول النظام',
-                        color: Color(0xFF10B981),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 18),
-                  // Servant Registrations Hero Card
-                  FutureBuilder<int>(
-                    future: _pendingServantCount,
-                    builder: (context, countSnapshot) {
-                      final count = countSnapshot.data;
-                      final hasPending = count != null && count > 0;
-                      return GlassCard(
-                        key: const Key('admin_servant_registration_panel'),
-                        borderRadius: 12,
-                        padding: const EdgeInsets.all(18),
-                        onTap: () => context.go('/admin/servant-registrations'),
-                        child: Row(
-                          children: [
-                            Container(
-                              width: 48,
-                              height: 48,
-                              decoration: BoxDecoration(
-                                color: (hasPending
-                                        ? const Color(0xFFF59E0B)
-                                        : Theme.of(context).colorScheme.primary)
-                                    .withValues(alpha: 0.10),
-                                borderRadius: BorderRadius.circular(12),
-                                border: Border.all(
-                                  color: (hasPending
+                  ],
+                ),
+                const SizedBox(height: 18),
+                // Servant Registrations Hero Card
+                FutureBuilder<int>(
+                  future: _pendingServantCount,
+                  builder: (context, countSnapshot) {
+                    final count = countSnapshot.data;
+                    final hasPending = count != null && count > 0;
+                    return GlassCard(
+                      key: const Key('admin_servant_registration_panel'),
+                      borderRadius: 12,
+                      padding: const EdgeInsets.all(18),
+                      onTap: () => context.go('/admin/servant-registrations'),
+                      child: Row(
+                        children: [
+                          Container(
+                            width: 48,
+                            height: 48,
+                            decoration: BoxDecoration(
+                              color:
+                                  (hasPending
                                           ? const Color(0xFFF59E0B)
-                                          : Theme.of(context)
-                                              .colorScheme
-                                              .primary)
-                                      .withValues(alpha: 0.25),
-                                ),
-                              ),
-                              child: Icon(
-                                Icons.person_search_rounded,
-                                color: hasPending
-                                    ? const Color(0xFFB45309)
-                                    : Theme.of(context).colorScheme.primary,
-                                size: 24,
+                                          : Theme.of(
+                                              context,
+                                            ).colorScheme.primary)
+                                      .withValues(alpha: 0.10),
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(
+                                color:
+                                    (hasPending
+                                            ? const Color(0xFFF59E0B)
+                                            : Theme.of(
+                                                context,
+                                              ).colorScheme.primary)
+                                        .withValues(alpha: 0.25),
                               ),
                             ),
-                            const SizedBox(width: 16),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Row(
-                                    children: [
-                                      const Text(
-                                        'طلبات تسجيل الخدام',
-                                        style: TextStyle(
-                                          fontWeight: FontWeight.w800,
-                                          fontSize: 16,
-                                        ),
+                            child: Icon(
+                              Icons.person_search_rounded,
+                              color: hasPending
+                                  ? const Color(0xFFB45309)
+                                  : Theme.of(context).colorScheme.primary,
+                              size: 24,
+                            ),
+                          ),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    const Text(
+                                      'طلبات تسجيل الخدام',
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.w800,
+                                        fontSize: 16,
                                       ),
-                                      if (hasPending) ...[
-                                        const SizedBox(width: 8),
-                                        GlassBadge(
-                                          label: '$count بانتظار المراجعة',
-                                          color: const Color(0xFFF59E0B),
-                                        ),
-                                      ],
+                                    ),
+                                    if (hasPending) ...[
+                                      const SizedBox(width: 8),
+                                      GlassBadge(
+                                        label: '$count بانتظار المراجعة',
+                                        color: const Color(0xFFF59E0B),
+                                      ),
                                     ],
+                                  ],
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  countSnapshot.hasError
+                                      ? 'تعذر تحميل عدد الطلبات. افتح القائمة لمراجعتها.'
+                                      : count == null
+                                      ? 'جاري تحميل طلبات التسجيل...'
+                                      : count == 0
+                                      ? 'لا توجد طلبات معلقة حاليًا.'
+                                      : 'توجد طلبات جديدة تحتاج إلى موافقة وربط بالخدمات.',
+                                  style: TextStyle(
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.onSurfaceVariant,
+                                    fontSize: 13,
                                   ),
-                                  const SizedBox(height: 4),
-                                  Text(
-                                    countSnapshot.hasError
-                                        ? 'تعذر تحميل عدد الطلبات. افتح القائمة لمراجعتها.'
-                                        : count == null
-                                        ? 'جاري تحميل طلبات التسجيل...'
-                                        : count == 0
-                                        ? 'لا توجد طلبات معلقة حاليًا.'
-                                        : 'توجد طلبات جديدة تحتاج إلى موافقة وربط بالخدمات.',
-                                    style: TextStyle(
+                                ),
+                              ],
+                            ),
+                          ),
+                          FilledButton.tonalIcon(
+                            onPressed: () =>
+                                context.go('/admin/servant-registrations'),
+                            icon: const Icon(
+                              Icons.arrow_forward_rounded,
+                              size: 18,
+                            ),
+                            label: const Text('مراجعة الطلبات'),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                ),
+                const SizedBox(height: 24),
+                Row(
+                  children: [
+                    Text(
+                      'قائمة الخدمات المسجلة',
+                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    GlassBadge(
+                      label: '${services.length} خدمة',
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+                    const Spacer(),
+                    FilledButton.icon(
+                      key: const Key('admin_add_service_btn'),
+                      onPressed: _createService,
+                      icon: const Icon(Icons.add_rounded, size: 18),
+                      label: const Text('خدمة جديدة'),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 14),
+                if (services.isEmpty)
+                  const EmptyState(
+                    icon: Icons.church_outlined,
+                    title: 'لا توجد خدمات متاحة',
+                    message:
+                        'أضف خدمة إلى النظام أولًا لتتمكن من استكشاف بقية الشاشات.',
+                  ),
+                LayoutBuilder(
+                  builder: (context, constraints) {
+                    final columns = constraints.maxWidth >= 768 ? 2 : 1;
+                    return GridView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemCount: services.length,
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: columns,
+                        crossAxisSpacing: 12,
+                        mainAxisSpacing: 12,
+                        mainAxisExtent: 150,
+                      ),
+                      itemBuilder: (context, index) {
+                        final service = services[index];
+                        return Card(
+                          key: Key('admin_service_${service['id']}'),
+                          child: Padding(
+                            padding: const EdgeInsets.all(12),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                Row(
+                                  children: [
+                                    Icon(
+                                      Icons.church_rounded,
                                       color: Theme.of(
                                         context,
-                                      ).colorScheme.onSurfaceVariant,
-                                      fontSize: 13,
+                                      ).colorScheme.primary,
+                                      size: 24,
                                     ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            FilledButton.tonalIcon(
-                              onPressed: () =>
-                                  context.go('/admin/servant-registrations'),
-                              icon: const Icon(
-                                Icons.arrow_forward_rounded,
-                                size: 18,
-                              ),
-                              label: const Text('مراجعة الطلبات'),
-                            ),
-                          ],
-                        ),
-                      );
-                    },
-                  ),
-                  const SizedBox(height: 24),
-                  Row(
-                    children: [
-                      Text(
-                        'قائمة الخدمات المسجلة',
-                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          fontWeight: FontWeight.w800,
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      GlassBadge(
-                        label: '${services.length} خدمة',
-                        color: Theme.of(context).colorScheme.primary,
-                      ),
-                      const Spacer(),
-                      FilledButton.icon(
-                        key: const Key('admin_add_service_btn'),
-                        onPressed: _createService,
-                        icon: const Icon(Icons.add_rounded, size: 18),
-                        label: const Text('خدمة جديدة'),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 14),
-                  if (services.isEmpty)
-                    const EmptyState(
-                      icon: Icons.church_outlined,
-                      title: 'لا توجد خدمات متاحة',
-                      message:
-                          'أضف خدمة إلى النظام أولًا لتتمكن من استكشاف بقية الشاشات.',
-                    ),
-                  LayoutBuilder(
-                    builder: (context, constraints) {
-                      final columns = constraints.maxWidth >= 768 ? 2 : 1;
-                      return GridView.builder(
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        itemCount: services.length,
-                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: columns,
-                          crossAxisSpacing: 12,
-                          mainAxisSpacing: 12,
-                          mainAxisExtent: 150,
-                        ),
-                        itemBuilder: (context, index) {
-                          final service = services[index];
-                          return Card(
-                            key: Key('admin_service_${service['id']}'),
-                            child: Padding(
-                              padding: const EdgeInsets.all(12),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.stretch,
-                                children: [
-                                  Row(
-                                    children: [
-                                      Icon(Icons.church_rounded, color: Theme.of(context).colorScheme.primary, size: 24),
-                                      const SizedBox(width: 8),
-                                      Expanded(
-                                        child: Text(
-                                          service['name']?.toString() ?? 'خدمة بدون اسم',
-                                          maxLines: 1,
-                                          overflow: TextOverflow.ellipsis,
-                                          style: Theme.of(context).textTheme.titleMedium,
-                                        ),
+                                    const SizedBox(width: 8),
+                                    Expanded(
+                                      child: Text(
+                                        service['name']?.toString() ??
+                                            'خدمة بدون اسم',
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: Theme.of(
+                                          context,
+                                        ).textTheme.titleMedium,
                                       ),
-                                      IconButton(
-                                        key: Key('admin_service_edit_${service['id']}'),
-                                        tooltip: 'تعديل الخدمة',
-                                        onPressed: () => _editService(service),
-                                        icon: const Icon(Icons.edit_outlined),
+                                    ),
+                                    IconButton(
+                                      key: Key(
+                                        'admin_service_edit_${service['id']}',
                                       ),
-                                      IconButton(
-                                        key: Key('admin_service_delete_${service['id']}'),
-                                        tooltip: 'حذف الخدمة',
-                                        onPressed: () => _deleteService(service),
-                                        icon: Icon(Icons.delete_outline_rounded, color: Theme.of(context).colorScheme.error),
+                                      tooltip: 'تعديل الخدمة',
+                                      onPressed: () => _editService(service),
+                                      icon: const Icon(Icons.edit_outlined),
+                                    ),
+                                    IconButton(
+                                      key: Key(
+                                        'admin_service_delete_${service['id']}',
                                       ),
-                                    ],
-                                  ),
-                                  const SizedBox(height: 4),
+                                      tooltip: 'حذف الخدمة',
+                                      onPressed: () => _deleteService(service),
+                                      icon: Icon(
+                                        Icons.delete_outline_rounded,
+                                        color: Theme.of(
+                                          context,
+                                        ).colorScheme.error,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  service['church_name']?.toString() ??
+                                      'كنيسة غير محددة',
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: Theme.of(context).textTheme.bodySmall,
+                                ),
+                                if (service['meeting_start_time'] != null)
                                   Text(
-                                    service['church_name']?.toString() ?? 'كنيسة غير محددة',
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: Theme.of(context).textTheme.bodySmall,
+                                    'موعد الاجتماع: ${service['meeting_start_time']}',
+                                    style: Theme.of(
+                                      context,
+                                    ).textTheme.bodySmall,
                                   ),
-                                  if (service['meeting_start_time'] != null)
-                                    Text('موعد الاجتماع: ${service['meeting_start_time']}', style: Theme.of(context).textTheme.bodySmall),
-                                  const Spacer(),
-                                  Align(
-                                    alignment: AlignmentDirectional.centerEnd,
-                                    child: TextButton.icon(
-                                      onPressed: () => context.go('/service/${service['id']}/dashboard'),
-                                      icon: const Icon(Icons.open_in_new, size: 16),
-                                      label: const Text('فتح الخدمة'),
+                                const Spacer(),
+                                Align(
+                                  alignment: AlignmentDirectional.centerEnd,
+                                  child: TextButton.icon(
+                                    onPressed: () => context.go(
+                                      '/service/${service['id']}/dashboard',
                                     ),
+                                    icon: const Icon(
+                                      Icons.open_in_new,
+                                      size: 16,
+                                    ),
+                                    label: const Text('فتح الخدمة'),
                                   ),
-                                ],
-                              ),
+                                ),
+                              ],
                             ),
-                          );
-                        },
-                      );
-                    },
-                  ),
-                ],
-              );
-            },
-          ),
+                          ),
+                        );
+                      },
+                    );
+                  },
+                ),
+              ],
+            );
+          },
         ),
+      ),
     );
   }
 }
@@ -576,49 +606,49 @@ class _AdminSummary extends StatelessWidget {
   Widget build(BuildContext context) {
     final resolvedColor = color ?? Theme.of(context).colorScheme.primary;
     return Expanded(
-    child: GlassCard(
-      borderRadius: 12,
-      padding: const EdgeInsets.all(14),
-      child: Row(
-        children: [
-          Container(
-            width: 40,
-            height: 40,
-            decoration: BoxDecoration(
-              color: resolvedColor.withValues(alpha: 0.10),
-              borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: resolvedColor.withValues(alpha: 0.2)),
+      child: GlassCard(
+        borderRadius: 12,
+        padding: const EdgeInsets.all(14),
+        child: Row(
+          children: [
+            Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                color: resolvedColor.withValues(alpha: 0.10),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: resolvedColor.withValues(alpha: 0.2)),
+              ),
+              child: Icon(icon, color: resolvedColor, size: 20),
             ),
-            child: Icon(icon, color: resolvedColor, size: 20),
-          ),
-          const SizedBox(width: 10),
-          Flexible(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  value,
-                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.w700,
-                    color: resolvedColor,
+            const SizedBox(width: 10),
+            Flexible(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    value,
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.w700,
+                      color: resolvedColor,
+                    ),
                   ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  label,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                    fontWeight: FontWeight.w600,
+                  const SizedBox(height: 2),
+                  Text(
+                    label,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
-    ),
-  );
+    );
   }
 }

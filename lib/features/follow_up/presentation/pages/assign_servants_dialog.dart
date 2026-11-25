@@ -25,7 +25,8 @@ class AssignServantsDialog extends ConsumerStatefulWidget {
   final List<CaseAssignment> currentAssignments;
 
   @override
-  ConsumerState<AssignServantsDialog> createState() => _AssignServantsDialogState();
+  ConsumerState<AssignServantsDialog> createState() =>
+      _AssignServantsDialogState();
 }
 
 class _AssignServantsDialogState extends ConsumerState<AssignServantsDialog> {
@@ -45,8 +46,9 @@ class _AssignServantsDialogState extends ConsumerState<AssignServantsDialog> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final servantsStream =
-        ref.watch(servantRepositoryProvider).watchForService(widget.serviceId);
+    final servantsStream = ref
+        .watch(servantRepositoryProvider)
+        .watchForService(widget.serviceId);
 
     return AlertDialog(
       title: const Row(
@@ -72,8 +74,7 @@ class _AssignServantsDialogState extends ConsumerState<AssignServantsDialog> {
                 return false;
               }
               return true;
-            }).toList()
-              ..sort((a, b) => a.name.compareTo(b.name));
+            }).toList()..sort((a, b) => a.name.compareTo(b.name));
 
             if (eligibleServants.isEmpty) {
               return const Center(
@@ -181,7 +182,7 @@ class _AssignServantsDialogState extends ConsumerState<AssignServantsDialog> {
       debugPrint('Presentation operation failed: $e');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('تعذر إتمام العملية. حاول مرة أخرى.')),
+          const SnackBar(content: Text('تعذر إتمام العملية. حاول مرة أخرى.')),
         );
       }
     } finally {
@@ -189,4 +190,3 @@ class _AssignServantsDialogState extends ConsumerState<AssignServantsDialog> {
     }
   }
 }
-

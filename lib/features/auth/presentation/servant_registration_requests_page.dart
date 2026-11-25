@@ -334,9 +334,9 @@ class _ServantRegistrationRequestsPageState
     } catch (error) {
       debugPrint('Presentation operation failed: $error');
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('تعذر إتمام العملية. حاول مرة أخرى.')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('تعذر إتمام العملية. حاول مرة أخرى.')),
+        );
       }
     }
   }
@@ -457,8 +457,8 @@ class _ServantRegistrationRequestsPageState
                             status: status == 'pending'
                                 ? AppStatus.pending
                                 : status == 'rejected'
-                                    ? AppStatus.conflict
-                                    : AppStatus.synced,
+                                ? AppStatus.conflict
+                                : AppStatus.synced,
                             label: _statusLabel(status),
                           ),
                         ],

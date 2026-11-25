@@ -126,9 +126,9 @@ class _StudentDetailsPageState extends ConsumerState<StudentDetailsPage> {
     } catch (e) {
       debugPrint('Presentation operation failed: $e');
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('تعذر إتمام العملية. حاول مرة أخرى.')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('تعذر إتمام العملية. حاول مرة أخرى.')),
+        );
       }
     } finally {
       if (mounted) setState(() => _downloadingPdf = false);
@@ -162,9 +162,13 @@ class _StudentDetailsPageState extends ConsumerState<StudentDetailsPage> {
     } catch (error) {
       debugPrint('Presentation operation failed: $error');
       if (!mounted) return;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('تعذر اعتماد التلميذ: ${NetworkErrorFormatter.format(error)}')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'تعذر اعتماد التلميذ: ${NetworkErrorFormatter.format(error)}',
+          ),
+        ),
+      );
     }
   }
 
@@ -216,9 +220,13 @@ class _StudentDetailsPageState extends ConsumerState<StudentDetailsPage> {
     } catch (error) {
       debugPrint('Presentation operation failed: $error');
       if (!mounted) return;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('تعذر حفظ التعديلات: ${NetworkErrorFormatter.format(error)}')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'تعذر حفظ التعديلات: ${NetworkErrorFormatter.format(error)}',
+          ),
+        ),
+      );
     }
   }
 
@@ -235,7 +243,9 @@ class _StudentDetailsPageState extends ConsumerState<StudentDetailsPage> {
 
     setState(() => _isDeleting = true);
     try {
-      await ref.read(studentRepositoryProvider).deleteStudent(student.id, membershipId: student.membershipId);
+      await ref
+          .read(studentRepositoryProvider)
+          .deleteStudent(student.id, membershipId: student.membershipId);
 
       // Refresh list caches
       if (student.currentClassId != null) {
@@ -270,8 +280,8 @@ class _StudentDetailsPageState extends ConsumerState<StudentDetailsPage> {
       final message = error is StateError
           ? error.message
           : (error is PostgrestException && error.code == '23503'
-              ? 'تعذر أرشفة عضوية التلميذ بسبب وجود تعارض في السجلات المرتبطة.'
-              : 'تعذر أرشفة العضوية: ${NetworkErrorFormatter.format(error)}');
+                ? 'تعذر أرشفة عضوية التلميذ بسبب وجود تعارض في السجلات المرتبطة.'
+                : 'تعذر أرشفة العضوية: ${NetworkErrorFormatter.format(error)}');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(message),
@@ -327,7 +337,11 @@ class _StudentDetailsPageState extends ConsumerState<StudentDetailsPage> {
     try {
       final updated = await ref
           .read(studentRepositoryProvider)
-          .assignClass(student.id, selected.$1, membershipId: student.membershipId);
+          .assignClass(
+            student.id,
+            selected.$1,
+            membershipId: student.membershipId,
+          );
       if (!mounted) return;
       setState(() => student = updated);
       _loadClassDetails();
@@ -343,9 +357,13 @@ class _StudentDetailsPageState extends ConsumerState<StudentDetailsPage> {
     } catch (error) {
       debugPrint('Presentation operation failed: $error');
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('تعذر تغيير الفصل: ${NetworkErrorFormatter.format(error)}')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'تعذر تغيير الفصل: ${NetworkErrorFormatter.format(error)}',
+            ),
+          ),
+        );
       }
     }
   }
@@ -496,7 +514,9 @@ class _StudentDetailsPageState extends ConsumerState<StudentDetailsPage> {
                               color: Colors.white,
                               borderRadius: BorderRadius.circular(12),
                               border: Border.all(
-                                color: Theme.of(context).colorScheme.outlineVariant,
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.outlineVariant,
                               ),
                             ),
                             child: QrImageView(
@@ -549,10 +569,12 @@ class _StudentDetailsPageState extends ConsumerState<StudentDetailsPage> {
                                   : 'تحميل بطاقة الطالب PDF',
                             ),
                             style: FilledButton.styleFrom(
-                              backgroundColor:
-                                  Theme.of(context).colorScheme.primary,
-                              foregroundColor:
-                                  Theme.of(context).colorScheme.onPrimary,
+                              backgroundColor: Theme.of(
+                                context,
+                              ).colorScheme.primary,
+                              foregroundColor: Theme.of(
+                                context,
+                              ).colorScheme.onPrimary,
                               padding: const EdgeInsets.symmetric(
                                 horizontal: 20,
                                 vertical: 12,
@@ -584,17 +606,17 @@ class _StudentDetailsPageState extends ConsumerState<StudentDetailsPage> {
 
                   // 3. Family Info Section
                   _section(context, 'بيانات الأسرة', [
-                    _row(
-                      'وظيفة الأب',
-                      _sensitiveData?.fatherJob ?? 'غير مسجل',
+                    _row('وظيفة الأب', _sensitiveData?.fatherJob ?? 'غير مسجل'),
+                    _phoneRow(
+                      'تليفون الأب',
+                      _sensitiveData?.effectiveFatherPhone,
                     ),
-                    _phoneRow('تليفون الأب', _sensitiveData?.effectiveFatherPhone),
                     _row('اسم الأم', _sensitiveData?.motherName ?? 'غير مسجل'),
-                    _row(
-                      'وظيفة الأم',
-                      _sensitiveData?.motherJob ?? 'غير مسجل',
+                    _row('وظيفة الأم', _sensitiveData?.motherJob ?? 'غير مسجل'),
+                    _phoneRow(
+                      'تليفون الأم',
+                      _sensitiveData?.effectiveMotherPhone,
                     ),
-                    _phoneRow('تليفون الأم', _sensitiveData?.effectiveMotherPhone),
                     _row(
                       'عدد أفراد الأسرة',
                       _sensitiveData?.familySize != null
@@ -738,10 +760,10 @@ class _StudentProfileHeader extends StatelessWidget {
       if (className != null && className!.isNotEmpty) className!,
     ].join(' • ');
 
-    final statusStatus =
-        student.isPending ? AppStatus.pending : AppStatus.present;
-    final quickPhone =
-        student.phone != null && student.phone!.trim().isNotEmpty
+    final statusStatus = student.isPending
+        ? AppStatus.pending
+        : AppStatus.present;
+    final quickPhone = student.phone != null && student.phone!.trim().isNotEmpty
         ? student.phone!.trim()
         : null;
 
@@ -774,8 +796,8 @@ class _StudentProfileHeader extends StatelessWidget {
                       Text(
                         student.name,
                         style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                              fontWeight: FontWeight.w800,
-                            ),
+                          fontWeight: FontWeight.w800,
+                        ),
                       ),
                       const SizedBox(height: 6),
                       StatusChip(
@@ -786,9 +808,8 @@ class _StudentProfileHeader extends StatelessWidget {
                         const SizedBox(height: 6),
                         Text(
                           subtitle,
-                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                color: scheme.onSurfaceVariant,
-                              ),
+                          style: Theme.of(context).textTheme.bodySmall
+                              ?.copyWith(color: scheme.onSurfaceVariant),
                         ),
                       ],
                     ],
@@ -803,9 +824,9 @@ class _StudentProfileHeader extends StatelessWidget {
                   Text(
                     'تواصل سريع:',
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: scheme.onSurfaceVariant,
-                          fontWeight: FontWeight.w600,
-                        ),
+                      color: scheme.onSurfaceVariant,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                   const SizedBox(width: 8),
                   PhoneContactActions(phone: quickPhone, compact: false),
@@ -818,5 +839,3 @@ class _StudentProfileHeader extends StatelessWidget {
     );
   }
 }
-
-
