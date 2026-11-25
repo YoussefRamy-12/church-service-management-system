@@ -233,7 +233,7 @@ class _ChurchServiceAppState extends ConsumerState<ChurchServiceApp> {
                     path: 'student/:membershipId',
                     builder: (context, state) {
                       final extra = state.extra;
-                      final navigation = extra is Map
+                      final navigation = extra is Map<String, dynamic>
                           ? extra
                           : const <String, dynamic>{};
                       return SpiritualNotebookStudentPage(
