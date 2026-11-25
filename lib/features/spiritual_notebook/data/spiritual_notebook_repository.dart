@@ -6,9 +6,7 @@ class SpiritualNotebookRepository {
   SpiritualNotebookRepository(this._client);
   final SupabaseClient _client;
 
-  Future<List<Map<String, dynamic>>> students(
-    String serviceId,
-  ) async {
+  Future<List<Map<String, dynamic>>> students(String serviceId) async {
     final directoryRows = List<Map<String, dynamic>>.from(
       await _client.rpc(
         'get_service_student_directory',
@@ -30,7 +28,7 @@ class SpiritualNotebookRepository {
       final classes = List<Map<String, dynamic>>.from(
         await _client
             .from('classes')
-            .select('id,name,stage_id,stages(name)')
+            .select('id,name,stage_id,stages!classes_stage_id_fkey(name)')
             .inFilter('id', classIds),
       );
       for (final row in classes) {
@@ -73,9 +71,7 @@ class SpiritualNotebookRepository {
       .eq('service_id', serviceId)
       .maybeSingle();
 
-  Future<List<Map<String, dynamic>>> submissions(
-    String serviceId,
-  ) async {
+  Future<List<Map<String, dynamic>>> submissions(String serviceId) async {
     final rows = List<Map<String, dynamic>>.from(
       await _client
           .from('spiritual_notebook_submissions')
@@ -84,11 +80,15 @@ class SpiritualNotebookRepository {
           )
           .eq('service_id', serviceId),
     );
-    return rows.map((row) => {
-      ...row,
-      // The notebook view is keyed by membership, not global identity.
-      'student_id': row['service_student_id'],
-    }).toList();
+    return rows
+        .map(
+          (row) => {
+            ...row,
+            // The notebook view is keyed by membership, not global identity.
+            'student_id': row['service_student_id'],
+          },
+        )
+        .toList();
   }
 
   Future<void> submit({
@@ -123,20 +123,26 @@ class SpiritualNotebookRepository {
     required String name,
     required int points,
   }) async {
-    await _client.from('spiritual_notebook_activities').update({
-      'name': name.trim(),
-      'points': points,
-      'updated_at': DateTime.now().toIso8601String(),
-    }).eq('id', activityId);
+    await _client
+        .from('spiritual_notebook_activities')
+        .update({
+          'name': name.trim(),
+          'points': points,
+          'updated_at': DateTime.now().toIso8601String(),
+        })
+        .eq('id', activityId);
   }
 
   Future<void> deleteActivity(String activityId) async {
     // Soft delete: sets is_active = false so that it no longer appears for future
     // submissions while preserving all past weeks' submission records, snapshots, and scores.
-    await _client.from('spiritual_notebook_activities').update({
-      'is_active': false,
-      'updated_at': DateTime.now().toIso8601String(),
-    }).eq('id', activityId);
+    await _client
+        .from('spiritual_notebook_activities')
+        .update({
+          'is_active': false,
+          'updated_at': DateTime.now().toIso8601String(),
+        })
+        .eq('id', activityId);
   }
 
   Future<void> upsertSettings(

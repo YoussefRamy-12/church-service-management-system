@@ -453,7 +453,33 @@ class _StudentDetailsPageState extends ConsumerState<StudentDetailsPage> {
                     className: _studentClassName,
                   ),
                   const SizedBox(height: 8),
-                  // QR Code Section
+                  // 1. Basic Info Section
+                  _section(context, 'بيانات الطالب الأساسية', [
+                    _row('الاسم الكامل', student.name),
+                    _row('تاريخ الميلاد', _date(student.birthDate)),
+                    _row(
+                      'المرحلة',
+                      _studentStageName ??
+                          (student.currentClassId == null &&
+                                  student.proposedClassId != null
+                              ? 'مرحلة الفصل المقترح'
+                              : 'غير مسجل'),
+                    ),
+                    _row(
+                      'الفصل',
+                      _studentClassName ??
+                          (student.currentClassId == null &&
+                                  student.proposedClassId != null
+                              ? 'فصل مقترح'
+                              : 'غير مسجل'),
+                    ),
+                    _row('الصف الدراسي', student.grade ?? 'غير مسجل'),
+                    _phoneRow('تليفون الطالب', student.phone),
+                    _row('المدرسة', student.school ?? 'غير مسجل'),
+                    _row('شماس', student.isDeacon ? 'شماس' : 'غير مرسوم'),
+                  ]),
+
+                  // QR Code Section (below basic data)
                   _section(context, 'رمز QR الخاص بالطالب', [
                     Center(
                       child: Column(
@@ -531,32 +557,6 @@ class _StudentDetailsPageState extends ConsumerState<StudentDetailsPage> {
                         ],
                       ),
                     ),
-                  ]),
-
-                  // 1. Basic Info Section
-                  _section(context, 'بيانات الطالب الأساسية', [
-                    _row('الاسم الكامل', student.name),
-                    _row('تاريخ الميلاد', _date(student.birthDate)),
-                    _row(
-                      'المرحلة',
-                      _studentStageName ??
-                          (student.currentClassId == null &&
-                                  student.proposedClassId != null
-                              ? 'مرحلة الفصل المقترح'
-                              : 'غير مسجل'),
-                    ),
-                    _row(
-                      'الفصل',
-                      _studentClassName ??
-                          (student.currentClassId == null &&
-                                  student.proposedClassId != null
-                              ? 'فصل مقترح'
-                              : 'غير مسجل'),
-                    ),
-                    _row('الصف الدراسي', student.grade ?? 'غير مسجل'),
-                    _phoneRow('تليفون الطالب', student.phone),
-                    _row('المدرسة', student.school ?? 'غير مسجل'),
-                    _row('شماس', student.isDeacon ? 'شماس' : 'غير مرسوم'),
                   ]),
 
                   // 2. Address Section
@@ -735,53 +735,78 @@ class _StudentProfileHeader extends StatelessWidget {
 
     final statusStatus =
         student.isPending ? AppStatus.pending : AppStatus.present;
+    final quickPhone =
+        student.phone != null && student.phone!.trim().isNotEmpty
+        ? student.phone!.trim()
+        : null;
 
     return Card(
       margin: EdgeInsets.zero,
       child: Padding(
         padding: const EdgeInsets.all(20),
-        child: Row(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            CircleAvatar(
-              radius: 36,
-              backgroundColor: scheme.primaryContainer,
-              child: Text(
-                student.name.isEmpty ? '؟' : student.name.characters.first,
-                style: TextStyle(
-                  color: scheme.onPrimaryContainer,
-                  fontWeight: FontWeight.w800,
-                  fontSize: 24,
+            Row(
+              children: [
+                CircleAvatar(
+                  radius: 36,
+                  backgroundColor: scheme.primaryContainer,
+                  child: Text(
+                    student.name.isEmpty ? '؟' : student.name.characters.first,
+                    style: TextStyle(
+                      color: scheme.onPrimaryContainer,
+                      fontWeight: FontWeight.w800,
+                      fontSize: 24,
+                    ),
+                  ),
                 ),
-              ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        student.name,
+                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                              fontWeight: FontWeight.w800,
+                            ),
+                      ),
+                      const SizedBox(height: 6),
+                      StatusChip(
+                        status: statusStatus,
+                        label: student.isPending ? 'بانتظار الاعتماد' : 'معتمد',
+                      ),
+                      if (subtitle.isNotEmpty) ...[
+                        const SizedBox(height: 6),
+                        Text(
+                          subtitle,
+                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                color: scheme.onSurfaceVariant,
+                              ),
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+              ],
             ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+            if (quickPhone != null) ...[
+              const SizedBox(height: 12),
+              Row(
                 children: [
                   Text(
-                    student.name,
-                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          fontWeight: FontWeight.w800,
+                    'تواصل سريع:',
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: scheme.onSurfaceVariant,
+                          fontWeight: FontWeight.w600,
                         ),
                   ),
-                  const SizedBox(height: 6),
-                  StatusChip(
-                    status: statusStatus,
-                    label: student.isPending ? 'بانتظار الاعتماد' : 'معتمد',
-                  ),
-                  if (subtitle.isNotEmpty) ...[
-                    const SizedBox(height: 6),
-                    Text(
-                      subtitle,
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: scheme.onSurfaceVariant,
-                          ),
-                    ),
-                  ],
+                  const SizedBox(width: 8),
+                  PhoneContactActions(phone: quickPhone, compact: false),
                 ],
               ),
-            ),
+            ],
           ],
         ),
       ),

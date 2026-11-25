@@ -104,261 +104,259 @@ class _ServantManagementPageState extends ConsumerState<ServantManagementPage> {
         ],
       ),
       body: StreamBuilder<List<ServantProfile>>(
-          stream: repository.watchForService(widget.serviceId),
-          builder: (context, snapshot) {
-            if (snapshot.hasError) {
-              return AppContent(
-                child: EmptyState(
-                  icon: Icons.cloud_off_outlined,
-                  title: 'تعذر تحميل قائمة الخدام',
-                  message: 'تحقق من الاتصال ثم حاول التحديث مرة أخرى.',
-                  action: FilledButton.icon(
-                    onPressed: () async {
-                      await repository.refresh(widget.serviceId);
-                    },
-                    icon: const Icon(Icons.refresh_rounded),
-                    label: const Text('إعادة المحاولة'),
-                  ),
-                ),
-              );
-            }
-            if (!snapshot.hasData) {
-              final scheme = Theme.of(context).colorScheme;
-              return AppContent(
-                child: ListView.separated(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  itemCount: 4,
-                  separatorBuilder: (_, _) => const SizedBox(height: 10),
-                  itemBuilder: (context, index) => AppCard(
-                    padding: const EdgeInsets.all(16),
-                    child: Row(
-                      children: [
-                        CircleAvatar(
-                          backgroundColor: scheme.surfaceContainerHighest,
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Container(
-                                height: 14,
-                                width: 150,
-                                decoration: BoxDecoration(
-                                  color: scheme.surfaceContainerHighest,
-                                  borderRadius: BorderRadius.circular(6),
-                                ),
-                              ),
-                              const SizedBox(height: 8),
-                              Container(
-                                height: 10,
-                                width: 210,
-                                decoration: BoxDecoration(
-                                  color: scheme.surfaceContainerLow,
-                                  borderRadius: BorderRadius.circular(6),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              );
-            }
-            final all = snapshot.data ?? const <ServantProfile>[];
-            final filtered = all.where((servant) {
-              final matchesSearch =
-                  search.trim().isEmpty ||
-                  servant.name.contains(search.trim()) ||
-                  (servant.phone ?? '').contains(search.trim());
-              final matchesStatus =
-                  statusFilter == 'all' ||
-                  servant.accountStatus == statusFilter;
-              final matchesRole =
-                  roleFilter == 'all' || servant.role == roleFilter;
-              return matchesSearch && matchesStatus && matchesRole;
-            }).toList();
-
-            final activeCount = all
-                .where((s) => s.accountStatus == 'active')
-                .length;
-            final pendingCount = all
-                .where((s) => s.accountStatus == 'pending')
-                .length;
-
+        stream: repository.watchForService(widget.serviceId),
+        builder: (context, snapshot) {
+          if (snapshot.hasError) {
             return AppContent(
-              maxWidth: 900,
-              child: LayoutBuilder(
-                builder: (context, constraints) {
-                  final isMobile = constraints.maxWidth < 768;
-                  return ListView(
-                    padding: EdgeInsets.fromLTRB(
-                      isMobile ? 16 : 20,
-                      isMobile ? 12 : 16,
-                      isMobile ? 16 : 20,
-                      32,
-                    ),
+              child: EmptyState(
+                icon: Icons.cloud_off_outlined,
+                title: 'تعذر تحميل قائمة الخدام',
+                message: 'تحقق من الاتصال ثم حاول التحديث مرة أخرى.',
+                action: FilledButton.icon(
+                  onPressed: () async {
+                    await repository.refresh(widget.serviceId);
+                  },
+                  icon: const Icon(Icons.refresh_rounded),
+                  label: const Text('إعادة المحاولة'),
+                ),
+              ),
+            );
+          }
+          if (!snapshot.hasData) {
+            final scheme = Theme.of(context).colorScheme;
+            return AppContent(
+              child: ListView.separated(
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                itemCount: 4,
+                separatorBuilder: (_, _) => const SizedBox(height: 10),
+                itemBuilder: (context, index) => AppCard(
+                  padding: const EdgeInsets.all(16),
+                  child: Row(
                     children: [
-                      if (isMobile)
-                        _buildCompactMobileStatsRow(
-                          context,
-                          total: all.length,
-                          active: activeCount,
-                          pending: pendingCount,
-                        )
-                      else
-                        ResponsiveMetricGrid(
-                          spacing: 10,
+                      CircleAvatar(
+                        backgroundColor: scheme.surfaceContainerHighest,
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            ModernMetricCard(
-                              label: 'إجمالي الخدام',
-                              value: '${all.length}',
-                              icon: Icons.people_outline_rounded,
-                              color: Theme.of(context).colorScheme.primary,
+                            Container(
+                              height: 14,
+                              width: 150,
+                              decoration: BoxDecoration(
+                                color: scheme.surfaceContainerHighest,
+                                borderRadius: BorderRadius.circular(6),
+                              ),
                             ),
-                            ModernMetricCard(
-                              label: 'نشط',
-                              value: '$activeCount',
-                              icon: Icons.check_circle_outline_rounded,
-                              color: AppColors.of(context).present.foreground,
-                            ),
-                            ModernMetricCard(
-                              label: 'معلق',
-                              value: '$pendingCount',
-                              icon: Icons.hourglass_top_rounded,
-                              color: AppColors.of(context).pending.foreground,
+                            const SizedBox(height: 8),
+                            Container(
+                              height: 10,
+                              width: 210,
+                              decoration: BoxDecoration(
+                                color: scheme.surfaceContainerLow,
+                                borderRadius: BorderRadius.circular(6),
+                              ),
                             ),
                           ],
                         ),
-                      SizedBox(height: isMobile ? 10 : 16),
-                      if (isMobile)
-                        _buildMobileFilterBar(context)
-                      else
-                        AppCard(
-                          padding: const EdgeInsets.all(12),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              TextField(
-                                decoration: InputDecoration(
-                                  isDense: true,
-                                  labelText: 'بحث بالاسم أو الهاتف',
-                                  prefixIcon: const Icon(Icons.search_rounded),
-                                  suffixIcon: search.isNotEmpty
-                                      ? IconButton(
-                                          tooltip: 'مسح البحث',
-                                          icon: const Icon(Icons.clear_rounded),
-                                          onPressed: () =>
-                                              setState(() => search = ''),
-                                        )
-                                      : null,
-                                ),
-                                onChanged: (value) =>
-                                    setState(() => search = value),
-                              ),
-                              const SizedBox(height: 12),
-                              ServantRoleFilter(
-                                selectedRole: roleFilter,
-                                onChanged: (value) =>
-                                    setState(() => roleFilter = value),
-                              ),
-                              const SizedBox(height: 10),
-                              Text(
-                                'حالة الحساب',
-                                style: Theme.of(context).textTheme.labelLarge,
-                              ),
-                              const SizedBox(height: 6),
-                              Wrap(
-                                spacing: 8,
-                                runSpacing: 8,
-                                children: [
-                                  for (final option in const [
-                                    ('all', 'الكل'),
-                                    ('active', 'نشط'),
-                                    ('pending', 'معلق'),
-                                    ('inactive', 'غير نشط'),
-                                  ])
-                                    ChoiceChip(
-                                      label: Text(option.$2),
-                                      selected: statusFilter == option.$1,
-                                      onSelected: (_) => setState(
-                                        () => statusFilter = option.$1,
-                                      ),
-                                    ),
-                                ],
-                              ),
-                            ],
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            );
+          }
+          final all = snapshot.data ?? const <ServantProfile>[];
+          final filtered = all.where((servant) {
+            final matchesSearch =
+                search.trim().isEmpty ||
+                servant.name.contains(search.trim()) ||
+                (servant.phone ?? '').contains(search.trim());
+            final matchesStatus =
+                statusFilter == 'all' || servant.accountStatus == statusFilter;
+            final matchesRole =
+                roleFilter == 'all' || servant.role == roleFilter;
+            return matchesSearch && matchesStatus && matchesRole;
+          }).toList();
+
+          final activeCount = all
+              .where((s) => s.accountStatus == 'active')
+              .length;
+          final pendingCount = all
+              .where((s) => s.accountStatus == 'pending')
+              .length;
+
+          return AppContent(
+            maxWidth: 900,
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                final isMobile = constraints.maxWidth < 768;
+                return ListView(
+                  padding: EdgeInsets.fromLTRB(
+                    isMobile ? 16 : 20,
+                    isMobile ? 12 : 16,
+                    isMobile ? 16 : 20,
+                    32,
+                  ),
+                  children: [
+                    if (isMobile)
+                      _buildCompactMobileStatsRow(
+                        context,
+                        total: all.length,
+                        active: activeCount,
+                        pending: pendingCount,
+                      )
+                    else
+                      ResponsiveMetricGrid(
+                        spacing: 10,
+                        children: [
+                          ModernMetricCard(
+                            label: 'إجمالي الخدام',
+                            value: '${all.length}',
+                            icon: Icons.people_outline_rounded,
+                            color: Theme.of(context).colorScheme.primary,
                           ),
-                        ),
-                      SizedBox(height: isMobile ? 12 : 16),
-                      if (filtered.isEmpty)
-                        const EmptyState(
-                          icon: Icons.people_outline_rounded,
-                          title: 'لا توجد خدام مطابقة',
-                          message: 'جرّب تغيير البحث أو عوامل التصفية.',
-                        )
-                      else if (!isMobile)
-                        AppCard(
-                          padding: const EdgeInsets.all(8),
-                          child: SingleChildScrollView(
-                            scrollDirection: Axis.horizontal,
-                            child: DataTable(
-                              columnSpacing: 28,
-                              headingRowHeight: 48,
-                              dataRowMinHeight: 56,
-                              dataRowMaxHeight: 64,
-                              columns: const [
-                                DataColumn(label: Text('الخادم')),
-                                DataColumn(label: Text('الدور')),
-                                DataColumn(label: Text('النطاق')),
-                                DataColumn(label: Text('الحالة')),
-                                DataColumn(label: Text('إجراءات')),
-                              ],
-                              rows: [
-                                for (final servant in filtered)
-                                  DataRow(
-                                    onSelectChanged: (_) =>
-                                        _openEditor(servant),
-                                    cells: [
-                                      DataCell(Text(servant.name)),
-                                      DataCell(Text(_roleLabel(servant.role))),
-                                      DataCell(Text(_assignmentLabel(servant))),
-                                      DataCell(_statusBadge(context, servant)),
-                                      DataCell(
-                                        _servantActionsMenu(
-                                          servant,
-                                          isSuperAdmin,
-                                        ),
-                                      ),
-                                    ],
+                          ModernMetricCard(
+                            label: 'نشط',
+                            value: '$activeCount',
+                            icon: Icons.check_circle_outline_rounded,
+                            color: AppColors.of(context).present.foreground,
+                          ),
+                          ModernMetricCard(
+                            label: 'معلق',
+                            value: '$pendingCount',
+                            icon: Icons.hourglass_top_rounded,
+                            color: AppColors.of(context).pending.foreground,
+                          ),
+                        ],
+                      ),
+                    SizedBox(height: isMobile ? 10 : 16),
+                    if (isMobile)
+                      _buildMobileFilterBar(context)
+                    else
+                      AppCard(
+                        padding: const EdgeInsets.all(12),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            TextField(
+                              decoration: InputDecoration(
+                                isDense: true,
+                                labelText: 'بحث بالاسم أو الهاتف',
+                                prefixIcon: const Icon(Icons.search_rounded),
+                                suffixIcon: search.isNotEmpty
+                                    ? IconButton(
+                                        tooltip: 'مسح البحث',
+                                        icon: const Icon(Icons.clear_rounded),
+                                        onPressed: () =>
+                                            setState(() => search = ''),
+                                      )
+                                    : null,
+                              ),
+                              onChanged: (value) =>
+                                  setState(() => search = value),
+                            ),
+                            const SizedBox(height: 12),
+                            ServantRoleFilter(
+                              selectedRole: roleFilter,
+                              onChanged: (value) =>
+                                  setState(() => roleFilter = value),
+                            ),
+                            const SizedBox(height: 10),
+                            Text(
+                              'حالة الحساب',
+                              style: Theme.of(context).textTheme.labelLarge,
+                            ),
+                            const SizedBox(height: 6),
+                            Wrap(
+                              spacing: 8,
+                              runSpacing: 8,
+                              children: [
+                                for (final option in const [
+                                  ('all', 'الكل'),
+                                  ('active', 'نشط'),
+                                  ('pending', 'معلق'),
+                                  ('inactive', 'غير نشط'),
+                                ])
+                                  ChoiceChip(
+                                    label: Text(option.$2),
+                                    selected: statusFilter == option.$1,
+                                    onSelected: (_) => setState(
+                                      () => statusFilter = option.$1,
+                                    ),
                                   ),
                               ],
                             ),
-                          ),
-                        )
-                      else
-                        Column(
-                          children: [
-                            for (final servant in filtered)
-                              Padding(
-                                padding: const EdgeInsets.only(bottom: 10),
-                                child: _buildMobileServantCard(
-                                  context,
-                                  servant,
-                                  isSuperAdmin,
-                                ),
-                              ),
                           ],
                         ),
-                    ],
-                  );
-                },
-              ),
-            );
-          },
-        ),
+                      ),
+                    SizedBox(height: isMobile ? 12 : 16),
+                    if (filtered.isEmpty)
+                      const EmptyState(
+                        icon: Icons.people_outline_rounded,
+                        title: 'لا توجد خدام مطابقة',
+                        message: 'جرّب تغيير البحث أو عوامل التصفية.',
+                      )
+                    else if (!isMobile)
+                      AppCard(
+                        padding: const EdgeInsets.all(8),
+                        child: SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          child: DataTable(
+                            columnSpacing: 28,
+                            headingRowHeight: 48,
+                            dataRowMinHeight: 56,
+                            dataRowMaxHeight: 64,
+                            columns: const [
+                              DataColumn(label: Text('الخادم')),
+                              DataColumn(label: Text('الدور')),
+                              DataColumn(label: Text('النطاق')),
+                              DataColumn(label: Text('الحالة')),
+                              DataColumn(label: Text('إجراءات')),
+                            ],
+                            rows: [
+                              for (final servant in filtered)
+                                DataRow(
+                                  onSelectChanged: (_) => _openEditor(servant),
+                                  cells: [
+                                    DataCell(Text(servant.name)),
+                                    DataCell(Text(_roleLabel(servant.role))),
+                                    DataCell(Text(_assignmentLabel(servant))),
+                                    DataCell(_statusBadge(context, servant)),
+                                    DataCell(
+                                      _servantActionsMenu(
+                                        servant,
+                                        isSuperAdmin,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                            ],
+                          ),
+                        ),
+                      )
+                    else
+                      Column(
+                        children: [
+                          for (final servant in filtered)
+                            Padding(
+                              padding: const EdgeInsets.only(bottom: 10),
+                              child: _buildMobileServantCard(
+                                context,
+                                servant,
+                                isSuperAdmin,
+                              ),
+                            ),
+                        ],
+                      ),
+                  ],
+                );
+              },
+            ),
+          );
+        },
+      ),
     );
   }
 
@@ -657,10 +655,7 @@ class _ServantManagementPageState extends ConsumerState<ServantManagementPage> {
                           style: Theme.of(context).textTheme.bodySmall,
                         ),
                       ),
-                      PhoneContactActions(
-                        phone: servant.phone!,
-                        compact: true,
-                      ),
+                      PhoneContactActions(phone: servant.phone!, compact: true),
                     ],
                   ),
                 ],
@@ -709,10 +704,7 @@ class _ServantManagementPageState extends ConsumerState<ServantManagementPage> {
     );
   }
 
-  Widget _servantActionsMenu(
-    ServantProfile servant,
-    bool isSuperAdmin,
-  ) {
+  Widget _servantActionsMenu(ServantProfile servant, bool isSuperAdmin) {
     return PopupMenuButton<String>(
       tooltip: 'إجراءات الخادم',
       onSelected: (action) {
@@ -758,11 +750,8 @@ class _ServantManagementPageState extends ConsumerState<ServantManagementPage> {
   Future<void> _openEditor(ServantProfile servant) async {
     final result = await showDialog<ServantEditResult>(
       context: context,
-      builder: (_) => ServantEditDialog(
-        servant: servant,
-        stages: stages,
-        classes: classes,
-      ),
+      builder: (_) =>
+          ServantEditDialog(servant: servant, stages: stages, classes: classes),
     );
 
     if (result == null) return;
