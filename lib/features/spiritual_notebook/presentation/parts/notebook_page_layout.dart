@@ -353,7 +353,7 @@ extension _SpiritualNotebookPageLayout on _SpiritualNotebookPageState {
                 const SizedBox(width: 8),
                 Expanded(
                   child: _CompactMetricTile(
-                    label: 'المسجلون',
+                    label: 'تم التسجيل',
                     value: '$registeredCount',
                     icon: Icons.check_circle_rounded,
                     color: appSuccess,
@@ -403,7 +403,7 @@ extension _SpiritualNotebookPageLayout on _SpiritualNotebookPageState {
           const SizedBox(width: 10),
           Expanded(
             child: _CompactMetricTile(
-              label: 'المسجلون هذا الأسبوع',
+              label: 'تم التسجيل هذا الأسبوع',
               value: '$registeredCount',
               icon: Icons.check_circle_rounded,
               color: appSuccess,
