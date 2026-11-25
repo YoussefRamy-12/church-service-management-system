@@ -3,6 +3,17 @@
 part of '../spiritual_notebook_page.dart';
 
 extension _SpiritualNotebookStudentActions on _SpiritualNotebookStudentPageState {
+  void _openStudentAt(int index) {
+    if (index < 0 || index >= widget.studentIds.length) return;
+    context.go(
+      '/service/\${widget.serviceId}/spiritual-notebook/student/\${widget.studentIds[index]}',
+      extra: {
+        'studentIds': widget.studentIds,
+        'studentIndex': index,
+      },
+    );
+  }
+
 
   Future<_StudentFormData> _load() async {
       final repo = ref.read(spiritualNotebookRepositoryProvider);
