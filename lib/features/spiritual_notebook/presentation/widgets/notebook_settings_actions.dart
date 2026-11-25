@@ -32,10 +32,11 @@ extension _NotebookSettingsActions on _NotebookSettingsState {
           );
         }
       } catch (e) {
+        debugPrint('Presentation operation failed: $e');
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('تعذر إضافة النشاط: $e'),
+              content: Text('تعذر إتمام العملية. حاول مرة أخرى.'),
               backgroundColor: appError,
             ),
           );
@@ -73,10 +74,11 @@ extension _NotebookSettingsActions on _NotebookSettingsState {
           );
         }
       } catch (e) {
+        debugPrint('Presentation operation failed: $e');
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('تعذر حفظ الإعدادات: $e'),
+              content: Text('تعذر إتمام العملية. حاول مرة أخرى.'),
               backgroundColor: appError,
             ),
           );
@@ -230,10 +232,11 @@ extension _NotebookSettingsActions on _NotebookSettingsState {
             );
           }
         } catch (e) {
+          debugPrint('Presentation operation failed: $e');
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
-                content: Text('تعذر تعديل النشاط: $e'),
+                content: Text('تعذر إتمام العملية. حاول مرة أخرى.'),
                 backgroundColor: appError,
               ),
             );
@@ -347,10 +350,11 @@ extension _NotebookSettingsActions on _NotebookSettingsState {
             );
           }
         } catch (e) {
+          debugPrint('Presentation operation failed: $e');
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
-                content: Text('تعذر حذف النشاط: $e'),
+                content: Text('تعذر إتمام العملية. حاول مرة أخرى.'),
                 backgroundColor: appError,
               ),
             );

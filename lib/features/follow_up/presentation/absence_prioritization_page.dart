@@ -218,6 +218,7 @@ class _AbsencePrioritizationPageState
         });
     return _PriorityData(items: items, meetingCount: completedMeetings.length);
     } catch (e) {
+      debugPrint('Presentation operation failed: $e');
       throw Exception(NetworkErrorFormatter.format(e));
     }
   }
@@ -235,7 +236,7 @@ class _AbsencePrioritizationPageState
           return EmptyState(
             icon: Icons.error_outline,
             title: 'تعذر تجهيز القائمة',
-            message: '${snapshot.error}',
+            message: 'تعذر تجهيز القائمة. حاول تحديث البيانات.',
             action: OutlinedButton.icon(
               onPressed: () => setState(() => _data = _load()),
               icon: const Icon(Icons.refresh),

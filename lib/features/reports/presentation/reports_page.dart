@@ -294,7 +294,9 @@ class _ReportsPageState extends ConsumerState<ReportsPage>
                     );
                   },
                 ),
-                error: (error, stack) => Container(
+                error: (error, stack) {
+                  debugPrint('Failed to load report analytics: $error');
+                  return Container(
                   padding: const EdgeInsets.all(32),
                   decoration: BoxDecoration(
                     color: theme.colorScheme.surface,
@@ -311,7 +313,7 @@ class _ReportsPageState extends ConsumerState<ReportsPage>
                         ),
                         const SizedBox(height: 14),
                         Text(
-                          'تعذر تحميل بيانات التقرير: ${error.toString()}',
+                          'تعذر تحميل بيانات التقرير. تحقق من الاتصال ثم أعد المحاولة.',
                           textAlign: TextAlign.center,
                           style: const TextStyle(fontWeight: FontWeight.w700),
                         ),
@@ -325,7 +327,8 @@ class _ReportsPageState extends ConsumerState<ReportsPage>
                       ],
                     ),
                   ),
-                ),
+                );
+                },
                 data: (report) {
                   return Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,

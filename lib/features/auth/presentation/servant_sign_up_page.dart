@@ -80,6 +80,7 @@ class _ServantSignUpPageState extends ConsumerState<ServantSignUpPage> {
       }
       setState(() => _submitted = true);
     } catch (error) {
+      debugPrint('Presentation operation failed: $error');
       if (!mounted) return;
       final message = error.toString();
       setState(() {

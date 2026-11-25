@@ -78,10 +78,11 @@ class _SystemAdminHomePageState extends ConsumerState<SystemAdminHomePage> {
         ),
       );
     } catch (error) {
+      debugPrint('Presentation operation failed: $error');
       if (mounted) {
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(SnackBar(content: Text('تعذر إنشاء الخدمة: $error')));
+        ).showSnackBar(const SnackBar(content: Text('تعذر إنشاء الخدمة. حاول مرة أخرى.')));
       }
     }
   }
@@ -108,10 +109,11 @@ class _SystemAdminHomePageState extends ConsumerState<SystemAdminHomePage> {
         context,
       ).showSnackBar(const SnackBar(content: Text('تم تعديل الخدمة.')));
     } catch (error) {
+      debugPrint('Presentation operation failed: $error');
       if (mounted) {
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(SnackBar(content: Text('تعذر تعديل الخدمة: $error')));
+        ).showSnackBar(const SnackBar(content: Text('تعذر تعديل الخدمة. حاول مرة أخرى.')));
       }
     }
   }
@@ -149,11 +151,12 @@ class _SystemAdminHomePageState extends ConsumerState<SystemAdminHomePage> {
         context,
       ).showSnackBar(const SnackBar(content: Text('تم حذف الخدمة.')));
     } catch (error) {
+      debugPrint('Presentation operation failed: $error');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              'تعذر حذف الخدمة. قد تحتوي على مراحل أو سجلات مرتبطة. $error',
+              'تعذر حذف الخدمة. قد تحتوي على مراحل أو سجلات مرتبطة.',
             ),
           ),
         );
@@ -174,7 +177,7 @@ class _SystemAdminHomePageState extends ConsumerState<SystemAdminHomePage> {
         body: EmptyState(
           icon: Icons.error_outline,
           title: 'تعذر التحقق من الحساب',
-          message: '${identity.error}',
+          message: 'تعذر التحقق من الحساب. حاول تسجيل الدخول مرة أخرى.',
           action: FilledButton(
             onPressed: () => context.go('/login'),
             child: const Text('العودة لتسجيل الدخول'),

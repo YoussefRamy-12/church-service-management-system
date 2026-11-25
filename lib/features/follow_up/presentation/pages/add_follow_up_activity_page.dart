@@ -302,9 +302,10 @@ class _AddFollowUpActivityPageState
         );
       }
     } catch (e) {
+      debugPrint('Presentation operation failed: $e');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('تعذر تسجيل النشاط: $e')),
+          SnackBar(content: Text('تعذر إتمام العملية. حاول مرة أخرى.')),
         );
       }
     } finally {

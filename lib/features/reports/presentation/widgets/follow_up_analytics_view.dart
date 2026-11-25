@@ -167,7 +167,7 @@ class FollowUpAnalyticsView extends StatelessWidget {
                     ),
                   ),
                   child: Text(
-                    '$label: ${e.value}',
+                    'تعذر إتمام العملية. حاول مرة أخرى.',
                     style: TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.w600,

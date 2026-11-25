@@ -118,6 +118,7 @@ class _QrScanPageState extends State<QrScanPage>
       }
       if (mounted) setState(() => _cameraError = null);
     } catch (error) {
+      debugPrint('Presentation operation failed: $error');
       if (mounted && !_closing) {
         setState(() => _cameraError = _localizeCameraError(error));
       }

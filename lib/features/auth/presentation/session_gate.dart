@@ -22,7 +22,9 @@ class SessionGate extends ConsumerWidget {
     return session.when(
       loading: () =>
           const Scaffold(body: Center(child: CircularProgressIndicator())),
-      error: (error, _) => Scaffold(
+      error: (error, _) {
+        debugPrint('Failed to load session identity: $error');
+        return Scaffold(
         body: Center(
           child: Padding(
             padding: const EdgeInsets.all(24),
@@ -36,7 +38,6 @@ class SessionGate extends ConsumerWidget {
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 8),
-                Text(error.toString(), textAlign: TextAlign.center),
                 const SizedBox(height: 16),
                 FilledButton.icon(
                   onPressed: () =>
@@ -48,7 +49,8 @@ class SessionGate extends ConsumerWidget {
             ),
           ),
         ),
-      ),
+      );
+      },
       data: (identity) {
         if (identity == null) {
           return const _SessionError(
@@ -377,10 +379,13 @@ class _PendingRegistrationState extends ConsumerState<_PendingRegistration> {
           );
       ref.invalidate(currentSessionIdentityProvider);
     } catch (error) {
+      debugPrint('Presentation operation failed: $error');
       if (mounted) {
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(SnackBar(content: Text('تعذر حفظ البيانات: $error')));
+        ).showSnackBar(
+          const SnackBar(content: Text('تعذر حفظ البيانات. حاول مرة أخرى.')),
+        );
       }
     } finally {
       if (mounted) setState(() => _saving = false);

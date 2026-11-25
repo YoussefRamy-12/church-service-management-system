@@ -135,9 +135,10 @@ class _StudentsPageState extends ConsumerState<StudentsPage> {
                     .refreshStudentsForService(widget.serviceId);
                 await _loadClassNames();
               } catch (error) {
+                debugPrint('Presentation operation failed: $error');
                 if (!context.mounted) return;
                 ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('تعذر تحديث البيانات: $error')),
+                  SnackBar(content: Text('تعذر إتمام العملية. حاول مرة أخرى.')),
                 );
               }
             },

@@ -235,6 +235,7 @@ class _ExportPageState extends ConsumerState<ExportPage> {
         const SnackBar(content: Text('تم إنشاء ملف Excel بنجاح.')),
       );
     } catch (error) {
+      debugPrint('Presentation operation failed: $error');
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(

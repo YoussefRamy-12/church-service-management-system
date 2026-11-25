@@ -73,10 +73,11 @@ class _LessonFilesManagerSheetState
         );
       }
     } catch (e) {
+      debugPrint('Presentation operation failed: $e');
       if (mounted) {
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(SnackBar(content: Text('تعذر حذف الملف: $e')));
+        ).showSnackBar(SnackBar(content: Text('تعذر إتمام العملية. حاول مرة أخرى.')));
       }
     }
   }
@@ -115,10 +116,11 @@ class _LessonFilesManagerSheetState
         );
       }
     } catch (e) {
+      debugPrint('Presentation operation failed: $e');
       if (mounted) {
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(SnackBar(content: Text('تعذر حفظ الملف: $e')));
+        ).showSnackBar(SnackBar(content: Text('تعذر إتمام العملية. حاول مرة أخرى.')));
       }
     } finally {
       if (mounted) setState(() => _saving = false);
@@ -178,7 +180,8 @@ class _LessonFilesManagerSheetState
               );
           success++;
         } catch (e) {
-          errors.add('${item.name}: $e');
+          debugPrint('Presentation operation failed: $e');
+          errors.add('تعذر إتمام العملية. حاول مرة أخرى.');
         }
       }
       ref.invalidate(weeklyLessonsProvider(widget.serviceId));
@@ -227,10 +230,11 @@ class _LessonFilesManagerSheetState
         throw Exception('تعذر فتح الرابط');
       }
     } catch (e) {
+      debugPrint('Presentation operation failed: $e');
       if (mounted) {
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(SnackBar(content: Text('تعذر فتح الملف: $e')));
+        ).showSnackBar(SnackBar(content: Text('تعذر إتمام العملية. حاول مرة أخرى.')));
       }
     }
   }

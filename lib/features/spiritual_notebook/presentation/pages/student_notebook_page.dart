@@ -230,7 +230,7 @@ class _SpiritualNotebookStudentPageState
                                         ),
                                         const SizedBox(height: 2),
                                         Text(
-                                          '${existing['total_points']} نقطة',
+                                          'تعذر إتمام العملية. حاول مرة أخرى.',
                                           style: const TextStyle(
                                             fontSize: 20,
                                             fontWeight: FontWeight.w800,
@@ -274,7 +274,7 @@ class _SpiritualNotebookStudentPageState
                                           ),
                                           const SizedBox(height: 2),
                                           Text(
-                                            '+${existing['bonus_points']} ن',
+                                            'تعذر إتمام العملية. حاول مرة أخرى.',
                                             style: TextStyle(
                                               fontSize: 20,
                                               fontWeight: FontWeight.w800,
@@ -293,7 +293,7 @@ class _SpiritualNotebookStudentPageState
                             if (existing['submitted_at'] != null) ...[
                               const SizedBox(height: 12),
                               Text(
-                                'تاريخ ووقت الحفظ: ${existing['submitted_at']}',
+                                'تعذر إتمام العملية. حاول مرة أخرى.',
                                 style: TextStyle(
                                   fontSize: 13,
                                   color: theme.colorScheme.onSurfaceVariant,

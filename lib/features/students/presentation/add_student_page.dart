@@ -300,6 +300,7 @@ class _AddStudentPageState extends ConsumerState<AddStudentPage> {
         MaterialPageRoute(builder: (_) => StudentDetailsPage(student: created)),
       );
     } catch (error) {
+      debugPrint('Presentation operation failed: $error');
       if (mounted) {
         setState(() => _saving = false);
         ScaffoldMessenger.of(context).showSnackBar(

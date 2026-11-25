@@ -165,7 +165,10 @@ class _CreateFollowUpCasePageState
                             );
                           },
                           loading: () => const LinearProgressIndicator(),
-                          error: (err, _) => Text('خطأ في تحميل الطلاب: $err'),
+                          error: (err, _) {
+                            debugPrint('Failed to load students for case creation: $err');
+                            return const Text('تعذر تحميل الطلاب. حاول تحديث القائمة.');
+                          },
                         ),
                   ],
                   const SizedBox(height: 20),
@@ -423,9 +426,10 @@ class _CreateFollowUpCasePageState
         );
       }
     } catch (e) {
+      debugPrint('Presentation operation failed: $e');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('تعذر فتح الحالة: $e')),
+          SnackBar(content: Text('تعذر إتمام العملية. حاول مرة أخرى.')),
         );
       }
     } finally {

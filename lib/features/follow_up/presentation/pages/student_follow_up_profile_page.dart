@@ -271,11 +271,13 @@ class StudentFollowUpProfilePage extends ConsumerWidget {
                 padding: EdgeInsets.all(20),
                 child: Center(child: CircularProgressIndicator()),
               ),
-              error: (err, _) => EmptyState(
-                icon: Icons.error_outline_rounded,
-                title: 'تعذر تحميل الحالات',
-                message: '$err',
-              ),
+              error: (err, _) {
+                return const EmptyState(
+                  icon: Icons.error_outline_rounded,
+                  title: 'تعذر تحميل الحالات',
+                  message: 'حاول تحديث الصفحة.',
+                );
+              },
             ),
 
             const SizedBox(height: 24),
@@ -331,11 +333,13 @@ class StudentFollowUpProfilePage extends ConsumerWidget {
                 padding: EdgeInsets.all(20),
                 child: Center(child: CircularProgressIndicator()),
               ),
-              error: (err, _) => EmptyState(
-                icon: Icons.error_outline_rounded,
-                title: 'تعذر تحميل السجل التاريخي',
-                message: '$err',
-              ),
+              error: (err, _) {
+                return const EmptyState(
+                  icon: Icons.error_outline_rounded,
+                  title: 'تعذر تحميل السجل التاريخي',
+                  message: 'حاول تحديث الصفحة.',
+                );
+              },
             ),
           ],
         ),

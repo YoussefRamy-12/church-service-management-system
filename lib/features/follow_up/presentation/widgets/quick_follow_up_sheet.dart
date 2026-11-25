@@ -262,9 +262,10 @@ class _QuickFollowUpSheetState extends ConsumerState<QuickFollowUpSheet> {
       );
       Navigator.pop(context);
     } catch (error) {
+      debugPrint('Presentation operation failed: $error');
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('تعذر تسجيل المتابعة: $error')),
+        SnackBar(content: Text('تعذر إتمام العملية. حاول مرة أخرى.')),
       );
     } finally {
       if (mounted) setState(() => _saving = false);

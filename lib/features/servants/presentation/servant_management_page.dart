@@ -775,10 +775,11 @@ class _ServantManagementPageState extends ConsumerState<ServantManagementPage> {
         const SnackBar(content: Text('تم حفظ التعديل محليًا وسيتم مزامنته.')),
       );
     } catch (error) {
+      debugPrint('Presentation operation failed: $error');
       if (!mounted) return;
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(SnackBar(content: Text('تعذر حفظ التعديل: $error')));
+      ).showSnackBar(const SnackBar(content: Text('تعذر حفظ التعديل. حاول مرة أخرى.')));
     }
   }
 
@@ -807,10 +808,11 @@ class _ServantManagementPageState extends ConsumerState<ServantManagementPage> {
         const SnackBar(content: Text('تمت إضافة الخادم وربط دوره بالخدمة.')),
       );
     } catch (error) {
+      debugPrint('Presentation operation failed: $error');
       if (!mounted) return;
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(SnackBar(content: Text('تعذرت إضافة الخادم: $error')));
+      ).showSnackBar(const SnackBar(content: Text('تعذرت إضافة الخادم. حاول مرة أخرى.')));
     }
   }
 
@@ -844,10 +846,11 @@ class _ServantManagementPageState extends ConsumerState<ServantManagementPage> {
         ),
       );
     } catch (error) {
+      debugPrint('Presentation operation failed: $error');
       if (mounted) {
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(SnackBar(content: Text('تعذر حذف ملف الخادم: $error')));
+        ).showSnackBar(const SnackBar(content: Text('تعذر حذف ملف الخادم. حاول مرة أخرى.')));
       }
     }
   }

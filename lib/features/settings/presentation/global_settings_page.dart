@@ -293,7 +293,7 @@ class _ProfileSection extends ConsumerWidget {
         child: EmptyState(
           icon: Icons.error_outline,
           title: 'تعذر تحميل الملف الشخصي',
-          message: '$e',
+          message: 'تعذر إتمام العملية. حاول مرة أخرى.',
         ),
       ),
       data: (identity) {
@@ -531,8 +531,9 @@ class _EditProfileDialogState extends State<_EditProfileDialog> {
         const SnackBar(content: Text('تم تحديث البيانات الشخصية بنجاح.')),
       );
     } catch (e) {
+      debugPrint('Presentation operation failed: $e');
       if (!mounted) return;
-      setState(() => _error = 'تعذر الحفظ: $e');
+      setState(() => _error = 'تعذر إتمام العملية. حاول مرة أخرى.');
     } finally {
       if (mounted) setState(() => _saving = false);
     }
@@ -757,8 +758,9 @@ class _ChangePasswordDialogState extends State<_ChangePasswordDialog> {
         const SnackBar(content: Text('تم تغيير كلمة المرور بنجاح.')),
       );
     } catch (e) {
+      debugPrint('Presentation operation failed: $e');
       if (!mounted) return;
-      setState(() => _error = 'تعذر التحديث: $e');
+      setState(() => _error = 'تعذر إتمام العملية. حاول مرة أخرى.');
     } finally {
       if (mounted) setState(() => _saving = false);
     }
