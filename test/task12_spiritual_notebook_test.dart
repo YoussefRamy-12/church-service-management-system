@@ -109,7 +109,7 @@ class _FakeSpiritualNotebookRepository extends SpiritualNotebookRepository {
 
   @override
   Future<Map<String, dynamic>?> settings(String serviceId) async => {
-    'bonus_roles': ['overall_leader'],
+    'bonus_roles': ['overall_leader', 'overall_helper', 'stage_leader', 'class_leader', 'class_servant'],
     'max_bonus_points': 5,
     'allow_zero_submissions': false,
   };
