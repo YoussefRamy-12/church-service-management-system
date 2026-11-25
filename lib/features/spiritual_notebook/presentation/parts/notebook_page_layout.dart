@@ -81,76 +81,82 @@ extension _SpiritualNotebookPageLayout on _SpiritualNotebookPageState {
               ),
               const SizedBox(height: 6),
 
-              // Row 2: Week Selector Controls
+              // Row 2: Compact week selector
               Row(
-                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   IconButton(
                     icon: const Icon(Icons.chevron_right_rounded, size: 22),
                     tooltip: 'الأسبوع السابق',
                     visualDensity: VisualDensity.compact,
                     padding: EdgeInsets.zero,
-                    constraints: const BoxConstraints(
-                      minWidth: 32,
-                      minHeight: 32,
+                    constraints: const BoxConstraints.tightFor(
+                      width: 32,
+                      height: 36,
                     ),
                     onPressed: () => setState(() => _weekOffset -= 1),
                   ),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 10,
-                      vertical: 4,
-                    ),
-                    decoration: BoxDecoration(
-                      color: isDark
-                          ? AppDesignColors.darkSurfaceSubtle
-                          : AppDesignColors.lightSurfaceSubtle,
-                      borderRadius: BorderRadius.circular(999),
-                      border: Border.all(
-                        color: isDark
-                            ? AppDesignColors.darkBorder
-                            : AppDesignColors.lightBorder,
+                  Expanded(
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 4,
                       ),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(
-                          Icons.calendar_month_rounded,
-                          size: 14,
-                          color: Theme.of(context).colorScheme.primary,
+                      decoration: BoxDecoration(
+                        color: isDark
+                            ? AppDesignColors.darkSurfaceSubtle
+                            : AppDesignColors.lightSurfaceSubtle,
+                        borderRadius: BorderRadius.circular(999),
+                        border: Border.all(
+                          color: isDark
+                              ? AppDesignColors.darkBorder
+                              : AppDesignColors.lightBorder,
                         ),
-                        const SizedBox(width: 6),
-                        Text(
-                          period.label,
-                          style: TextStyle(
-                            fontWeight: FontWeight.w700,
-                            fontSize: 12,
-                            color: isDark ? Colors.white : appInk,
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            Icons.calendar_month_rounded,
+                            size: 14,
+                            color: Theme.of(context).colorScheme.primary,
                           ),
-                        ),
-                        if (isCurrentWeek) ...[
                           const SizedBox(width: 6),
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 5,
-                              vertical: 1.5,
-                            ),
-                            decoration: BoxDecoration(
-                              color: appSuccess.withValues(alpha: 0.15),
-                              borderRadius: BorderRadius.circular(999),
-                            ),
-                            child: const Text(
-                              'الحالي',
+                          Flexible(
+                            child: Text(
+                              period.label,
+                              maxLines: 1,
+                              softWrap: false,
+                              overflow: TextOverflow.ellipsis,
                               style: TextStyle(
-                                color: appSuccess,
-                                fontWeight: FontWeight.w800,
+                                fontWeight: FontWeight.w700,
                                 fontSize: 12,
+                                color: isDark ? Colors.white : appInk,
                               ),
                             ),
                           ),
+                          if (isCurrentWeek) ...[
+                            const SizedBox(width: 6),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 5,
+                                vertical: 1.5,
+                              ),
+                              decoration: BoxDecoration(
+                                color: appSuccess.withValues(alpha: 0.15),
+                                borderRadius: BorderRadius.circular(999),
+                              ),
+                              child: const Text(
+                                'الحالي',
+                                style: TextStyle(
+                                  color: appSuccess,
+                                  fontWeight: FontWeight.w800,
+                                  fontSize: 12,
+                                ),
+                              ),
+                            ),
+                          ],
                         ],
-                      ],
+                      ),
                     ),
                   ),
                   IconButton(
@@ -158,9 +164,9 @@ extension _SpiritualNotebookPageLayout on _SpiritualNotebookPageState {
                     tooltip: 'الأسبوع القادم',
                     visualDensity: VisualDensity.compact,
                     padding: EdgeInsets.zero,
-                    constraints: const BoxConstraints(
-                      minWidth: 32,
-                      minHeight: 32,
+                    constraints: const BoxConstraints.tightFor(
+                      width: 32,
+                      height: 36,
                     ),
                     onPressed: () => setState(() => _weekOffset += 1),
                   ),
