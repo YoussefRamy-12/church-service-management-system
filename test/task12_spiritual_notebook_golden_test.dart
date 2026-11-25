@@ -115,9 +115,7 @@ List<Override> _overrides(_NotebookGoldenRepository repository) => [
   isSuperAdminProvider.overrideWith((ref) => false),
 ];
 
-SpiritualNotebookStudentPage _form({
-  bool registered = false,
-}) => SpiritualNotebookStudentPage(
+SpiritualNotebookStudentPage _form() => SpiritualNotebookStudentPage(
   serviceId: 'service-1',
   membershipId: 'membership-1',
   studentIds: const [
@@ -241,7 +239,7 @@ void main() {
       final repository = _NotebookGoldenRepository(registeredFirst: true);
       await pumpGoldenWidget(
         tester,
-        home: _form(registered: true),
+        home: _form(),
         variant: variant,
         overrides: _overrides(repository),
       );
