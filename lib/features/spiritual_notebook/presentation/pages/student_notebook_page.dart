@@ -57,7 +57,7 @@ class _SpiritualNotebookStudentPageState
               child: EmptyState(
                 icon: Icons.error_outline_rounded,
                 title: 'تعذر فتح دفتر التلميذ',
-                message: '${snap.error}',
+                message: 'تعذر تحميل بيانات التلميذ. تحقق من الاتصال ثم أعد المحاولة.',
                 action: FilledButton(
                   onPressed: () => setState(() => data = _load()),
                   child: const Text('إعادة المحاولة'),
