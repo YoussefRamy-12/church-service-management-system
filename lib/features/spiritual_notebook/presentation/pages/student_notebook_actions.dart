@@ -3,6 +3,10 @@
 part of '../spiritual_notebook_page.dart';
 
 extension _SpiritualNotebookStudentActions on _SpiritualNotebookStudentPageState {
+  WeeklyPeriod get _studentWeek => widget.weekStart == null
+      ? WeeklyPeriod.containing(DateTime.now())
+      : WeeklyPeriod.containing(DateTime.parse(widget.weekStart!));
+
   void _openStudentAt(int index) {
     if (index < 0 || index >= widget.studentIds.length) return;
     context.go(
@@ -10,6 +14,7 @@ extension _SpiritualNotebookStudentActions on _SpiritualNotebookStudentPageState
       extra: {
         'studentIds': widget.studentIds,
         'studentIndex': index,
+        'weekStart': widget.weekStart,
       },
     );
   }
@@ -31,7 +36,7 @@ extension _SpiritualNotebookStudentActions on _SpiritualNotebookStudentPageState
         throw StateError('Active student membership is not available in this service.');
       }
 
-      final period = WeeklyPeriod.containing(DateTime.now());
+      final period = _studentWeek;
       final existing = (results[2] as List<Map<String, dynamic>>)
           .where(
             (row) =>
@@ -50,7 +55,7 @@ extension _SpiritualNotebookStudentActions on _SpiritualNotebookStudentPageState
   Future<void> _submitRecord({bool goToNext = false}) async {
       final d = (await data);
       if (!mounted) return;
-      final period = WeeklyPeriod.containing(DateTime.now());
+      final period = _studentWeek;
       final role = ref.read(currentServantProfileProvider).value?.role;
       final bonusAllowed = (d.settings?['bonus_roles'] as List<dynamic>? ?? [])
           .contains(role);
