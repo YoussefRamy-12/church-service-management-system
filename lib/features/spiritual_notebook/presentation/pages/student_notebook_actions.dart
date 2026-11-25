@@ -6,7 +6,7 @@ extension _SpiritualNotebookStudentActions on _SpiritualNotebookStudentPageState
   void _openStudentAt(int index) {
     if (index < 0 || index >= widget.studentIds.length) return;
     context.go(
-      '/service/\${widget.serviceId}/spiritual-notebook/student/\${widget.studentIds[index]}',
+      '/service/${widget.serviceId}/spiritual-notebook/student/${widget.studentIds[index]}',
       extra: {
         'studentIds': widget.studentIds,
         'studentIndex': index,
@@ -47,7 +47,7 @@ extension _SpiritualNotebookStudentActions on _SpiritualNotebookStudentPageState
       );
     }
 
-  Future<void> _submitRecord() async {
+  Future<void> _submitRecord({bool goToNext = false}) async {
       final d = (await data);
       if (!mounted) return;
       final period = WeeklyPeriod.containing(DateTime.now());
@@ -105,7 +105,7 @@ extension _SpiritualNotebookStudentActions on _SpiritualNotebookStudentPageState
                 ),
                 const SizedBox(height: 6),
                 Text(
-                  '$studentName • \${period.label}',
+                  '$studentName • ${period.label}',
                   style: Theme.of(c).textTheme.bodyMedium,
                 ),
                 const SizedBox(height: 14),
@@ -125,7 +125,7 @@ extension _SpiritualNotebookStudentActions on _SpiritualNotebookStudentPageState
                           contentPadding: EdgeInsets.zero,
                           title: Text(activity['name'] as String),
                           trailing: Text(
-                            '+\${activity['points']} ن',
+                            '+${activity['points']} ن',
                             style: const TextStyle(fontWeight: FontWeight.w700),
                           ),
                         );
@@ -144,7 +144,7 @@ extension _SpiritualNotebookStudentActions on _SpiritualNotebookStudentPageState
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    'السبب: \${reason.text.trim()}',
+                    'السبب: ${reason.text.trim()}',
                     style: Theme.of(c).textTheme.bodySmall,
                   ),
                 ],
@@ -221,13 +221,17 @@ extension _SpiritualNotebookStudentActions on _SpiritualNotebookStudentPageState
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
-              content: Text('تم اعتماد النوتة الروحية للتلميذ بنجاح'),
+              content: Text('تم حفظ النوتة الروحية للتلميذ بنجاح'),
               backgroundColor: appSuccess,
             ),
           );
-          setState(() {
-            data = _load();
-          });
+          if (goToNext && widget.studentIndex < widget.studentIds.length - 1) {
+            _openStudentAt(widget.studentIndex + 1);
+          } else {
+            setState(() {
+              data = _load();
+            });
+          }
         }
       } catch (e) {
         if (mounted) {
