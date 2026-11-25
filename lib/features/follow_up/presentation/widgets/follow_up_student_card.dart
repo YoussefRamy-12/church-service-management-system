@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
+import '../../../../app/design/app_colors.dart';
 import '../../../../app/ui/app_ui.dart';
+import '../../../../core/ui/phone_contact_actions.dart';
 import '../../../../core/utils/app_formatters.dart';
 import '../../domain/entities/follow_up_student_item.dart';
-import '../../../../core/ui/phone_contact_actions.dart';
-import '../../../../app/design/app_colors.dart';
 
 class FollowUpStudentCard extends StatelessWidget {
   const FollowUpStudentCard({
@@ -33,17 +33,17 @@ class FollowUpStudentCard extends StatelessWidget {
 
     return AppCard(
       borderRadius: 14,
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       onTap: onTap,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // Row 1: Avatar, name, class
           Row(
             children: [
-              // Avatar
               Container(
-                width: 44,
-                height: 44,
+                width: 40,
+                height: 40,
                 decoration: BoxDecoration(
                   color: theme.colorScheme.primaryContainer,
                   shape: BoxShape.circle,
@@ -58,14 +58,13 @@ class FollowUpStudentCard extends StatelessWidget {
                         : '؟',
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
-                      fontSize: 18,
+                      fontSize: 16,
                       color: theme.colorScheme.onPrimaryContainer,
                     ),
                   ),
                 ),
               ),
-              const SizedBox(width: 14),
-              // Student Name & Class
+              const SizedBox(width: 12),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -73,18 +72,18 @@ class FollowUpStudentCard extends StatelessWidget {
                     Text(
                       item.student.name,
                       style: const TextStyle(
-                        fontWeight: FontWeight.w700,
+                        fontWeight: FontWeight.w800,
                         fontSize: 15,
                       ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
-                    const SizedBox(height: 3),
+                    const SizedBox(height: 2),
                     Row(
                       children: [
                         Icon(
-                          Icons.groups_rounded,
-                          size: 14,
+                          Icons.class_outlined,
+                          size: 13,
                           color: theme.colorScheme.onSurfaceVariant,
                         ),
                         const SizedBox(width: 4),
@@ -106,13 +105,13 @@ class FollowUpStudentCard extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: 8),
+          // Row 2: Reason chips
           Wrap(
-            spacing: 8,
+            spacing: 6,
             runSpacing: 6,
             crossAxisAlignment: WrapCrossAlignment.center,
             children: [
-              // Follow-up reason/status
               Chip(
                 avatar: Icon(
                   item.needsFollowUp
@@ -140,11 +139,10 @@ class FollowUpStudentCard extends StatelessWidget {
                       : theme.colorScheme.outlineVariant,
                 ),
               ),
-              // Absence Badge
               Container(
                 padding: const EdgeInsets.symmetric(
-                  horizontal: 10,
-                  vertical: 5,
+                  horizontal: 8,
+                  vertical: 4,
                 ),
                 decoration: BoxDecoration(
                   color: hasHighAbsence
@@ -171,7 +169,7 @@ class FollowUpStudentCard extends StatelessWidget {
                           ? semantic.absent.foreground
                           : theme.colorScheme.onSurfaceVariant,
                     ),
-                    const SizedBox(width: 5),
+                    const SizedBox(width: 4),
                     Text(
                       'غياب: ${item.absenceCount}',
                       style: TextStyle(
@@ -185,47 +183,15 @@ class FollowUpStudentCard extends StatelessWidget {
                   ],
                 ),
               ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          const Divider(height: 1, thickness: 0.6),
-          const SizedBox(height: 10),
-          SizedBox(
-            width: double.infinity,
-            child: Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              alignment: WrapAlignment.spaceBetween,
-              crossAxisAlignment: WrapCrossAlignment.center,
-              children: [
-                if (item.student.phone != null && item.student.phone!.isNotEmpty)
-                  PhoneContactActions(phone: item.student.phone!, compact: true),
-                if (onLogFollowUp != null)
-                  FilledButton.tonalIcon(
-                    onPressed: onLogFollowUp,
-                    icon: const Icon(Icons.edit_note_rounded, size: 18),
-                    label: const Text('تسجيل متابعة'),
-                  ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 8),
-          // Footer Info: Active Cases + Latest Follow-up
-          Wrap(
-            spacing: 8,
-            runSpacing: 6,
-            crossAxisAlignment: WrapCrossAlignment.center,
-            children: [
-              // Active Cases Badge
-              if (item.activeCasesCount > 0) ...[
+              if (item.activeCasesCount > 0)
                 Container(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 8,
-                    vertical: 3,
+                    vertical: 4,
                   ),
                   decoration: BoxDecoration(
                     color: theme.colorScheme.primaryContainer,
-                    borderRadius: BorderRadius.circular(6),
+                    borderRadius: BorderRadius.circular(8),
                   ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
@@ -233,7 +199,7 @@ class FollowUpStudentCard extends StatelessWidget {
                       Icon(
                         Icons.folder_open_rounded,
                         size: 13,
-                        color: theme.colorScheme.primary,
+                        color: theme.colorScheme.onPrimaryContainer,
                       ),
                       const SizedBox(width: 4),
                       Text(
@@ -241,35 +207,29 @@ class FollowUpStudentCard extends StatelessWidget {
                         style: TextStyle(
                           fontSize: 13,
                           fontWeight: FontWeight.w700,
-                          color: theme.colorScheme.primary,
+                          color: theme.colorScheme.onPrimaryContainer,
                         ),
                       ),
                     ],
                   ),
                 ),
-                const SizedBox(width: 8),
-              ] else ...[
-                Text(
-                  item.totalCasesCount == 0
-                      ? 'لا توجد حالات متابعة'
-                      : 'الحالات السابقة: ${item.totalCasesCount}',
-                  style: TextStyle(
-                    fontSize: 13,
-                    color: theme.colorScheme.onSurfaceVariant,
-                  ),
-                ),
-                const SizedBox(width: 8),
-              ],
-              // Latest Follow-up
-              if (item.latestFollowUpDate != null) ...[
-                Icon(
-                  Icons.history_rounded,
-                  size: 13,
-                  color: theme.colorScheme.onSurfaceVariant,
-                ),
-                const SizedBox(width: 4),
-                Text(
-                  'آخر متابعة: ${AppDateFormatter.formatString(item.latestFollowUpDate)}${item.latestFollowUpAuthor != null ? ' (${item.latestFollowUpAuthor})' : ''}',
+            ],
+          ),
+          const SizedBox(height: 6),
+          // Row 3: Last contact on one line
+          Row(
+            children: [
+              Icon(
+                Icons.history_rounded,
+                size: 13,
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+              const SizedBox(width: 4),
+              Expanded(
+                child: Text(
+                  item.latestFollowUpDate != null
+                      ? 'آخر متابعة: ${AppDateFormatter.formatString(item.latestFollowUpDate)}${item.latestFollowUpAuthor != null ? ' (${item.latestFollowUpAuthor})' : ''}'
+                      : 'لم تتم متابعته بعد',
                   style: TextStyle(
                     fontSize: 12,
                     color: theme.colorScheme.onSurfaceVariant,
@@ -277,13 +237,25 @@ class FollowUpStudentCard extends StatelessWidget {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
-              ] else
-                Text(
-                  'لم تتم متابعته بعد',
-                  style: TextStyle(
-                    fontSize: 13,
-                    color: theme.colorScheme.onSurfaceVariant,
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          // Row 4: [call] [WhatsApp] (48px) + primary "تسجيل متابعة"
+          Row(
+            children: [
+              if (item.student.phone != null && item.student.phone!.isNotEmpty)
+                PhoneContactActions(phone: item.student.phone!, compact: false),
+              const Spacer(),
+              if (onLogFollowUp != null)
+                FilledButton.tonalIcon(
+                  onPressed: onLogFollowUp,
+                  style: FilledButton.styleFrom(
+                    minimumSize: const Size(0, 44),
+                    padding: const EdgeInsets.symmetric(horizontal: 14),
                   ),
+                  icon: const Icon(Icons.edit_note_rounded, size: 18),
+                  label: const Text('تسجيل متابعة'),
                 ),
             ],
           ),

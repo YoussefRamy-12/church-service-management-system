@@ -44,12 +44,17 @@ class PhoneContactActions extends StatelessWidget {
   Widget build(BuildContext context) {
     if (_digits.isEmpty) return const SizedBox.shrink();
     final iconSize = compact ? 19.0 : 21.0;
+    final buttonConstraints = compact
+        ? null
+        : const BoxConstraints(minWidth: 48, minHeight: 48);
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
         IconButton(
           tooltip: 'إرسال رسالة عبر WhatsApp',
-          visualDensity: VisualDensity.compact,
+          visualDensity:
+              compact ? VisualDensity.compact : VisualDensity.standard,
+          constraints: buttonConstraints,
           iconSize: iconSize,
           onPressed: _internationalDigits.isEmpty
               ? null
@@ -61,7 +66,9 @@ class PhoneContactActions extends StatelessWidget {
         ),
         IconButton(
           tooltip: 'فتح الرقم في تطبيق الاتصال',
-          visualDensity: VisualDensity.compact,
+          visualDensity:
+              compact ? VisualDensity.compact : VisualDensity.standard,
+          constraints: buttonConstraints,
           iconSize: iconSize,
           onPressed: () => _launch(context, Uri(scheme: 'tel', path: phone.trim())),
           icon: const Icon(Icons.call_rounded),
