@@ -163,8 +163,12 @@ class _SpiritualNotebookPageState extends ConsumerState<SpiritualNotebookPage> {
                                 submissions: d.submissions,
                                 period: period,
                                 isMobile: true,
-                                onOpen: (s) => context.go(
+                                onOpen: (s, studentIds, selectedIndex) => context.go(
                                   '/service/${widget.serviceId}/spiritual-notebook/student/${s['id']}',
+                                  extra: {
+                                    'studentIds': studentIds,
+                                    'studentIndex': selectedIndex,
+                                  },
                                 ),
                               ),
                               1 => _Leaderboard(
@@ -199,8 +203,12 @@ class _SpiritualNotebookPageState extends ConsumerState<SpiritualNotebookPage> {
                                     submissions: d.submissions,
                                     period: period,
                                     isMobile: false,
-                                    onOpen: (s) => context.go(
+                                    onOpen: (s, studentIds, selectedIndex) => context.go(
                                       '/service/${widget.serviceId}/spiritual-notebook/student/${s['id']}',
+                                      extra: {
+                                        'studentIds': studentIds,
+                                        'studentIndex': selectedIndex,
+                                      },
                                     ),
                                   ),
                                 ),
