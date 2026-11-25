@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'package:church_service_management_system/app/design/app_theme.dart';
@@ -304,6 +305,89 @@ void main() {
       isNotNull,
     );
     expect(find.text('حفظ والتالي'), findsOneWidget);
+  });
+
+  testWidgets('save and next submits once then opens the next roster student', (
+    tester,
+  ) async {
+    final repository = _FakeSpiritualNotebookRepository();
+    final router = GoRouter(
+      initialLocation: '/service/service-1/spiritual-notebook',
+      routes: [
+        GoRoute(
+          path: '/service/:serviceId/spiritual-notebook',
+          builder: (context, state) => Scaffold(
+            body: Center(
+              child: TextButton(
+                onPressed: () => context.go(
+                  '/service/service-1/spiritual-notebook/student/membership-1',
+                  extra: {
+                    'studentIds': const ['membership-1', 'membership-2'],
+                    'studentIndex': 0,
+                  },
+                ),
+                child: const Text('فتح النوتة'),
+              ),
+            ),
+          ),
+        ),
+        GoRoute(
+          path: '/service/:serviceId/spiritual-notebook/student/:membershipId',
+          builder: (context, state) {
+            final extra = state.extra;
+            final navigation = extra is Map<String, dynamic>
+                ? extra
+                : const <String, dynamic>{};
+            return SpiritualNotebookStudentPage(
+              serviceId: state.pathParameters['serviceId']!,
+              membershipId: state.pathParameters['membershipId']!,
+              studentIds:
+                  (navigation['studentIds'] as List<dynamic>? ?? const [])
+                      .whereType<String>()
+                      .toList(),
+              studentIndex: navigation['studentIndex'] as int? ?? 0,
+            );
+          },
+        ),
+      ],
+    );
+
+    tester.view.physicalSize = const Size(390, 844);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          spiritualNotebookRepositoryProvider.overrideWithValue(repository),
+          currentServantProfileProvider.overrideWith((ref) async => _leader),
+          isSuperAdminProvider.overrideWith((ref) => false),
+        ],
+        child: MaterialApp.router(
+          routerConfig: router,
+          locale: const Locale('ar'),
+          supportedLocales: const [Locale('ar'), Locale('en')],
+          localizationsDelegates: GlobalMaterialLocalizations.delegates,
+          theme: AppTheme.light,
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('فتح النوتة'));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('قراءة الإنجيل'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('حفظ والتالي'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('حفظ النوتة'));
+    await tester.pumpAndSettle();
+
+    expect(repository.submitCount, 1);
+    expect(find.text('مينا فايز 2'), findsOneWidget);
+    expect(find.text('2/2'), findsOneWidget);
+    expect(find.text('حفظ'), findsOneWidget);
+    expect(find.text('حفظ والتالي'), findsNothing);
   });
 
   testWidgets('last student keeps save action without a next target', (
