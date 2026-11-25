@@ -21,7 +21,7 @@ extension _StudentNotebookBonusSection on _SpiritualNotebookStudentPageState {
                 const ModernSectionHeader(
                   title: 'نقاط تشجيعية إضافية',
                   subtitle:
-        'يمكنك إضافة نقاط إضافية مع ذكر السبب',
+                      'يمكنك إضافة نقاط إضافية مع ذكر السبب',
                 ),
                 const SizedBox(height: 10),
                 if (isMobile) ...[
@@ -29,10 +29,10 @@ extension _StudentNotebookBonusSection on _SpiritualNotebookStudentPageState {
                     controller: bonus,
                     keyboardType: TextInputType.number,
                     decoration: InputDecoration(
-        labelText: 'النقاط (أقصى $maxBonus)',
-        prefixIcon: const Icon(
-          Icons.star_outline_rounded,
-        ),
+                      labelText: 'النقاط (أقصى $maxBonus)',
+                      prefixIcon: const Icon(
+                        Icons.star_outline_rounded,
+                      ),
                     ),
                     onChanged: (_) => setState(() {}),
                   ),
@@ -40,43 +40,43 @@ extension _StudentNotebookBonusSection on _SpiritualNotebookStudentPageState {
                   TextField(
                     controller: reason,
                     decoration: const InputDecoration(
-        labelText:
-            'سبب الإضافة (مطلوب إذا وضعت نقاط)',
-        prefixIcon: Icon(Icons.comment_outlined),
+                      labelText:
+                          'سبب الإضافة (مطلوب إذا وضعت نقاط)',
+                      prefixIcon: Icon(Icons.comment_outlined),
                     ),
                     onChanged: (_) => setState(() {}),
                   ),
                 ] else ...[
                   Row(
                     children: [
-        SizedBox(
-          width: 140,
-          child: TextField(
-            controller: bonus,
-            keyboardType: TextInputType.number,
-            decoration: InputDecoration(
-              labelText: 'النقاط (أقصى $maxBonus)',
-              prefixIcon: const Icon(
-                Icons.star_outline_rounded,
-              ),
-            ),
-            onChanged: (_) => setState(() {}),
-          ),
-        ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: TextField(
-            controller: reason,
-            decoration: const InputDecoration(
-              labelText:
-                  'سبب الإضافة (مطلوب إذا وضعت نقاط)',
-              prefixIcon: Icon(
-                Icons.comment_outlined,
-              ),
-            ),
-            onChanged: (_) => setState(() {}),
-          ),
-        ),
+                      SizedBox(
+                        width: 140,
+                        child: TextField(
+                          controller: bonus,
+                          keyboardType: TextInputType.number,
+                          decoration: InputDecoration(
+                            labelText: 'النقاط (أقصى $maxBonus)',
+                            prefixIcon: const Icon(
+                              Icons.star_outline_rounded,
+                            ),
+                          ),
+                          onChanged: (_) => setState(() {}),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: TextField(
+                          controller: reason,
+                          decoration: const InputDecoration(
+                            labelText:
+                                'سبب الإضافة (مطلوب إذا وضعت نقاط)',
+                            prefixIcon: Icon(
+                              Icons.comment_outlined,
+                            ),
+                          ),
+                          onChanged: (_) => setState(() {}),
+                        ),
+                      ),
                     ],
                   ),
                 ],
@@ -84,6 +84,7 @@ extension _StudentNotebookBonusSection on _SpiritualNotebookStudentPageState {
             ),
           ),
         ],
+
 
       ],
     );
