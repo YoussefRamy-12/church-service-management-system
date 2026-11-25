@@ -5,8 +5,12 @@ class SpiritualNotebookStudentPage extends ConsumerStatefulWidget {
     super.key,
     required this.serviceId,
     required this.membershipId,
+    this.studentIds = const [],
+    this.studentIndex = 0,
   });
   final String serviceId, membershipId;
+  final List<String> studentIds;
+  final int studentIndex;
 
   @override
   ConsumerState<SpiritualNotebookStudentPage> createState() =>
@@ -95,6 +99,28 @@ class _SpiritualNotebookStudentPageState
             ),
             title: const Text('دفتر التلميذ الروحي'),
             actions: [
+              if (widget.studentIds.isNotEmpty) ...[
+                IconButton(
+                  tooltip: 'التلميذ السابق',
+                  onPressed: widget.studentIndex > 0
+                      ? () => _openStudentAt(widget.studentIndex - 1)
+                      : null,
+                  icon: const Icon(Icons.chevron_right_rounded),
+                ),
+                Center(
+                  child: Text(
+                    '\${widget.studentIndex + 1}/\${widget.studentIds.length}',
+                    style: theme.textTheme.labelMedium,
+                  ),
+                ),
+                IconButton(
+                  tooltip: 'التلميذ التالي',
+                  onPressed: widget.studentIndex < widget.studentIds.length - 1
+                      ? () => _openStudentAt(widget.studentIndex + 1)
+                      : null,
+                  icon: const Icon(Icons.chevron_left_rounded),
+                ),
+              ],
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 12),
                 child: Center(
