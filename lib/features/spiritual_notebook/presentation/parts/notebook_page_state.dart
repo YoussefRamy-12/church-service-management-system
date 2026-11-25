@@ -62,7 +62,7 @@ class _SpiritualNotebookPageState extends ConsumerState<SpiritualNotebookPage> {
               child: EmptyState(
                 icon: Icons.error_outline_rounded,
                 title: 'تعذر تحميل بيانات النوتة الروحية',
-                message: '${snap.error}',
+                message: 'تعذر تحميل بيانات النوتة الروحية. حاول مرة أخرى.',
                 action: FilledButton.icon(
                   onPressed: refresh,
                   icon: const Icon(Icons.refresh_rounded),
