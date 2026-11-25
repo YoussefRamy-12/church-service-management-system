@@ -12,7 +12,11 @@ class _StudentList extends StatefulWidget {
   final List<Map<String, dynamic>> students, submissions;
   final WeeklyPeriod period;
   final bool isMobile;
-  final ValueChanged<Map<String, dynamic>> onOpen;
+  final void Function(
+    Map<String, dynamic> student,
+    List<String> orderedMembershipIds,
+    int selectedIndex,
+  ) onOpen;
 
   @override
   State<_StudentList> createState() => _StudentListState();
@@ -101,6 +105,10 @@ class _StudentListState extends State<_StudentList> {
 
       return true;
     }).toList();
+    final orderedMembershipIds = filteredStudents
+        .map((student) => student['id'] as String)
+        .toList();
+
 
     return Column(
       children: [
@@ -343,7 +351,7 @@ class _StudentListState extends State<_StudentList> {
                       padding: EdgeInsets.zero,
                       borderRadius: 12,
                       child: InkWell(
-                        onTap: () => widget.onOpen(s),
+                        onTap: () => widget.onOpen(s, orderedMembershipIds, i),
                         borderRadius: BorderRadius.circular(12),
                         child: Padding(
                           padding: EdgeInsets.symmetric(
