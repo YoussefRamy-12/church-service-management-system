@@ -146,6 +146,7 @@ class _StudentListState extends State<_StudentList> {
                       label: 'مسجَّل',
                       count: registeredCount,
                       color: appSuccess,
+                      icon: Icons.check_circle_rounded,
                       selected: statusFilter == 1,
                       onTap: () => setState(() => statusFilter = 1),
                     ),
@@ -154,6 +155,7 @@ class _StudentListState extends State<_StudentList> {
                       label: 'بانتظار التسجيل',
                       count: pendingCount,
                       color: appWarning,
+                      icon: Icons.schedule_rounded,
                       selected: statusFilter == 2,
                       onTap: () => setState(() => statusFilter = 2),
                     ),
@@ -363,19 +365,20 @@ class _StudentListState extends State<_StudentList> {
                                         const SizedBox(width: 6),
                                         if (done)
                                           GlassBadge(
-                                            label: widget.isMobile
-                                                ? 'مسجَّل'
-                                                : 'مسجَّل',
+                                            label: 'مسجَّل',
                                             color: appSuccess,
                                             icon: Icons.check_circle_rounded,
                                           )
                                         else
-                                          GlassBadge(
-                                            label: widget.isMobile
-                                                ? 'بانتظار التسجيل'
-                                                : 'بانتظار التسجيل',
-                                            color: appWarning,
-                                            icon: Icons.access_time_rounded,
+                                          Semantics(
+                                            label: 'بانتظار التسجيل',
+                                            child: GlassBadge(
+                                              label: widget.isMobile
+                                                  ? 'بانتظار'
+                                                  : 'بانتظار التسجيل',
+                                              color: appWarning,
+                                              icon: Icons.access_time_rounded,
+                                            ),
                                           ),
                                       ],
                                     ),
@@ -385,7 +388,7 @@ class _StudentListState extends State<_StudentList> {
                                       style: TextStyle(
                                         color:
                                             theme.colorScheme.onSurfaceVariant,
-                                        fontSize: widget.isMobile ? 11 : 12,
+                                        fontSize: widget.isMobile ? 12 : 13,
                                         fontWeight: FontWeight.w500,
                                       ),
                                       maxLines: 1,

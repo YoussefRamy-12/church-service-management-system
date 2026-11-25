@@ -37,6 +37,8 @@ jobs:
           curl -fsSL https://github.com/simolus3/drift/releases/download/drift-2.35.1/drift_worker.js -o web/drift_worker.js
       - run: flutter build web
       - name: Run Flutter tests
+        id: flutter_tests
+        continue-on-error: true
         run: flutter test --reporter expanded --timeout 60s --exclude-tags=golden
       - name: Generate login goldens
         run: flutter test --reporter expanded --timeout 60s --update-goldens test/login_page_golden_test.dart
@@ -125,3 +127,8 @@ jobs:
             test/goldens/
             docs/review-sheets/notebook.png
           if-no-files-found: warn
+      - name: Preserve full-suite failure status
+        if: steps.flutter_tests.outcome == 'failure'
+        run: |
+          echo "Flutter tests failed. Golden generation was allowed to finish for review."
+          exit 1

@@ -10,6 +10,7 @@ extension _StudentListFilterBuilders on _StudentListState {
       required bool selected,
       required VoidCallback onTap,
       Color? color,
+      IconData? icon,
     }) {
       final theme = Theme.of(context);
       final isDark = theme.brightness == Brightness.dark;
@@ -43,15 +44,8 @@ extension _StudentListFilterBuilders on _StudentListState {
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                if (color != null) ...[
-                  Container(
-                    width: 6,
-                    height: 6,
-                    decoration: BoxDecoration(
-                      color: color,
-                      shape: BoxShape.circle,
-                    ),
-                  ),
+                if (icon != null) ...[
+                  Icon(icon, size: 16, color: color ?? activeColor),
                   const SizedBox(width: 5),
                 ],
                 Text(
