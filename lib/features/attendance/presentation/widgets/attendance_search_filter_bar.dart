@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../../../app/design/app_colors.dart';
 import '../../../../app/design/app_radii.dart';
 import '../../../../app/design/app_spacing.dart';
+import '../../../../app/ui/app_ui.dart';
 import 'attendance_filter.dart';
 
 class AttendanceSearchFilterBar extends StatelessWidget {
@@ -81,8 +82,8 @@ class AttendanceSearchFilterBar extends StatelessWidget {
           const SizedBox(height: AppSpacing.xs),
 
           // Filter Chips: الكل / حاضر / غير مسجل
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
+          ScrollableChipRow(
+            padding: const EdgeInsetsDirectional.symmetric(horizontal: 4),
             child: Row(
               children: [
                 _FilterChip(
@@ -112,10 +113,10 @@ class AttendanceSearchFilterBar extends StatelessWidget {
                   label: 'غير مسجل ($absentCount)',
                   selected: filter == AttendanceFilter.absent,
                   onTap: () => onFilterChanged(AttendanceFilter.absent),
-                  activeForeground: palette.absent.foreground,
-                  activeBackground: palette.absent.background,
-                  inactiveForeground: palette.absent.foreground,
-                  inactiveBackground: palette.absent.background.withValues(alpha: 0.35),
+                  activeForeground: palette.notMarked.foreground,
+                  activeBackground: palette.notMarked.background,
+                  inactiveForeground: palette.notMarked.foreground,
+                  inactiveBackground: palette.notMarked.background.withValues(alpha: 0.55),
                 ),
                 if (pendingCount > 0) ...[
                   const SizedBox(width: AppSpacing.xs),
@@ -164,9 +165,13 @@ class _FilterChip extends StatelessWidget {
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(AppRadii.chip),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 140),
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(minHeight: 44),
+        child: Center(
+          widthFactor: 1.0,
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 140),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
         decoration: BoxDecoration(
           color: selected ? activeBackground : inactiveBackground,
           borderRadius: BorderRadius.circular(AppRadii.chip),
@@ -184,6 +189,8 @@ class _FilterChip extends StatelessWidget {
             fontWeight: selected ? FontWeight.w800 : FontWeight.w600,
             color: selected ? activeForeground : inactiveForeground,
           ),
+        ),
+      ),
         ),
       ),
     );
