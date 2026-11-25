@@ -245,6 +245,7 @@ class _ChurchServiceAppState extends ConsumerState<ChurchServiceApp> {
                                 .toList(),
                         studentIndex:
                             navigation['studentIndex'] as int? ?? 0,
+                        weekStart: navigation['weekStart'] as String?,
                       );
                     },
                   ),

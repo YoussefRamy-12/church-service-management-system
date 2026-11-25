@@ -168,7 +168,7 @@ void main() {
         overrides: _overrides(repository),
       );
       await tester.pumpAndSettle();
-      await tester.tap(find.text('جميع الفصول'));
+      await tester.tap(find.text('الفصل: الكل'));
       await tester.pumpAndSettle();
       await expectGoldenImage(
         tester,

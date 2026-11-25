@@ -212,6 +212,9 @@ void main() {
     );
 
     expect(find.text('الحالي'), findsOneWidget);
+    expect(find.text('بانتظار التسجيل (9)'), findsOneWidget);
+    expect(find.text('مسجَّل (1)'), findsOneWidget);
+    expect(find.text('الكل (10)'), findsOneWidget);
     expect(find.text('مينا فايز 1'), findsNothing);
     expect(find.text('مينا فايز 2'), findsOneWidget);
     expect(
@@ -230,7 +233,7 @@ void main() {
 
     await tester.tap(find.text('الكل (10)'));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('جميع الفصول'));
+    await tester.tap(find.text('الفصل: الكل'));
     await tester.pumpAndSettle();
     expect(find.text('اختيار الفصل'), findsOneWidget);
 
@@ -238,6 +241,21 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('مينا فايز 6'), findsOneWidget);
     expect(find.text('مينا فايز 1'), findsNothing);
+  });
+
+  testWidgets('week stepper changes the selected notebook week', (tester) async {
+    await _pumpNotebook(
+      tester,
+      repository: _FakeSpiritualNotebookRepository(),
+      home: const SpiritualNotebookPage(serviceId: 'service-1'),
+    );
+
+    expect(find.text('الحالي'), findsOneWidget);
+    expect(_iconButtonWithTooltip(tester, 'الأسبوع السابق').onPressed, isNotNull);
+    await tester.tap(find.byTooltip('الأسبوع السابق'));
+    await tester.pumpAndSettle();
+    expect(find.text('الحالي'), findsNothing);
+    expect(find.byTooltip('الأسبوع القادم'), findsOneWidget);
   });
   testWidgets('mobile form reveals bonus reason only after entering points', (
     tester,

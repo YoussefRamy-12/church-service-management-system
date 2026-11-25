@@ -7,10 +7,12 @@ class SpiritualNotebookStudentPage extends ConsumerStatefulWidget {
     required this.membershipId,
     this.studentIds = const [],
     this.studentIndex = 0,
+    this.weekStart,
   });
   final String serviceId, membershipId;
   final List<String> studentIds;
   final int studentIndex;
+  final String? weekStart;
   @override
   ConsumerState<SpiritualNotebookStudentPage> createState() =>
       _SpiritualNotebookStudentPageState();
@@ -32,7 +34,8 @@ class _SpiritualNotebookStudentPageState
   @override
   void didUpdateWidget(covariant SpiritualNotebookStudentPage oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.membershipId != widget.membershipId) {
+    if (oldWidget.membershipId != widget.membershipId ||
+        oldWidget.weekStart != widget.weekStart) {
       selected.clear();
       bonus.clear();
       reason.clear();
@@ -50,7 +53,9 @@ class _SpiritualNotebookStudentPageState
   @override
   Widget build(BuildContext context) {
     final role = ref.watch(currentServantProfileProvider).value?.role;
-    final period = WeeklyPeriod.containing(DateTime.now());
+    final period = widget.weekStart == null
+        ? WeeklyPeriod.containing(DateTime.now())
+        : WeeklyPeriod.containing(DateTime.parse(widget.weekStart!));
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
 
