@@ -416,17 +416,23 @@ class ReportFilterBar extends ConsumerWidget {
                 ],
               ),
               const SizedBox(height: 8),
-              Wrap(
-                spacing: 6,
-                runSpacing: 6,
-                children: [
-                  for (final label in activeLabels)
-                    Chip(
-                      avatar: const Icon(Icons.check_circle_outline, size: 15),
-                      label: Text(label),
-                      visualDensity: VisualDensity.compact,
-                    ),
-                ],
+              Align(
+                alignment: AlignmentDirectional.centerStart,
+                child: Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  alignment: WrapAlignment.start,
+                  runAlignment: WrapAlignment.start,
+                  children: [
+                    for (final label in activeLabels)
+                      Chip(
+                        avatar: const Icon(Icons.check_circle_outline, size: 15),
+                        label: Text(label),
+                        visualDensity: VisualDensity.compact,
+                        materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      ),
+                  ],
+                ),
               ),
             ],
           ),

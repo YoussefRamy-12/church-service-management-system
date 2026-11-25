@@ -95,8 +95,6 @@ class _ReportsPageState extends ConsumerState<ReportsPage>
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
     final reportAsync = ref.watch(reportsAnalyticsProvider(widget.serviceId));
-    final scopeAsync = ref.watch(reportUserScopeProvider(widget.serviceId));
-    final scope = scopeAsync.value;
 
     return Scaffold(
       appBar: AppBar(
@@ -130,54 +128,6 @@ class _ReportsPageState extends ConsumerState<ReportsPage>
           child: ListView(
             padding: const EdgeInsets.fromLTRB(20, 16, 20, 32),
             children: [
-              // Header Title and Role Context
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: theme.colorScheme.primaryContainer,
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        child: Icon(
-                          Icons.query_stats_rounded,
-                          color: Theme.of(context).colorScheme.primary,
-                          size: 26,
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'التقارير والإحصائيات الرعوية',
-                              style: theme.textTheme.headlineSmall?.copyWith(
-                                fontWeight: FontWeight.w800,
-                              ),
-                            ),
-                            const SizedBox(height: 2),
-                            Text(
-                              scope?.isServiceWide == true
-                                  ? 'متابعة شاملة لجميع مراحل وفصول الخدمة مع مؤشرات موثقة.'
-                                  : 'متابعة الحضور والغياب والافتقاد داخل نطاق مسؤوليتك المصرح بها.',
-                              style: TextStyle(
-                                fontSize: 13,
-                                color: theme.colorScheme.onSurfaceVariant,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-              const SizedBox(height: 18),
-
               // Filter Bar
               ReportFilterBar(
                 serviceId: widget.serviceId,
@@ -197,7 +147,7 @@ class _ReportsPageState extends ConsumerState<ReportsPage>
                 ),
                 child: TabBar(
                   controller: _tabController,
-                  isScrollable: true,
+                  isScrollable: false,
                   indicatorSize: TabBarIndicatorSize.tab,
                   indicator: BoxDecoration(
                     color: Theme.of(context).colorScheme.primary,
@@ -215,23 +165,24 @@ class _ReportsPageState extends ConsumerState<ReportsPage>
                     fontWeight: FontWeight.w600,
                     fontSize: 13,
                   ),
+                  labelPadding: const EdgeInsets.symmetric(horizontal: 4),
                   padding: const EdgeInsets.all(6),
                   tabs: const [
                     Tab(
                       icon: Icon(Icons.how_to_reg_rounded, size: 18),
-                      text: 'تقارير الحضور والغياب',
+                      text: 'الحضور',
                     ),
                     Tab(
                       icon: Icon(Icons.mark_chat_read_rounded, size: 18),
-                      text: 'تقارير المتابعة والافتقاد',
+                      text: 'المتابعة',
                     ),
                     Tab(
                       icon: Icon(Icons.groups_rounded, size: 18),
-                      text: 'تقارير التلاميذ والنمو',
+                      text: 'التلاميذ',
                     ),
                     Tab(
                       icon: Icon(Icons.diversity_3_rounded, size: 18),
-                      text: 'تقارير الخدام',
+                      text: 'الخدام',
                     ),
                   ],
                 ),
