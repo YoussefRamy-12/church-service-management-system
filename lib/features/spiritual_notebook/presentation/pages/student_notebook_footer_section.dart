@@ -10,6 +10,8 @@ extension _StudentNotebookFooterSection on _SpiritualNotebookStudentPageState {
     if (existing != null || MediaQuery.sizeOf(context).width >= 600) {
       return null;
     }
+    final hasNext = widget.studentIds.isNotEmpty &&
+        widget.studentIndex < widget.studentIds.length - 1;
 
     return SafeArea(
       top: false,
@@ -50,9 +52,13 @@ extension _StudentNotebookFooterSection on _SpiritualNotebookStudentPageState {
                 minimumSize: const Size(0, 48),
                 padding: const EdgeInsets.symmetric(horizontal: 16),
               ),
-              onPressed: saving ? null : _submitRecord,
+              onPressed: saving
+                  ? null
+                  : () => _submitRecord(goToNext: hasNext),
               icon: const Icon(Icons.save_rounded),
-              label: Text(saving ? 'جارٍ الحفظ...' : 'حفظ النوتة'),
+              label: Text(
+                saving ? 'جارٍ الحفظ...' : (hasNext ? 'حفظ والتالي' : 'حفظ'),
+              ),
             ),
           ],
         ),
@@ -75,7 +81,7 @@ extension _StudentNotebookFooterSection on _SpiritualNotebookStudentPageState {
       ),
       Center(
         child: Text(
-          '\${widget.studentIndex + 1}/\${widget.studentIds.length}',
+          '${widget.studentIndex + 1}/${widget.studentIds.length}',
           style: theme.textTheme.labelMedium,
         ),
       ),
