@@ -60,6 +60,6 @@ extension _StudentNotebookFooterSection on _SpiritualNotebookStudentPageState {
                       ],
                     ),
                   ),
-                )
+                );
   }
 }
