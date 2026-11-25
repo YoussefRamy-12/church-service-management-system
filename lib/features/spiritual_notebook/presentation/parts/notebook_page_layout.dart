@@ -1,494 +1,107 @@
-// ignore_for_file: invalid_use_of_protected_member
-
 part of '../spiritual_notebook_page.dart';
 
 extension _SpiritualNotebookPageLayout on _SpiritualNotebookPageState {
-
-  Widget _buildTopHeader(
-      BuildContext context, {
-      required bool isDark,
-      required bool isMobile,
-      required WeeklyPeriod period,
-      required bool isCurrentWeek,
-    }) {
-      final theme = Theme.of(context);
-
-      if (isMobile) {
-        return Container(
-          padding: const EdgeInsets.fromLTRB(14, 10, 14, 8),
-          decoration: BoxDecoration(
-            color: isDark ? AppDesignColors.darkSurface : Colors.white,
-            border: Border(
-              bottom: BorderSide(
-                color: isDark ? AppDesignColors.darkSurfaceSubtle : AppDesignColors.lightBorderSubtle,
-                width: 1,
-              ),
-            ),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
+  Widget _buildWeekSummary({
+    required WeeklyPeriod period,
+    required bool isCurrentWeek,
+    required int registeredCount,
+    required int totalStudents,
+    required int weekTotalPoints,
+  }) {
+    final scheme = Theme.of(context).colorScheme;
+    return Padding(
+      padding: const EdgeInsetsDirectional.fromSTEB(16, 8, 16, 8),
+      child: Column(
+        children: [
+          Row(
             children: [
-              // Row 1: Icon, Title, and Actions
-              Row(
-                children: [
-                  Container(
-                    width: 36,
-                    height: 36,
-                    decoration: BoxDecoration(
-                      color: Theme.of(context).colorScheme.primary.withValues(alpha: isDark ? 0.25 : 0.10),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Icon(
-                      Icons.auto_stories_rounded,
-                      color: Theme.of(context).colorScheme.primary,
-                      size: 20,
-                    ),
-                  ),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: Text(
-                      'النوتة الروحية',
-                      style: theme.textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.w800,
-                        fontSize: 18,
-                      ),
-                    ),
-                  ),
-                  // Toggle metrics button on mobile (for student notebooks tab)
-                  if (tab == 0)
-                    IconButton(
-                      icon: Icon(
-                        _showMetrics
-                            ? Icons.insights_rounded
-                            : Icons.insights_outlined,
-                        size: 20,
-                      ),
-                      color: _showMetrics ? Theme.of(context).colorScheme.primary : AppDesignColors.darkMutedInk,
-                      tooltip: _showMetrics
-                          ? 'إخفاء الإحصائيات'
-                          : 'إظهار الإحصائيات',
-                      visualDensity: VisualDensity.standard,
-                      onPressed: () =>
-                          setState(() => _showMetrics = !_showMetrics),
-                    ),
-                  IconButton(
-                    icon: const Icon(Icons.refresh_rounded, size: 20),
-                    tooltip: 'تحديث',
-                    visualDensity: VisualDensity.standard,
-                    onPressed: refresh,
-                  ),
-                ],
-              ),
-              const SizedBox(height: 6),
-
-              // Row 2: Compact week selector
-              Row(
-                children: [
-                  IconButton(
-                    icon: const Icon(Icons.chevron_right_rounded, size: 22),
-                    tooltip: 'الأسبوع السابق',
-                    visualDensity: VisualDensity.standard,
-                    padding: EdgeInsets.zero,
-                    constraints: const BoxConstraints.tightFor(
-                      width: 44,
-                      height: 44,
-                    ),
-                    onPressed: () => setState(() => _weekOffset -= 1),
-                  ),
-                  Expanded(
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 10,
-                        vertical: 4,
-                      ),
-                      decoration: BoxDecoration(
-                        color: isDark
-                            ? AppDesignColors.darkSurfaceSubtle
-                            : AppDesignColors.lightSurfaceSubtle,
-                        borderRadius: BorderRadius.circular(999),
-                        border: Border.all(
-                          color: isDark
-                              ? AppDesignColors.darkBorder
-                              : AppDesignColors.lightBorder,
-                        ),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(
-                            Icons.calendar_month_rounded,
-                            size: 14,
-                            color: Theme.of(context).colorScheme.primary,
-                          ),
-                          const SizedBox(width: 6),
-                          Flexible(
-                            child: Text(
-                              period.label,
-                              maxLines: 1,
-                              softWrap: false,
-                              overflow: TextOverflow.ellipsis,
-                              style: TextStyle(
-                                fontWeight: FontWeight.w700,
-                                fontSize: 13,
-                                color: isDark ? Colors.white : appInk,
-                              ),
-                            ),
-                          ),
-                          if (isCurrentWeek) ...[
-                            const SizedBox(width: 6),
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 5,
-                                vertical: 1.5,
-                              ),
-                              decoration: BoxDecoration(
-                                color: appSuccess.withValues(alpha: 0.15),
-                                borderRadius: BorderRadius.circular(999),
-                              ),
-                              child: const Text(
-                                'الحالي',
-                                style: TextStyle(
-                                  color: appSuccess,
-                                  fontWeight: FontWeight.w800,
-                                  fontSize: 13,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ],
-                      ),
-                    ),
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.chevron_left_rounded, size: 22),
-                    tooltip: 'الأسبوع القادم',
-                    visualDensity: VisualDensity.standard,
-                    padding: EdgeInsets.zero,
-                    constraints: const BoxConstraints.tightFor(
-                      width: 44,
-                      height: 44,
-                    ),
-                    onPressed: () => setState(() => _weekOffset += 1),
-                  ),
-                  if (!isCurrentWeek)
-                    TextButton(
-                      style: TextButton.styleFrom(
-                        visualDensity: VisualDensity.standard,
-                        padding: const EdgeInsets.symmetric(horizontal: 6),
-                      ),
-                      onPressed: () => setState(() => _weekOffset = 0),
-                      child: const Text('اليوم', style: TextStyle(fontSize: 12)),
-                    ),
-                ],
-              ),
-            ],
-          ),
-        );
-      }
-
-      // Desktop / Tablet Header
-      return Container(
-        padding: const EdgeInsets.fromLTRB(24, 16, 24, 14),
-        decoration: BoxDecoration(
-          color: isDark ? AppDesignColors.darkSurface : Colors.white,
-          border: Border(
-            bottom: BorderSide(
-              color: isDark ? AppDesignColors.darkSurfaceSubtle : AppDesignColors.lightBorderSubtle,
-              width: 1.2,
-            ),
-          ),
-        ),
-        child: Row(
-          children: [
-            Container(
-              width: 44,
-              height: 44,
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.primary.withValues(alpha: isDark ? 0.25 : 0.10),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(
-                  color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.20),
-                  width: 1,
-                ),
-              ),
-              child: Icon(
-                Icons.auto_stories_rounded,
-                color: Theme.of(context).colorScheme.primary,
-                size: 24,
-              ),
-            ),
-            const SizedBox(width: 14),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    'النوتة الروحية',
-                    style: theme.textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.w800,
-                      letterSpacing: -0.3,
-                    ),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    'متابعة وتشجيع الحياة الروحية للتلاميذ وتوثيق الأنشطة أسبوعياً',
-                    style: TextStyle(
-                      fontSize: 13,
-                      color: isDark ? AppDesignColors.darkMutedInk : appMutedInk,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                IconButton(
-                  icon: const Icon(Icons.chevron_right_rounded),
+              Semantics(
+                button: true,
+                label: 'الأسبوع السابق',
+                child: IconButton(
                   tooltip: 'الأسبوع السابق',
-                  visualDensity: VisualDensity.standard,
                   onPressed: () => setState(() => _weekOffset -= 1),
+                  icon: const Icon(Icons.chevron_right_rounded),
+                  constraints: const BoxConstraints.tightFor(width: 44, height: 44),
                 ),
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 6,
-                  ),
-                  decoration: BoxDecoration(
-                    color: isDark
-                        ? AppDesignColors.darkSurfaceSubtle
-                        : AppDesignColors.lightSurfaceSubtle,
-                    borderRadius: BorderRadius.circular(999),
-                    border: Border.all(
-                      color: isDark
-                          ? AppDesignColors.darkBorder
-                          : AppDesignColors.lightBorder,
-                    ),
-                  ),
+              ),
+              Expanded(
+                child: Semantics(
+                  label: 'الأسبوع المحدد: ${period.label}${isCurrentWeek ? '، الحالي' : ''}',
                   child: Row(
-                    mainAxisSize: MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(
-                        Icons.calendar_month_rounded,
-                        size: 15,
-                        color: Theme.of(context).colorScheme.primary,
-                      ),
-                      const SizedBox(width: 6),
-                      Text(
-                        period.label,
-                        style: TextStyle(
-                          fontWeight: FontWeight.w700,
-                          fontSize: 13,
-                          color: isDark ? Colors.white : appInk,
-                        ),
-                      ),
+                      Flexible(child: Text(period.label, maxLines: 1, overflow: TextOverflow.ellipsis,
+                        style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w700))),
                       if (isCurrentWeek) ...[
-                        const SizedBox(width: 6),
+                        const SizedBox(width: 8),
                         Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 6,
-                            vertical: 2,
-                          ),
-                          decoration: BoxDecoration(
-                            color: appSuccess.withValues(alpha: 0.15),
-                            borderRadius: BorderRadius.circular(999),
-                          ),
-                          child: const Text(
-                            'الحالي',
-                            style: TextStyle(
-                              color: appSuccess,
-                              fontWeight: FontWeight.w800,
-                              fontSize: 13,
-                            ),
-                          ),
+                          padding: const EdgeInsetsDirectional.symmetric(horizontal: 8, vertical: 3),
+                          decoration: BoxDecoration(color: scheme.secondaryContainer, borderRadius: BorderRadius.circular(99)),
+                          child: Text('الحالي', style: TextStyle(color: scheme.onSecondaryContainer, fontSize: 13, fontWeight: FontWeight.w600)),
                         ),
                       ],
                     ],
                   ),
                 ),
-                IconButton(
-                  icon: const Icon(Icons.chevron_left_rounded),
+              ),
+              Semantics(
+                button: true,
+                label: 'الأسبوع القادم',
+                child: IconButton(
                   tooltip: 'الأسبوع القادم',
-                  visualDensity: VisualDensity.standard,
                   onPressed: () => setState(() => _weekOffset += 1),
+                  icon: const Icon(Icons.chevron_left_rounded),
+                  constraints: const BoxConstraints.tightFor(width: 44, height: 44),
                 ),
-                if (!isCurrentWeek)
-                  TextButton(
-                    onPressed: () => setState(() => _weekOffset = 0),
-                    child: const Text('اليوم'),
-                  ),
-                const SizedBox(width: 4),
-                IconButton(
-                  icon: const Icon(Icons.refresh_rounded),
-                  tooltip: 'تحديث البيانات',
-                  visualDensity: VisualDensity.standard,
-                  onPressed: refresh,
-                ),
-              ],
-            ),
-          ],
-        ),
-      );
-    }
-
-  Widget _buildMetricsSection({
-      required bool isMobile,
-      required int totalStudents,
-      required int registeredCount,
-      required int pendingCount,
-      required int weekTotalPoints,
-      required int completionPercentage,
-    }) {
-      if (isMobile) {
-        // Mobile: 2x2 compact grid (takes only ~105px total, eliminates any overflow)
-        return Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Row(
+              ),
+              PopupMenuButton<String>(
+                tooltip: 'المزيد من الخيارات',
+                onSelected: (value) {
+                  if (value == 'refresh') refresh();
+                  if (value == 'points') setState(() => _showWeeklyPoints = !_showWeeklyPoints);
+                },
+                itemBuilder: (context) => [
+                  const PopupMenuItem(value: 'refresh', child: Text('تحديث')),
+                  PopupMenuItem(value: 'points', child: Text(_showWeeklyPoints ? 'إخفاء إحصائيات الأسبوع' : 'عرض إحصائيات الأسبوع')),
+                ],
+              ),
+            ],
+          ),
+          Padding(
+            padding: const EdgeInsetsDirectional.fromSTEB(8, 2, 8, 0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Expanded(
-                  child: _CompactMetricTile(
-                    label: 'إجمالي التلاميذ',
-                    value: '$totalStudents',
-                    icon: Icons.groups_rounded,
-                    color: Theme.of(context).colorScheme.primary,
-                  ),
+                Text('تم تسجيل $registeredCount من $totalStudents', style: Theme.of(context).textTheme.bodyMedium),
+                const SizedBox(height: 5),
+                LinearProgressIndicator(
+                  value: totalStudents == 0 ? 0 : (registeredCount / totalStudents).clamp(0, 1),
+                  minHeight: 4,
+                  borderRadius: BorderRadius.circular(99),
                 ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: _CompactMetricTile(
-                    label: 'مسجَّل',
-                    value: '$registeredCount',
-                    icon: Icons.check_circle_rounded,
-                    color: appSuccess,
-                    badgeText: '$completionPercentage%',
-                  ),
-                ),
+                if (_showWeeklyPoints)
+                  Padding(padding: const EdgeInsetsDirectional.only(top: 4), child: Text('نقاط الأسبوع: $weekTotalPoints', style: Theme.of(context).textTheme.bodySmall)),
               ],
-            ),
-            const SizedBox(height: 6),
-            Row(
-              children: [
-                Expanded(
-                  child: _CompactMetricTile(
-                    label: 'بانتظار التسجيل',
-                    value: '$pendingCount',
-                    icon: Icons.pending_actions_rounded,
-                    color: appWarning,
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: _CompactMetricTile(
-                    label: 'نقاط الأسبوع',
-                    value: '$weekTotalPoints',
-                    icon: Icons.stars_rounded,
-                    color: AppColors.light.excused.foreground,
-                  ),
-                ),
-              ],
-            ),
-          ],
-        );
-      }
-
-      // Desktop / Tablet: 4 columns in 1 single row
-      return Row(
-        children: [
-          Expanded(
-            child: _CompactMetricTile(
-              label: 'إجمالي التلاميذ',
-              value: '$totalStudents',
-              icon: Icons.groups_rounded,
-              color: Theme.of(context).colorScheme.primary,
-              badgeText: 'مسجَّل',
-            ),
-          ),
-          const SizedBox(width: 10),
-          Expanded(
-            child: _CompactMetricTile(
-              label: 'مسجَّل هذا الأسبوع',
-              value: '$registeredCount',
-              icon: Icons.check_circle_rounded,
-              color: appSuccess,
-              badgeText: '$completionPercentage%',
-            ),
-          ),
-          const SizedBox(width: 10),
-          Expanded(
-            child: _CompactMetricTile(
-              label: 'بانتظار التسجيل',
-              value: '$pendingCount',
-              icon: Icons.pending_actions_rounded,
-              color: appWarning,
-              badgeText: 'متبقي',
-            ),
-          ),
-          const SizedBox(width: 10),
-          Expanded(
-            child: _CompactMetricTile(
-              label: 'مجموع نقاط الأسبوع',
-              value: '$weekTotalPoints',
-              icon: Icons.stars_rounded,
-              color: AppColors.light.excused.foreground,
-              badgeText: 'نقطة',
             ),
           ),
         ],
-      );
-    }
-
-  Widget _buildTabBar({
-    required bool isMobile,
-    required int totalStudents,
-    required bool canConfigure,
-  }) {
-    return Center(
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 600),
-        child: Container(
-          padding: const EdgeInsets.all(3),
-          decoration: BoxDecoration(
-            color: Theme.of(context).brightness == Brightness.dark
-                ? AppDesignColors.darkSurfaceSubtle
-                : AppDesignColors.lightSurfaceSubtle,
-            borderRadius: BorderRadius.circular(10),
-          ),
-          child: Row(
-            children: [
-              Expanded(
-                child: _TabButton(
-                  label: isMobile ? 'الدَّفاتر' : 'لوحة المتابعة',
-                  count: isMobile ? '$totalStudents' : null,
-                  icon: Icons.menu_book_rounded,
-                  selected: isMobile ? tab == 0 : tab != 2,
-                  onTap: () => setState(() => tab = 0),
-                ),
-              ),
-              if (isMobile)
-                Expanded(
-                  child: _TabButton(
-                    label: 'لوحة الشرف',
-                    icon: Icons.workspace_premium_rounded,
-                    selected: tab == 1,
-                    onTap: () => setState(() => tab = 1),
-                  ),
-                ),
-              if (canConfigure)
-                Expanded(
-                  child: _TabButton(
-                    label: isMobile ? 'الإعدادات' : 'الإعدادات والأنشطة',
-                    icon: Icons.tune_rounded,
-                    selected: tab == 2,
-                    onTap: () => setState(() => tab = 2),
-                  ),
-                ),
-            ],
-          ),
-        ),
       ),
     );
   }
+
+  Widget _buildTabBar({required bool isMobile, required int totalStudents, required bool canConfigure}) {
+    return Padding(
+      padding: EdgeInsetsDirectional.fromSTEB(isMobile ? 12 : 20, 4, isMobile ? 12 : 20, 4),
+      child: Row(children: [
+        Expanded(child: _TabButton(label: 'الدفاتر', icon: Icons.menu_book_rounded, selected: tab == 0, onTap: () => setState(() => tab = 0))),
+        const SizedBox(width: 6),
+        Expanded(child: _TabButton(label: 'لوحة الشرف', icon: Icons.workspace_premium_rounded, selected: tab == 1, onTap: () => setState(() => tab = 1))),
+        if (canConfigure) ...[
+          const SizedBox(width: 6),
+          Expanded(child: _TabButton(label: 'الإعدادات', icon: Icons.tune_rounded, selected: tab == 2, onTap: () => setState(() => tab = 2))),
+        ],
+      ]),
+    );
   }
+}

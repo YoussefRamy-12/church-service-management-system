@@ -3,7 +3,7 @@ part of '../spiritual_notebook_page.dart';
 class _SpiritualNotebookPageState extends ConsumerState<SpiritualNotebookPage> {
   int tab = 0;
   int _weekOffset = 0;
-  bool _showMetrics = false;
+  bool _showWeeklyPoints = false;
   late Future<_NotebookData> data;
 
   @override
@@ -48,8 +48,6 @@ class _SpiritualNotebookPageState extends ConsumerState<SpiritualNotebookPage> {
         isSuper ||
         profile?.role == 'overall_leader' ||
         profile?.role == 'overall_helper';
-    final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
     final period = _selectedPeriod;
     final isCurrentWeek = _weekOffset == 0;
 
@@ -90,17 +88,10 @@ class _SpiritualNotebookPageState extends ConsumerState<SpiritualNotebookPage> {
             .toList();
         final registeredCount = currentWeekSubs.length;
         final totalStudents = d.students.length;
-        final pendingCount = (totalStudents - registeredCount).clamp(
-          0,
-          totalStudents,
-        );
         final weekTotalPoints = currentWeekSubs.fold<int>(
           0,
           (sum, r) => sum + (r['total_points'] as int? ?? 0),
         );
-        final completionPercentage = totalStudents > 0
-            ? ((registeredCount / totalStudents) * 100).round()
-            : 0;
 
         return Scaffold(
           body: SafeArea(
@@ -111,35 +102,6 @@ class _SpiritualNotebookPageState extends ConsumerState<SpiritualNotebookPage> {
 
                 return Column(
                   children: [
-                    // Top Responsive Header
-                    _buildTopHeader(
-                      context,
-                      isDark: isDark,
-                      isMobile: isMobile,
-                      period: period,
-                      isCurrentWeek: isCurrentWeek,
-                    ),
-
-                    // Metrics Grid (shown on student notebooks tab, collapsible)
-                    if (isMobile ? (_showMetrics && tab == 0) : tab != 2)
-                      Padding(
-                        padding: EdgeInsets.fromLTRB(
-                          isMobile ? 12 : 20,
-                          isMobile ? 8 : 12,
-                          isMobile ? 12 : 20,
-                          isMobile ? 6 : 8,
-                        ),
-                        child: _buildMetricsSection(
-                          isMobile: isMobile,
-                          totalStudents: totalStudents,
-                          registeredCount: registeredCount,
-                          pendingCount: pendingCount,
-                          weekTotalPoints: weekTotalPoints,
-                          completionPercentage: completionPercentage,
-                        ),
-                      ),
-
-                    // Tab Navigation
                     Padding(
                       padding: EdgeInsets.fromLTRB(
                         isMobile ? 12 : 20,
@@ -153,6 +115,15 @@ class _SpiritualNotebookPageState extends ConsumerState<SpiritualNotebookPage> {
                         canConfigure: canConfigure,
                       ),
                     ),
+
+                    if (tab == 0)
+                      _buildWeekSummary(
+                        period: period,
+                        isCurrentWeek: isCurrentWeek,
+                        registeredCount: registeredCount,
+                        totalStudents: totalStudents,
+                        weekTotalPoints: weekTotalPoints,
+                      ),
 
                     // Active Tab Content
                     Expanded(
@@ -168,6 +139,7 @@ class _SpiritualNotebookPageState extends ConsumerState<SpiritualNotebookPage> {
                                   extra: {
                                     'studentIds': studentIds,
                                     'studentIndex': selectedIndex,
+                                    'weekStart': weekStartStr,
                                   },
                                 ),
                               ),
@@ -208,6 +180,7 @@ class _SpiritualNotebookPageState extends ConsumerState<SpiritualNotebookPage> {
                                       extra: {
                                         'studentIds': studentIds,
                                         'studentIndex': selectedIndex,
+                                        'weekStart': weekStartStr,
                                       },
                                     ),
                                   ),
