@@ -251,6 +251,11 @@ void main() {
 
     expect(find.text('حفظ'), findsOneWidget);
     expect(find.text('سبب الإضافة (مطلوب)'), findsNothing);
+    final profile = ProviderScope.containerOf(
+      tester.element(find.byType(SpiritualNotebookStudentPage)),
+    ).read(currentServantProfileProvider);
+    expect(profile.value?.role, 'overall_leader');
+    expect(find.text('نقاط تشجيعية إضافية'), findsOneWidget);
 
     await tester.tap(find.text('قراءة الإنجيل'));
     await tester.pumpAndSettle();
@@ -407,11 +412,11 @@ void main() {
     );
 
     expect(
-      tester.widget<IconButton>(find.byTooltip('التلميذ السابق')).onPressed,
+      _iconButtonWithTooltip(tester, 'التلميذ السابق').onPressed,
       isNotNull,
     );
     expect(
-      tester.widget<IconButton>(find.byTooltip('التلميذ التالي')).onPressed,
+      _iconButtonWithTooltip(tester, 'التلميذ التالي').onPressed,
       isNull,
     );
     expect(find.text('حفظ'), findsOneWidget);
@@ -478,7 +483,9 @@ void main() {
     );
 
     expect(find.text('حفظ'), findsOneWidget);
-    expect(tester.takeException(), isNull);
+    final exception = tester.takeException();
+    if (exception is FlutterError) debugPrint(exception.toStringDeep());
+    expect(exception, isNull);
   });
   testWidgets('leaderboard and settings remain available as mobile tabs', (
     tester,
