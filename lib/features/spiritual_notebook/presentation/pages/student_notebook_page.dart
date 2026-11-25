@@ -34,6 +34,19 @@ class _SpiritualNotebookStudentPageState
 
 
   @override
+  void didUpdateWidget(covariant SpiritualNotebookStudentPage oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.serviceId != widget.serviceId ||
+        oldWidget.membershipId != widget.membershipId) {
+      selected.clear();
+      bonus.clear();
+      reason.clear();
+      saving = false;
+      data = _load();
+    }
+  }
+
+  @override
   void dispose() {
     bonus.dispose();
     reason.dispose();
@@ -97,10 +110,15 @@ class _SpiritualNotebookStudentPageState
               tooltip: 'رجوع',
               onPressed: () => context.pop(),
             ),
-            title: const Text('دفتر التلميذ الروحي'),
+            title: const Text(
+              'دفتر التلميذ الروحي',
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
             actions: [
               ..._buildStudentNavigationActions(context, theme),
-              Padding(
+              if (MediaQuery.sizeOf(context).width >= 600)
+                Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 12),
                 child: Center(
                   child: GlassBadge(
