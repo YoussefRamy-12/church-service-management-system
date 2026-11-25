@@ -1,3 +1,5 @@
+// ignore_for_file: invalid_use_of_protected_member
+
 part of '../spiritual_notebook_page.dart';
 
 extension _StudentListFilterBuilders on _StudentListState {
@@ -71,82 +73,6 @@ extension _StudentListFilterBuilders on _StudentListState {
       );
     }
 
-  Widget _classFilterChip({
-      required String label,
-      required int count,
-      required bool selected,
-      required VoidCallback onTap,
-      required bool isDark,
-    }) {
-      return Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: onTap,
-          borderRadius: BorderRadius.circular(999),
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(minHeight: 44),
-            child: Center(
-              widthFactor: 1.0,
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 140),
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-            decoration: BoxDecoration(
-              color: selected
-                  ? Theme.of(context).colorScheme.primary
-                  : (isDark ? AppDesignColors.darkSurfaceSubtle : AppDesignColors.lightSurfaceSubtle),
-              borderRadius: BorderRadius.circular(999),
-              border: Border.all(
-                color: selected
-                    ? Theme.of(context).colorScheme.primary
-                    : (isDark
-                          ? AppDesignColors.darkBorder
-                          : AppDesignColors.lightBorder),
-                width: selected ? 1.5 : 1,
-              ),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  label,
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: selected ? FontWeight.w800 : FontWeight.w600,
-                    color: selected
-                        ? Colors.white
-                        : (isDark ? Colors.white : appInk),
-                  ),
-                ),
-                const SizedBox(width: 4),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
-                  decoration: BoxDecoration(
-                    color: selected
-                        ? Colors.white.withValues(alpha: 0.22)
-                        : (isDark
-                              ? AppDesignColors.darkBorder
-                              : AppDesignColors.lightBorderSubtle),
-                    borderRadius: BorderRadius.circular(999),
-                  ),
-                  child: Text(
-                    '$count',
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w700,
-                      color: selected
-                          ? Colors.white
-                          : (isDark ? AppDesignColors.darkMutedInk : appMutedInk),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-            ),
-          ),
-        ),
-      );
-    }
   void _showClassFilterSheet(
     BuildContext context,
     List<MapEntry<String, String>> sortedClasses,
