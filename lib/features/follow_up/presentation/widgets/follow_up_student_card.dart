@@ -248,7 +248,7 @@ class FollowUpStudentCard extends StatelessWidget {
                 PhoneContactActions(phone: item.student.phone!, compact: false),
               const Spacer(),
               if (onLogFollowUp != null)
-                FilledButton.tonalIcon(
+                FilledButton.icon(
                   onPressed: onLogFollowUp,
                   style: FilledButton.styleFrom(
                     minimumSize: const Size(0, 44),
