@@ -371,7 +371,6 @@ class _SpiritualNotebookStudentPageState
                         bonusAllowed: bonusAllowed,
                         isMobile: isMobile,
                         maxBonus: maxBonus,
-                        theme: theme,
                       ),
                       const SizedBox(height: 18),
 
