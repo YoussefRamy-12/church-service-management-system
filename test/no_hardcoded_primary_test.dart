@@ -3,9 +3,9 @@ import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  test('lib/features/** must not reference appPrimary, Color(0xFF00236F), or AppDesignColors.primary', () {
-    final featuresDir = Directory('lib/features');
-    expect(featuresDir.existsSync(), isTrue);
+  test('legacy navy tokens are confined to app design and theme files', () {
+    final libDir = Directory('lib');
+    expect(libDir.existsSync(), isTrue);
 
     final forbiddenPatterns = <RegExp>[
       RegExp(r'\bappPrimary\b'),
@@ -15,11 +15,11 @@ void main() {
 
     final violations = <String>[];
 
-    for (final entity in featuresDir.listSync(recursive: true)) {
+    for (final entity in libDir.listSync(recursive: true)) {
       if (entity is! File || !entity.path.endsWith('.dart')) continue;
       final normalizedPath = entity.path.replaceAll('\\', '/');
-      if (normalizedPath.endsWith('app_colors.dart') ||
-          normalizedPath.endsWith('app_theme.dart')) {
+      if (normalizedPath.startsWith('lib/app/design/') ||
+          normalizedPath == 'lib/app/theme.dart') {
         continue;
       }
       final lines = entity.readAsLinesSync();
@@ -37,7 +37,7 @@ void main() {
       violations,
       isEmpty,
       reason:
-          'Use Theme.of(context).colorScheme.primary or design tokens instead of fixed navy:\n${violations.join('\n')}',
+          'Keep legacy navy tokens in lib/app/design/ or lib/app/theme.dart only:\n${violations.join('\n')}',
     );
   });
 }
