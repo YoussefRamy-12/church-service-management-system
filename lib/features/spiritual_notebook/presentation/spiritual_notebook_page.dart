@@ -16,6 +16,7 @@ part 'widgets/notebook_controls.dart';
 part 'widgets/student_list.dart';
 part 'widgets/student_list_filters.dart';
 part 'pages/student_notebook_page.dart';
+part 'pages/student_notebook_activity_section.dart';
 part 'pages/student_notebook_actions.dart';
 part 'widgets/leaderboard.dart';
 part 'widgets/leaderboard_sections.dart';
