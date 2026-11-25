@@ -153,7 +153,7 @@ class _NotebookSettingsState extends ConsumerState<_NotebookSettings> {
                                   Text(
                                     a['description'].toString(),
                                     style: TextStyle(
-                                      fontSize: 12,
+                                      fontSize: 13,
                                       color: theme.colorScheme.onSurfaceVariant,
                                     ),
                                   ),
@@ -176,7 +176,7 @@ class _NotebookSettingsState extends ConsumerState<_NotebookSettings> {
                               style: TextStyle(
                                 fontWeight: FontWeight.w800,
                                 color: Theme.of(context).colorScheme.primary,
-                                fontSize: 12,
+                                fontSize: 13,
                               ),
                             ),
                           ),
@@ -185,11 +185,11 @@ class _NotebookSettingsState extends ConsumerState<_NotebookSettings> {
                             icon: const Icon(Icons.edit_outlined, size: 18),
                             color: Theme.of(context).colorScheme.primary,
                             tooltip: 'تعديل',
-                            visualDensity: VisualDensity.compact,
+                            visualDensity: VisualDensity.standard,
                             padding: EdgeInsets.zero,
                             constraints: const BoxConstraints(
-                              minWidth: 32,
-                              minHeight: 32,
+                              minWidth: 44,
+                              minHeight: 44,
                             ),
                             onPressed: () => _showEditActivityDialog(a),
                           ),
@@ -200,11 +200,11 @@ class _NotebookSettingsState extends ConsumerState<_NotebookSettings> {
                             ),
                             color: appError,
                             tooltip: 'حذف',
-                            visualDensity: VisualDensity.compact,
+                            visualDensity: VisualDensity.standard,
                             padding: EdgeInsets.zero,
                             constraints: const BoxConstraints(
-                              minWidth: 32,
-                              minHeight: 32,
+                              minWidth: 44,
+                              minHeight: 44,
                             ),
                             onPressed: () => _showDeleteActivityDialog(a),
                           ),
@@ -411,7 +411,7 @@ class _NotebookSettingsState extends ConsumerState<_NotebookSettings> {
                         child: Text(
                           'تعديل القواعد ينطبق على التسجيلات القادمة مع الحفاظ الكامل على درجات الأسابيع السابقة.',
                           style: TextStyle(
-                            fontSize: 12,
+                            fontSize: 13,
                             color: theme.colorScheme.onSurfaceVariant,
                             height: 1.35,
                           ),

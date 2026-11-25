@@ -3,13 +3,15 @@ part of '../spiritual_notebook_page.dart';
 extension _LeaderboardControls on _LeaderboardState {
 
   Widget _classFilterPill({
-      required String label,
-      required int count,
-      required bool selected,
-      required VoidCallback onTap,
-      required bool isDark,
-    }) {
-      return Material(
+    required String label,
+    required int count,
+    required bool selected,
+    required VoidCallback onTap,
+    required bool isDark,
+  }) {
+    return ConstrainedBox(
+      constraints: const BoxConstraints(minHeight: 44),
+      child: Material(
         color: Colors.transparent,
         child: InkWell(
           onTap: onTap,
@@ -20,7 +22,9 @@ extension _LeaderboardControls on _LeaderboardState {
             decoration: BoxDecoration(
               color: selected
                   ? Theme.of(context).colorScheme.primary
-                  : (isDark ? AppDesignColors.darkSurfaceSubtle : AppDesignColors.lightSurfaceSubtle),
+                  : (isDark
+                        ? AppDesignColors.darkSurfaceSubtle
+                        : AppDesignColors.lightSurfaceSubtle),
               borderRadius: BorderRadius.circular(999),
               border: Border.all(
                 color: selected
@@ -37,7 +41,7 @@ extension _LeaderboardControls on _LeaderboardState {
                 Text(
                   label,
                   style: TextStyle(
-                    fontSize: 12,
+                    fontSize: 13,
                     fontWeight: selected ? FontWeight.w800 : FontWeight.w600,
                     color: selected
                         ? Colors.white
@@ -46,7 +50,10 @@ extension _LeaderboardControls on _LeaderboardState {
                 ),
                 const SizedBox(width: 4),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 5,
+                    vertical: 1,
+                  ),
                   decoration: BoxDecoration(
                     color: selected
                         ? Colors.white.withValues(alpha: 0.22)
@@ -58,11 +65,13 @@ extension _LeaderboardControls on _LeaderboardState {
                   child: Text(
                     '$count',
                     style: TextStyle(
-                      fontSize: 12,
+                      fontSize: 13,
                       fontWeight: FontWeight.w700,
                       color: selected
                           ? Colors.white
-                          : (isDark ? AppDesignColors.darkMutedInk : appMutedInk),
+                          : (isDark
+                                ? AppDesignColors.darkMutedInk
+                                : appMutedInk),
                     ),
                   ),
                 ),
@@ -70,9 +79,9 @@ extension _LeaderboardControls on _LeaderboardState {
             ),
           ),
         ),
-      );
-    }
-
+      ),
+    );
+  }
   Widget _buildRankItem(
       BuildContext context, {
       required Map<String, dynamic> student,
@@ -119,7 +128,7 @@ extension _LeaderboardControls on _LeaderboardState {
                       style: TextStyle(
                         fontWeight: FontWeight.w800,
                         color: badgeColor,
-                        fontSize: isMobile ? 11 : 13,
+                        fontSize: 13,
                       ),
                     ),
             ),
@@ -139,7 +148,7 @@ extension _LeaderboardControls on _LeaderboardState {
                   Text(
                     '${cls?['name'] ?? 'بدون فصل'} • ${stage?['name'] ?? 'بدون مرحلة'}',
                     style: TextStyle(
-                      fontSize: 12,
+                      fontSize: 13,
                       color: Theme.of(context).colorScheme.onSurfaceVariant,
                       fontWeight: FontWeight.w500,
                     ),
@@ -160,7 +169,7 @@ extension _LeaderboardControls on _LeaderboardState {
                 style: TextStyle(
                   fontWeight: FontWeight.w800,
                   color: Theme.of(context).colorScheme.primary,
-                  fontSize: isMobile ? 12 : 13,
+                  fontSize: 13,
                 ),
               ),
             ),

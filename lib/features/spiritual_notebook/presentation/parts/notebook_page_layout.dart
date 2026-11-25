@@ -67,14 +67,14 @@ extension _SpiritualNotebookPageLayout on _SpiritualNotebookPageState {
                       tooltip: _showMetrics
                           ? 'إخفاء الإحصائيات'
                           : 'إظهار الإحصائيات',
-                      visualDensity: VisualDensity.compact,
+                      visualDensity: VisualDensity.standard,
                       onPressed: () =>
                           setState(() => _showMetrics = !_showMetrics),
                     ),
                   IconButton(
                     icon: const Icon(Icons.refresh_rounded, size: 20),
                     tooltip: 'تحديث',
-                    visualDensity: VisualDensity.compact,
+                    visualDensity: VisualDensity.standard,
                     onPressed: refresh,
                   ),
                 ],
@@ -87,11 +87,11 @@ extension _SpiritualNotebookPageLayout on _SpiritualNotebookPageState {
                   IconButton(
                     icon: const Icon(Icons.chevron_right_rounded, size: 22),
                     tooltip: 'الأسبوع السابق',
-                    visualDensity: VisualDensity.compact,
+                    visualDensity: VisualDensity.standard,
                     padding: EdgeInsets.zero,
                     constraints: const BoxConstraints.tightFor(
-                      width: 32,
-                      height: 36,
+                      width: 44,
+                      height: 44,
                     ),
                     onPressed: () => setState(() => _weekOffset -= 1),
                   ),
@@ -129,7 +129,7 @@ extension _SpiritualNotebookPageLayout on _SpiritualNotebookPageState {
                               overflow: TextOverflow.ellipsis,
                               style: TextStyle(
                                 fontWeight: FontWeight.w700,
-                                fontSize: 12,
+                                fontSize: 13,
                                 color: isDark ? Colors.white : appInk,
                               ),
                             ),
@@ -150,7 +150,7 @@ extension _SpiritualNotebookPageLayout on _SpiritualNotebookPageState {
                                 style: TextStyle(
                                   color: appSuccess,
                                   fontWeight: FontWeight.w800,
-                                  fontSize: 12,
+                                  fontSize: 13,
                                 ),
                               ),
                             ),
@@ -162,18 +162,18 @@ extension _SpiritualNotebookPageLayout on _SpiritualNotebookPageState {
                   IconButton(
                     icon: const Icon(Icons.chevron_left_rounded, size: 22),
                     tooltip: 'الأسبوع القادم',
-                    visualDensity: VisualDensity.compact,
+                    visualDensity: VisualDensity.standard,
                     padding: EdgeInsets.zero,
                     constraints: const BoxConstraints.tightFor(
-                      width: 32,
-                      height: 36,
+                      width: 44,
+                      height: 44,
                     ),
                     onPressed: () => setState(() => _weekOffset += 1),
                   ),
                   if (!isCurrentWeek)
                     TextButton(
                       style: TextButton.styleFrom(
-                        visualDensity: VisualDensity.compact,
+                        visualDensity: VisualDensity.standard,
                         padding: const EdgeInsets.symmetric(horizontal: 6),
                       ),
                       onPressed: () => setState(() => _weekOffset = 0),
@@ -234,7 +234,7 @@ extension _SpiritualNotebookPageLayout on _SpiritualNotebookPageState {
                   Text(
                     'متابعة وتشجيع الحياة الروحية للتلاميذ وتوثيق الأنشطة أسبوعياً',
                     style: TextStyle(
-                      fontSize: 12,
+                      fontSize: 13,
                       color: isDark ? AppDesignColors.darkMutedInk : appMutedInk,
                       fontWeight: FontWeight.w500,
                     ),
@@ -248,7 +248,7 @@ extension _SpiritualNotebookPageLayout on _SpiritualNotebookPageState {
                 IconButton(
                   icon: const Icon(Icons.chevron_right_rounded),
                   tooltip: 'الأسبوع السابق',
-                  visualDensity: VisualDensity.compact,
+                  visualDensity: VisualDensity.standard,
                   onPressed: () => setState(() => _weekOffset -= 1),
                 ),
                 Container(
@@ -280,7 +280,7 @@ extension _SpiritualNotebookPageLayout on _SpiritualNotebookPageState {
                         period.label,
                         style: TextStyle(
                           fontWeight: FontWeight.w700,
-                          fontSize: 12,
+                          fontSize: 13,
                           color: isDark ? Colors.white : appInk,
                         ),
                       ),
@@ -300,7 +300,7 @@ extension _SpiritualNotebookPageLayout on _SpiritualNotebookPageState {
                             style: TextStyle(
                               color: appSuccess,
                               fontWeight: FontWeight.w800,
-                              fontSize: 12,
+                              fontSize: 13,
                             ),
                           ),
                         ),
@@ -311,7 +311,7 @@ extension _SpiritualNotebookPageLayout on _SpiritualNotebookPageState {
                 IconButton(
                   icon: const Icon(Icons.chevron_left_rounded),
                   tooltip: 'الأسبوع القادم',
-                  visualDensity: VisualDensity.compact,
+                  visualDensity: VisualDensity.standard,
                   onPressed: () => setState(() => _weekOffset += 1),
                 ),
                 if (!isCurrentWeek)
@@ -323,7 +323,7 @@ extension _SpiritualNotebookPageLayout on _SpiritualNotebookPageState {
                 IconButton(
                   icon: const Icon(Icons.refresh_rounded),
                   tooltip: 'تحديث البيانات',
-                  visualDensity: VisualDensity.compact,
+                  visualDensity: VisualDensity.standard,
                   onPressed: refresh,
                 ),
               ],
@@ -359,7 +359,7 @@ extension _SpiritualNotebookPageLayout on _SpiritualNotebookPageState {
                 const SizedBox(width: 8),
                 Expanded(
                   child: _CompactMetricTile(
-                    label: 'تم التسجيل',
+                    label: 'مسجَّل',
                     value: '$registeredCount',
                     icon: Icons.check_circle_rounded,
                     color: appSuccess,
@@ -403,13 +403,13 @@ extension _SpiritualNotebookPageLayout on _SpiritualNotebookPageState {
               value: '$totalStudents',
               icon: Icons.groups_rounded,
               color: Theme.of(context).colorScheme.primary,
-              badgeText: 'مسجل',
+              badgeText: 'مسجَّل',
             ),
           ),
           const SizedBox(width: 10),
           Expanded(
             child: _CompactMetricTile(
-              label: 'تم التسجيل هذا الأسبوع',
+              label: 'مسجَّل هذا الأسبوع',
               value: '$registeredCount',
               icon: Icons.check_circle_rounded,
               color: appSuccess,

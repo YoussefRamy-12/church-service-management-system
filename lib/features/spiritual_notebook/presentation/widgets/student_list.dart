@@ -120,7 +120,7 @@ class _StudentListState extends State<_StudentList> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               SizedBox(
-                height: 40,
+                height: 48,
                 child: AppSearchField(
                   controller: searchController,
                   hintText: 'ابحث باسم التلميذ أو الفصل...',
@@ -129,7 +129,7 @@ class _StudentListState extends State<_StudentList> {
               ),
               const SizedBox(height: 6),
 
-              // Filter Row 1: Status Chips (الكل، المسجلون، بانتظار التسجيل)
+              // Filter Row 1: Status Chips (الكل، مسجَّل، بانتظار التسجيل)
               ScrollableChipRow(
                 padding: const EdgeInsetsDirectional.symmetric(horizontal: 4),
                 child: Row(
@@ -142,7 +142,7 @@ class _StudentListState extends State<_StudentList> {
                     ),
                     const SizedBox(width: 6),
                     _filterChip(
-                      label: 'تم التسجيل',
+                      label: 'مسجَّل',
                       count: registeredCount,
                       color: appSuccess,
                       selected: statusFilter == 1,
@@ -212,7 +212,7 @@ class _StudentListState extends State<_StudentList> {
                         child: Text(
                           'تصفية حسب: ${classMap[selectedClassId] ?? ''} (${filteredStudents.length} تلميذ)',
                           style: TextStyle(
-                            fontSize: 12,
+                            fontSize: 13,
                             fontWeight: FontWeight.w800,
                             color: Theme.of(context).colorScheme.primary,
                           ),
@@ -240,7 +240,7 @@ class _StudentListState extends State<_StudentList> {
                               Text(
                                 'إلغاء',
                                 style: TextStyle(
-                                  fontSize: 12,
+                                  fontSize: 13,
                                   fontWeight: FontWeight.w700,
                                   color: Theme.of(context).colorScheme.primary,
                                 ),
@@ -363,15 +363,15 @@ class _StudentListState extends State<_StudentList> {
                                         if (done)
                                           GlassBadge(
                                             label: widget.isMobile
-                                                ? 'مسجل'
-                                                : 'تم التسجيل',
+                                                ? 'مسجَّل'
+                                                : 'مسجَّل',
                                             color: appSuccess,
                                             icon: Icons.check_circle_rounded,
                                           )
                                         else
                                           GlassBadge(
                                             label: widget.isMobile
-                                                ? 'بانتظار'
+                                                ? 'بانتظار التسجيل'
                                                 : 'بانتظار التسجيل',
                                             color: appWarning,
                                             icon: Icons.access_time_rounded,
@@ -417,7 +417,7 @@ class _StudentListState extends State<_StudentList> {
                                       done ? '+$weekPts ن' : '—',
                                       style: TextStyle(
                                         fontWeight: FontWeight.w800,
-                                        fontSize: 12,
+                                        fontSize: 13,
                                         color: done
                                             ? appSuccess
                                             : (isDark
@@ -431,7 +431,7 @@ class _StudentListState extends State<_StudentList> {
                                     'إجمالي: $totalPts',
                                     style: TextStyle(
                                       fontWeight: FontWeight.w600,
-                                      fontSize: 12,
+                                      fontSize: 13,
                                       color: isDark
                                           ? AppDesignColors.darkMutedInk
                                           : appMutedInk,

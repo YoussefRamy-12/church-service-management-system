@@ -57,7 +57,7 @@ extension _StudentListFilterBuilders on _StudentListState {
                 Text(
                   '$label ($count)',
                   style: TextStyle(
-                    fontSize: 12,
+                    fontSize: 13,
                     fontWeight: selected ? FontWeight.w800 : FontWeight.w600,
                     color: selected
                         ? (isDark ? Colors.white : activeColor)

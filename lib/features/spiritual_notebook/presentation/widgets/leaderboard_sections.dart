@@ -103,7 +103,7 @@ extension _LeaderboardSections on _LeaderboardState {
                     child: Text(
                       'لوحة شرف فصل: ${classMap[selectedClassId] ?? ''}',
                       style: TextStyle(
-                        fontSize: 12,
+                        fontSize: 13,
                         fontWeight: FontWeight.w800,
                         color: Theme.of(context).colorScheme.primary,
                       ),
@@ -116,7 +116,7 @@ extension _LeaderboardSections on _LeaderboardState {
                       child: Text(
                         'عرض الكل',
                         style: TextStyle(
-                          fontSize: 12,
+                          fontSize: 13,
                           fontWeight: FontWeight.w700,
                           color: Theme.of(context).colorScheme.primary,
                         ),
@@ -352,7 +352,7 @@ extension _LeaderboardSections on _LeaderboardState {
                   Text(
                     rankLabel,
                     style: TextStyle(
-                      fontSize: 12,
+                      fontSize: 13,
                       fontWeight: FontWeight.w600,
                       color: isDark ? AppDesignColors.darkMutedInk : appMutedInk,
                     ),

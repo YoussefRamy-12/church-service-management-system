@@ -223,7 +223,7 @@ class _SpiritualNotebookStudentPageState
                                         const Text(
                                           'إجمالي النقاط المسجلة',
                                           style: TextStyle(
-                                            fontSize: 12,
+                                            fontSize: 13,
                                             fontWeight: FontWeight.w600,
                                             color: appSuccess,
                                           ),
@@ -265,7 +265,7 @@ class _SpiritualNotebookStudentPageState
                                           Text(
                                             'نقاط تشجيعية',
                                             style: TextStyle(
-                                              fontSize: 12,
+                                              fontSize: 13,
                                               fontWeight: FontWeight.w600,
                                               color: Theme.of(context)
                                                   .colorScheme
@@ -295,7 +295,7 @@ class _SpiritualNotebookStudentPageState
                               Text(
                                 'تاريخ ووقت الحفظ: ${existing['submitted_at']}',
                                 style: TextStyle(
-                                  fontSize: 12,
+                                  fontSize: 13,
                                   color: theme.colorScheme.onSurfaceVariant,
                                 ),
                               ),

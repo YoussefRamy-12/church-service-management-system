@@ -81,7 +81,7 @@ extension _StudentNotebookActivitySection on _SpiritualNotebookStudentPageState 
                                 Text(
                                   a['description'].toString(),
                                   style: TextStyle(
-                                    fontSize: 12,
+                                    fontSize: 13,
                                     color: theme
                                         .colorScheme
                                         .onSurfaceVariant,
@@ -113,7 +113,7 @@ extension _StudentNotebookActivitySection on _SpiritualNotebookStudentPageState 
                               color: isChecked
                                   ? Colors.white
                                   : Theme.of(context).colorScheme.primary,
-                              fontSize: 12,
+                              fontSize: 13,
                             ),
                           ),
                         ),

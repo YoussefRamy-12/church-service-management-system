@@ -26,7 +26,7 @@ class _TabButton extends StatelessWidget {
         borderRadius: BorderRadius.circular(8),
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 150),
-          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 6),
+          padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 6),
           decoration: BoxDecoration(
             color: selected
                 ? (isDark ? Theme.of(context).colorScheme.primary : Colors.white)
@@ -60,7 +60,7 @@ class _TabButton extends StatelessWidget {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
-                    fontSize: 12,
+                    fontSize: 13,
                     fontWeight: selected ? FontWeight.w800 : FontWeight.w600,
                     color: selected
                         ? (isDark ? Colors.white : Theme.of(context).colorScheme.primary)
@@ -88,7 +88,7 @@ class _TabButton extends StatelessWidget {
                   child: Text(
                     count!,
                     style: TextStyle(
-                      fontSize: 12,
+                      fontSize: 13,
                       fontWeight: FontWeight.w700,
                       color: selected
                           ? (isDark ? Colors.white : Theme.of(context).colorScheme.primary)
@@ -159,7 +159,7 @@ class _CompactMetricTile extends StatelessWidget {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
-                    fontSize: 12,
+                    fontSize: 13,
                     fontWeight: FontWeight.w600,
                     color: isDark ? AppDesignColors.darkMutedInk : appMutedInk,
                   ),
@@ -183,7 +183,7 @@ class _CompactMetricTile extends StatelessWidget {
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
-                            fontSize: 12,
+                            fontSize: 13,
                             fontWeight: FontWeight.w700,
                             color: color,
                           ),

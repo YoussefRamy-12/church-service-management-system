@@ -223,7 +223,7 @@ void main() {
       findsWidgets,
     );
 
-    await tester.tap(find.text('تم التسجيل (1)'));
+    await tester.tap(find.text('مسجَّل (1)'));
     await tester.pumpAndSettle();
     expect(find.text('مينا فايز 1'), findsOneWidget);
     expect(find.text('مينا فايز 2'), findsNothing);
