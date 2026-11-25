@@ -3,7 +3,7 @@ part of '../spiritual_notebook_page.dart';
 class _SpiritualNotebookPageState extends ConsumerState<SpiritualNotebookPage> {
   int tab = 0;
   int _weekOffset = 0;
-  bool _showMetrics = true;
+  bool _showMetrics = false;
   late Future<_NotebookData> data;
 
   @override
@@ -121,7 +121,7 @@ class _SpiritualNotebookPageState extends ConsumerState<SpiritualNotebookPage> {
                     ),
 
                     // Metrics Grid (shown on student notebooks tab, collapsible)
-                    if (_showMetrics && (isMobile ? tab == 0 : tab != 2))
+                    if (isMobile ? (_showMetrics && tab == 0) : tab != 2)
                       Padding(
                         padding: EdgeInsets.fromLTRB(
                           isMobile ? 12 : 20,
