@@ -466,7 +466,7 @@ class _MobileNavigationBar extends StatelessWidget {
     return NavigationBar(
       key: const Key('app_shell_bottom_navigation'),
       selectedIndex: isMoreSelected ? items.length : selectedIndex,
-      labelBehavior: NavigationDestinationLabelBehavior.onlyShowSelected,
+      labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
       onDestinationSelected: (index) {
         if (index == items.length) {
           onNavigate('more');
