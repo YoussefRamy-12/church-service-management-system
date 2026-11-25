@@ -119,6 +119,7 @@ class _StudentListState extends State<_StudentList> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
+              // Preserve a 48px touch target for the mobile search field.
               SizedBox(
                 height: 48,
                 child: AppSearchField(
