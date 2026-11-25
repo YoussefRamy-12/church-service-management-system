@@ -153,7 +153,7 @@ Future<void> _pumpNotebook(
     ProviderScope(
       overrides: [
         spiritualNotebookRepositoryProvider.overrideWithValue(repository),
-        currentServantProfileProvider.overrideWithValue(AsyncData(_leader)),
+        currentServantProfileProvider.overrideWithValue(const AsyncData(_leader)),
         isSuperAdminProvider.overrideWith((ref) => false),
       ],
       child: MaterialApp(
