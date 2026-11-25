@@ -111,7 +111,7 @@ class _NotebookGoldenRepository extends SpiritualNotebookRepository {
 
 dynamic _overrides(_NotebookGoldenRepository repository) => [
   spiritualNotebookRepositoryProvider.overrideWithValue(repository),
-  currentServantProfileProvider.overrideWithValue(AsyncData(_leader)),
+  currentServantProfileProvider.overrideWithValue(const AsyncData(_leader)),
   isSuperAdminProvider.overrideWith((ref) => false),
 ];
 
