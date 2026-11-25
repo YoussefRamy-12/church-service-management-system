@@ -117,7 +117,7 @@ class AttendanceTrendChart extends StatelessWidget {
                             Text(
                               '${item.attendanceRate.toStringAsFixed(0)}%',
                               style: TextStyle(
-                                fontSize: 11,
+                                fontSize: 12,
                                 fontWeight: FontWeight.w700,
                                 color: item.attendanceRate >= 70
                                     ? AppColors.of(context).present.foreground
@@ -180,7 +180,7 @@ class AttendanceTrendChart extends StatelessWidget {
                             Text(
                               _shortDate(item.meetingDate),
                               style: TextStyle(
-                                fontSize: 11,
+                                fontSize: 12,
                                 fontWeight: FontWeight.w600,
                                 color: theme.colorScheme.onSurfaceVariant,
                               ),
@@ -209,7 +209,7 @@ class AttendanceTrendChart extends StatelessWidget {
         const SizedBox(width: 4),
         Text(
           label,
-          style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600),
+          style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
         ),
       ],
     );

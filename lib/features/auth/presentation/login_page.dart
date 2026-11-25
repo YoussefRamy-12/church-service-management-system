@@ -220,10 +220,14 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                                   width: 72,
                                   height: 72,
                                   decoration: BoxDecoration(
-                                    color: theme.colorScheme.primary.withValues(alpha: 0.08),
+                                    color: theme.colorScheme.primary.withValues(
+                                      alpha: isDark ? 0.16 : 0.08,
+                                    ),
                                     borderRadius: BorderRadius.circular(12),
                                     border: Border.all(
-                                      color: theme.colorScheme.primary.withValues(alpha: 0.20),
+                                      color: theme.colorScheme.primary.withValues(
+                                        alpha: isDark ? 0.45 : 0.20,
+                                      ),
                                     ),
                                   ),
                                   child: Icon(
@@ -244,13 +248,13 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                                 ),
                               ),
                               const SizedBox(height: 4),
-                              const Text(
+                              Text(
                                 'خدمة 5 و6 ابتدائي بنين',
                                 textAlign: TextAlign.center,
                                 style: TextStyle(
                                   fontSize: 14,
-                                  color: Color(0xFF64748B),
-                                  fontWeight: FontWeight.w500,
+                                  color: theme.colorScheme.onSurface,
+                                  fontWeight: FontWeight.w600,
                                 ),
                               ),
                               const SizedBox(height: 2),
@@ -258,7 +262,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                                 'كنيسة السيدة العذراء بعياد بك',
                                 textAlign: TextAlign.center,
                                 style: TextStyle(
-                                  fontSize: 12,
+                                  fontSize: 13,
                                   color: theme.colorScheme.onSurfaceVariant,
                                   fontWeight: FontWeight.w500,
                                 ),

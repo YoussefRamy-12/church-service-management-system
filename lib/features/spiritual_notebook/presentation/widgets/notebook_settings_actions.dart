@@ -178,7 +178,7 @@ extension _NotebookSettingsActions on _NotebookSettingsState {
                             child: Text(
                               'ملاحظة: تعديل النقاط ينطبق على الأسابيع والتسجيلات القادمة، مع بقاء درجات الأسابيع السابقة المسجلة كما هي.',
                               style: TextStyle(
-                                fontSize: 11,
+                                fontSize: 12,
                                 color: Theme.of(ctx).colorScheme.onSurfaceVariant,
                                 height: 1.35,
                               ),
@@ -296,7 +296,7 @@ extension _NotebookSettingsActions on _NotebookSettingsState {
                           child: Text(
                             'حفظ الدرجات السابقة:\nسيتم حذف النشاط من قائمة الأنشطة المتاحة للتسجيل في الأسابيع القادمة، مع الاحتفاظ الكامل بجميع درجات وسجلات الأسابيع السابقة.',
                             style: TextStyle(
-                              fontSize: 11,
+                              fontSize: 12,
                               color: isDark
                                   ? AppColors.light.present.background
                                   : AppColors.light.present.foreground,

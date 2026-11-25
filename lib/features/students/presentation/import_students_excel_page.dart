@@ -871,7 +871,7 @@ class _ImportStudentsExcelPageState
           const SizedBox(height: 2),
           Text(
             label,
-            style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600),
+            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
             textAlign: TextAlign.center,
           ),
         ],
@@ -923,7 +923,7 @@ class _ImportStudentsExcelPageState
                       child: Text(
                         '${r.rowNumber}',
                         style: TextStyle(
-                          fontSize: 11,
+                          fontSize: 12,
                           fontWeight: FontWeight.bold,
                           color: badgeColor,
                         ),
@@ -946,7 +946,7 @@ class _ImportStudentsExcelPageState
                             Text(
                               r.school!,
                               style: const TextStyle(
-                                fontSize: 11,
+                                fontSize: 12,
                                 color: AppDesignColors.lightMutedInk,
                               ),
                             ),
@@ -957,7 +957,7 @@ class _ImportStudentsExcelPageState
                                   : (r.duplicateReason ?? 'مكرر'),
                               maxLines: 2,
                               overflow: TextOverflow.ellipsis,
-                              style: TextStyle(fontSize: 11, color: badgeColor),
+                              style: TextStyle(fontSize: 12, color: badgeColor),
                             ),
                         ],
                       ),

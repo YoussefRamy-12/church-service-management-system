@@ -37,7 +37,7 @@ extension _LeaderboardControls on _LeaderboardState {
                 Text(
                   label,
                   style: TextStyle(
-                    fontSize: 11,
+                    fontSize: 12,
                     fontWeight: selected ? FontWeight.w800 : FontWeight.w600,
                     color: selected
                         ? Colors.white
@@ -58,7 +58,7 @@ extension _LeaderboardControls on _LeaderboardState {
                   child: Text(
                     '$count',
                     style: TextStyle(
-                      fontSize: 10,
+                      fontSize: 12,
                       fontWeight: FontWeight.w700,
                       color: selected
                           ? Colors.white
@@ -139,7 +139,7 @@ extension _LeaderboardControls on _LeaderboardState {
                   Text(
                     '${cls?['name'] ?? 'بدون فصل'} • ${stage?['name'] ?? 'بدون مرحلة'}',
                     style: TextStyle(
-                      fontSize: 11,
+                      fontSize: 12,
                       color: Theme.of(context).colorScheme.onSurfaceVariant,
                       fontWeight: FontWeight.w500,
                     ),

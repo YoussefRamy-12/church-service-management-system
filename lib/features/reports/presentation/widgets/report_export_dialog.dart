@@ -288,7 +288,7 @@ class _ReportExportDialogState extends ConsumerState<ReportExportDialog> {
                   Text(
                     subtitle,
                     style: TextStyle(
-                      fontSize: 11,
+                      fontSize: 12,
                       color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
                     ),
                   ),

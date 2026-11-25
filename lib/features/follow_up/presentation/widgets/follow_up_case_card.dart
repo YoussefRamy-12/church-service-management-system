@@ -114,7 +114,7 @@ class FollowUpCaseCard extends StatelessWidget {
                         ? caseItem.assignedServantNames.join('، ')
                         : '${caseItem.assignedServantCount} خدام مكلفين',
                 style: TextStyle(
-                  fontSize: 11,
+                  fontSize: 12,
                   color: caseItem.assignedServantCount == 0
                       ? const Color(0xFFD97706)
                       : theme.colorScheme.onSurfaceVariant,
@@ -137,7 +137,7 @@ class FollowUpCaseCard extends StatelessWidget {
                 Text(
                   'آخر تحديث: ${caseItem.latestActivityAuthorName}',
                   style: TextStyle(
-                    fontSize: 11,
+                    fontSize: 12,
                     color: theme.colorScheme.onSurfaceVariant,
                   ),
                 ),

@@ -70,7 +70,7 @@ class FollowUpActivityCard extends StatelessWidget {
                           Text(
                             '(${formatRoleLabel(activity.authorRole)})',
                             style: TextStyle(
-                              fontSize: 11,
+                              fontSize: 12,
                               color: theme.colorScheme.onSurfaceVariant,
                             ),
                           ),
@@ -87,7 +87,7 @@ class FollowUpActivityCard extends StatelessWidget {
                   Text(
                     activity.activityDate,
                     style: TextStyle(
-                      fontSize: 11,
+                      fontSize: 12,
                       fontWeight: FontWeight.w600,
                       color: theme.colorScheme.onSurfaceVariant,
                     ),
@@ -96,7 +96,7 @@ class FollowUpActivityCard extends StatelessWidget {
                   Text(
                     _formatTime(activity.createdAt),
                     style: TextStyle(
-                      fontSize: 10,
+                      fontSize: 12,
                       color: theme.colorScheme.onSurfaceVariant.withValues(alpha: 0.7),
                     ),
                   ),
@@ -131,7 +131,7 @@ class FollowUpActivityCard extends StatelessWidget {
                     Text(
                       activity.studentName!,
                       style: TextStyle(
-                        fontSize: 11,
+                        fontSize: 12,
                         fontWeight: FontWeight.w600,
                         color: theme.colorScheme.primary,
                       ),
@@ -149,7 +149,7 @@ class FollowUpActivityCard extends StatelessWidget {
                       child: Text(
                         activity.caseTitle!,
                         style: TextStyle(
-                          fontSize: 11,
+                          fontSize: 12,
                           color: theme.colorScheme.onSurfaceVariant,
                         ),
                         maxLines: 1,

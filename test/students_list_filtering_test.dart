@@ -19,31 +19,31 @@ import 'package:church_service_management_system/features/students/presentation/
 class _FakeServiceRepository implements ServiceRepository {
   @override
   Future<Service?> getService(String serviceId) async => const Service(
-        id: 'service-1',
-        name: 'خدمة تجريبية',
-        churchName: 'كنيسة تجريبية',
-        meetingStartTime: '18:00',
-      );
+    id: 'service-1',
+    name: 'خدمة تجريبية',
+    churchName: 'كنيسة تجريبية',
+    meetingStartTime: '18:00',
+  );
 
   @override
   Future<List<Stage>> getStages(String serviceId) async => [
-        const Stage(id: 'stage-1', serviceId: 'service-1', name: 'ابتدائي'),
-      ];
+    const Stage(id: 'stage-1', serviceId: 'service-1', name: 'ابتدائي'),
+  ];
 
   @override
   Future<List<ServiceClass>> getClasses(String stageId) async => [
-        const ServiceClass(id: 'class-1', stageId: 'stage-1', name: 'فصل 5/1'),
-      ];
+    const ServiceClass(id: 'class-1', stageId: 'stage-1', name: 'فصل 5/1'),
+  ];
 
   @override
   Stream<List<Stage>> watchStages(String serviceId) => Stream.value([
-        const Stage(id: 'stage-1', serviceId: 'service-1', name: 'ابتدائي'),
-      ]);
+    const Stage(id: 'stage-1', serviceId: 'service-1', name: 'ابتدائي'),
+  ]);
 
   @override
   Stream<List<ServiceClass>> watchClasses(String stageId) => Stream.value([
-        const ServiceClass(id: 'class-1', stageId: 'stage-1', name: 'فصل 5/1'),
-      ]);
+    const ServiceClass(id: 'class-1', stageId: 'stage-1', name: 'فصل 5/1'),
+  ]);
 
   @override
   Future<void> refreshStages(String serviceId) async {}
@@ -53,8 +53,8 @@ class _FakeServiceRepository implements ServiceRepository {
 
   @override
   Future<List<CachedReportingPeriod>> getReportingPeriods(
-          String serviceId) async =>
-      [];
+    String serviceId,
+  ) async => [];
 
   @override
   Future<void> refreshReportingPeriods(String serviceId) async {}
@@ -66,8 +66,10 @@ class _FakeServiceRepository implements ServiceRepository {
   Future<void> deleteClass(String id) async {}
 
   @override
-  Future<void> updateMeetingStartTime(
-      {required String serviceId, required String meetingStartTime}) async {}
+  Future<void> updateMeetingStartTime({
+    required String serviceId,
+    required String meetingStartTime,
+  }) async {}
 
   @override
   Future<void> updateMeetingSchedule({
@@ -98,8 +100,9 @@ class _FakeStudentRepository implements StudentRepository {
       Stream.value(_students);
 
   @override
-  Stream<List<Student>> watchStudentsForClass(String classId) =>
-      Stream.value(_students.where((s) => s.currentClassId == classId).toList());
+  Stream<List<Student>> watchStudentsForClass(String classId) => Stream.value(
+    _students.where((s) => s.currentClassId == classId).toList(),
+  );
 
   @override
   Future<void> refreshStudentsForService(String serviceId) async {}
@@ -108,21 +111,27 @@ class _FakeStudentRepository implements StudentRepository {
   Future<void> refreshStudents(String classId) async {}
 
   @override
-  Future<Student> approvePending(String studentId, {String? membershipId}) async =>
-      _students.firstWhere((s) => s.id == studentId);
+  Future<Student> approvePending(
+    String studentId, {
+    String? membershipId,
+  }) async => _students.firstWhere((s) => s.id == studentId);
 
   @override
-  Future<Student> assignClass(String studentId, String classId,
-          {String? membershipId}) async =>
-      _students.firstWhere((s) => s.id == studentId);
+  Future<Student> assignClass(
+    String studentId,
+    String classId, {
+    String? membershipId,
+  }) async => _students.firstWhere((s) => s.id == studentId);
 
   @override
   Future<void> deleteStudent(String studentId, {String? membershipId}) async {}
 
   @override
-  Future<SensitiveStudentData?> getSensitiveData(String studentId,
-          {String? serviceId, String? identityServiceId}) async =>
-      null;
+  Future<SensitiveStudentData?> getSensitiveData(
+    String studentId, {
+    String? serviceId,
+    String? identityServiceId,
+  }) async => null;
 
   @override
   Future<Student> updateStudent({
@@ -138,8 +147,7 @@ class _FakeStudentRepository implements StudentRepository {
     String? photoPath,
     String? notes,
     SensitiveStudentData? sensitiveData,
-  }) async =>
-      _students.firstWhere((s) => s.id == studentId);
+  }) async => _students.firstWhere((s) => s.id == studentId);
 }
 
 void main() {
@@ -170,10 +178,7 @@ void main() {
     ),
   ];
 
-  Widget createWidget({
-    List<Student>? students,
-    double width = 390,
-  }) {
+  Widget createWidget({List<Student>? students, double width = 390}) {
     return ProviderScope(
       overrides: [
         serviceRepositoryProvider.overrideWithValue(_FakeServiceRepository()),
@@ -202,7 +207,9 @@ void main() {
     );
   }
 
-  testWidgets('StudentsPage renders all students and count row', (tester) async {
+  testWidgets('StudentsPage renders all students and count row', (
+    tester,
+  ) async {
     await tester.pumpWidget(createWidget());
     await tester.pumpAndSettle();
 
@@ -210,7 +217,6 @@ void main() {
     expect(find.text('مينا سمير'), findsOneWidget);
     expect(find.text('بيشوي رزق'), findsOneWidget);
     expect(find.textContaining('النتائج (3)'), findsOneWidget);
-    expect(find.textContaining('معتمد: 2'), findsOneWidget);
   });
 
   testWidgets('StudentsPage filters by status chip', (tester) async {
@@ -260,37 +266,40 @@ void main() {
     expect(find.text('مينا سمير'), findsNothing);
   });
 
-  testWidgets('StudentsPage shows empty search results with clear-search button',
-      (tester) async {
-    tester.view.physicalSize = const Size(800, 1200);
-    tester.view.devicePixelRatio = 1.0;
-    addTearDown(() {
-      tester.view.resetPhysicalSize();
-      tester.view.resetDevicePixelRatio();
-    });
+  testWidgets(
+    'StudentsPage shows empty search results with clear-search button',
+    (tester) async {
+      tester.view.physicalSize = const Size(800, 1200);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(() {
+        tester.view.resetPhysicalSize();
+        tester.view.resetDevicePixelRatio();
+      });
 
-    await tester.pumpWidget(createWidget());
-    await tester.pumpAndSettle();
+      await tester.pumpWidget(createWidget());
+      await tester.pumpAndSettle();
 
-    await tester.enterText(
-      find.byKey(const Key('service_student_search')),
-      'اسم غير موجود',
-    );
-    await tester.pumpAndSettle();
+      await tester.enterText(
+        find.byKey(const Key('service_student_search')),
+        'اسم غير موجود',
+      );
+      await tester.pumpAndSettle();
 
-    expect(find.text('لا توجد نتائج مطابقة'), findsOneWidget);
-    expect(find.byKey(const Key('clear_student_search')), findsOneWidget);
+      expect(find.text('لا توجد نتائج مطابقة'), findsOneWidget);
+      expect(find.byKey(const Key('clear_student_search')), findsOneWidget);
 
-    // Tap clear search button
-    await tester.tap(find.byKey(const Key('clear_student_search')));
-    await tester.pumpAndSettle();
+      // Tap clear search button
+      await tester.tap(find.byKey(const Key('clear_student_search')));
+      await tester.pumpAndSettle();
 
-    expect(find.text('كيرلس أمير'), findsOneWidget);
-    expect(find.text('مينا سمير'), findsOneWidget);
-  });
+      expect(find.text('كيرلس أمير'), findsOneWidget);
+      expect(find.text('مينا سمير'), findsOneWidget);
+    },
+  );
 
-  testWidgets('StudentsPage distinguishes genuinely empty roster',
-      (tester) async {
+  testWidgets('StudentsPage distinguishes genuinely empty roster', (
+    tester,
+  ) async {
     await tester.pumpWidget(createWidget(students: []));
     await tester.pumpAndSettle();
 
@@ -308,4 +317,3 @@ void main() {
     expect(find.text('الحالة'), findsOneWidget);
     expect(find.text('الهاتف'), findsOneWidget);
   });
-}

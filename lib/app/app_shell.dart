@@ -10,7 +10,6 @@ import '../features/follow_up/presentation/follow_up_case_providers.dart';
 import 'design/app_radii.dart';
 import 'design/app_spacing.dart';
 import 'ui/app_ui.dart';
-import 'ui/components/app_section_header.dart';
 import 'ui/components/sync_badge.dart';
 import 'ui/responsive.dart';
 
@@ -321,19 +320,18 @@ class AppShell extends ConsumerWidget {
               child: ListView(
                 shrinkWrap: true,
                 children: [
-                  Center(
-                    child: Container(
-                      width: 36,
-                      height: 4,
-                      decoration: BoxDecoration(
-                        color: scheme.outlineVariant,
-                        borderRadius: BorderRadius.circular(AppRadii.chip),
+                  Padding(
+                    padding: const EdgeInsetsDirectional.only(
+                      start: AppSpacing.md,
+                      bottom: AppSpacing.sm,
+                    ),
+                    child: Text(
+                      'المزيد',
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w700,
                       ),
                     ),
                   ),
-                  const SizedBox(height: AppSpacing.md),
-                  Text('المزيد', style: Theme.of(context).textTheme.titleLarge),
-                  const SizedBox(height: AppSpacing.md),
                   _MoreSection(
                     title: 'الخدمة',
                     items: serviceItems,
@@ -344,19 +342,33 @@ class AppShell extends ConsumerWidget {
                     items: managementItems,
                     onNavigate: onNavigate,
                   ),
-                  const Padding(
-                    padding: EdgeInsetsDirectional.only(
+                  Padding(
+                    padding: const EdgeInsetsDirectional.only(
                       start: AppSpacing.md,
                       bottom: AppSpacing.xs,
                     ),
-                    child: AppSectionHeader(title: 'الحساب'),
+                    child: Text(
+                      'الحساب',
+                      style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                        color: scheme.onSurfaceVariant,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
                   ),
                   for (final item in accountItems)
                     ListTile(
                       key: Key('nav_more_${item.segment}'),
+                      minTileHeight: 52,
                       minVerticalPadding: AppSpacing.sm,
                       leading: Icon(item.icon),
-                      title: Text(item.label),
+                      title: Text(
+                        item.label,
+                        style: const TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
                       onTap: () {
                         Navigator.pop(sheetContext);
                         onNavigate(item.segment);
@@ -365,9 +377,16 @@ class AppShell extends ConsumerWidget {
                   if (canSwitchService)
                     ListTile(
                       key: const Key('nav_switch_service'),
+                      minTileHeight: 52,
                       minVerticalPadding: AppSpacing.sm,
                       leading: const Icon(Icons.swap_horiz_rounded),
-                      title: Text(switchServiceLabel),
+                      title: Text(
+                        switchServiceLabel,
+                        style: const TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
                       onTap: () {
                         Navigator.pop(sheetContext);
                         onSwitchService();
@@ -376,11 +395,13 @@ class AppShell extends ConsumerWidget {
                   const Divider(height: AppSpacing.md),
                   ListTile(
                     key: const Key('nav_logout'),
+                    minTileHeight: 52,
                     minVerticalPadding: AppSpacing.sm,
                     leading: Icon(Icons.logout_rounded, color: scheme.error),
                     title: Text(
                       'تسجيل الخروج',
                       style: TextStyle(
+                        fontSize: 15,
                         color: scheme.error,
                         fontWeight: FontWeight.w700,
                       ),
@@ -879,6 +900,7 @@ class _MoreSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (items.isEmpty) return const SizedBox.shrink();
+    final scheme = Theme.of(context).colorScheme;
     return Padding(
       padding: const EdgeInsets.only(bottom: AppSpacing.md),
       child: Column(
@@ -889,14 +911,28 @@ class _MoreSection extends StatelessWidget {
               start: AppSpacing.md,
               bottom: AppSpacing.xs,
             ),
-            child: AppSectionHeader(title: title),
+            child: Text(
+              title,
+              style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                color: scheme.onSurfaceVariant,
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
           ),
           for (final item in items)
             ListTile(
               key: Key('nav_more_${item.segment}'),
+              minTileHeight: 52,
               minVerticalPadding: AppSpacing.sm,
               leading: Icon(item.icon),
-              title: Text(item.label),
+              title: Text(
+                item.label,
+                style: const TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
               onTap: () {
                 Navigator.pop(context);
                 onNavigate(item.segment);

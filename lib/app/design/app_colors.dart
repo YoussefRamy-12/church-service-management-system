@@ -10,6 +10,7 @@ abstract final class AppDesignColors {
   static const lightBorder = Color(0xFFD6D0C5);
   static const lightBorderSubtle = Color(0xFFE8E3DA);
   static const primary = Color(0xFF00236F);
+  static const darkPrimary = Color(0xFF2563EB);
   static const primaryContainer = Color(0xFF1E3A8A);
   static const onPrimary = Color(0xFFFFFFFF);
   static const lightGold = Color(0xFFB8860B);
@@ -21,7 +22,7 @@ abstract final class AppDesignColors {
   static const darkSurfaceSubtle = Color(0xFF1E293B);
   static const darkInk = Color(0xFFF8FAFC);
   static const darkMutedInk = Color(0xFFC0CAD8);
-  static const darkBorder = Color(0xFF334155);
+  static const darkBorder = Color(0xFF64748B);
   static const darkBorderSubtle = Color(0xFF26344B);
 }
 
@@ -51,6 +52,7 @@ class AppColors extends ThemeExtension<AppColors> {
   const AppColors({
     required this.present,
     required this.absent,
+    required this.notMarked,
     required this.lateArrival,
     required this.excused,
     required this.pending,
@@ -62,6 +64,7 @@ class AppColors extends ThemeExtension<AppColors> {
 
   final AppSemanticColors present;
   final AppSemanticColors absent;
+  final AppSemanticColors notMarked;
   final AppSemanticColors lateArrival;
   final AppSemanticColors excused;
   final AppSemanticColors pending;
@@ -73,6 +76,7 @@ class AppColors extends ThemeExtension<AppColors> {
   static const light = AppColors(
     present: AppSemanticColors(foreground: Color(0xFF166534), background: Color(0xFFDCFCE7)),
     absent: AppSemanticColors(foreground: Color(0xFFB91C1C), background: Color(0xFFFEE2E2)),
+    notMarked: AppSemanticColors(foreground: Color(0xFF46515F), background: Color(0xFFF1EEE7)),
     lateArrival: AppSemanticColors(foreground: Color(0xFF92400E), background: Color(0xFFFEF3C7)),
     excused: AppSemanticColors(foreground: Color(0xFF1D4ED8), background: Color(0xFFDBEAFE)),
     pending: AppSemanticColors(foreground: Color(0xFF854D0E), background: Color(0xFFFEF3C7)),
@@ -85,6 +89,7 @@ class AppColors extends ThemeExtension<AppColors> {
   static const dark = AppColors(
     present: AppSemanticColors(foreground: Color(0xFF4ADE80), background: Color(0xFF163A2A)),
     absent: AppSemanticColors(foreground: Color(0xFFF87171), background: Color(0xFF451B22)),
+    notMarked: AppSemanticColors(foreground: Color(0xFFC0CAD8), background: Color(0xFF1E293B)),
     lateArrival: AppSemanticColors(foreground: Color(0xFFFBBF24), background: Color(0xFF45320E)),
     excused: AppSemanticColors(foreground: Color(0xFF60A5FA), background: Color(0xFF172F52)),
     pending: AppSemanticColors(foreground: Color(0xFFFCD34D), background: Color(0xFF45320E)),
@@ -103,7 +108,7 @@ class AppColors extends ThemeExtension<AppColors> {
   }
 
   List<AppSemanticColors> get semanticColors => [
-        present, absent, lateArrival, excused, pending, synced, conflict, warning, accent,
+        present, absent, notMarked, lateArrival, excused, pending, synced, conflict, warning, accent,
       ];
 
   /// WCAG 2.x contrast ratio for opaque sRGB colors.
@@ -119,6 +124,7 @@ class AppColors extends ThemeExtension<AppColors> {
   AppColors copyWith({
     AppSemanticColors? present,
     AppSemanticColors? absent,
+    AppSemanticColors? notMarked,
     AppSemanticColors? lateArrival,
     AppSemanticColors? excused,
     AppSemanticColors? pending,
@@ -129,6 +135,7 @@ class AppColors extends ThemeExtension<AppColors> {
   }) => AppColors(
         present: present ?? this.present,
         absent: absent ?? this.absent,
+        notMarked: notMarked ?? this.notMarked,
         lateArrival: lateArrival ?? this.lateArrival,
         excused: excused ?? this.excused,
         pending: pending ?? this.pending,
@@ -144,6 +151,7 @@ class AppColors extends ThemeExtension<AppColors> {
     return AppColors(
       present: present.lerp(other.present, t),
       absent: absent.lerp(other.absent, t),
+      notMarked: notMarked.lerp(other.notMarked, t),
       lateArrival: lateArrival.lerp(other.lateArrival, t),
       excused: excused.lerp(other.excused, t),
       pending: pending.lerp(other.pending, t),

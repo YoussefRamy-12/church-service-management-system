@@ -204,7 +204,7 @@ class StudentAnalyticsView extends StatelessWidget {
               textAlign: TextAlign.center,
               maxLines: 2,
               style: TextStyle(
-                fontSize: 10.5,
+                fontSize: 12.5,
                 fontWeight: FontWeight.w600,
                 color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF475569),
               ),

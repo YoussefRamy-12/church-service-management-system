@@ -55,7 +55,7 @@ class ReportKpiCard extends StatelessWidget {
             Text(
               '$sign${changePercentage!.toStringAsFixed(1)}%',
               style: TextStyle(
-                fontSize: 11,
+                fontSize: 12,
                 fontWeight: FontWeight.w700,
                 color: trendColor,
               ),
@@ -129,7 +129,7 @@ class ReportKpiCard extends StatelessWidget {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: theme.textTheme.bodySmall?.copyWith(
-                    fontSize: 11,
+                    fontSize: 12,
                     color: theme.colorScheme.onSurfaceVariant,
                   ),
                 ),

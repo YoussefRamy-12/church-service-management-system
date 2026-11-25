@@ -130,7 +130,7 @@ class PreparationHistorySheet extends StatelessWidget {
                             Text(
                               dateFormatted,
                               style: const TextStyle(
-                                fontSize: 11,
+                                fontSize: 12,
                                 color: Color(0xFF94A3B8),
                               ),
                             ),

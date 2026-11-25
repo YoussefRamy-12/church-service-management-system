@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../app/design/app_colors.dart';
 import '../../../app/design/app_spacing.dart';
+import '../../../core/utils/app_formatters.dart';
 import '../../../app/ui/app_ui.dart';
 import '../../../core/config/config_provider.dart';
 import '../../../core/network/network_error_formatter.dart';
@@ -404,17 +405,14 @@ class _AttendanceSessionPageState extends ConsumerState<AttendanceSessionPage> {
     final displayClassName = _allStudentsMode
         ? 'كل طلاب الخدمة'
         : (_classNames[widget.classId] ?? 'تسجيل حضور الفصل');
-    final formattedDate =
-        '${_meetingDate.day}/${_meetingDate.month}/${_meetingDate.year}';
+    final formattedDate = AppDateFormatter.format(_meetingDate);
 
     return Scaffold(
       key: const Key('attendance_session'),
       appBar: AppBar(
-        title: Text(
-          _allStudentsMode
-              ? '$_meetingName — كل طلاب الخدمة'
-              : '$_meetingName — $displayClassName',
-          style: const TextStyle(fontWeight: FontWeight.w800),
+        title: const Text(
+          'تسجيل الحضور',
+          style: TextStyle(fontWeight: FontWeight.w800),
         ),
         actions: [
           IconButton(
@@ -677,7 +675,7 @@ class _AttendanceSessionPageState extends ConsumerState<AttendanceSessionPage> {
                                                   '${filtered.where((item) => _classIdFor(item) == classId).length} تلميذ',
                                                   style: TextStyle(
                                                     color: classColor,
-                                                    fontSize: 11,
+                                                    fontSize: 12,
                                                     fontWeight:
                                                         FontWeight.w700,
                                                   ),

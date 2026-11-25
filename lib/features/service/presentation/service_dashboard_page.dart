@@ -412,59 +412,77 @@ class _ServiceDashboardPageState extends ConsumerState<ServiceDashboardPage> {
                                 const SizedBox(height: 16),
                               ],
 
-                              // Responsive metric cards (2 columns on mobile, tappable to students list)
-                              GridView.count(
-                                crossAxisCount: isMobile
-                                    ? 2
-                                    : (constraints.maxWidth < 900 ? 3 : 3),
-                                crossAxisSpacing: 12,
-                                mainAxisSpacing: 12,
-                                shrinkWrap: true,
-                                physics:
-                                    const NeverScrollableScrollPhysics(),
-                                childAspectRatio: isMobile ? 1.6 : 2.2,
-                                children: [
-                                  _metricCard(
-                                    label: isClassServant
-                                        ? 'تلاميذ الفصل'
-                                        : 'إجمالي التلاميذ',
-                                    value: studentSnapshot.hasData
-                                        ? '${visibleStudents.length}'
-                                        : '—',
-                                    icon: Icons.groups_rounded,
-                                    color:
-                                        Theme.of(context).colorScheme.primary,
-                                    onTap: () => context.go(
-                                      '/service/${widget.serviceId}/students',
+                              // Responsive metric cards (2+1 full-width on mobile, 3-up on wider screens)
+                              Builder(
+                                builder: (context) {
+                                  final cards = [
+                                    _metricCard(
+                                      label: isClassServant
+                                          ? 'تلاميذ الفصل'
+                                          : 'إجمالي التلاميذ',
+                                      value: studentSnapshot.hasData
+                                          ? '${visibleStudents.length}'
+                                          : '—',
+                                      icon: Icons.groups_rounded,
+                                      color: Theme.of(context).colorScheme.primary,
+                                      onTap: () => context.go(
+                                        '/service/${widget.serviceId}/students',
+                                      ),
                                     ),
-                                  ),
-                                  _metricCard(
-                                    label: 'معتمدون',
-                                    value: studentSnapshot.hasData
-                                        ? '${visibleStudents.where((student) => student.isApproved).length}'
-                                        : '—',
-                                    icon: Icons.verified_rounded,
-                                    color: AppColors.of(context)
-                                        .present
-                                        .foreground,
-                                    onTap: () => context.go(
-                                      '/service/${widget.serviceId}/students',
+                                    _metricCard(
+                                      label: 'معتمدون',
+                                      value: studentSnapshot.hasData
+                                          ? '${visibleStudents.where((student) => student.isApproved).length}'
+                                          : '—',
+                                      icon: Icons.verified_rounded,
+                                      color: AppColors.of(context)
+                                          .present
+                                          .foreground,
+                                      onTap: () => context.go(
+                                        '/service/${widget.serviceId}/students',
+                                      ),
                                     ),
-                                  ),
-                                  _metricCard(
-                                    label: 'بانتظار الاعتماد',
-                                    value: studentSnapshot.hasData
-                                        ? '${visibleStudents.where((student) => student.isPending).length}'
-                                        : '—',
-                                    icon: Icons.pending_actions_rounded,
-                                    color: AppColors.of(context)
-                                        .pending
-                                        .foreground,
-                                    onTap: () => context.go(
-                                      '/service/${widget.serviceId}/students',
+                                    _metricCard(
+                                      label: 'بانتظار الاعتماد',
+                                      value: studentSnapshot.hasData
+                                          ? '${visibleStudents.where((student) => student.isPending).length}'
+                                          : '—',
+                                      icon: Icons.pending_actions_rounded,
+                                      color: AppColors.of(context)
+                                          .pending
+                                          .foreground,
+                                      onTap: () => context.go(
+                                        '/service/${widget.serviceId}/students',
+                                      ),
                                     ),
-                                  ),
-                                ],
+                                  ];
+                                  if (isMobile) {
+                                    return Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.stretch,
+                                      children: [
+                                        Row(
+                                          children: [
+                                            Expanded(child: cards[0]),
+                                            const SizedBox(width: 12),
+                                            Expanded(child: cards[1]),
+                                          ],
+                                        ),
+                                        const SizedBox(height: 12),
+                                        cards[2],
+                                      ],
+                                    );
+                                  }
+                                  return Row(
+                                    children: [
+                                      Expanded(child: cards[0]),
+                                      const SizedBox(width: 12),
+                                      Expanded(child: cards[1]),
+                                      const SizedBox(width: 12),
+                                      Expanded(child: cards[2]),
+                                    ],
+                                  );
+                                },
                               ),
                               const SizedBox(height: 8),
 
@@ -619,9 +637,13 @@ class _ServiceDashboardPageState extends ConsumerState<ServiceDashboardPage> {
                         ),
                   ),
                   const SizedBox(height: 12),
-                  Wrap(
-                    spacing: 12,
-                    runSpacing: 12,
+                  GridView.count(
+                    crossAxisCount: isMobile ? 2 : 3,
+                    crossAxisSpacing: 12,
+                    mainAxisSpacing: 12,
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    childAspectRatio: isMobile ? 2.4 : 3.0,
                     children: [
                       _QuickAction(
                         key: const Key('dashboard_students'),
@@ -719,51 +741,15 @@ class _ServiceDashboardPageState extends ConsumerState<ServiceDashboardPage> {
                         if (!stageSnapshot.hasData ||
                             (stageSnapshot.connectionState ==
                                     ConnectionState.waiting &&
-                                stages.isEmpty)) {
-                          return const Card(
-                            child: Padding(
-                              padding: EdgeInsets.all(24),
-                              child:
-                                  Center(child: CircularProgressIndicator()),
-                            ),
-                          );
-                        }
-                        if (isClassServant && !_scopeLoaded) {
-                          return const Card(
-                            child: Padding(
-                              padding: EdgeInsets.all(24),
-                              child:
-                                  Center(child: CircularProgressIndicator()),
-                            ),
-                          );
+                                stages.isEmpty) ||
+                            (isClassServant && !_scopeLoaded)) {
+                          return const _StagesSkeletonCard();
                         }
                         if (stages.isEmpty) {
-                          return Card(
-                            child: Padding(
-                              padding: const EdgeInsets.all(24),
-                              child: Column(
-                                children: [
-                                  Icon(
-                                    Icons.school_outlined,
-                                    size: 42,
-                                    color: Theme.of(context)
-                                        .colorScheme
-                                        .onSurfaceVariant,
-                                  ),
-                                  const SizedBox(height: 10),
-                                  const Text(
-                                    'لا توجد مراحل محفوظة محليًا بعد.',
-                                  ),
-                                  const SizedBox(height: 4),
-                                  Text(
-                                    'ستظهر بيانات الخدمة هنا بعد المزامنة.',
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .bodySmall,
-                                  ),
-                                ],
-                              ),
-                            ),
+                          return const comp.EmptyState(
+                            icon: Icons.school_outlined,
+                            title: 'لا توجد مراحل محفوظة محليًا بعد',
+                            message: 'ستظهر بيانات الخدمة هنا بعد المزامنة.',
                           );
                         }
                         return Column(
@@ -953,6 +939,54 @@ class _ServiceDashboardPageState extends ConsumerState<ServiceDashboardPage> {
   }
 }
 
+class _StagesSkeletonCard extends StatelessWidget {
+  const _StagesSkeletonCard();
+
+  @override
+  Widget build(BuildContext context) {
+    final fill = Theme.of(context).colorScheme.surfaceContainerHighest;
+    return Card(
+      key: const Key('dashboard_stages_skeleton'),
+      elevation: 0,
+      margin: EdgeInsets.zero,
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          children: List.generate(
+            3,
+            (index) => Padding(
+              padding: EdgeInsets.only(bottom: index == 2 ? 0 : 12),
+              child: Row(
+                children: [
+                  Container(
+                    width: 28,
+                    height: 28,
+                    decoration: BoxDecoration(
+                      color: fill,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Container(
+                      height: 14,
+                      decoration: BoxDecoration(
+                        color: fill,
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 48),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 class _QuickAction extends StatelessWidget {
   const _QuickAction({
     super.key,
@@ -970,28 +1004,46 @@ class _QuickAction extends StatelessWidget {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
 
-    return ActionChip(
-      avatar: Icon(
-        icon,
-        size: 18,
-        color: scheme.primary,
-      ),
-      label: Text(
-        label,
-        style: TextStyle(
-          fontWeight: FontWeight.w700,
-          fontSize: 13,
-          color: scheme.onSurface,
+    return Material(
+      color: scheme.surface,
+      borderRadius: BorderRadius.circular(12),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(12),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: scheme.outlineVariant, width: 1),
+          ),
+          child: Row(
+            children: [
+              Container(
+                width: 34,
+                height: 34,
+                decoration: BoxDecoration(
+                  color: scheme.primary.withValues(alpha: 0.10),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Icon(icon, size: 18, color: scheme.primary),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  label,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    fontWeight: FontWeight.w700,
+                    fontSize: 13,
+                    color: scheme.onSurface,
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
-      onPressed: onTap,
-      backgroundColor: scheme.surface,
-      side: BorderSide(
-        color: scheme.outlineVariant,
-        width: 1.0,
-      ),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
     );
   }
 }

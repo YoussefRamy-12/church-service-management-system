@@ -125,7 +125,7 @@ extension _SpiritualNotebookPageLayout on _SpiritualNotebookPageState {
                           period.label,
                           style: TextStyle(
                             fontWeight: FontWeight.w700,
-                            fontSize: 11,
+                            fontSize: 12,
                             color: isDark ? Colors.white : appInk,
                           ),
                         ),
@@ -145,7 +145,7 @@ extension _SpiritualNotebookPageLayout on _SpiritualNotebookPageState {
                               style: TextStyle(
                                 color: appSuccess,
                                 fontWeight: FontWeight.w800,
-                                fontSize: 9,
+                                fontSize: 12,
                               ),
                             ),
                           ),
@@ -171,7 +171,7 @@ extension _SpiritualNotebookPageLayout on _SpiritualNotebookPageState {
                         padding: const EdgeInsets.symmetric(horizontal: 6),
                       ),
                       onPressed: () => setState(() => _weekOffset = 0),
-                      child: const Text('اليوم', style: TextStyle(fontSize: 11)),
+                      child: const Text('اليوم', style: TextStyle(fontSize: 12)),
                     ),
                 ],
               ),
@@ -294,7 +294,7 @@ extension _SpiritualNotebookPageLayout on _SpiritualNotebookPageState {
                             style: TextStyle(
                               color: appSuccess,
                               fontWeight: FontWeight.w800,
-                              fontSize: 10,
+                              fontSize: 12,
                             ),
                           ),
                         ),

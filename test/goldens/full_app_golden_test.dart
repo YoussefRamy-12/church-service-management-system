@@ -62,7 +62,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
-import 'package:intl/date_symbol_data_local.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 
 import 'golden_test_helper.dart';
@@ -474,26 +473,7 @@ Future<void> _snap(WidgetTester tester, String name) async {
 
 void main() {
   setUpAll(() async {
-    await initializeDateFormatting('ar', null);
-    await initializeDateFormatting('en', null);
-
-    final ibm = FontLoader('IBM Plex Sans Arabic');
-    final cairo = FontLoader('Cairo');
-    for (final path in const [
-      'assets/fonts/IBMPlexSansArabic-Regular.ttf',
-      'assets/fonts/IBMPlexSansArabic-Medium.ttf',
-      'assets/fonts/IBMPlexSansArabic-SemiBold.ttf',
-      'assets/fonts/IBMPlexSansArabic-Bold.ttf',
-    ]) {
-      ibm.addFont(rootBundle.load(path));
-      cairo.addFont(rootBundle.load(path));
-    }
-    await ibm.load();
-    await cairo.load();
-
-    final arial = FontLoader('Arial')
-      ..addFont(rootBundle.load('assets/fonts/arial.ttf'));
-    await arial.load();
+    await ensureGoldenTestSetup();
 
     // Mock mobile_scanner channels so QrScanPage doesn't throw MissingPluginException
     final messenger =

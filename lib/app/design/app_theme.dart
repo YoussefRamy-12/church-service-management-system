@@ -11,16 +11,28 @@ abstract final class AppTheme {
 
   static ThemeData _build(Brightness brightness) {
     final isDark = brightness == Brightness.dark;
-    final canvas = isDark ? AppDesignColors.darkCanvas : AppDesignColors.lightCanvas;
-    final surface = isDark ? AppDesignColors.darkSurface : AppDesignColors.lightSurface;
+    final canvas = isDark
+        ? AppDesignColors.darkCanvas
+        : AppDesignColors.lightCanvas;
+    final surface = isDark
+        ? AppDesignColors.darkSurface
+        : AppDesignColors.lightSurface;
     final subtleSurface = isDark
         ? AppDesignColors.darkSurfaceSubtle
         : AppDesignColors.lightSurfaceSubtle;
     final ink = isDark ? AppDesignColors.darkInk : AppDesignColors.lightInk;
-    final mutedInk = isDark ? AppDesignColors.darkMutedInk : AppDesignColors.lightMutedInk;
-    final border = isDark ? AppDesignColors.darkBorder : AppDesignColors.lightBorder;
-    final focus = isDark ? const Color(0xFF93C5FD) : AppDesignColors.primaryContainer;
-    final error = isDark ? AppDesignColors.darkError : AppDesignColors.lightError;
+    final mutedInk = isDark
+        ? AppDesignColors.darkMutedInk
+        : AppDesignColors.lightMutedInk;
+    final border = isDark
+        ? AppDesignColors.darkBorder
+        : AppDesignColors.lightBorder;
+    final focus = isDark
+        ? const Color(0xFF93C5FD)
+        : AppDesignColors.primaryContainer;
+    final error = isDark
+        ? AppDesignColors.darkError
+        : AppDesignColors.lightError;
     final gold = isDark ? AppDesignColors.darkGold : AppDesignColors.lightGold;
     final semanticColors = AppColors.forBrightness(brightness);
     final actionForeground = isDark ? ink : AppDesignColors.primary;
@@ -28,7 +40,7 @@ abstract final class AppTheme {
 
     final scheme = isDark
         ? ColorScheme.dark(
-            primary: AppDesignColors.primary,
+            primary: AppDesignColors.darkPrimary,
             onPrimary: AppDesignColors.onPrimary,
             primaryContainer: AppDesignColors.primaryContainer,
             onPrimaryContainer: AppDesignColors.onPrimary,
@@ -121,62 +133,86 @@ abstract final class AppTheme {
         titleTextStyle: textTheme.titleLarge,
       ),
       filledButtonTheme: FilledButtonThemeData(
-        style: FilledButton.styleFrom(
-          minimumSize: const Size(0, 48),
-          padding: const EdgeInsets.symmetric(horizontal: 20),
-          backgroundColor: scheme.primary,
-          foregroundColor: scheme.onPrimary,
-          disabledBackgroundColor: subtleSurface,
-          disabledForegroundColor: mutedInk,
-          elevation: 0,
-          shape: controlShape,
-          textStyle: textTheme.labelLarge,
-        ).copyWith(
-          overlayColor: WidgetStateProperty.resolveWith((states) {
-            if (states.contains(WidgetState.focused)) return focus.withValues(alpha: 0.20);
-            if (states.contains(WidgetState.hovered)) return Colors.white.withValues(alpha: 0.08);
-            if (states.contains(WidgetState.pressed)) return Colors.white.withValues(alpha: 0.12);
-            return null;
-          }),
-        ),
+        style:
+            FilledButton.styleFrom(
+              minimumSize: const Size(0, 48),
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              backgroundColor: scheme.primary,
+              foregroundColor: scheme.onPrimary,
+              disabledBackgroundColor: subtleSurface,
+              disabledForegroundColor: mutedInk,
+              elevation: 0,
+              shape: controlShape,
+              textStyle: textTheme.labelLarge,
+            ).copyWith(
+              overlayColor: WidgetStateProperty.resolveWith((states) {
+                if (states.contains(WidgetState.focused)) {
+                  return focus.withValues(alpha: 0.20);
+                }
+                if (states.contains(WidgetState.hovered)) {
+                  return Colors.white.withValues(alpha: 0.08);
+                }
+                if (states.contains(WidgetState.pressed)) {
+                  return Colors.white.withValues(alpha: 0.12);
+                }
+                return null;
+              }),
+            ),
       ),
       outlinedButtonTheme: OutlinedButtonThemeData(
-        style: OutlinedButton.styleFrom(
-          minimumSize: const Size(0, 48),
-          padding: const EdgeInsets.symmetric(horizontal: 20),
-          foregroundColor: actionForeground,
-          side: borderSide,
-          shape: controlShape,
-          textStyle: textTheme.labelLarge,
-        ).copyWith(
-          overlayColor: WidgetStateProperty.resolveWith((states) {
-            if (states.contains(WidgetState.focused)) return focus.withValues(alpha: 0.16);
-            if (states.contains(WidgetState.hovered)) return focus.withValues(alpha: 0.08);
-            if (states.contains(WidgetState.pressed)) return focus.withValues(alpha: 0.12);
-            return null;
-          }),
-        ),
+        style:
+            OutlinedButton.styleFrom(
+              minimumSize: const Size(0, 48),
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              foregroundColor: actionForeground,
+              side: borderSide,
+              shape: controlShape,
+              textStyle: textTheme.labelLarge,
+            ).copyWith(
+              overlayColor: WidgetStateProperty.resolveWith((states) {
+                if (states.contains(WidgetState.focused)) {
+                  return focus.withValues(alpha: 0.16);
+                }
+                if (states.contains(WidgetState.hovered)) {
+                  return focus.withValues(alpha: 0.08);
+                }
+                if (states.contains(WidgetState.pressed)) {
+                  return focus.withValues(alpha: 0.12);
+                }
+                return null;
+              }),
+            ),
       ),
       textButtonTheme: TextButtonThemeData(
-        style: TextButton.styleFrom(
-          minimumSize: const Size(0, 44),
-          foregroundColor: actionForeground,
-          shape: controlShape,
-          textStyle: textTheme.labelLarge,
-        ).copyWith(
-          overlayColor: WidgetStateProperty.resolveWith((states) {
-            if (states.contains(WidgetState.focused)) return focus.withValues(alpha: 0.16);
-            if (states.contains(WidgetState.hovered)) return focus.withValues(alpha: 0.08);
-            if (states.contains(WidgetState.pressed)) return focus.withValues(alpha: 0.12);
-            return null;
-          }),
-        ),
+        style:
+            TextButton.styleFrom(
+              minimumSize: const Size(0, 44),
+              foregroundColor: actionForeground,
+              shape: controlShape,
+              textStyle: textTheme.labelLarge,
+            ).copyWith(
+              overlayColor: WidgetStateProperty.resolveWith((states) {
+                if (states.contains(WidgetState.focused)) {
+                  return focus.withValues(alpha: 0.16);
+                }
+                if (states.contains(WidgetState.hovered)) {
+                  return focus.withValues(alpha: 0.08);
+                }
+                if (states.contains(WidgetState.pressed)) {
+                  return focus.withValues(alpha: 0.12);
+                }
+                return null;
+              }),
+            ),
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: surface,
         constraints: const BoxConstraints(minHeight: 48),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 14,
+          vertical: 12,
+        ),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(AppRadii.control),
           borderSide: borderSide,
@@ -236,15 +272,21 @@ abstract final class AppTheme {
         backgroundColor: surface,
         indicatorColor: scheme.primaryContainer,
         height: 64,
-        labelTextStyle: WidgetStateProperty.resolveWith((states) => textTheme.labelSmall?.copyWith(
-          color: states.contains(WidgetState.selected) ? selectedNavigationColor : mutedInk,
-        )),
-        iconTheme: WidgetStateProperty.resolveWith((states) => IconThemeData(
-          color: states.contains(WidgetState.selected)
-              ? scheme.onPrimaryContainer
-              : mutedInk,
-          size: 22,
-        )),
+        labelTextStyle: WidgetStateProperty.resolveWith(
+          (states) => textTheme.labelSmall?.copyWith(
+            color: states.contains(WidgetState.selected)
+                ? selectedNavigationColor
+                : mutedInk,
+          ),
+        ),
+        iconTheme: WidgetStateProperty.resolveWith(
+          (states) => IconThemeData(
+            color: states.contains(WidgetState.selected)
+                ? scheme.onPrimaryContainer
+                : mutedInk,
+            size: 22,
+          ),
+        ),
       ),
       navigationRailTheme: NavigationRailThemeData(
         backgroundColor: surface,
@@ -254,8 +296,12 @@ abstract final class AppTheme {
         labelType: NavigationRailLabelType.all,
         selectedIconTheme: IconThemeData(color: scheme.onPrimaryContainer),
         unselectedIconTheme: IconThemeData(color: mutedInk),
-        selectedLabelTextStyle: textTheme.labelMedium?.copyWith(color: selectedNavigationColor),
-        unselectedLabelTextStyle: textTheme.labelMedium?.copyWith(color: mutedInk),
+        selectedLabelTextStyle: textTheme.labelMedium?.copyWith(
+          color: selectedNavigationColor,
+        ),
+        unselectedLabelTextStyle: textTheme.labelMedium?.copyWith(
+          color: mutedInk,
+        ),
       ),
       dialogTheme: DialogThemeData(
         backgroundColor: surface,
@@ -275,7 +321,9 @@ abstract final class AppTheme {
         showDragHandle: true,
         dragHandleColor: scheme.outline,
         shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(top: Radius.circular(AppRadii.bottomSheet)),
+          borderRadius: BorderRadius.vertical(
+            top: Radius.circular(AppRadii.bottomSheet),
+          ),
         ),
       ),
       snackBarTheme: SnackBarThemeData(
@@ -285,7 +333,9 @@ abstract final class AppTheme {
           color: scheme.onInverseSurface,
           fontWeight: FontWeight.w600,
         ),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AppRadii.card)),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppRadii.card),
+        ),
         elevation: 2,
       ),
       dataTableTheme: DataTableThemeData(
@@ -295,23 +345,39 @@ abstract final class AppTheme {
         dataTextStyle: textTheme.bodyMedium,
       ),
       checkboxTheme: CheckboxThemeData(
-        fillColor: WidgetStateProperty.resolveWith((states) =>
-            states.contains(WidgetState.selected)
-                ? (isDark ? focus : scheme.primary)
-                : null),
+        fillColor: WidgetStateProperty.resolveWith(
+          (states) => states.contains(WidgetState.selected)
+              ? (isDark ? focus : scheme.primary)
+              : null,
+        ),
         checkColor: WidgetStatePropertyAll(isDark ? canvas : Colors.white),
-        side: borderSide,
+        side: BorderSide(color: border, width: 1.5),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
       ),
+      floatingActionButtonTheme: FloatingActionButtonThemeData(
+        backgroundColor: scheme.primary,
+        foregroundColor: scheme.onPrimary,
+        focusColor: focus.withValues(alpha: 0.24),
+        hoverColor: focus.withValues(alpha: 0.12),
+        elevation: 0,
+        focusElevation: 0,
+        hoverElevation: 0,
+        highlightElevation: 0,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppRadii.control),
+        ),
+      ),
       switchTheme: SwitchThemeData(
-        thumbColor: WidgetStateProperty.resolveWith((states) =>
-            states.contains(WidgetState.selected)
-                ? (isDark ? canvas : scheme.onPrimary)
-                : null),
-        trackColor: WidgetStateProperty.resolveWith((states) =>
-            states.contains(WidgetState.selected)
-                ? (isDark ? focus : scheme.primaryContainer)
-                : null),
+        thumbColor: WidgetStateProperty.resolveWith(
+          (states) => states.contains(WidgetState.selected)
+              ? (isDark ? canvas : scheme.onPrimary)
+              : null,
+        ),
+        trackColor: WidgetStateProperty.resolveWith(
+          (states) => states.contains(WidgetState.selected)
+              ? (isDark ? focus : scheme.primaryContainer)
+              : null,
+        ),
       ),
       progressIndicatorTheme: ProgressIndicatorThemeData(
         color: isDark ? focus : scheme.primary,
@@ -320,25 +386,34 @@ abstract final class AppTheme {
       focusColor: focus.withValues(alpha: 0.12),
       hoverColor: subtleSurface,
       iconButtonTheme: IconButtonThemeData(
-        style: IconButton.styleFrom(
-          minimumSize: const Size(44, 44),
-          tapTargetSize: MaterialTapTargetSize.padded,
-          focusColor: focus.withValues(alpha: 0.16),
-        ).copyWith(
-          overlayColor: WidgetStateProperty.resolveWith((states) {
-            if (states.contains(WidgetState.focused)) return focus.withValues(alpha: 0.16);
-            if (states.contains(WidgetState.hovered)) return focus.withValues(alpha: 0.08);
-            if (states.contains(WidgetState.pressed)) return focus.withValues(alpha: 0.12);
-            return null;
-          }),
-        ),
+        style:
+            IconButton.styleFrom(
+              minimumSize: const Size(44, 44),
+              tapTargetSize: MaterialTapTargetSize.padded,
+              focusColor: focus.withValues(alpha: 0.16),
+            ).copyWith(
+              overlayColor: WidgetStateProperty.resolveWith((states) {
+                if (states.contains(WidgetState.focused)) {
+                  return focus.withValues(alpha: 0.16);
+                }
+                if (states.contains(WidgetState.hovered)) {
+                  return focus.withValues(alpha: 0.08);
+                }
+                if (states.contains(WidgetState.pressed)) {
+                  return focus.withValues(alpha: 0.12);
+                }
+                return null;
+              }),
+            ),
       ),
       tooltipTheme: TooltipThemeData(
         decoration: BoxDecoration(
           color: scheme.inverseSurface,
           borderRadius: BorderRadius.circular(AppRadii.card),
         ),
-        textStyle: textTheme.labelSmall?.copyWith(color: scheme.onInverseSurface),
+        textStyle: textTheme.labelSmall?.copyWith(
+          color: scheme.onInverseSurface,
+        ),
         waitDuration: const Duration(milliseconds: 500),
         showDuration: const Duration(seconds: 2),
       ),

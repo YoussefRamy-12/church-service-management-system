@@ -576,7 +576,7 @@ class _BulkUploadDialogState extends State<_BulkUploadDialog> {
                             'حدد الأسبوع يدوياً',
                             style: TextStyle(
                               color: Colors.deepOrange,
-                              fontSize: 11,
+                              fontSize: 12,
                             ),
                           ),
                         ),

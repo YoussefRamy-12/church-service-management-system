@@ -88,7 +88,7 @@ class _TabButton extends StatelessWidget {
                   child: Text(
                     count!,
                     style: TextStyle(
-                      fontSize: 10,
+                      fontSize: 12,
                       fontWeight: FontWeight.w700,
                       color: selected
                           ? (isDark ? Colors.white : appPrimary)
@@ -159,7 +159,7 @@ class _CompactMetricTile extends StatelessWidget {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
-                    fontSize: 11,
+                    fontSize: 12,
                     fontWeight: FontWeight.w600,
                     color: isDark ? AppDesignColors.darkMutedInk : appMutedInk,
                   ),
@@ -183,7 +183,7 @@ class _CompactMetricTile extends StatelessWidget {
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
-                            fontSize: 10,
+                            fontSize: 12,
                             fontWeight: FontWeight.w700,
                             color: color,
                           ),

@@ -1,3 +1,4 @@
+import 'package:church_service_management_system/core/utils/app_formatters.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -52,281 +53,293 @@ class StudentFollowUpProfilePage extends ConsumerWidget {
         ],
       ),
       body: AppContent(
-          maxWidth: 900,
-          child: ListView(
-            padding: const EdgeInsets.fromLTRB(16, 16, 16, 40),
-            children: [
-              // 1. Student Profile Header Card
-              GlassCard(
-                borderRadius: 16,
-                padding: const EdgeInsets.all(18),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Container(
-                          width: 52,
-                          height: 52,
-                          decoration: BoxDecoration(
-                            color: theme.colorScheme.primary.withValues(alpha: 0.12),
-                            shape: BoxShape.circle,
-                            border: Border.all(
-                              color: theme.colorScheme.primary.withValues(alpha: 0.25),
-                            ),
+        maxWidth: 900,
+        child: ListView(
+          padding: const EdgeInsets.fromLTRB(16, 16, 16, 40),
+          children: [
+            // 1. Student Profile Header Card
+            GlassCard(
+              borderRadius: 16,
+              padding: const EdgeInsets.all(18),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Container(
+                        width: 52,
+                        height: 52,
+                        decoration: BoxDecoration(
+                          color: theme.colorScheme.primary.withValues(
+                            alpha: 0.12,
                           ),
-                          child: Center(
-                            child: Text(
-                              student.name.isNotEmpty
-                                  ? student.name.characters.first
-                                  : '؟',
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 22,
-                                color: theme.colorScheme.primary,
-                              ),
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: theme.colorScheme.primary.withValues(
+                              alpha: 0.25,
                             ),
                           ),
                         ),
-                        const SizedBox(width: 14),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                student.name,
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 18,
-                                ),
+                        child: Center(
+                          child: Text(
+                            student.name.isNotEmpty
+                                ? student.name.characters.first
+                                : '؟',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 22,
+                              color: theme.colorScheme.primary,
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 14),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              student.name,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 18,
                               ),
-                              const SizedBox(height: 4),
-                              Row(
-                                children: [
+                            ),
+                            const SizedBox(height: 4),
+                            Row(
+                              children: [
+                                Icon(
+                                  Icons.school_rounded,
+                                  size: 15,
+                                  color: theme.colorScheme.onSurfaceVariant,
+                                ),
+                                const SizedBox(width: 4),
+                                Text(
+                                  studentItem.className,
+                                  style: TextStyle(
+                                    fontSize: 13,
+                                    color: theme.colorScheme.onSurfaceVariant,
+                                  ),
+                                ),
+                                if (student.phone != null &&
+                                    student.phone!.isNotEmpty) ...[
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    '•',
+                                    style: TextStyle(
+                                      color: theme.colorScheme.onSurfaceVariant,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
                                   Icon(
-                                    Icons.school_rounded,
-                                    size: 15,
+                                    Icons.phone_rounded,
+                                    size: 14,
                                     color: theme.colorScheme.onSurfaceVariant,
                                   ),
                                   const SizedBox(width: 4),
                                   Text(
-                                    studentItem.className,
+                                    student.phone!,
                                     style: TextStyle(
                                       fontSize: 13,
                                       color: theme.colorScheme.onSurfaceVariant,
                                     ),
                                   ),
-                                  if (student.phone != null &&
-                                      student.phone!.isNotEmpty) ...[
-                                    const SizedBox(width: 8),
-                                    Text(
-                                      '•',
-                                      style: TextStyle(
-                                        color: theme.colorScheme.onSurfaceVariant,
-                                      ),
-                                    ),
-                                    const SizedBox(width: 8),
-                                    Icon(
-                                      Icons.phone_rounded,
-                                      size: 14,
-                                      color: theme.colorScheme.onSurfaceVariant,
-                                    ),
-                                    const SizedBox(width: 4),
-                                    Text(
-                                      student.phone!,
-                                      style: TextStyle(
-                                        fontSize: 13,
-                                        color: theme.colorScheme.onSurfaceVariant,
-                                      ),
-                                    ),
-                                  ],
                                 ],
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 16),
-                    const Divider(height: 1),
-                    const SizedBox(height: 14),
-                    // Summary Metrics Row
-                    Row(
-                      children: [
-                        _buildMetric(
-                          context,
-                          title: 'مرات الغياب',
-                          value: '${studentItem.absenceCount}',
-                          subtitle: 'من ${studentItem.totalEligibleMeetings} اجتماعات',
-                          color: studentItem.absenceCount >= 2
-                              ? const Color(0xFFDC2626)
-                              : theme.colorScheme.onSurface,
-                          icon: Icons.event_busy_rounded,
-                        ),
-                        const SizedBox(width: 12),
-                        _buildMetric(
-                          context,
-                          title: 'حالات مفتوحة',
-                          value: '${studentItem.activeCasesCount}',
-                          subtitle: 'إجمالي الحالات: ${studentItem.totalCasesCount}',
-                          color: studentItem.activeCasesCount > 0
-                              ? const Color(0xFF2563EB)
-                              : theme.colorScheme.onSurface,
-                          icon: Icons.folder_open_rounded,
-                        ),
-                        const SizedBox(width: 12),
-                        _buildMetric(
-                          context,
-                          title: 'آخر متابعة',
-                          value: studentItem.latestFollowUpDate ?? 'لا يوجد',
-                          subtitle: studentItem.latestFollowUpAuthor ?? 'لم يتم بعد',
-                          color: theme.colorScheme.onSurface,
-                          icon: Icons.history_rounded,
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 24),
-
-              // 2. Cases Section Header & List
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Row(
-                    children: [
-                      const Icon(Icons.folder_shared_rounded, size: 20),
-                      const SizedBox(width: 8),
-                      Text(
-                        'حالات المتابعة',
-                        style: theme.textTheme.titleMedium?.copyWith(
-                          fontWeight: FontWeight.bold,
+                              ],
+                            ),
+                          ],
                         ),
                       ),
                     ],
                   ),
-                  TextButton.icon(
-                    icon: const Icon(Icons.add_rounded, size: 18),
-                    label: const Text('حالة جديدة'),
-                    onPressed: () => Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => CreateFollowUpCasePage(
-                          serviceId: serviceId,
-                          preselectedStudent: student,
-                          classId: student.currentClassId ?? '',
-                        ),
+                  const SizedBox(height: 16),
+                  const Divider(height: 1),
+                  const SizedBox(height: 14),
+                  // Summary Metrics Row
+                  Row(
+                    children: [
+                      _buildMetric(
+                        context,
+                        title: 'مرات الغياب',
+                        value: '${studentItem.absenceCount}',
+                        subtitle:
+                            'من ${studentItem.totalEligibleMeetings} اجتماعات',
+                        color: studentItem.absenceCount >= 2
+                            ? const Color(0xFFDC2626)
+                            : theme.colorScheme.onSurface,
+                        icon: Icons.event_busy_rounded,
                       ),
-                    ),
+                      const SizedBox(width: 12),
+                      _buildMetric(
+                        context,
+                        title: 'حالات مفتوحة',
+                        value: '${studentItem.activeCasesCount}',
+                        subtitle:
+                            'إجمالي الحالات: ${studentItem.totalCasesCount}',
+                        color: studentItem.activeCasesCount > 0
+                            ? const Color(0xFF2563EB)
+                            : theme.colorScheme.onSurface,
+                        icon: Icons.folder_open_rounded,
+                      ),
+                      const SizedBox(width: 12),
+                      _buildMetric(
+                        context,
+                        title: 'آخر متابعة',
+                        value: AppDateFormatter.formatString(
+                          studentItem.latestFollowUpDate,
+                          fallback: 'لا يوجد',
+                        ),
+                        subtitle:
+                            studentItem.latestFollowUpAuthor ?? 'لم يتم بعد',
+                        color: theme.colorScheme.onSurface,
+                        icon: Icons.history_rounded,
+                      ),
+                    ],
                   ),
                 ],
               ),
-              const SizedBox(height: 8),
+            ),
+            const SizedBox(height: 24),
 
-              casesStream.when(
-                data: (cases) {
-                  if (cases.isEmpty) {
-                    return const EmptyState(
-                      icon: Icons.folder_off_outlined,
-                      title: 'لا توجد حالات متابعة لهذا التلميذ',
-                      message: 'يمكنك فتح حالة متابعة جديدة لتكليف الخدام بمتابعة محددة.',
-                    );
-                  }
-                  return Column(
-                    children: cases
-                        .map(
-                          (c) => Padding(
-                            padding: const EdgeInsets.only(bottom: 10),
-                            child: FollowUpCaseCard(
-                              caseItem: c,
-                              onTap: () => Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (_) => FollowUpCaseDetailsPage(
-                                    serviceId: serviceId,
-                                    caseId: c.id,
-                                  ),
+            // 2. Cases Section Header & List
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  children: [
+                    const Icon(Icons.folder_shared_rounded, size: 20),
+                    const SizedBox(width: 8),
+                    Text(
+                      'حالات المتابعة',
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+                TextButton.icon(
+                  icon: const Icon(Icons.add_rounded, size: 18),
+                  label: const Text('حالة جديدة'),
+                  onPressed: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => CreateFollowUpCasePage(
+                        serviceId: serviceId,
+                        preselectedStudent: student,
+                        classId: student.currentClassId ?? '',
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+
+            casesStream.when(
+              data: (cases) {
+                if (cases.isEmpty) {
+                  return const EmptyState(
+                    icon: Icons.folder_off_outlined,
+                    title: 'لا توجد حالات متابعة لهذا التلميذ',
+                    message:
+                        'يمكنك فتح حالة متابعة جديدة لتكليف الخدام بمتابعة محددة.',
+                  );
+                }
+                return Column(
+                  children: cases
+                      .map(
+                        (c) => Padding(
+                          padding: const EdgeInsets.only(bottom: 10),
+                          child: FollowUpCaseCard(
+                            caseItem: c,
+                            onTap: () => Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => FollowUpCaseDetailsPage(
+                                  serviceId: serviceId,
+                                  caseId: c.id,
                                 ),
                               ),
                             ),
                           ),
-                        )
-                        .toList(),
-                  );
-                },
-                loading: () => const Padding(
-                  padding: EdgeInsets.all(20),
-                  child: Center(child: CircularProgressIndicator()),
-                ),
-                error: (err, _) => EmptyState(
-                  icon: Icons.error_outline_rounded,
-                  title: 'تعذر تحميل الحالات',
-                  message: '$err',
-                ),
+                        ),
+                      )
+                      .toList(),
+                );
+              },
+              loading: () => const Padding(
+                padding: EdgeInsets.all(20),
+                child: Center(child: CircularProgressIndicator()),
               ),
+              error: (err, _) => EmptyState(
+                icon: Icons.error_outline_rounded,
+                title: 'تعذر تحميل الحالات',
+                message: '$err',
+              ),
+            ),
 
-              const SizedBox(height: 24),
+            const SizedBox(height: 24),
 
-              // 3. Historical Activity Log Section
-              Row(
-                children: [
-                  const Icon(Icons.timeline_rounded, size: 20),
-                  const SizedBox(width: 8),
-                  Text(
-                    'سجل الأنشطة والمتابعات التاريخي',
-                    style: theme.textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
+            // 3. Historical Activity Log Section
+            Row(
+              children: [
+                const Icon(Icons.timeline_rounded, size: 20),
+                const SizedBox(width: 8),
+                Text(
+                  'سجل الأنشطة والمتابعات التاريخي',
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
                   ),
-                ],
-              ),
-              const SizedBox(height: 4),
-              Text(
-                'سجل زمني لجميع الاتصالات والافتقادات والملاحظات مع هوية كل كاتب',
-                style: TextStyle(
-                  fontSize: 12,
-                  color: theme.colorScheme.onSurfaceVariant,
                 ),
+              ],
+            ),
+            const SizedBox(height: 4),
+            Text(
+              'سجل زمني لجميع الاتصالات والافتقادات والملاحظات مع هوية كل كاتب',
+              style: TextStyle(
+                fontSize: 12,
+                color: theme.colorScheme.onSurfaceVariant,
               ),
-              const SizedBox(height: 12),
+            ),
+            const SizedBox(height: 12),
 
-              activitiesStream.when(
-                data: (activities) {
-                  if (activities.isEmpty) {
-                    return const EmptyState(
-                      icon: Icons.history_toggle_off_rounded,
-                      title: 'لا توجد أنشطة مسجلة بعد',
-                      message: 'أي اتصال أو افتقاد يتم تسجيله سيظهر هنا بشكل غير قابل للتعديل.',
-                    );
-                  }
-                  return Column(
-                    children: activities
-                        .map(
-                          (act) => Padding(
-                            padding: const EdgeInsets.only(bottom: 10),
-                            child: FollowUpActivityCard(
-                              activity: act,
-                              showCaseInfo: true,
-                            ),
-                          ),
-                        )
-                        .toList(),
+            activitiesStream.when(
+              data: (activities) {
+                if (activities.isEmpty) {
+                  return const EmptyState(
+                    icon: Icons.history_toggle_off_rounded,
+                    title: 'لا توجد أنشطة مسجلة بعد',
+                    message:
+                        'أي اتصال أو افتقاد يتم تسجيله سيظهر هنا بشكل غير قابل للتعديل.',
                   );
-                },
-                loading: () => const Padding(
-                  padding: EdgeInsets.all(20),
-                  child: Center(child: CircularProgressIndicator()),
-                ),
-                error: (err, _) => EmptyState(
-                  icon: Icons.error_outline_rounded,
-                  title: 'تعذر تحميل السجل التاريخي',
-                  message: '$err',
-                ),
+                }
+                return Column(
+                  children: activities
+                      .map(
+                        (act) => Padding(
+                          padding: const EdgeInsets.only(bottom: 10),
+                          child: FollowUpActivityCard(
+                            activity: act,
+                            showCaseInfo: true,
+                          ),
+                        ),
+                      )
+                      .toList(),
+                );
+              },
+              loading: () => const Padding(
+                padding: EdgeInsets.all(20),
+                child: Center(child: CircularProgressIndicator()),
               ),
-            ],
-          ),
+              error: (err, _) => EmptyState(
+                icon: Icons.error_outline_rounded,
+                title: 'تعذر تحميل السجل التاريخي',
+                message: '$err',
+              ),
+            ),
+          ],
         ),
+      ),
     );
   }
 
@@ -343,7 +356,9 @@ class StudentFollowUpProfilePage extends ConsumerWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
         decoration: BoxDecoration(
-          color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.35),
+          color: theme.colorScheme.surfaceContainerHighest.withValues(
+            alpha: 0.35,
+          ),
           borderRadius: BorderRadius.circular(10),
           border: Border.all(
             color: theme.colorScheme.outlineVariant.withValues(alpha: 0.25),
@@ -359,7 +374,7 @@ class StudentFollowUpProfilePage extends ConsumerWidget {
                 Text(
                   title,
                   style: TextStyle(
-                    fontSize: 11,
+                    fontSize: 12,
                     fontWeight: FontWeight.w600,
                     color: theme.colorScheme.onSurfaceVariant,
                   ),
@@ -381,7 +396,7 @@ class StudentFollowUpProfilePage extends ConsumerWidget {
             Text(
               subtitle,
               style: TextStyle(
-                fontSize: 10,
+                fontSize: 12,
                 color: theme.colorScheme.onSurfaceVariant,
               ),
               maxLines: 1,
@@ -393,4 +408,3 @@ class StudentFollowUpProfilePage extends ConsumerWidget {
     );
   }
 }
-

@@ -72,7 +72,7 @@ class ActionableInsightsCard extends StatelessWidget {
                 child: Text(
                   '${insights.length} تنبيهات',
                   style: const TextStyle(
-                    fontSize: 11,
+                    fontSize: 12,
                     fontWeight: FontWeight.w700,
                     color: Color(0xFFB45309),
                   ),

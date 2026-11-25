@@ -139,6 +139,7 @@ class AttendanceSessionHeader extends StatelessWidget {
                   icon: Icons.check_circle_rounded,
                   foreground: palette.present.foreground,
                   background: palette.present.background,
+                  valueFontSize: 18,
                 ),
               ),
               const SizedBox(width: AppSpacing.xs),
@@ -146,9 +147,9 @@ class AttendanceSessionHeader extends StatelessWidget {
                 child: _LiveCounterPill(
                   label: 'غير مسجل',
                   value: '$absentCount',
-                  icon: Icons.cancel_outlined,
-                  foreground: palette.absent.foreground,
-                  background: palette.absent.background,
+                  icon: Icons.radio_button_unchecked_rounded,
+                  foreground: palette.notMarked.foreground,
+                  background: palette.notMarked.background,
                 ),
               ),
               const SizedBox(width: AppSpacing.xs),
@@ -159,6 +160,7 @@ class AttendanceSessionHeader extends StatelessWidget {
                   icon: Icons.groups_rounded,
                   foreground: theme.colorScheme.onSurface,
                   background: theme.colorScheme.surfaceContainerHighest,
+                  valueFontSize: 18,
                 ),
               ),
             ],
@@ -176,6 +178,7 @@ class _LiveCounterPill extends StatelessWidget {
     required this.icon,
     required this.foreground,
     required this.background,
+    this.valueFontSize = 14,
   });
 
   final String label;
@@ -183,6 +186,7 @@ class _LiveCounterPill extends StatelessWidget {
   final IconData icon;
   final Color foreground;
   final Color background;
+  final double valueFontSize;
 
   @override
   Widget build(BuildContext context) {
@@ -207,7 +211,7 @@ class _LiveCounterPill extends StatelessWidget {
             child: Text(
               '$label: ',
               style: TextStyle(
-                fontSize: 11,
+                fontSize: 12,
                 fontWeight: FontWeight.w600,
                 color: foreground,
               ),
@@ -218,7 +222,7 @@ class _LiveCounterPill extends StatelessWidget {
           Text(
             value,
             style: TextStyle(
-              fontSize: 12,
+              fontSize: valueFontSize,
               fontWeight: FontWeight.w800,
               color: foreground,
             ),

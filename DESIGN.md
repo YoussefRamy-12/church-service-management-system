@@ -50,16 +50,16 @@ platform: Flutter Web
 | `surface-subtle` | `#1E293B` | Quiet grouping, table headers and secondary control backgrounds |
 | `ink` | `#F8FAFC` | Primary text and headings |
 | `ink-muted` | `#C0CAD8` | Supporting text, labels and metadata |
-| `border` | `#334155` | Standard 1px surface/control border |
+| `border` | `#64748B` | Standard 1px surface/control border (≥ 3:1 vs dark surface) |
 | `border-subtle` | `#26344B` | Low-emphasis separators |
-| `primary` | `#00236F` | Primary buttons and key actions |
+| `primary` | `#2563EB` | Primary buttons and key actions on dark surfaces (lighter Warm Navy variant) |
 | `primary-container` | `#1E3A8A` | Hover and pressed container; selected/active container |
 | `on-primary` | `#FFFFFF` | Text and icons on primary |
 | `gold` | `#C9A227` | Meaningful highlight/milestone/spiritual-notebook accent only |
 | `error` | `#F87171` | Destructive and error semantics |
 | `focus` | `#93C5FD` | 2px keyboard focus indicator on dark surfaces |
 
-**Brand behavior:** `#00236F` remains the primary brand color in both themes. `#1E3A8A` is its hover/pressed container in both themes. Do not replace the dark-theme brand with violet, cyan or a brighter unrelated blue.
+**Brand behavior:** `#00236F` is the primary brand color in light theme, and `#2563EB` is its lighter high-contrast navy-blue variant for dark surfaces (`3.25:1` against `#131D33` surface, `5.17:1` for `#FFFFFF` label). `#1E3A8A` is the hover/pressed/selected container in both themes. Do not replace the dark-theme brand with violet, cyan or an unrelated hue.
 
 ### 2.3 Contrast verification
 
@@ -76,6 +76,10 @@ Ratios below are calculated using the WCAG 2.x relative-luminance formula. Value
 | Dark ink `#F8FAFC` | Dark canvas `#0B1120` | 18.00:1 | AAA |
 | Dark muted ink `#C0CAD8` | Dark canvas `#0B1120` | 11.37:1 | AAA |
 | Dark muted ink `#C0CAD8` | Dark surface `#131D33` | 10.13:1 | AAA |
+| Dark primary `#2563EB` | Dark surface `#131D33` | 3.25:1 | AA UI/Control (≥ 3:1) |
+| Dark primary `#2563EB` | Dark canvas `#0B1120` | 3.64:1 | AA UI/Control (≥ 3:1) |
+| White `#FFFFFF` | Dark primary `#2563EB` | 5.17:1 | AA |
+| Dark border `#64748B` | Dark surface `#131D33` | 3.53:1 | AA UI/Control (≥ 3:1) |
 | White `#FFFFFF` | Primary `#00236F` | 14.29:1 | AAA |
 | White `#FFFFFF` | Primary container `#1E3A8A` | 10.36:1 | AAA |
 | Gold `#B8860B` | Light canvas `#FAF8F4` | 3.07:1 | Large/icon-only use; not body text |
@@ -96,6 +100,7 @@ Ratios below are calculated using the WCAG 2.x relative-luminance formula. Value
 | Pending | `#854D0E` | 6.46:1 | 6.85:1 | `#FCD34D` | 13.06:1 | 11.64:1 |
 | Synced | `#0F766E` | 5.16:1 | 5.47:1 | `#5EEAD4` | 12.73:1 | 11.35:1 |
 | Conflict | `#B91C1C` | 6.10:1 | 6.47:1 | `#FB7185` | 7.00:1 | 6.24:1 |
+| NotMarked | `#46515F` | 7.61:1 | 8.07:1 | `#C0CAD8` | 11.37:1 | 10.13:1 |
 
 ## 3. Semantic status system
 
@@ -105,6 +110,7 @@ Every state is rendered as **color + icon + Arabic label**. Never communicate st
 |---|---|---|---|---|
 | Present | `check_circle` | حاضر | `#166534` | `#4ADE80` |
 | Absent | `cancel` | غائب | `#B91C1C` | `#F87171` |
+| NotMarked | `radio_button_unchecked` | غير مسجل | `#46515F` | `#C0CAD8` |
 | Late | `schedule` | متأخر | `#92400E` | `#FBBF24` |
 | Excused | `info` | معتذر | `#1D4ED8` | `#60A5FA` |
 | Pending | `hourglass_top` | قيد الانتظار | `#854D0E` | `#FCD34D` |

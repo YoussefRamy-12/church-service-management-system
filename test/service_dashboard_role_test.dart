@@ -228,6 +228,12 @@ void main() {
     expect(find.byKey(const Key('dashboard_reports')), findsOneWidget);
     expect(find.byKey(const Key('dashboard_servants')), findsOneWidget);
     expect(find.byKey(const Key('dashboard_add_servant')), findsNothing);
+    await tester.dragUntilVisible(
+      find.text('المراحل والفصول'),
+      find.byType(ListView),
+      const Offset(0, -300),
+    );
+    await tester.pumpAndSettle();
     expect(find.text('المراحل والفصول'), findsOneWidget);
 
     await tester.pumpWidget(const SizedBox());

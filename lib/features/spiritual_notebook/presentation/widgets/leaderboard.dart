@@ -97,7 +97,7 @@ class _LeaderboardState extends State<_Leaderboard> {
                           Text(
                             'الفصل:',
                             style: TextStyle(
-                              fontSize: 11,
+                              fontSize: 12,
                               fontWeight: FontWeight.w700,
                               color: isDark
                                   ? AppDesignColors.darkMutedInk

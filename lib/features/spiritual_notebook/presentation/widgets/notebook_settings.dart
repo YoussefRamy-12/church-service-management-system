@@ -153,7 +153,7 @@ class _NotebookSettingsState extends ConsumerState<_NotebookSettings> {
                                   Text(
                                     a['description'].toString(),
                                     style: TextStyle(
-                                      fontSize: 11,
+                                      fontSize: 12,
                                       color: theme.colorScheme.onSurfaceVariant,
                                     ),
                                   ),
@@ -369,7 +369,7 @@ class _NotebookSettingsState extends ConsumerState<_NotebookSettings> {
                       ),
                       label: Text(
                         _roleLabel(r),
-                        style: const TextStyle(fontSize: 11),
+                        style: const TextStyle(fontSize: 12),
                       ),
                       onSelected: (v) async {
                         setState(() {
@@ -411,7 +411,7 @@ class _NotebookSettingsState extends ConsumerState<_NotebookSettings> {
                         child: Text(
                           'تعديل القواعد ينطبق على التسجيلات القادمة مع الحفاظ الكامل على درجات الأسابيع السابقة.',
                           style: TextStyle(
-                            fontSize: 11,
+                            fontSize: 12,
                             color: theme.colorScheme.onSurfaceVariant,
                             height: 1.35,
                           ),

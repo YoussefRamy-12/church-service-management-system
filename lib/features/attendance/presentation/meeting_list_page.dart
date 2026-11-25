@@ -282,7 +282,7 @@ class _MeetingListPageState extends ConsumerState<MeetingListPage> {
                                       ? const Color(0xFF00236F)
                                       : const Color(0xFF64748B),
                                   fontWeight: FontWeight.w600,
-                                  fontSize: 10,
+                                  fontSize: 12,
                                   height: 1,
                                 ),
                               ),

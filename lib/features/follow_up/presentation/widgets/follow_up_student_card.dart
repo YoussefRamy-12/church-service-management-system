@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../../app/ui/app_ui.dart';
+import '../../../../core/utils/app_formatters.dart';
 import '../../domain/entities/follow_up_student_item.dart';
 import '../../../../core/ui/phone_contact_actions.dart';
 import '../../../../app/design/app_colors.dart';
@@ -93,7 +94,7 @@ class FollowUpStudentCard extends StatelessWidget {
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: TextStyle(
-                              fontSize: 12,
+                              fontSize: 13,
                               color: theme.colorScheme.onSurfaceVariant,
                             ),
                           ),
@@ -103,26 +104,38 @@ class FollowUpStudentCard extends StatelessWidget {
                   ],
                 ),
               ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          Wrap(
+            spacing: 8,
+            runSpacing: 6,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            children: [
               // Follow-up reason/status
-              Flexible(
-                child: Chip(
-                  avatar: Icon(
-                    item.needsFollowUp
-                        ? Icons.priority_high_rounded
-                        : Icons.schedule_rounded,
-                    size: 15,
+              Chip(
+                avatar: Icon(
+                  item.needsFollowUp
+                      ? Icons.priority_high_rounded
+                      : Icons.schedule_rounded,
+                  size: 15,
+                  color: reasonColor,
+                ),
+                label: Text(
+                  reason,
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
                     color: reasonColor,
                   ),
-                  label: Text(reason),
-                  visualDensity: VisualDensity.compact,
-                  materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                  backgroundColor: reasonColor.withValues(alpha: 0.10),
-                  side: BorderSide(
-                    color: reasonColor.withValues(alpha: 0.25),
-                  ),
+                ),
+                visualDensity: VisualDensity.compact,
+                materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                backgroundColor: reasonColor.withValues(alpha: 0.10),
+                side: BorderSide(
+                  color: reasonColor.withValues(alpha: 0.25),
                 ),
               ),
-              const SizedBox(width: 6),
               // Absence Badge
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
@@ -210,9 +223,9 @@ class FollowUpStudentCard extends StatelessWidget {
                       ),
                       const SizedBox(width: 4),
                       Text(
-                        '${item.activeCasesCount} حالات مفتوحة',
+                        formatOpenCasesCount(item.activeCasesCount),
                         style: TextStyle(
-                          fontSize: 11,
+                          fontSize: 12,
                           fontWeight: FontWeight.w700,
                           color: theme.colorScheme.primary,
                         ),
@@ -227,7 +240,7 @@ class FollowUpStudentCard extends StatelessWidget {
                       ? 'لا توجد حالات متابعة'
                       : 'الحالات السابقة: ${item.totalCasesCount}',
                   style: TextStyle(
-                    fontSize: 11,
+                    fontSize: 12,
                     color: theme.colorScheme.onSurfaceVariant,
                   ),
                 ),
@@ -242,9 +255,9 @@ class FollowUpStudentCard extends StatelessWidget {
                 ),
                 const SizedBox(width: 4),
                 Text(
-                  'آخر متابعة: ${item.latestFollowUpDate}${item.latestFollowUpAuthor != null ? ' (${item.latestFollowUpAuthor})' : ''}',
+                  'آخر متابعة: ${AppDateFormatter.formatString(item.latestFollowUpDate)}${item.latestFollowUpAuthor != null ? ' (${item.latestFollowUpAuthor})' : ''}',
                   style: TextStyle(
-                    fontSize: 11,
+                    fontSize: 12,
                     color: theme.colorScheme.onSurfaceVariant,
                   ),
                   maxLines: 1,
@@ -254,7 +267,7 @@ class FollowUpStudentCard extends StatelessWidget {
                 Text(
                   'لم تتم متابعته بعد',
                   style: TextStyle(
-                    fontSize: 11,
+                    fontSize: 12,
                     color: theme.colorScheme.onSurfaceVariant,
                   ),
                 ),

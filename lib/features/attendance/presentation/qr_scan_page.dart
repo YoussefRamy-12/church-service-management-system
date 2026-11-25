@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../../app/design/app_colors.dart';
 import '../../../app/design/app_radii.dart';
@@ -20,10 +21,14 @@ class QrScanPage extends StatefulWidget {
     super.key,
     required this.students,
     required this.presentStudentIds,
+    @visibleForTesting this.initialCameraError,
+    @visibleForTesting this.initialScannedStudent,
   });
 
   final List<Student> students;
   final Set<String> presentStudentIds;
+  final String? initialCameraError;
+  final Student? initialScannedStudent;
 
   @override
   State<QrScanPage> createState() => _QrScanPageState();
@@ -52,6 +57,8 @@ class _QrScanPageState extends State<QrScanPage>
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    _cameraError = widget.initialCameraError;
+    _scannedStudent = widget.initialScannedStudent;
 
     _laserAnimController = AnimationController(
       vsync: this,
@@ -63,7 +70,9 @@ class _QrScanPageState extends State<QrScanPage>
       curve: Curves.easeInOutSine,
     );
 
-    WidgetsBinding.instance.addPostFrameCallback((_) => _startCamera());
+    if (_cameraError == null && _scannedStudent == null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) => _startCamera());
+    }
   }
 
   @override
@@ -110,9 +119,36 @@ class _QrScanPageState extends State<QrScanPage>
       if (mounted) setState(() => _cameraError = null);
     } catch (error) {
       if (mounted && !_closing) {
-        setState(() => _cameraError = error.toString());
+        setState(() => _cameraError = _localizeCameraError(error));
       }
     }
+  }
+
+  String _localizeCameraError(Object error) {
+    final raw = error.toString().toLowerCase();
+    if (error is MobileScannerException &&
+            error.errorCode == MobileScannerErrorCode.permissionDenied ||
+        raw.contains('permission')) {
+      return 'يلزم السماح بالوصول إلى الكاميرا لمسح رمز الحضور.';
+    }
+    if (error is MobileScannerException &&
+            error.errorCode == MobileScannerErrorCode.unsupported ||
+        raw.contains('unsupported') ||
+        raw.contains('not available')) {
+      return 'الكاميرا غير مدعومة على هذا الجهاز. يمكنك استخدام الإدخال اليدوي.';
+    }
+    return 'تعذر تشغيل الكاميرا حاليًا. يمكنك المحاولة مرة أخرى أو استخدام الإدخال اليدوي.';
+  }
+
+  Future<void> _requestCameraPermissionOrRetry() async {
+    try {
+      final settingsUri = Uri.parse('app-settings:');
+      if (await canLaunchUrl(settingsUri)) {
+        await launchUrl(settingsUri);
+        return;
+      }
+    } catch (_) {}
+    await _startCamera();
   }
 
   Future<void> _pauseCamera() async {
@@ -285,6 +321,17 @@ class _QrScanPageState extends State<QrScanPage>
                         controller: _controller,
                         onDetect: _onDetect,
                         fit: BoxFit.cover,
+                        errorBuilder: (context, error) => Container(
+                          color: AppDesignColors.darkCanvas,
+                          child: Center(
+                            child: Icon(
+                              Icons.videocam_off_rounded,
+                              color: colors.conflict.foreground
+                                  .withValues(alpha: 0.6),
+                              size: 64,
+                            ),
+                          ),
+                        ),
                       ),
                     )
                   : Container(
@@ -645,9 +692,10 @@ class _QrScanPageState extends State<QrScanPage>
               children: [
                 Expanded(
                   child: OutlinedButton.icon(
-                    onPressed: _startCamera,
-                    icon: const Icon(Icons.refresh_rounded),
-                    label: const Text('إعادة تشغيل الكاميرا'),
+                    key: const Key('qr_allow_camera_button'),
+                    onPressed: _requestCameraPermissionOrRetry,
+                    icon: const Icon(Icons.videocam_rounded),
+                    label: const Text('السماح بالكاميرا'),
                     style: OutlinedButton.styleFrom(
                       foregroundColor: AppDesignColors.darkInk,
                       side: const BorderSide(color: AppDesignColors.darkBorder),
@@ -657,11 +705,12 @@ class _QrScanPageState extends State<QrScanPage>
                 const SizedBox(width: AppSpacing.sm),
                 Expanded(
                   child: FilledButton.icon(
+                    key: const Key('qr_manual_entry_button'),
                     onPressed: _openManualSearch,
-                    icon: const Icon(Icons.search_rounded),
-                    label: const Text('البحث اليدوي'),
+                    icon: const Icon(Icons.edit_note_rounded),
+                    label: const Text('إدخال يدوي'),
                     style: FilledButton.styleFrom(
-                      backgroundColor: AppDesignColors.primary,
+                      backgroundColor: AppDesignColors.darkPrimary,
                       foregroundColor: AppDesignColors.onPrimary,
                     ),
                   ),
@@ -912,54 +961,27 @@ class _StudentReviewPanel extends StatelessWidget {
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
-                      const SizedBox(height: 3),
-                      Row(
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 8,
-                              vertical: 2,
-                            ),
-                            decoration: BoxDecoration(
-                              color: student.isApproved
-                                  ? colors.present.background
-                                  : colors.pending.background,
-                              borderRadius: BorderRadius.circular(AppRadii.chip),
-                            ),
-                            child: Text(
-                              student.isApproved ? 'معتمد' : 'بانتظار الاعتماد',
-                              style: TextStyle(
-                                color: student.isApproved
-                                    ? colors.present.foreground
-                                    : colors.pending.foreground,
-                                fontSize: 11,
-                                fontWeight: FontWeight.w700,
-                              ),
+                      if (student.isDeacon) ...[
+                        const SizedBox(height: 3),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 2,
+                          ),
+                          decoration: BoxDecoration(
+                            color: colors.excused.background,
+                            borderRadius: BorderRadius.circular(AppRadii.chip),
+                          ),
+                          child: Text(
+                            'شماس',
+                            style: TextStyle(
+                              color: colors.excused.foreground,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w700,
                             ),
                           ),
-                          if (student.isDeacon) ...[
-                            const SizedBox(width: AppSpacing.xs),
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 8,
-                                vertical: 2,
-                              ),
-                              decoration: BoxDecoration(
-                                color: colors.excused.background,
-                                borderRadius: BorderRadius.circular(AppRadii.chip),
-                              ),
-                              child: Text(
-                                'شماس',
-                                style: TextStyle(
-                                  color: colors.excused.foreground,
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.w700,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ],
-                      ),
+                        ),
+                      ],
                     ],
                   ),
                 ),
@@ -1275,7 +1297,7 @@ class _ManualStudentSearchSheetState extends State<_ManualStudentSearchSheet> {
                           ),
                           trailing: isPresent
                               ? Chip(
-                                  label: const Text('مسجل', style: TextStyle(fontSize: 11)),
+                                  label: const Text('مسجل', style: TextStyle(fontSize: 12)),
                                   backgroundColor: colors.present.background,
                                   labelStyle: TextStyle(color: colors.present.foreground),
                                   visualDensity: VisualDensity.compact,

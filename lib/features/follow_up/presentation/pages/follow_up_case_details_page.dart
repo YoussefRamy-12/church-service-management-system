@@ -1,6 +1,6 @@
+import 'package:church_service_management_system/core/utils/app_formatters.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
 
 import '../../../../app/ui/app_ui.dart';
 import '../../../auth/domain/entities/session_identity.dart';
@@ -168,15 +168,15 @@ class FollowUpCaseDetailsPage extends ConsumerWidget {
                             Text(
                               'أنشأها: ${caseItem.creatorName ?? "خادم"}',
                               style: TextStyle(
-                                fontSize: 11,
+                                fontSize: 12,
                                 color: theme.colorScheme.onSurfaceVariant,
                               ),
                             ),
                             const SizedBox(width: 10),
                             Text(
-                              '•  ${DateFormat('yyyy-MM-dd').format(caseItem.createdAt)}',
+                              '•  ${AppDateFormatter.format(caseItem.createdAt)}',
                               style: TextStyle(
-                                fontSize: 11,
+                                fontSize: 12,
                                 color: theme.colorScheme.onSurfaceVariant,
                               ),
                             ),
@@ -417,7 +417,7 @@ class FollowUpCaseDetailsPage extends ConsumerWidget {
             Text(
               'تغيير الحالة',
               style: TextStyle(
-                fontSize: 11,
+                fontSize: 12,
                 fontWeight: FontWeight.bold,
                 color: Theme.of(context).colorScheme.primary,
               ),

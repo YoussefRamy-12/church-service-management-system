@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:church_service_management_system/app/design/app_theme.dart';
 import 'package:church_service_management_system/core/database/app_database.dart';
@@ -66,7 +67,58 @@ Future<void> ensureGoldenTestSetup() async {
     ..addFont(rootBundle.load('assets/fonts/arial.ttf'));
   await arialLoader.load();
 
+  final materialIconsFile = _findMaterialIconsFont();
+  if (materialIconsFile != null) {
+    final bytes = await materialIconsFile.readAsBytes();
+    final materialLoader = FontLoader('MaterialIcons')
+      ..addFont(Future.value(ByteData.sublistView(bytes)));
+    await materialLoader.load();
+  }
+
   _goldenFontsLoaded = true;
+}
+
+File? _findMaterialIconsFont() {
+  const relativePath =
+      'bin/cache/artifacts/material_fonts/MaterialIcons-Regular.otf';
+  final flutterRoot = Platform.environment['FLUTTER_ROOT'];
+  if (flutterRoot != null && flutterRoot.isNotEmpty) {
+    final candidate = File(
+      '$flutterRoot${Platform.pathSeparator}$relativePath',
+    );
+    if (candidate.existsSync()) return candidate;
+  }
+
+  // Walk up from Platform.resolvedExecutable (e.g. bin/cache/artifacts/engine/...)
+  var dir = File(Platform.resolvedExecutable).parent;
+  for (var i = 0; i < 8; i++) {
+    final candidate = File('${dir.path}${Platform.pathSeparator}$relativePath');
+    if (candidate.existsSync()) return candidate;
+    final parent = dir.parent;
+    if (parent.path == dir.path) break;
+    dir = parent;
+  }
+
+  // Fallback to locating `flutter` on PATH.
+  try {
+    final result = Process.runSync(
+      Platform.isWindows ? 'where.exe' : 'which',
+      ['flutter'],
+    );
+    if (result.exitCode == 0) {
+      final lines = result.stdout.toString().split(RegExp(r'\r?\n'));
+      for (final line in lines) {
+        final trimmed = line.trim();
+        if (trimmed.isEmpty) continue;
+        final root = File(trimmed).parent.parent;
+        final candidate = File(
+          '${root.path}${Platform.pathSeparator}$relativePath',
+        );
+        if (candidate.existsSync()) return candidate;
+      }
+    }
+  } catch (_) {}
+  return null;
 }
 
 class GoldenVariant {

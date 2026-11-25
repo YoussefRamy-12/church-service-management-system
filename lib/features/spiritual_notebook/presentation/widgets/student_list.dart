@@ -180,7 +180,7 @@ class _StudentListState extends State<_StudentList> {
                             Text(
                               'الفصل:',
                               style: TextStyle(
-                                fontSize: 11,
+                                fontSize: 12,
                                 fontWeight: FontWeight.w700,
                                 color: isDark
                                     ? AppDesignColors.darkMutedInk
@@ -242,7 +242,7 @@ class _StudentListState extends State<_StudentList> {
                         child: Text(
                           'تصفية حسب: ${classMap[selectedClassId] ?? ''} (${filteredStudents.length} تلميذ)',
                           style: const TextStyle(
-                            fontSize: 11,
+                            fontSize: 12,
                             fontWeight: FontWeight.w800,
                             color: appPrimary,
                           ),
@@ -270,7 +270,7 @@ class _StudentListState extends State<_StudentList> {
                               Text(
                                 'إلغاء',
                                 style: TextStyle(
-                                  fontSize: 11,
+                                  fontSize: 12,
                                   fontWeight: FontWeight.w700,
                                   color: appPrimary,
                                 ),
@@ -463,7 +463,7 @@ class _StudentListState extends State<_StudentList> {
                                     'إجمالي: $totalPts',
                                     style: TextStyle(
                                       fontWeight: FontWeight.w600,
-                                      fontSize: 10,
+                                      fontSize: 12,
                                       color: isDark
                                           ? AppDesignColors.darkMutedInk
                                           : appMutedInk,

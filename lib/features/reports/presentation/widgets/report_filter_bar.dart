@@ -27,7 +27,7 @@ class ReportFilterBar extends ConsumerWidget {
     final scopeAsync = ref.watch(reportUserScopeProvider(serviceId));
     final scope = scopeAsync.value;
 
-    final formatter = DateFormat('yyyy/MM/dd');
+    final formatter = DateFormat('dd/MM/yyyy');
 
     // Filter available stages/classes by scope
     final availableStages = stages.where((s) {
@@ -491,7 +491,7 @@ class ReportFilterBar extends ConsumerWidget {
     return InputDecoration(
       labelText: label,
       labelStyle: TextStyle(
-        fontSize: 11,
+        fontSize: 12,
         color: Theme.of(context).colorScheme.onSurfaceVariant,
       ),
       contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),

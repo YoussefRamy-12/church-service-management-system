@@ -144,7 +144,7 @@ class _MetricCard extends StatelessWidget {
             child: Text(
               label,
               style: TextStyle(
-                fontSize: 11.5,
+                fontSize: 12.5,
                 fontWeight: FontWeight.w700,
                 color: color,
               ),

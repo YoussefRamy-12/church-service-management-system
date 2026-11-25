@@ -194,7 +194,7 @@ class _LeadershipPrepDashboardState
                             '$pendingCount',
                             style: const TextStyle(
                               color: Colors.white,
-                              fontSize: 11,
+                              fontSize: 12,
                               fontWeight: FontWeight.w800,
                             ),
                           ),
@@ -378,7 +378,7 @@ class _LeadershipPrepDashboardState
                                           child: const Text(
                                             'أنت',
                                             style: TextStyle(
-                                              fontSize: 10,
+                                              fontSize: 12,
                                               color: AppDesignColors.lightMutedInk,
                                               fontWeight: FontWeight.w700,
                                             ),
@@ -391,7 +391,7 @@ class _LeadershipPrepDashboardState
                                   Text(
                                     '${prep.stageName ?? 'المرحلة'} • ${prep.className ?? 'الفصل'}',
                                     style: const TextStyle(
-                                      fontSize: 11.5,
+                                      fontSize: 12.5,
                                       color: AppDesignColors.lightMutedInk,
                                     ),
                                     maxLines: 1,
@@ -409,7 +409,7 @@ class _LeadershipPrepDashboardState
                           Text(
                             'تاريخ الإرسال: $submittedDateStr',
                             style: const TextStyle(
-                              fontSize: 11,
+                              fontSize: 12,
                               color: AppDesignColors.darkMutedInk,
                             ),
                           ),
@@ -465,7 +465,7 @@ class _LeadershipPrepDashboardState
                                     child: const Text(
                                       'أنت',
                                       style: TextStyle(
-                                        fontSize: 10.5,
+                                        fontSize: 12.5,
                                         color: AppDesignColors.lightMutedInk,
                                         fontWeight: FontWeight.w700,
                                       ),

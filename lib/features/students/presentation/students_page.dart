@@ -87,30 +87,43 @@ class _StudentsPageState extends ConsumerState<StudentsPage> {
     final isClassScoped =
         (profile?.role == 'class_servant' || profile?.role == 'class_leader') &&
         profile?.classId != null;
+    final canAdd =
+        ref.watch(isSuperAdminProvider) || (profile != null && profile.isActive);
+    final isMobile = context.isMobile;
 
     return Scaffold(
+      floatingActionButton: canAdd && isMobile
+          ? FloatingActionButton.extended(
+              key: const Key('students_add'),
+              onPressed: _addStudent,
+              icon: const Icon(Icons.person_add_alt_1_rounded),
+              label: const Text('إضافة تلميذ'),
+            )
+          : null,
       appBar: AppBar(
         title: const Text('التلاميذ'),
         actions: [
-          IconButton(
-            key: const Key('students_import_excel'),
-            tooltip: 'استيراد الطلاب من Excel',
-            onPressed: () => Navigator.of(context, rootNavigator: true).push(
-              MaterialPageRoute(
-                builder: (_) => ImportStudentsExcelPage(
-                  serviceId: widget.serviceId,
-                  initialClassId: isClassScoped ? profile!.classId : null,
+          if (canAdd)
+            IconButton(
+              key: const Key('students_import_excel'),
+              tooltip: 'استيراد الطلاب من Excel',
+              onPressed: () => Navigator.of(context, rootNavigator: true).push(
+                MaterialPageRoute(
+                  builder: (_) => ImportStudentsExcelPage(
+                    serviceId: widget.serviceId,
+                    initialClassId: isClassScoped ? profile!.classId : null,
+                  ),
                 ),
               ),
+              icon: const Icon(Icons.file_upload_outlined),
             ),
-            icon: const Icon(Icons.file_upload_outlined),
-          ),
-          IconButton(
-            key: const Key('students_add'),
-            tooltip: 'إضافة تلميذ',
-            onPressed: _addStudent,
-            icon: const Icon(Icons.person_add_alt_1_rounded),
-          ),
+          if (canAdd && !isMobile)
+            IconButton(
+              key: const Key('students_add'),
+              tooltip: 'إضافة تلميذ',
+              onPressed: _addStudent,
+              icon: const Icon(Icons.person_add_alt_1_rounded),
+            ),
           IconButton(
             key: const Key('students_refresh'),
             tooltip: 'تحديث',
@@ -287,69 +300,44 @@ class _StudentsPageState extends ConsumerState<StudentsPage> {
           });
 
           return ListView(
-            padding: const EdgeInsets.only(bottom: 24),
+            padding: EdgeInsets.only(bottom: context.isMobile ? 88 : 24),
             children: [
               Padding(
                 padding: const EdgeInsets.fromLTRB(20, 12, 20, 12),
-                child: Card(
-                  elevation: 0,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    side: BorderSide(
-                      color: Theme.of(context).colorScheme.outlineVariant,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    TextField(
+                      key: const Key('service_student_search'),
+                      controller: _searchController,
+                      onChanged: (value) => setState(() => query = value),
+                      decoration: InputDecoration(
+                        prefixIcon: const Icon(Icons.search_rounded),
+                        hintText: 'ابحث بالاسم أو الهاتف...',
+                        suffixIcon: query.isNotEmpty
+                            ? IconButton(
+                                icon: const Icon(Icons.clear_rounded, size: 18),
+                                onPressed: () {
+                                  _searchController.clear();
+                                  setState(() => query = '');
+                                },
+                              )
+                            : null,
+                      ),
                     ),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(14),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        TextField(
-                          key: const Key('service_student_search'),
-                          controller: _searchController,
-                          onChanged: (value) => setState(() => query = value),
-                          decoration: InputDecoration(
-                            prefixIcon: const Icon(Icons.search_rounded),
-                            hintText: 'ابحث بالاسم أو الهاتف...',
-                            suffixIcon: query.isNotEmpty
-                                ? IconButton(
-                                    icon: const Icon(Icons.clear_rounded,
-                                        size: 18),
-                                    onPressed: () {
-                                      _searchController.clear();
-                                      setState(() => query = '');
-                                    },
-                                  )
-                                : null,
-                          ),
-                        ),
-                        const SizedBox(height: 10),
-                        Align(
-                          alignment: AlignmentDirectional.centerStart,
-                          child: Wrap(
-                            spacing: 8,
-                            children: [
-                              _filter('all', 'الكل', students.length),
-                              _filter(
-                                'approved',
-                                'معتمد',
-                                students
-                                    .where((student) => student.isApproved)
-                                    .length,
-                              ),
-                              _filter(
-                                'pending',
-                                'بانتظار الاعتماد',
-                                students
-                                    .where((student) => student.isPending)
-                                    .length,
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
+                    const SizedBox(height: 10),
+                    Align(
+                      alignment: AlignmentDirectional.centerStart,
+                      child: Wrap(
+                        spacing: 8,
+                        children: [
+                          _filter('all', 'الكل'),
+                          _filter('approved', 'معتمد'),
+                          _filter('pending', 'بانتظار الاعتماد'),
+                        ],
+                      ),
                     ),
-                  ),
+                  ],
                 ),
               ),
               Padding(
@@ -360,14 +348,6 @@ class _StudentsPageState extends ConsumerState<StudentsPage> {
                       'النتائج (${filtered.length})',
                       style: Theme.of(context).textTheme.titleSmall?.copyWith(
                             fontWeight: FontWeight.w700,
-                          ),
-                    ),
-                    const SizedBox(width: 8),
-                    Text(
-                      '•  معتمد: ${students.where((student) => student.isApproved).length}',
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color:
-                                Theme.of(context).colorScheme.onSurfaceVariant,
                           ),
                     ),
                     const Spacer(),
@@ -491,34 +471,26 @@ class _StudentsPageState extends ConsumerState<StudentsPage> {
                     ),
                     const SizedBox(height: 3),
                     Text(
-                      classLabel,
+                      student.phone != null && student.phone!.isNotEmpty
+                          ? '$classLabel • ${student.phone!}'
+                          : classLabel,
                       style: TextStyle(
-                        fontSize: 12,
+                        fontSize: 13,
                         color: scheme.onSurfaceVariant,
                       ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
-                    if (student.phone != null &&
-                        student.phone!.isNotEmpty) ...[
-                      const SizedBox(height: 2),
-                      Text(
-                        student.phone!,
-                        style: TextStyle(
-                          fontSize: 11,
-                          color: scheme.onSurfaceVariant,
-                        ),
-                      ),
-                    ],
                   ],
                 ),
               ),
-              const SizedBox(width: 8),
-              StatusChip(
-                status:
-                    student.isPending ? AppStatus.pending : AppStatus.present,
-                label: student.isPending ? 'بانتظار الاعتماد' : 'معتمد',
-              ),
+              if (student.isPending) ...[
+                const SizedBox(width: 8),
+                const StatusChip(
+                  status: AppStatus.pending,
+                  label: 'بانتظار الاعتماد',
+                ),
+              ],
               const SizedBox(width: 4),
               Icon(
                 Icons.chevron_left_rounded,
@@ -811,10 +783,10 @@ class _StudentsPageState extends ConsumerState<StudentsPage> {
         },
       );
 
-  Widget _filter(String value, String label, int count) => ChoiceChip(
+  Widget _filter(String value, String label) => ChoiceChip(
         key: Key('student_filter_$value'),
         selected: statusFilter == value,
-        label: Text('$label ($count)'),
+        label: Text(label),
         onSelected: (_) => setState(() => statusFilter = value),
       );
 }

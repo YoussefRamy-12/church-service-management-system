@@ -51,6 +51,7 @@ void main() {
     final pairs = <String, Color>{
       'present':  const Color(0xFF166534),
       'absent':   const Color(0xFFB91C1C),
+      'notMarked': AppColors.light.notMarked.foreground,
       'late':     const Color(0xFF92400E),
       'excused':  const Color(0xFF1D4ED8),
       'pending':  const Color(0xFF854D0E),
@@ -68,6 +69,7 @@ void main() {
     final pairs = <String, Color>{
       'present':  const Color(0xFF166534),
       'absent':   const Color(0xFFB91C1C),
+      'notMarked': AppColors.light.notMarked.foreground,
       'late':     const Color(0xFF92400E),
       'excused':  const Color(0xFF1D4ED8),
       'pending':  const Color(0xFF854D0E),
@@ -85,6 +87,7 @@ void main() {
     final pairs = <String, Color>{
       'present':  const Color(0xFF4ADE80),
       'absent':   const Color(0xFFF87171),
+      'notMarked': AppColors.dark.notMarked.foreground,
       'late':     const Color(0xFFFBBF24),
       'excused':  const Color(0xFF60A5FA),
       'pending':  const Color(0xFFFCD34D),
@@ -102,6 +105,7 @@ void main() {
     final pairs = <String, Color>{
       'present':  const Color(0xFF4ADE80),
       'absent':   const Color(0xFFF87171),
+      'notMarked': AppColors.dark.notMarked.foreground,
       'late':     const Color(0xFFFBBF24),
       'excused':  const Color(0xFF60A5FA),
       'pending':  const Color(0xFFFCD34D),
@@ -160,6 +164,26 @@ void main() {
         const Color(0xFFC9A227),
         darkSurface,
       );
+    });
+  });
+
+  group('Dark mode primary & control border contrast', () {
+    test('darkPrimary (#2563EB) vs darkSurface (#131D33) >= 3.0:1', () {
+      final ratio = _contrastRatio(AppDesignColors.darkPrimary, darkSurface);
+      expect(ratio, greaterThanOrEqualTo(3.0));
+    });
+
+    test('onPrimary (#FFFFFF) vs darkPrimary (#2563EB) >= 4.5:1 (AA)', () {
+      _expectAA(
+        'dark.onPrimary on darkPrimary',
+        AppDesignColors.onPrimary,
+        AppDesignColors.darkPrimary,
+      );
+    });
+
+    test('darkBorder (#64748B) vs darkSurface (#131D33) >= 3.0:1', () {
+      final ratio = _contrastRatio(AppDesignColors.darkBorder, darkSurface);
+      expect(ratio, greaterThanOrEqualTo(3.0));
     });
   });
 }

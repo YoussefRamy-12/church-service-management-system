@@ -1,3 +1,4 @@
+import 'package:church_service_management_system/core/utils/app_formatters.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -88,11 +89,11 @@ class _StudentAttendanceTabState extends ConsumerState<StudentAttendanceTab> {
                       title: Text(
                         meetingsById[record.meetingId] == null
                             ? 'موعد الاجتماع غير متاح'
-                            : '${meetingsById[record.meetingId]!.name} — ${DateFormat('yyyy/MM/dd').format(meetingsById[record.meetingId]!.meetingDate)}',
+                            : '${meetingsById[record.meetingId]!.name} — ${AppDateFormatter.format(meetingsById[record.meetingId]!.meetingDate)}',
                       ),
                       subtitle: Text(
                         meetingsById[record.meetingId] == null
-                            ? 'تاريخ تسجيل الحضور: ${DateFormat('yyyy/MM/dd HH:mm').format(record.checkedInAt.toLocal())}'
+                            ? 'تاريخ تسجيل الحضور: ${AppDateFormatter.formatDateTime(record.checkedInAt)}'
                             : 'وقت تسجيل الحضور: ${DateFormat('HH:mm').format(record.checkedInAt.toLocal())}',
                       ),
                       trailing: Icon(

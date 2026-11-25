@@ -88,10 +88,7 @@ class _FollowUpHubPageState extends ConsumerState<FollowUpHubPage>
           controller: _tabController,
           indicatorSize: TabBarIndicatorSize.tab,
           tabs: const [
-            Tab(
-              icon: Icon(Icons.school_rounded, size: 18),
-              text: 'الطلاب',
-            ),
+            Tab(icon: Icon(Icons.school_rounded, size: 18), text: 'الطلاب'),
             Tab(
               icon: Icon(Icons.folder_shared_rounded, size: 18),
               text: 'حالات المتابعة',
@@ -104,25 +101,23 @@ class _FollowUpHubPageState extends ConsumerState<FollowUpHubPage>
         ),
       ),
       body: AppContent(
-          maxWidth: 960,
-          child: TabBarView(
-            controller: _tabController,
-            children: [
-              _buildStudentsTab(theme),
-              _buildCasesTab(theme),
-              _buildActivityLogTab(theme),
-            ],
-          ),
+        maxWidth: 960,
+        child: TabBarView(
+          controller: _tabController,
+          children: [
+            _buildStudentsTab(theme),
+            _buildCasesTab(theme),
+            _buildActivityLogTab(theme),
+          ],
         ),
+      ),
       floatingActionButton: FloatingActionButton.extended(
         icon: const Icon(Icons.add_task_rounded),
         label: const Text('فتح حالة متابعة'),
         onPressed: () => Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (_) => CreateFollowUpCasePage(
-              serviceId: widget.serviceId,
-            ),
+            builder: (_) => CreateFollowUpCasePage(serviceId: widget.serviceId),
           ),
         ),
       ),
@@ -134,8 +129,9 @@ class _FollowUpHubPageState extends ConsumerState<FollowUpHubPage>
   // ===========================================================================
 
   Widget _buildStudentsTab(ThemeData theme) {
-    final studentsAsync =
-        ref.watch(followUpStudentItemsProvider(widget.serviceId));
+    final studentsAsync = ref.watch(
+      followUpStudentItemsProvider(widget.serviceId),
+    );
 
     return studentsAsync.when(
       data: (items) {
@@ -174,24 +170,18 @@ class _FollowUpHubPageState extends ConsumerState<FollowUpHubPage>
           padding: const EdgeInsets.fromLTRB(16, 16, 16, 80),
           children: [
             // Search Input
-            AppCard(
-              borderRadius: 12,
-              padding: const EdgeInsets.all(4),
-              child: TextField(
-                decoration: InputDecoration(
-                  isDense: true,
-                  prefixIcon: const Icon(Icons.search_rounded, size: 20),
-                  hintText: 'ابحث باسم التلميذ أو الفصل...',
-                  border: InputBorder.none,
-                  suffixIcon: _studentQuery.isEmpty
-                      ? null
-                      : IconButton(
-                          icon: const Icon(Icons.clear_rounded, size: 18),
-                          onPressed: () => setState(() => _studentQuery = ''),
-                        ),
-                ),
-                onChanged: (val) => setState(() => _studentQuery = val.trim()),
+            TextField(
+              decoration: InputDecoration(
+                prefixIcon: const Icon(Icons.search_rounded, size: 20),
+                hintText: 'ابحث باسم التلميذ أو الفصل...',
+                suffixIcon: _studentQuery.isEmpty
+                    ? null
+                    : IconButton(
+                        icon: const Icon(Icons.clear_rounded, size: 18),
+                        onPressed: () => setState(() => _studentQuery = ''),
+                      ),
               ),
+              onChanged: (val) => setState(() => _studentQuery = val.trim()),
             ),
             const SizedBox(height: 12),
 
@@ -200,7 +190,10 @@ class _FollowUpHubPageState extends ConsumerState<FollowUpHubPage>
               scrollDirection: Axis.horizontal,
               child: Row(
                 children: [
-                  _buildStudentFilterChip('الكل (${items.length})', _StudentFilter.all),
+                  _buildStudentFilterChip(
+                    'الكل (${items.length})',
+                    _StudentFilter.all,
+                  ),
                   const SizedBox(width: 8),
                   _buildStudentFilterChip(
                     'الأكثر غياباً (≥2)',
@@ -227,7 +220,10 @@ class _FollowUpHubPageState extends ConsumerState<FollowUpHubPage>
                   PopupMenuButton<_StudentSort>(
                     tooltip: 'ترتيب حسب',
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 6,
+                      ),
                       decoration: BoxDecoration(
                         color: theme.colorScheme.surfaceContainerHighest
                             .withValues(alpha: 0.4),
@@ -244,7 +240,10 @@ class _FollowUpHubPageState extends ConsumerState<FollowUpHubPage>
                               _StudentSort.alphabetical => 'أبجدياً',
                               _StudentSort.latestFollowUp => 'أحدث متابعة',
                             },
-                            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+                            style: const TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                            ),
                           ),
                         ],
                       ),
@@ -316,9 +315,7 @@ class _FollowUpHubPageState extends ConsumerState<FollowUpHubPage>
             padding: const EdgeInsets.all(14),
             child: Row(
               children: [
-                CircleAvatar(
-                  backgroundColor: scheme.surfaceContainerHighest,
-                ),
+                CircleAvatar(backgroundColor: scheme.surfaceContainerHighest),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Column(
@@ -392,7 +389,9 @@ class _FollowUpHubPageState extends ConsumerState<FollowUpHubPage>
   // ===========================================================================
 
   Widget _buildCasesTab(ThemeData theme) {
-    final casesAsync = ref.watch(followUpCasesInScopeProvider(widget.serviceId));
+    final casesAsync = ref.watch(
+      followUpCasesInScopeProvider(widget.serviceId),
+    );
 
     return casesAsync.when(
       data: (cases) {
@@ -416,24 +415,18 @@ class _FollowUpHubPageState extends ConsumerState<FollowUpHubPage>
           padding: const EdgeInsets.fromLTRB(16, 16, 16, 80),
           children: [
             // Search Input
-            AppCard(
-              borderRadius: 12,
-              padding: const EdgeInsets.all(4),
-              child: TextField(
-                decoration: InputDecoration(
-                  isDense: true,
-                  prefixIcon: const Icon(Icons.search_rounded, size: 20),
-                  hintText: 'ابحث في الحالات أو اسم التلميذ...',
-                  border: InputBorder.none,
-                  suffixIcon: _caseQuery.isEmpty
-                      ? null
-                      : IconButton(
-                          icon: const Icon(Icons.clear_rounded, size: 18),
-                          onPressed: () => setState(() => _caseQuery = ''),
-                        ),
-                ),
-                onChanged: (val) => setState(() => _caseQuery = val.trim()),
+            TextField(
+              decoration: InputDecoration(
+                prefixIcon: const Icon(Icons.search_rounded, size: 20),
+                hintText: 'ابحث في الحالات أو اسم التلميذ...',
+                suffixIcon: _caseQuery.isEmpty
+                    ? null
+                    : IconButton(
+                        icon: const Icon(Icons.clear_rounded, size: 18),
+                        onPressed: () => setState(() => _caseQuery = ''),
+                      ),
               ),
+              onChanged: (val) => setState(() => _caseQuery = val.trim()),
             ),
             const SizedBox(height: 12),
 
@@ -461,7 +454,9 @@ class _FollowUpHubPageState extends ConsumerState<FollowUpHubPage>
                         selectedColor: status.color.withValues(alpha: 0.2),
                         labelStyle: TextStyle(
                           color: isSelected ? status.color : null,
-                          fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                          fontWeight: isSelected
+                              ? FontWeight.bold
+                              : FontWeight.normal,
                           fontSize: 12,
                         ),
                         onSelected: (selected) {
@@ -518,8 +513,9 @@ class _FollowUpHubPageState extends ConsumerState<FollowUpHubPage>
   // ===========================================================================
 
   Widget _buildActivityLogTab(ThemeData theme) {
-    final activitiesAsync =
-        ref.watch(followUpActivitiesInScopeProvider(widget.serviceId));
+    final activitiesAsync = ref.watch(
+      followUpActivitiesInScopeProvider(widget.serviceId),
+    );
 
     return activitiesAsync.when(
       data: (activities) {
@@ -527,7 +523,8 @@ class _FollowUpHubPageState extends ConsumerState<FollowUpHubPage>
           return const EmptyState(
             icon: Icons.history_toggle_off_rounded,
             title: 'لا توجد أنشطة مسجلة بعد في نطاقك',
-            message: 'سجل الأنشطة يعرض تغذية زمنية لجميع الاتصالات والافتقادات مع هوية كل كاتب.',
+            message:
+                'سجل الأنشطة يعرض تغذية زمنية لجميع الاتصالات والافتقادات مع هوية كل كاتب.',
           );
         }
 

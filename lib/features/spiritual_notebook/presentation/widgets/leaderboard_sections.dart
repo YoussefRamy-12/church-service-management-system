@@ -116,7 +116,7 @@ extension _LeaderboardSections on _LeaderboardState {
                       child: Text(
                         'عرض الكل',
                         style: TextStyle(
-                          fontSize: 11,
+                          fontSize: 12,
                           fontWeight: FontWeight.w700,
                           color: appPrimary,
                         ),
@@ -352,7 +352,7 @@ extension _LeaderboardSections on _LeaderboardState {
                   Text(
                     rankLabel,
                     style: TextStyle(
-                      fontSize: 10,
+                      fontSize: 12,
                       fontWeight: FontWeight.w600,
                       color: isDark ? AppDesignColors.darkMutedInk : appMutedInk,
                     ),

@@ -43,19 +43,14 @@ class AttendanceStudentTile extends StatelessWidget {
                 ? 'حاضر • $attendanceTimingLabel'
                 : 'حاضر',
           )
-        : const StatusChip(
-            status: AppStatus.absent,
-            label: 'غير مسجل',
-          );
+        : const StatusChip(status: AppStatus.notMarked, label: 'غير مسجل');
 
     return Material(
       color: theme.colorScheme.surface,
       borderRadius: BorderRadius.circular(AppRadii.card),
       child: InkWell(
         key: ValueKey('student_tile_${student.id}'),
-        onTap: readOnly
-            ? null
-            : (isPresent ? onEditTime : onCheckIn),
+        onTap: readOnly ? null : (isPresent ? onEditTime : onCheckIn),
         onLongPress: readOnly ? null : (isPresent ? onEditTime : null),
         borderRadius: BorderRadius.circular(AppRadii.card),
         child: Container(
@@ -85,14 +80,16 @@ class AttendanceStudentTile extends StatelessWidget {
                   color: isPresent
                       ? palette.present.background
                       : (student.isPending
-                          ? palette.pending.background
-                          : theme.colorScheme.surfaceContainerHighest),
+                            ? palette.pending.background
+                            : theme.colorScheme.surfaceContainerHighest),
                   border: Border.all(
                     color: isPresent
                         ? palette.present.foreground.withValues(alpha: 0.4)
                         : (student.isPending
-                            ? palette.pending.foreground.withValues(alpha: 0.3)
-                            : theme.colorScheme.outlineVariant),
+                              ? palette.pending.foreground.withValues(
+                                  alpha: 0.3,
+                                )
+                              : theme.colorScheme.outlineVariant),
                   ),
                 ),
                 alignment: Alignment.center,
@@ -146,13 +143,15 @@ class AttendanceStudentTile extends StatelessWidget {
                             ),
                             decoration: BoxDecoration(
                               color: classColor.withValues(alpha: 0.12),
-                              borderRadius: BorderRadius.circular(AppRadii.chip),
+                              borderRadius: BorderRadius.circular(
+                                AppRadii.chip,
+                              ),
                             ),
                             child: Text(
                               classLabel,
                               style: TextStyle(
                                 color: classColor,
-                                fontSize: 10,
+                                fontSize: 12,
                                 fontWeight: FontWeight.w700,
                               ),
                             ),
@@ -165,21 +164,24 @@ class AttendanceStudentTile extends StatelessWidget {
                             ),
                             decoration: BoxDecoration(
                               color: palette.pending.background,
-                              borderRadius: BorderRadius.circular(AppRadii.chip),
+                              borderRadius: BorderRadius.circular(
+                                AppRadii.chip,
+                              ),
                             ),
                             child: Text(
                               'بانتظار الاعتماد',
                               style: TextStyle(
                                 color: palette.pending.foreground,
-                                fontSize: 10,
+                                fontSize: 12,
                                 fontWeight: FontWeight.w700,
                               ),
                             ),
                           ),
                         if (isPresent)
                           Text(
-                            TimeOfDay.fromDateTime(record!.checkedInAt)
-                                .format(context),
+                            TimeOfDay.fromDateTime(
+                              record!.checkedInAt,
+                            ).format(context),
                             style: theme.textTheme.labelSmall?.copyWith(
                               color: theme.colorScheme.onSurfaceVariant,
                               fontWeight: FontWeight.w600,
@@ -211,9 +213,7 @@ class AttendanceStudentTile extends StatelessWidget {
                   icon: const Icon(Icons.access_time_rounded, size: 18),
                   tooltip: 'تعديل وقت الحضور',
                   onPressed: onEditTime,
-                  style: IconButton.styleFrom(
-                    minimumSize: const Size(44, 44),
-                  ),
+                  style: IconButton.styleFrom(minimumSize: const Size(44, 44)),
                 )
               else if (!isPresent && !readOnly)
                 IconButton(
@@ -225,9 +225,7 @@ class AttendanceStudentTile extends StatelessWidget {
                   ),
                   tooltip: 'تسجيل الحضور',
                   onPressed: onCheckIn,
-                  style: IconButton.styleFrom(
-                    minimumSize: const Size(44, 44),
-                  ),
+                  style: IconButton.styleFrom(minimumSize: const Size(44, 44)),
                 ),
             ],
           ),

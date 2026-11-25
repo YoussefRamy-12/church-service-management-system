@@ -230,7 +230,7 @@ class _SpiritualNotebookStudentPageState
                                         const Text(
                                           'إجمالي النقاط المعتمدة',
                                           style: TextStyle(
-                                            fontSize: 11,
+                                            fontSize: 12,
                                             fontWeight: FontWeight.w600,
                                             color: appSuccess,
                                           ),
@@ -272,7 +272,7 @@ class _SpiritualNotebookStudentPageState
                                           const Text(
                                             'نقاط تشجيعية',
                                             style: TextStyle(
-                                              fontSize: 11,
+                                              fontSize: 12,
                                               fontWeight: FontWeight.w600,
                                               color: appPrimary,
                                             ),
@@ -298,7 +298,7 @@ class _SpiritualNotebookStudentPageState
                               Text(
                                 'تاريخ ووقت الحفظ: ${existing['submitted_at']}',
                                 style: TextStyle(
-                                  fontSize: 11,
+                                  fontSize: 12,
                                   color: theme.colorScheme.onSurfaceVariant,
                                 ),
                               ),
@@ -400,7 +400,7 @@ class _SpiritualNotebookStudentPageState
                                               Text(
                                                 a['description'].toString(),
                                                 style: TextStyle(
-                                                  fontSize: 11,
+                                                  fontSize: 12,
                                                   color: theme
                                                       .colorScheme
                                                       .onSurfaceVariant,
