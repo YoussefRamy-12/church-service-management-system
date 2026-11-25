@@ -252,11 +252,11 @@ class _SpiritualNotebookStudentPageState
                                         ),
                                       ),
                                     ),
-                                    child: const Column(
+                                    child: Column(
                                       crossAxisAlignment:
                                           CrossAxisAlignment.start,
                                       children: [
-                                        Text(
+                                        const Text(
                                           'إجمالي النقاط المسجلة',
                                           style: TextStyle(
                                             fontSize: 13,
@@ -264,7 +264,7 @@ class _SpiritualNotebookStudentPageState
                                             color: appSuccess,
                                           ),
                                         ),
-                                        SizedBox(height: 2),
+                                        const SizedBox(height: 2),
                                         Text(
                                           '${existing['total_points']} نقطة',
                                           style: const TextStyle(
