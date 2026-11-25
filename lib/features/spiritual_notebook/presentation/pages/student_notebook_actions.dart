@@ -236,7 +236,7 @@ extension _SpiritualNotebookStudentActions on _SpiritualNotebookStudentPageState
       } catch (e) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('تعذر الحفظ: $e'), backgroundColor: appError),
+            const SnackBar(content: Text('تعذر حفظ النوتة. حاول مرة أخرى.'), backgroundColor: appError),
           );
         }
       } finally {
