@@ -317,3 +317,4 @@ void main() {
     expect(find.text('الحالة'), findsOneWidget);
     expect(find.text('الهاتف'), findsOneWidget);
   });
+}

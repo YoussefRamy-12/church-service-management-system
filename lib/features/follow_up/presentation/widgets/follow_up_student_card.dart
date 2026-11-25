@@ -25,8 +25,8 @@ class FollowUpStudentCard extends StatelessWidget {
     final reason = item.activeCasesCount > 0
         ? 'حالة متابعة مفتوحة'
         : hasHighAbsence
-            ? 'غياب متكرر'
-            : 'متابعة دورية';
+        ? 'غياب متكرر'
+        : 'متابعة دورية';
     final reasonColor = item.needsFollowUp
         ? semantic.warning.foreground
         : theme.colorScheme.onSurfaceVariant;
@@ -132,17 +132,20 @@ class FollowUpStudentCard extends StatelessWidget {
                 visualDensity: VisualDensity.compact,
                 materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                 backgroundColor: reasonColor.withValues(alpha: 0.10),
-                side: BorderSide(
-                  color: reasonColor.withValues(alpha: 0.25),
-                ),
+                side: BorderSide(color: reasonColor.withValues(alpha: 0.25)),
               ),
               // Absence Badge
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 5,
+                ),
                 decoration: BoxDecoration(
                   color: hasHighAbsence
                       ? semantic.absent.background
-                      : theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
+                      : theme.colorScheme.surfaceContainerHighest.withValues(
+                          alpha: 0.5,
+                        ),
                   borderRadius: BorderRadius.circular(8),
                   border: Border.all(
                     color: hasHighAbsence
@@ -183,12 +186,8 @@ class FollowUpStudentCard extends StatelessWidget {
           const SizedBox(height: 10),
           Row(
             children: [
-              if (item.student.phone != null &&
-                  item.student.phone!.isNotEmpty)
-                PhoneContactActions(
-                  phone: item.student.phone!,
-                  compact: true,
-                ),
+              if (item.student.phone != null && item.student.phone!.isNotEmpty)
+                PhoneContactActions(phone: item.student.phone!, compact: true),
               const Spacer(),
               if (onLogFollowUp != null)
                 FilledButton.tonalIcon(
@@ -208,7 +207,10 @@ class FollowUpStudentCard extends StatelessWidget {
               // Active Cases Badge
               if (item.activeCasesCount > 0) ...[
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 3,
+                  ),
                   decoration: BoxDecoration(
                     color: theme.colorScheme.primaryContainer,
                     borderRadius: BorderRadius.circular(6),
@@ -278,4 +280,3 @@ class FollowUpStudentCard extends StatelessWidget {
     );
   }
 }
-

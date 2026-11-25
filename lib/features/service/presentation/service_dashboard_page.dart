@@ -150,9 +150,11 @@ class _ServiceDashboardPageState extends ConsumerState<ServiceDashboardPage> {
 
         final role = profile.hasValue ? profile.value?.role : null;
         final isClassServant = role == 'class_servant';
-        final assignedClassId =
-            profile.hasValue ? profile.value?.classId : null;
-        final canManage = ref.watch(isSuperAdminProvider) ||
+        final assignedClassId = profile.hasValue
+            ? profile.value?.classId
+            : null;
+        final canManage =
+            ref.watch(isSuperAdminProvider) ||
             role == 'overall_leader' ||
             role == 'overall_helper' ||
             role == 'leader' ||
@@ -177,8 +179,8 @@ class _ServiceDashboardPageState extends ConsumerState<ServiceDashboardPage> {
                   Text(
                     'لوحة الخدمة',
                     style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                          fontWeight: FontWeight.w800,
-                        ),
+                      fontWeight: FontWeight.w800,
+                    ),
                   ),
                   const SizedBox(height: 16),
 
@@ -203,10 +205,9 @@ class _ServiceDashboardPageState extends ConsumerState<ServiceDashboardPage> {
                                 width: 48,
                                 height: 48,
                                 decoration: BoxDecoration(
-                                  color: Theme.of(context)
-                                      .colorScheme
-                                      .primary
-                                      .withValues(alpha: 0.10),
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.primary.withValues(alpha: 0.10),
                                   borderRadius: BorderRadius.circular(12),
                                 ),
                                 child: Icon(
@@ -234,9 +235,9 @@ class _ServiceDashboardPageState extends ConsumerState<ServiceDashboardPage> {
                                     Text(
                                       service.churchName,
                                       style: TextStyle(
-                                        color: Theme.of(context)
-                                            .colorScheme
-                                            .onSurfaceVariant,
+                                        color: Theme.of(
+                                          context,
+                                        ).colorScheme.onSurfaceVariant,
                                         fontWeight: FontWeight.w500,
                                       ),
                                     ),
@@ -253,8 +254,9 @@ class _ServiceDashboardPageState extends ConsumerState<ServiceDashboardPage> {
                             ),
                             style: FilledButton.styleFrom(
                               minimumSize: const Size.fromHeight(48),
-                              backgroundColor:
-                                  Theme.of(context).colorScheme.primary,
+                              backgroundColor: Theme.of(
+                                context,
+                              ).colorScheme.primary,
                             ),
                             icon: const Icon(Icons.fact_check_rounded),
                             label: const Text(
@@ -281,15 +283,15 @@ class _ServiceDashboardPageState extends ConsumerState<ServiceDashboardPage> {
                           studentSnapshot.data ?? const <Student>[];
                       final visibleStudents = isClassServant
                           ? students
-                              .where(
-                                (student) =>
-                                    assignedClassId != null &&
-                                    (student.currentClassId ==
-                                            assignedClassId ||
-                                        student.proposedClassId ==
-                                            assignedClassId),
-                              )
-                              .toList()
+                                .where(
+                                  (student) =>
+                                      assignedClassId != null &&
+                                      (student.currentClassId ==
+                                              assignedClassId ||
+                                          student.proposedClassId ==
+                                              assignedClassId),
+                                )
+                                .toList()
                           : students;
 
                       return StreamBuilder<int>(
@@ -319,10 +321,9 @@ class _ServiceDashboardPageState extends ConsumerState<ServiceDashboardPage> {
                                 Card(
                                   key: const Key('dashboard_needs_attention'),
                                   elevation: 0,
-                                  color: AppColors.of(context)
-                                      .warning
-                                      .background
-                                      .withValues(alpha: 0.35),
+                                  color: AppColors.of(
+                                    context,
+                                  ).warning.background.withValues(alpha: 0.35),
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(12),
                                     side: BorderSide(
@@ -343,18 +344,18 @@ class _ServiceDashboardPageState extends ConsumerState<ServiceDashboardPage> {
                                             Icon(
                                               Icons.warning_amber_rounded,
                                               size: 20,
-                                              color: AppColors.of(context)
-                                                  .warning
-                                                  .foreground,
+                                              color: AppColors.of(
+                                                context,
+                                              ).warning.foreground,
                                             ),
                                             const SizedBox(width: 8),
                                             Text(
                                               'يحتاج متابعة',
                                               style: TextStyle(
                                                 fontWeight: FontWeight.w800,
-                                                color: AppColors.of(context)
-                                                  .warning
-                                                  .foreground,
+                                                color: AppColors.of(
+                                                  context,
+                                                ).warning.foreground,
                                                 fontSize: 14,
                                               ),
                                             ),
@@ -400,8 +401,9 @@ class _ServiceDashboardPageState extends ConsumerState<ServiceDashboardPage> {
                                                 label: Text(
                                                   '$conflictCount تعارض مزامنة',
                                                 ),
-                                                onPressed: () => context
-                                                    .push('/sync/conflicts'),
+                                                onPressed: () => context.push(
+                                                  '/sync/conflicts',
+                                                ),
                                               ),
                                           ],
                                         ),
@@ -424,7 +426,9 @@ class _ServiceDashboardPageState extends ConsumerState<ServiceDashboardPage> {
                                           ? '${visibleStudents.length}'
                                           : '—',
                                       icon: Icons.groups_rounded,
-                                      color: Theme.of(context).colorScheme.primary,
+                                      color: Theme.of(
+                                        context,
+                                      ).colorScheme.primary,
                                       onTap: () => context.go(
                                         '/service/${widget.serviceId}/students',
                                       ),
@@ -435,9 +439,9 @@ class _ServiceDashboardPageState extends ConsumerState<ServiceDashboardPage> {
                                           ? '${visibleStudents.where((student) => student.isApproved).length}'
                                           : '—',
                                       icon: Icons.verified_rounded,
-                                      color: AppColors.of(context)
-                                          .present
-                                          .foreground,
+                                      color: AppColors.of(
+                                        context,
+                                      ).present.foreground,
                                       onTap: () => context.go(
                                         '/service/${widget.serviceId}/students',
                                       ),
@@ -448,9 +452,9 @@ class _ServiceDashboardPageState extends ConsumerState<ServiceDashboardPage> {
                                           ? '${visibleStudents.where((student) => student.isPending).length}'
                                           : '—',
                                       icon: Icons.pending_actions_rounded,
-                                      color: AppColors.of(context)
-                                          .pending
-                                          .foreground,
+                                      color: AppColors.of(
+                                        context,
+                                      ).pending.foreground,
                                       onTap: () => context.go(
                                         '/service/${widget.serviceId}/students',
                                       ),
@@ -492,20 +496,18 @@ class _ServiceDashboardPageState extends ConsumerState<ServiceDashboardPage> {
                                   Icon(
                                     Icons.cloud_done_outlined,
                                     size: 14,
-                                    color: Theme.of(context)
-                                        .colorScheme
-                                        .onSurfaceVariant,
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.onSurfaceVariant,
                                   ),
                                   const SizedBox(width: 4),
                                   Text(
                                     'بيانات محفوظة محليًا',
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .bodySmall
+                                    style: Theme.of(context).textTheme.bodySmall
                                         ?.copyWith(
-                                          color: Theme.of(context)
-                                              .colorScheme
-                                              .onSurfaceVariant,
+                                          color: Theme.of(
+                                            context,
+                                          ).colorScheme.onSurfaceVariant,
                                         ),
                                   ),
                                 ],
@@ -531,22 +533,21 @@ class _ServiceDashboardPageState extends ConsumerState<ServiceDashboardPage> {
                           !_scopeLoaded
                               ? 'جاري تحميل بيانات الفصل...'
                               : _assignedClassLabel ??
-                                  'لم يتم العثور على الفصل المرتبط بحسابك.',
+                                    'لم يتم العثور على الفصل المرتبط بحسابك.',
                         ),
                         onTap:
                             _assignedStageId == null || assignedClassId == null
-                                ? null
-                                : () => context.go(
-                                      '/service/${widget.serviceId}/stage/$_assignedStageId/class/$assignedClassId',
-                                    ),
-                        trailing:
-                            _scopeLoaded && _assignedClassLabel == null
-                                ? IconButton(
-                                    tooltip: 'إعادة تحميل بيانات الفصل',
-                                    onPressed: _refreshDashboardData,
-                                    icon: const Icon(Icons.refresh_rounded),
-                                  )
-                                : const Icon(Icons.chevron_left_rounded),
+                            ? null
+                            : () => context.go(
+                                '/service/${widget.serviceId}/stage/$_assignedStageId/class/$assignedClassId',
+                              ),
+                        trailing: _scopeLoaded && _assignedClassLabel == null
+                            ? IconButton(
+                                tooltip: 'إعادة تحميل بيانات الفصل',
+                                onPressed: _refreshDashboardData,
+                                icon: const Icon(Icons.refresh_rounded),
+                              )
+                            : const Icon(Icons.chevron_left_rounded),
                       ),
                     ),
                   if (isClassServant) const SizedBox(height: 16),
@@ -574,9 +575,7 @@ class _ServiceDashboardPageState extends ConsumerState<ServiceDashboardPage> {
                               children: [
                                 Text(
                                   'تلاميذ فصلك',
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .titleMedium
+                                  style: Theme.of(context).textTheme.titleMedium
                                       ?.copyWith(fontWeight: FontWeight.w800),
                                 ),
                                 const SizedBox(height: 8),
@@ -603,7 +602,7 @@ class _ServiceDashboardPageState extends ConsumerState<ServiceDashboardPage> {
                                       student.isPending
                                           ? 'بانتظار الاعتماد'
                                           : student.school ??
-                                              'لا توجد مدرسة مسجلة',
+                                                'لا توجد مدرسة مسجلة',
                                     ),
                                     onTap: () => Navigator.of(context).push(
                                       MaterialPageRoute<void>(
@@ -633,8 +632,8 @@ class _ServiceDashboardPageState extends ConsumerState<ServiceDashboardPage> {
                   Text(
                     'الوصول السريع',
                     style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          fontWeight: FontWeight.w800,
-                        ),
+                      fontWeight: FontWeight.w800,
+                    ),
                   ),
                   const SizedBox(height: 12),
                   GridView.count(
@@ -649,9 +648,8 @@ class _ServiceDashboardPageState extends ConsumerState<ServiceDashboardPage> {
                         key: const Key('dashboard_students'),
                         icon: Icons.school_rounded,
                         label: 'التلاميذ',
-                        onTap: () => context.go(
-                          '/service/${widget.serviceId}/students',
-                        ),
+                        onTap: () =>
+                            context.go('/service/${widget.serviceId}/students'),
                       ),
                       _QuickAction(
                         key: const Key('dashboard_add_student'),
@@ -702,8 +700,8 @@ class _ServiceDashboardPageState extends ConsumerState<ServiceDashboardPage> {
                     Text(
                       'المراحل والفصول',
                       style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                            fontWeight: FontWeight.w800,
-                          ),
+                        fontWeight: FontWeight.w800,
+                      ),
                     ),
                     const SizedBox(height: 12),
                     StreamBuilder(
@@ -712,10 +710,10 @@ class _ServiceDashboardPageState extends ConsumerState<ServiceDashboardPage> {
                         final allStages = stageSnapshot.data ?? const [];
                         final stages = isClassServant
                             ? allStages
-                                .where(
-                                  (stage) => stage.id == _assignedStageId,
-                                )
-                                .toList()
+                                  .where(
+                                    (stage) => stage.id == _assignedStageId,
+                                  )
+                                  .toList()
                             : allStages;
                         if (stageSnapshot.hasError) {
                           return Card(
@@ -759,8 +757,7 @@ class _ServiceDashboardPageState extends ConsumerState<ServiceDashboardPage> {
                                   margin: const EdgeInsets.only(bottom: 10),
                                   child: ExpansionTile(
                                     key: Key('dashboard_stage_${stage.id}'),
-                                    leading:
-                                        const Icon(Icons.layers_outlined),
+                                    leading: const Icon(Icons.layers_outlined),
                                     title: Text(
                                       stage.name,
                                       style: const TextStyle(
@@ -795,12 +792,12 @@ class _ServiceDashboardPageState extends ConsumerState<ServiceDashboardPage> {
                                               classSnapshot.data ?? const [];
                                           final visibleClasses = isClassServant
                                               ? classes
-                                                  .where(
-                                                    (item) =>
-                                                        item.id ==
-                                                        assignedClassId,
-                                                  )
-                                                  .toList()
+                                                    .where(
+                                                      (item) =>
+                                                          item.id ==
+                                                          assignedClassId,
+                                                    )
+                                                    .toList()
                                               : classes;
                                           if (classSnapshot.hasError) {
                                             return Padding(
@@ -888,9 +885,7 @@ class _ServiceDashboardPageState extends ConsumerState<ServiceDashboardPage> {
         margin: EdgeInsets.zero,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
-          side: BorderSide(
-            color: Theme.of(context).colorScheme.outlineVariant,
-          ),
+          side: BorderSide(color: Theme.of(context).colorScheme.outlineVariant),
         ),
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
@@ -916,17 +911,16 @@ class _ServiceDashboardPageState extends ConsumerState<ServiceDashboardPage> {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color:
-                                Theme.of(context).colorScheme.onSurfaceVariant,
-                            fontWeight: FontWeight.w600,
-                          ),
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                     const SizedBox(height: 2),
                     Text(
                       value,
                       style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                            fontWeight: FontWeight.w800,
-                          ),
+                        fontWeight: FontWeight.w800,
+                      ),
                     ),
                   ],
                 ),
