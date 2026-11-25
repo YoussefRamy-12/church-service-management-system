@@ -20,7 +20,7 @@ class _StudentList extends StatefulWidget {
 
 class _StudentListState extends State<_StudentList> {
   String query = '';
-  int statusFilter = 0; // 0 = all, 1 = registered, 2 = pending
+  int statusFilter = 2; // Default to students still awaiting this week's entry.
   String? selectedClassId; // null = all classes
   final searchController = TextEditingController();
 
@@ -136,7 +136,7 @@ class _StudentListState extends State<_StudentList> {
                     ),
                     const SizedBox(width: 6),
                     _filterChip(
-                      label: 'المسجلون',
+                      label: 'تم التسجيل',
                       count: registeredCount,
                       color: appSuccess,
                       selected: statusFilter == 1,
