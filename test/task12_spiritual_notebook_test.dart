@@ -232,7 +232,6 @@ void main() {
     expect(find.text('مينا فايز 6'), findsOneWidget);
     expect(find.text('مينا فايز 1'), findsNothing);
   });
-
   testWidgets('mobile form reveals bonus reason only after entering points', (
     tester,
   ) async {
@@ -255,7 +254,6 @@ void main() {
     expect(find.text('سبب الإضافة (مطلوب)'), findsOneWidget);
     expect(find.text('5 نقطة'), findsWidgets);
   });
-
   testWidgets('saving one student submits once and renders registered state', (
     tester,
   ) async {
@@ -282,7 +280,6 @@ void main() {
     expect(find.text('تم حفظ النوتة الروحية لهذا الأسبوع'), findsOneWidget);
     expect(find.text('حفظ'), findsNothing);
   });
-
   testWidgets('student navigation disables previous/next at list boundaries', (
     tester,
   ) async {
@@ -306,7 +303,6 @@ void main() {
     );
     expect(find.text('حفظ والتالي'), findsOneWidget);
   });
-
   testWidgets('save and next submits once then opens the next roster student', (
     tester,
   ) async {
@@ -389,7 +385,6 @@ void main() {
     expect(find.text('حفظ'), findsOneWidget);
     expect(find.text('حفظ والتالي'), findsNothing);
   });
-
   testWidgets('last student keeps save action without a next target', (
     tester,
   ) async {
@@ -415,7 +410,6 @@ void main() {
     expect(find.text('حفظ'), findsOneWidget);
     expect(find.text('حفظ والتالي'), findsNothing);
   });
-
   testWidgets('registered notebook does not expose editable save controls', (
     tester,
   ) async {
@@ -431,7 +425,6 @@ void main() {
     expect(find.text('حفظ'), findsNothing);
     expect(find.byType(Checkbox), findsNothing);
   });
-
   testWidgets('student loading errors never expose raw exception text', (
     tester,
   ) async {
@@ -448,7 +441,6 @@ void main() {
       findsOneWidget,
     );
   });
-
   testWidgets('390px roster shows at least seven rows without overflow', (
     tester,
   ) async {
@@ -466,7 +458,6 @@ void main() {
     expect(visibleNames.evaluate().length, greaterThanOrEqualTo(7));
     expect(tester.takeException(), isNull);
   });
-
   testWidgets('student form has no overflow with keyboard and 1.3 text scale', (
     tester,
   ) async {
@@ -482,7 +473,6 @@ void main() {
     expect(find.text('حفظ'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
-
   testWidgets('leaderboard and settings remain available as mobile tabs', (
     tester,
   ) async {
