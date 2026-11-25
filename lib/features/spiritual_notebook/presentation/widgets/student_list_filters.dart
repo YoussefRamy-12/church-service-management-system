@@ -1,3 +1,4 @@
+// ignore_for_file: invalid_use_of_protected_member
 part of '../spiritual_notebook_page.dart';
 
 extension _StudentListFilterBuilders on _StudentListState {
@@ -34,13 +35,15 @@ extension _StudentListFilterBuilders on _StudentListState {
           child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
             Text('اختيار الفصل', style: Theme.of(sheetContext).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700)),
             const SizedBox(height: 8),
-            Expanded(child: ListView(children: [
-              RadioListTile<String?>(value: null, groupValue: selectedClassId, title: const Text('كل الفصول'), secondary: Text(widget.students.length.toString()),
-                onChanged: (_) { setState(() => selectedClassId = null); Navigator.pop(sheetContext); }),
-              for (final entry in classes)
-                RadioListTile<String?>(value: entry.key, groupValue: selectedClassId, title: Text(entry.value), secondary: Text('${counts[entry.key] ?? 0}'),
-                  onChanged: (_) { setState(() => selectedClassId = entry.key); Navigator.pop(sheetContext); }),
-            ])),
+            Expanded(child: RadioGroup<String?>(
+              groupValue: selectedClassId,
+              onChanged: (value) { setState(() => selectedClassId = value); Navigator.pop(sheetContext); },
+              child: ListView(children: [
+                RadioListTile<String?>(value: null, title: const Text('كل الفصول'), secondary: Text(widget.students.length.toString())),
+                for (final entry in classes)
+                  RadioListTile<String?>(value: entry.key, title: Text(entry.value), secondary: Text('${counts[entry.key] ?? 0}')),
+              ]),
+            )),
           ]),
         ),
       ),

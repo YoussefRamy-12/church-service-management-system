@@ -101,7 +101,7 @@ class _StudentListState extends State<_StudentList> {
                 child: InkWell(
                   onTap: () => widget.onOpen(student, queueIds, queueIndex < 0 ? 0 : queueIndex),
                   borderRadius: BorderRadius.circular(12),
-                  child: SizedBox(minHeight: 64, child: Padding(
+                  child: ConstrainedBox(constraints: const BoxConstraints(minHeight: 64), child: Padding(
                     padding: const EdgeInsetsDirectional.symmetric(horizontal: 10, vertical: 6),
                     child: Row(children: [
                       CircleAvatar(radius: 19, backgroundColor: avatar.bg, foregroundColor: avatar.fg, child: Text(name.trim().isEmpty ? 'ت' : name.trim().characters.first, style: const TextStyle(fontWeight: FontWeight.w700))),
