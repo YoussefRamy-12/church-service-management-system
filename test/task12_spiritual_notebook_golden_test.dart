@@ -2,6 +2,7 @@
 library;
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -110,7 +111,7 @@ class _NotebookGoldenRepository extends SpiritualNotebookRepository {
 
 dynamic _overrides(_NotebookGoldenRepository repository) => [
   spiritualNotebookRepositoryProvider.overrideWithValue(repository),
-  currentServantProfileProvider.overrideWith((ref) async => _leader),
+  currentServantProfileProvider.overrideWithValue(AsyncData(_leader)),
   isSuperAdminProvider.overrideWith((ref) => false),
 ];
 
