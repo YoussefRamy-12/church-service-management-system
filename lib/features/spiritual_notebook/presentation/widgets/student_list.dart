@@ -364,7 +364,7 @@ class _StudentListState extends State<_StudentList> {
                                         ),
                                         const SizedBox(width: 6),
                                         if (done)
-                                          GlassBadge(
+                                          const GlassBadge(
                                             label: 'مسجَّل',
                                             color: appSuccess,
                                             icon: Icons.check_circle_rounded,
