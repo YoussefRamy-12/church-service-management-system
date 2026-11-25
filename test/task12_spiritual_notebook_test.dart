@@ -255,6 +255,8 @@ void main() {
       tester.element(find.byType(SpiritualNotebookStudentPage)),
     ).read(currentServantProfileProvider);
     expect(profile.value?.role, 'overall_leader');
+    await tester.drag(find.byType(ListView), const Offset(0, -480));
+    await tester.pumpAndSettle();
     expect(find.text('نقاط تشجيعية إضافية'), findsOneWidget);
 
     await tester.tap(find.text('قراءة الإنجيل'));
