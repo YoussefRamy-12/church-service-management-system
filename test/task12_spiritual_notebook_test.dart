@@ -153,7 +153,7 @@ Future<void> _pumpNotebook(
     ProviderScope(
       overrides: [
         spiritualNotebookRepositoryProvider.overrideWithValue(repository),
-        currentServantProfileProvider.overrideWith((ref) async => _leader),
+        currentServantProfileProvider.overrideWithValue(AsyncData(_leader)),
         isSuperAdminProvider.overrideWith((ref) => false),
       ],
       child: MaterialApp(
@@ -192,6 +192,17 @@ SpiritualNotebookStudentPage _studentForm({
   studentIds: studentIds,
   studentIndex: studentIndex,
 );
+
+IconButton _iconButtonWithTooltip(
+  WidgetTester tester,
+  String tooltip,
+) {
+  final button = find.ancestor(
+    of: find.byTooltip(tooltip),
+    matching: find.byType(IconButton),
+  );
+  return tester.widget<IconButton>(button.first);
+}
 
 void main() {
   testWidgets('roster defaults to pending and class selection uses a sheet', (
@@ -294,11 +305,11 @@ void main() {
     );
 
     expect(
-      tester.widget<IconButton>(find.byTooltip('التلميذ السابق')).onPressed,
+      _iconButtonWithTooltip(tester, 'التلميذ السابق').onPressed,
       isNull,
     );
     expect(
-      tester.widget<IconButton>(find.byTooltip('التلميذ التالي')).onPressed,
+      _iconButtonWithTooltip(tester, 'التلميذ التالي').onPressed,
       isNotNull,
     );
     expect(find.text('حفظ والتالي'), findsOneWidget);
