@@ -34,6 +34,69 @@ class _StudentListState extends State<_StudentList> {
     super.dispose();
   }
 
+  void _showClassFilterSheet(
+    BuildContext context,
+    List<MapEntry<String, String>> sortedClasses,
+    Map<String, int> classCounts,
+  ) {
+    showModalBottomSheet<void>(
+      context: context,
+      useSafeArea: true,
+      showDragHandle: true,
+      builder: (sheetContext) => Padding(
+        padding: const EdgeInsetsDirectional.fromSTEB(16, 8, 16, 16),
+        child: ConstrainedBox(
+          constraints: BoxConstraints(
+            maxHeight: MediaQuery.sizeOf(sheetContext).height * 0.72,
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text(
+                'اختيار الفصل',
+                style: Theme.of(sheetContext).textTheme.titleLarge?.copyWith(
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Expanded(
+                child: ListView(
+                  children: [
+                    ListTile(
+                      minTileHeight: 48,
+                      selected: selectedClassId == null,
+                      leading: const Icon(Icons.groups_outlined),
+                      title: const Text('جميع الفصول'),
+                      trailing: Text(widget.students.length.toString()),
+                      onTap: () {
+                        setState(() => selectedClassId = null);
+                        Navigator.pop(sheetContext);
+                      },
+                    ),
+                    for (final entry in sortedClasses)
+                      ListTile(
+                        minTileHeight: 48,
+                        selected: selectedClassId == entry.key,
+                        leading: const Icon(Icons.meeting_room_outlined),
+                        title: Text(entry.value),
+                        trailing: Text(
+                          (classCounts[entry.key] ?? 0).toString(),
+                        ),
+                        onTap: () {
+                          setState(() => selectedClassId = entry.key);
+                          Navigator.pop(sheetContext);
+                        },
+                      ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -160,62 +223,26 @@ class _StudentListState extends State<_StudentList> {
                 ),
               ),
 
-              // Filter Row 2: Ready Class Filter Buttons (فصول الخدمة)
               if (sortedClasses.isNotEmpty) ...[
                 const SizedBox(height: 6),
-                ScrollableChipRow(
-                  padding: const EdgeInsetsDirectional.symmetric(horizontal: 4),
-                  child: Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 4,
-                          vertical: 2,
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(
-                              Icons.meeting_room_outlined,
-                              size: 13,
-                              color: isDark
-                                  ? AppDesignColors.darkMutedInk
-                                  : appMutedInk,
-                            ),
-                            const SizedBox(width: 3),
-                            Text(
-                              'الفصل:',
-                              style: TextStyle(
-                                fontSize: 12,
-                                fontWeight: FontWeight.w700,
-                                color: isDark
-                                    ? AppDesignColors.darkMutedInk
-                                    : appMutedInk,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(width: 4),
-                      _classFilterChip(
-                        label: 'جميع الفصول',
-                        count: widget.students.length,
-                        selected: selectedClassId == null,
-                        onTap: () => setState(() => selectedClassId = null),
-                        isDark: isDark,
-                      ),
-                      for (final entry in sortedClasses) ...[
-                        const SizedBox(width: 6),
-                        _classFilterChip(
-                          label: entry.value,
-                          count: classCounts[entry.key] ?? 0,
-                          selected: selectedClassId == entry.key,
-                          onTap: () =>
-                              setState(() => selectedClassId = entry.key),
-                          isDark: isDark,
-                        ),
-                      ],
-                    ],
+                Align(
+                  alignment: AlignmentDirectional.centerStart,
+                  child: OutlinedButton.icon(
+                    style: OutlinedButton.styleFrom(
+                      minimumSize: const Size(0, 44),
+                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                    ),
+                    onPressed: () => _showClassFilterSheet(
+                      context,
+                      sortedClasses,
+                      classCounts,
+                    ),
+                    icon: const Icon(Icons.meeting_room_outlined, size: 18),
+                    label: Text(
+                      selectedClassId == null
+                          ? 'جميع الفصول'
+                          : (classMap[selectedClassId] ?? 'الفصل'),
+                    ),
                   ),
                 ),
               ],
