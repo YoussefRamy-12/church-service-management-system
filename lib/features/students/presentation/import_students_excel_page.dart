@@ -202,9 +202,9 @@ class _ImportStudentsExcelPageState
       if (mounted) {
         setState(() => _parsingFile = false);
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
+          const SnackBar(
             content: Text('تعذر إتمام العملية. حاول مرة أخرى.'),
-            backgroundColor: const Color(0xFFDC2626),
+            backgroundColor: Color(0xFFDC2626),
           ),
         );
       }
@@ -324,9 +324,9 @@ class _ImportStudentsExcelPageState
       if (mounted) {
         setState(() => _importing = false);
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
+          const SnackBar(
             content: Text('تعذر إتمام العملية. حاول مرة أخرى.'),
-            backgroundColor: const Color(0xFFDC2626),
+            backgroundColor: Color(0xFFDC2626),
           ),
         );
       }
@@ -349,7 +349,8 @@ class _ImportStudentsExcelPageState
           style: TextStyle(fontWeight: FontWeight.w800),
         ),
       ),
-      bottomNavigationBar: MediaQuery.sizeOf(context).width < 650 &&
+      bottomNavigationBar:
+          MediaQuery.sizeOf(context).width < 650 &&
               _parseResult != null &&
               _successCount == null
           ? SafeArea(
@@ -361,259 +362,348 @@ class _ImportStudentsExcelPageState
             )
           : null,
       body: Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 860),
-            child: _loadingStructure
-                ? const LoadingView(
-                    message: 'جاري تحميل الفصول وإعدادات الاستيراد...',
-                  )
-                : ListView(
-                    padding: EdgeInsets.fromLTRB(
-                      MediaQuery.sizeOf(context).width < 650 ? 16 : 20,
-                      20,
-                      MediaQuery.sizeOf(context).width < 650 ? 16 : 20,
-                      MediaQuery.sizeOf(context).width < 650 &&
-                              _parseResult != null &&
-                              _successCount == null
-                          ? 112
-                          : 24,
-                    ),
-                    children: [
-                      // Finished Success Banner
-                      if (_successCount != null) ...[
-                        _buildSuccessResultCard(),
-                        const SizedBox(height: 24),
-                      ],
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 860),
+          child: _loadingStructure
+              ? const LoadingView(
+                  message: 'جاري تحميل الفصول وإعدادات الاستيراد...',
+                )
+              : ListView(
+                  padding: EdgeInsets.fromLTRB(
+                    MediaQuery.sizeOf(context).width < 650 ? 16 : 20,
+                    20,
+                    MediaQuery.sizeOf(context).width < 650 ? 16 : 20,
+                    MediaQuery.sizeOf(context).width < 650 &&
+                            _parseResult != null &&
+                            _successCount == null
+                        ? 112
+                        : 24,
+                  ),
+                  children: [
+                    // Finished Success Banner
+                    if (_successCount != null) ...[
+                      _buildSuccessResultCard(),
+                      const SizedBox(height: 24),
+                    ],
 
-                      // Step 1: Destination Selection
-                      _buildSectionHeader(
-                        'الخطوة 1: تحديد وجهة الاستيراد والفصل',
-                        Icons.account_tree_outlined,
-                      ),
-                      SolidCard(
-                        padding: const EdgeInsets.all(20),
-                        margin: const EdgeInsets.only(bottom: 24),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            if (_isClassLocked)
-                              Container(
-                                padding: const EdgeInsets.all(12),
-                                margin: const EdgeInsets.only(bottom: 12),
-                                decoration: BoxDecoration(
-                                  color: const Color(0xFFEFF4FF),
-                                  borderRadius: BorderRadius.circular(10),
-                                  border: Border.all(
-                                    color: const Color(0xFFDCE9FF),
-                                  ),
+                    // Step 1: Destination Selection
+                    _buildSectionHeader(
+                      'الخطوة 1: تحديد وجهة الاستيراد والفصل',
+                      Icons.account_tree_outlined,
+                    ),
+                    SolidCard(
+                      padding: const EdgeInsets.all(20),
+                      margin: const EdgeInsets.only(bottom: 24),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          if (_isClassLocked)
+                            Container(
+                              padding: const EdgeInsets.all(12),
+                              margin: const EdgeInsets.only(bottom: 12),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFEFF4FF),
+                                borderRadius: BorderRadius.circular(10),
+                                border: Border.all(
+                                  color: const Color(0xFFDCE9FF),
                                 ),
-                                child: Row(
-                                  children: [
-                                    Icon(
-                                      Icons.lock_outline_rounded,
-                                      color: Theme.of(context)
-                                          .colorScheme
-                                          .primary,
-                                      size: 20,
+                              ),
+                              child: Row(
+                                children: [
+                                  Icon(
+                                    Icons.lock_outline_rounded,
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.primary,
+                                    size: 20,
+                                  ),
+                                  const SizedBox(width: 10),
+                                  Expanded(
+                                    child: Text(
+                                      'الوجهة محددة بفصلك المصرح لك إدارته: ${_lockedClassLabel ?? ''}',
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.w700,
+                                        color: Theme.of(
+                                          context,
+                                        ).colorScheme.primary,
+                                      ),
                                     ),
-                                    const SizedBox(width: 10),
+                                  ),
+                                ],
+                              ),
+                            )
+                          else ...[
+                            DropdownButtonFormField<String>(
+                              initialValue: _selectedStudyYear,
+                              decoration: const InputDecoration(
+                                labelText: 'سنة الخدمة / السنة الدراسية *',
+                                prefixIcon: Icon(Icons.calendar_month_outlined),
+                              ),
+                              items: [
+                                for (final y in _studyYears)
+                                  DropdownMenuItem(value: y, child: Text(y)),
+                              ],
+                              onChanged: (val) =>
+                                  setState(() => _selectedStudyYear = val),
+                            ),
+                            const SizedBox(height: 16),
+                            LayoutBuilder(
+                              builder: (context, constraints) {
+                                final isWide = constraints.maxWidth > 500;
+                                return Flex(
+                                  direction: isWide
+                                      ? Axis.horizontal
+                                      : Axis.vertical,
+                                  children: [
                                     Expanded(
-                                      child: Text(
-                                        'الوجهة محددة بفصلك المصرح لك إدارته: ${_lockedClassLabel ?? ''}',
-                                        style: TextStyle(
-                                          fontWeight: FontWeight.w700,
-                                          color: Theme.of(context)
-                                              .colorScheme
-                                              .primary,
+                                      flex: isWide ? 1 : 0,
+                                      child: DropdownButtonFormField<String>(
+                                        initialValue: _selectedStageId,
+                                        decoration: const InputDecoration(
+                                          labelText: 'المرحلة الدراسية *',
+                                          prefixIcon: Icon(
+                                            Icons.layers_outlined,
+                                          ),
+                                        ),
+                                        items: [
+                                          for (final s in _stages)
+                                            DropdownMenuItem(
+                                              value: s.id,
+                                              child: Text(s.name),
+                                            ),
+                                        ],
+                                        onChanged: (newStageId) {
+                                          if (newStageId == null) return;
+                                          setState(() {
+                                            _selectedStageId = newStageId;
+                                            final classes =
+                                                _stageClasses[newStageId] ?? [];
+                                            _selectedClassId =
+                                                classes.isNotEmpty
+                                                ? classes.first.id
+                                                : null;
+                                          });
+                                        },
+                                      ),
+                                    ),
+                                    if (isWide)
+                                      const SizedBox(width: 16)
+                                    else
+                                      const SizedBox(height: 14),
+                                    Expanded(
+                                      flex: isWide ? 1 : 0,
+                                      child: DropdownButtonFormField<String>(
+                                        initialValue: _selectedClassId,
+                                        decoration: const InputDecoration(
+                                          labelText: 'الفصل الدراسي المستهدف *',
+                                          prefixIcon: Icon(
+                                            Icons.class_outlined,
+                                          ),
+                                        ),
+                                        items: [
+                                          for (final c in currentStageClasses)
+                                            DropdownMenuItem(
+                                              value: c.id,
+                                              child: Text(c.name),
+                                            ),
+                                        ],
+                                        onChanged: (newClassId) => setState(
+                                          () => _selectedClassId = newClassId,
                                         ),
                                       ),
                                     ),
                                   ],
-                                ),
-                              )
-                            else ...[
-                              DropdownButtonFormField<String>(
-                                initialValue: _selectedStudyYear,
-                                decoration: const InputDecoration(
-                                  labelText: 'سنة الخدمة / السنة الدراسية *',
-                                  prefixIcon: Icon(
-                                    Icons.calendar_month_outlined,
-                                  ),
-                                ),
-                                items: [
-                                  for (final y in _studyYears)
-                                    DropdownMenuItem(value: y, child: Text(y)),
-                                ],
-                                onChanged: (val) =>
-                                    setState(() => _selectedStudyYear = val),
-                              ),
-                              const SizedBox(height: 16),
-                              LayoutBuilder(
-                                builder: (context, constraints) {
-                                  final isWide = constraints.maxWidth > 500;
-                                  return Flex(
-                                    direction: isWide
-                                        ? Axis.horizontal
-                                        : Axis.vertical,
-                                    children: [
-                                      Expanded(
-                                        flex: isWide ? 1 : 0,
-                                        child: DropdownButtonFormField<String>(
-                                          initialValue: _selectedStageId,
-                                          decoration: const InputDecoration(
-                                            labelText: 'المرحلة الدراسية *',
-                                            prefixIcon: Icon(
-                                              Icons.layers_outlined,
-                                            ),
-                                          ),
-                                          items: [
-                                            for (final s in _stages)
-                                              DropdownMenuItem(
-                                                value: s.id,
-                                                child: Text(s.name),
-                                              ),
-                                          ],
-                                          onChanged: (newStageId) {
-                                            if (newStageId == null) return;
-                                            setState(() {
-                                              _selectedStageId = newStageId;
-                                              final classes =
-                                                  _stageClasses[newStageId] ??
-                                                  [];
-                                              _selectedClassId =
-                                                  classes.isNotEmpty
-                                                  ? classes.first.id
-                                                  : null;
-                                            });
-                                          },
-                                        ),
-                                      ),
-                                      if (isWide)
-                                        const SizedBox(width: 16)
-                                      else
-                                        const SizedBox(height: 14),
-                                      Expanded(
-                                        flex: isWide ? 1 : 0,
-                                        child: DropdownButtonFormField<String>(
-                                          initialValue: _selectedClassId,
-                                          decoration: const InputDecoration(
-                                            labelText:
-                                                'الفصل الدراسي المستهدف *',
-                                            prefixIcon: Icon(
-                                              Icons.class_outlined,
-                                            ),
-                                          ),
-                                          items: [
-                                            for (final c in currentStageClasses)
-                                              DropdownMenuItem(
-                                                value: c.id,
-                                                child: Text(c.name),
-                                              ),
-                                          ],
-                                          onChanged: (newClassId) => setState(
-                                            () => _selectedClassId = newClassId,
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  );
-                                },
-                              ),
-                            ],
-                            const SizedBox(height: 10),
-                            Text(
-                              'سيتم تسكين جميع الطلاب المستوردين في هذا الفصل بحالة «بانتظار الاعتماد».',
-                              style: TextStyle(
-                                fontSize: 12,
-                                color: isDark
-                                    ? AppDesignColors.darkMutedInk
-                                    : AppDesignColors.lightMutedInk,
-                              ),
-                            ),
-                            const SizedBox(height: 12),
-                            const Text(
-                              'طريقة التعامل مع طلاب الفصل الحاليين:',
-                              style: TextStyle(fontWeight: FontWeight.w700),
-                            ),
-                            RadioListTile<bool>(
-                              contentPadding: EdgeInsets.zero,
-                              value: false,
-                              // ignore: duplicate_ignore
-                              // ignore: deprecated_member_use
-                              groupValue: _replaceClassStudents,
-                              title: const Text('الإضافة إلى الطلاب الحاليين'),
-                              subtitle: const Text(
-                                'يتخطى الطلاب الموجودين بالفعل في هذا الفصل.',
-                              ),
-                              onChanged: _importing
-                                  ? null
-                                  : (_) => setState(() {
-                                      _replaceClassStudents = false;
-                                      _parseResult = null;
-                                      _pickedFile = null;
-                                      _fileName = '';
-                                    }),
-                            ),
-                            RadioListTile<bool>(
-                              contentPadding: EdgeInsets.zero,
-                              value: true,
-                              groupValue: _replaceClassStudents,
-                              title: const Text('استبدال جميع طلاب الفصل'),
-                              subtitle: const Text(
-                                'يحذف القائمة الحالية وسجلاتها المرتبطة قبل استيراد القائمة الجديدة.',
-                              ),
-                              onChanged: _importing
-                                  ? null
-                                  : (_) => setState(() {
-                                      _replaceClassStudents = true;
-                                      _parseResult = null;
-                                      _pickedFile = null;
-                                      _fileName = '';
-                                    }),
+                                );
+                              },
                             ),
                           ],
-                        ),
-                      ),
-
-                      // Step 2: Download Template
-                      _buildSectionHeader(
-                        'الخطوة 2: تحميل قالب Excel الجاهز',
-                        Icons.download_rounded,
-                      ),
-                      SolidCard(
-                        padding: const EdgeInsets.all(20),
-                        margin: const EdgeInsets.only(bottom: 24),
-                        child: Row(
-                          children: [
-                            Container(
-                              padding: const EdgeInsets.all(12),
-                              decoration: BoxDecoration(
-                                color: const Color(
-                                  0xFF059669,
-                                ).withValues(alpha: 0.1),
-                                shape: BoxShape.circle,
-                              ),
-                              child: const Icon(
-                                Icons.table_view_rounded,
-                                color: Color(0xFF059669),
-                                size: 26,
-                              ),
+                          const SizedBox(height: 10),
+                          Text(
+                            'سيتم تسكين جميع الطلاب المستوردين في هذا الفصل بحالة «بانتظار الاعتماد».',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: isDark
+                                  ? AppDesignColors.darkMutedInk
+                                  : AppDesignColors.lightMutedInk,
                             ),
-                            const SizedBox(width: 14),
-                            Expanded(
+                          ),
+                          const SizedBox(height: 12),
+                          const Text(
+                            'طريقة التعامل مع طلاب الفصل الحاليين:',
+                            style: TextStyle(fontWeight: FontWeight.w700),
+                          ),
+                          RadioListTile<bool>(
+                            contentPadding: EdgeInsets.zero,
+                            value: false,
+                            // ignore: duplicate_ignore
+                            // ignore: deprecated_member_use
+                            groupValue: _replaceClassStudents,
+                            title: const Text('الإضافة إلى الطلاب الحاليين'),
+                            subtitle: const Text(
+                              'يتخطى الطلاب الموجودين بالفعل في هذا الفصل.',
+                            ),
+                            onChanged: _importing
+                                ? null
+                                : (_) => setState(() {
+                                    _replaceClassStudents = false;
+                                    _parseResult = null;
+                                    _pickedFile = null;
+                                    _fileName = '';
+                                  }),
+                          ),
+                          RadioListTile<bool>(
+                            contentPadding: EdgeInsets.zero,
+                            value: true,
+                            groupValue: _replaceClassStudents,
+                            title: const Text('استبدال جميع طلاب الفصل'),
+                            subtitle: const Text(
+                              'يحذف القائمة الحالية وسجلاتها المرتبطة قبل استيراد القائمة الجديدة.',
+                            ),
+                            onChanged: _importing
+                                ? null
+                                : (_) => setState(() {
+                                    _replaceClassStudents = true;
+                                    _parseResult = null;
+                                    _pickedFile = null;
+                                    _fileName = '';
+                                  }),
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    // Step 2: Download Template
+                    _buildSectionHeader(
+                      'الخطوة 2: تحميل قالب Excel الجاهز',
+                      Icons.download_rounded,
+                    ),
+                    SolidCard(
+                      padding: const EdgeInsets.all(20),
+                      margin: const EdgeInsets.only(bottom: 24),
+                      child: Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              color: const Color(
+                                0xFF059669,
+                              ).withValues(alpha: 0.1),
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(
+                              Icons.table_view_rounded,
+                              color: Color(0xFF059669),
+                              size: 26,
+                            ),
+                          ),
+                          const SizedBox(width: 14),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Text(
+                                  'قالب استيراد الطلاب المعتمد (.xlsx)',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.w700,
+                                    fontSize: 15,
+                                  ),
+                                ),
+                                const SizedBox(height: 3),
+                                Text(
+                                  'يحتوي القالب على العناوين الصحيحة، التنسيقات المطلوبة، وصف توضيحي استرشادي.',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: isDark
+                                        ? AppDesignColors.darkMutedInk
+                                        : AppDesignColors.lightMutedInk,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          OutlinedButton.icon(
+                            key: const Key('download_excel_template_button'),
+                            onPressed: () {
+                              ref
+                                  .read(excelStudentImportServiceProvider)
+                                  .downloadTemplate();
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text('تم تنزيل قالب Excel بنجاح.'),
+                                ),
+                              );
+                            },
+                            icon: const Icon(
+                              Icons.file_download_outlined,
+                              size: 20,
+                            ),
+                            label: const Text('تحميل القالب'),
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    // Step 3: Pick & Parse File
+                    _buildSectionHeader(
+                      'الخطوة 3: اختيار ملف Excel وفحصه',
+                      Icons.upload_file_rounded,
+                    ),
+                    SolidCard(
+                      padding: const EdgeInsets.all(20),
+                      margin: const EdgeInsets.only(bottom: 24),
+                      child: Column(
+                        children: [
+                          InkWell(
+                            onTap: _parsingFile || _importing
+                                ? null
+                                : _pickAndParseFile,
+                            borderRadius: BorderRadius.circular(12),
+                            child: Container(
+                              width: double.infinity,
+                              padding: const EdgeInsets.symmetric(
+                                vertical: 28,
+                                horizontal: 16,
+                              ),
+                              decoration: BoxDecoration(
+                                border: Border.all(
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.primary.withValues(alpha: 0.3),
+                                  width: 1,
+                                ),
+                                borderRadius: BorderRadius.circular(12),
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.primary.withValues(alpha: 0.03),
+                              ),
                               child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  const Text(
-                                    'قالب استيراد الطلاب المعتمد (.xlsx)',
-                                    style: TextStyle(
+                                  if (_parsingFile)
+                                    const CircularProgressIndicator()
+                                  else
+                                    Icon(
+                                      Icons.cloud_upload_outlined,
+                                      size: 44,
+                                      color: Theme.of(
+                                        context,
+                                      ).colorScheme.primary,
+                                    ),
+                                  const SizedBox(height: 12),
+                                  Text(
+                                    _pickedFile != null
+                                        ? _fileName
+                                        : 'اضغط لاختيار ملف Excel (.xlsx) من جهازك',
+                                    style: const TextStyle(
                                       fontWeight: FontWeight.w700,
                                       fontSize: 15,
                                     ),
                                   ),
-                                  const SizedBox(height: 3),
+                                  const SizedBox(height: 4),
                                   Text(
-                                    'يحتوي القالب على العناوين الصحيحة، التنسيقات المطلوبة، وصف توضيحي استرشادي.',
+                                    _pickedFile != null
+                                        ? 'الحجم: ${(_fileSizeBytes / 1024).toStringAsFixed(1)} كيلوبايت - اضغط للتغيير'
+                                        : 'يدعم الملفات بصيغة .xlsx فقط مع التحقق التلقائي من التكرار والبيانات',
                                     style: TextStyle(
                                       fontSize: 12,
                                       color: isDark
@@ -624,157 +714,62 @@ class _ImportStudentsExcelPageState
                                 ],
                               ),
                             ),
-                            const SizedBox(width: 12),
-                            OutlinedButton.icon(
-                              key: const Key('download_excel_template_button'),
-                              onPressed: () {
-                                ref
-                                    .read(excelStudentImportServiceProvider)
-                                    .downloadTemplate();
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text('تم تنزيل قالب Excel بنجاح.'),
-                                  ),
-                                );
-                              },
-                              icon: const Icon(
-                                Icons.file_download_outlined,
-                                size: 20,
-                              ),
-                              label: const Text('تحميل القالب'),
-                            ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
+                    ),
 
-                      // Step 3: Pick & Parse File
+                    // Step 4: Preview & Validation Results
+                    if (_parseResult != null) ...[
                       _buildSectionHeader(
-                        'الخطوة 3: اختيار ملف Excel وفحصه',
-                        Icons.upload_file_rounded,
+                        'الخطوة 4: مراجعة البيانات قبل الاستيراد',
+                        Icons.fact_check_outlined,
+                      ),
+                      _buildPreviewSummaryBar(),
+                      const SizedBox(height: 16),
+                      _buildParsedRowsList(),
+                      const SizedBox(height: 24),
+
+                      // Step 5: Execute Import Action
+                      _buildSectionHeader(
+                        'الخطوة 5: تأكيد الاستيراد',
+                        Icons.send_rounded,
                       ),
                       SolidCard(
                         padding: const EdgeInsets.all(20),
-                        margin: const EdgeInsets.only(bottom: 24),
+                        margin: const EdgeInsets.only(bottom: 40),
                         child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            InkWell(
-                              onTap: _parsingFile || _importing
-                                  ? null
-                                  : _pickAndParseFile,
-                              borderRadius: BorderRadius.circular(12),
-                              child: Container(
-                                width: double.infinity,
-                                padding: const EdgeInsets.symmetric(
-                                  vertical: 28,
-                                  horizontal: 16,
-                                ),
-                                decoration: BoxDecoration(
-                                  border: Border.all(
-                                    color: Theme.of(context)
-                                        .colorScheme
-                                        .primary
-                                        .withValues(alpha: 0.3),
-                                    width: 1,
+                            const Text(
+                              'سيتم تخطي الصفوف التي بها أخطاء أو تكرار مع توضيح اسم الطالب ورقم الصف، ثم متابعة استيراد بقية الملف.',
+                              style: TextStyle(fontWeight: FontWeight.w600),
+                            ),
+                            const SizedBox(height: 16),
+                            Row(
+                              children: [
+                                if (_parseResult!.hasErrors)
+                                  OutlinedButton.icon(
+                                    onPressed: _downloadErrorReport,
+                                    icon: const Icon(
+                                      Icons.download_rounded,
+                                      size: 18,
+                                    ),
+                                    label: const Text('تحميل تقرير الأخطاء'),
                                   ),
-                                  borderRadius: BorderRadius.circular(12),
-                                  color: Theme.of(context)
-                                      .colorScheme
-                                      .primary
-                                      .withValues(alpha: 0.03),
-                                ),
-                                child: Column(
-                                  children: [
-                                    if (_parsingFile)
-                                      const CircularProgressIndicator()
-                                    else
-                                      Icon(
-                                        Icons.cloud_upload_outlined,
-                                        size: 44,
-                                        color: Theme.of(context)
-                                            .colorScheme
-                                            .primary,
-                                      ),
-                                    const SizedBox(height: 12),
-                                    Text(
-                                      _pickedFile != null
-                                          ? _fileName
-                                          : 'اضغط لاختيار ملف Excel (.xlsx) من جهازك',
-                                      style: const TextStyle(
-                                        fontWeight: FontWeight.w700,
-                                        fontSize: 15,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 4),
-                                    Text(
-                                      _pickedFile != null
-                                          ? 'الحجم: ${(_fileSizeBytes / 1024).toStringAsFixed(1)} كيلوبايت - اضغط للتغيير'
-                                          : 'يدعم الملفات بصيغة .xlsx فقط مع التحقق التلقائي من التكرار والبيانات',
-                                      style: TextStyle(
-                                        fontSize: 12,
-                                        color: isDark
-                                            ? AppDesignColors.darkMutedInk
-                                            : AppDesignColors.lightMutedInk,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
+                                const Spacer(),
+                                if (MediaQuery.sizeOf(context).width >= 650)
+                                  _buildImportButton(),
+                              ],
                             ),
                           ],
                         ),
                       ),
-
-                      // Step 4: Preview & Validation Results
-                      if (_parseResult != null) ...[
-                        _buildSectionHeader(
-                          'الخطوة 4: مراجعة البيانات قبل الاستيراد',
-                          Icons.fact_check_outlined,
-                        ),
-                        _buildPreviewSummaryBar(),
-                        const SizedBox(height: 16),
-                        _buildParsedRowsList(),
-                        const SizedBox(height: 24),
-
-                        // Step 5: Execute Import Action
-                        _buildSectionHeader(
-                          'الخطوة 5: تأكيد الاستيراد',
-                          Icons.send_rounded,
-                        ),
-                        SolidCard(
-                          padding: const EdgeInsets.all(20),
-                          margin: const EdgeInsets.only(bottom: 40),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const Text(
-                                'سيتم تخطي الصفوف التي بها أخطاء أو تكرار مع توضيح اسم الطالب ورقم الصف، ثم متابعة استيراد بقية الملف.',
-                                style: TextStyle(fontWeight: FontWeight.w600),
-                              ),
-                              const SizedBox(height: 16),
-                              Row(
-                                children: [
-                                  if (_parseResult!.hasErrors)
-                                    OutlinedButton.icon(
-                                      onPressed: _downloadErrorReport,
-                                      icon: const Icon(
-                                        Icons.download_rounded,
-                                        size: 18,
-                                      ),
-                                      label: const Text('تحميل تقرير الأخطاء'),
-                                    ),
-                                  const Spacer(),
-                                  if (MediaQuery.sizeOf(context).width >= 650)
-                                    _buildImportButton(),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
                     ],
-                  ),
-          ),
+                  ],
+                ),
         ),
+      ),
     );
   }
 

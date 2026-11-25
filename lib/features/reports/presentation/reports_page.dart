@@ -124,179 +124,186 @@ class _ReportsPageState extends ConsumerState<ReportsPage>
         ],
       ),
       body: AppContent(
-          maxWidth: 1200,
-          child: ListView(
-            padding: const EdgeInsets.fromLTRB(20, 16, 20, 32),
-            children: [
-              // Filter Bar
-              ReportFilterBar(
-                serviceId: widget.serviceId,
-                stages: stages,
-                classes: classes,
-              ),
+        maxWidth: 1200,
+        child: ListView(
+          padding: const EdgeInsets.fromLTRB(20, 16, 20, 32),
+          children: [
+            // Filter Bar
+            ReportFilterBar(
+              serviceId: widget.serviceId,
+              stages: stages,
+              classes: classes,
+            ),
 
-              // 4 Primary Navigation Tabs
-              Container(
-                decoration: BoxDecoration(
-                  color: theme.colorScheme.surface,
-                  borderRadius: BorderRadius.circular(14),
-                  border: Border.all(
-                    color: theme.colorScheme.outlineVariant,
-                    width: 1.2,
-                  ),
-                ),
-                child: TabBar(
-                  controller: _tabController,
-                  isScrollable: false,
-                  indicatorSize: TabBarIndicatorSize.tab,
-                  indicator: BoxDecoration(
-                    color: Theme.of(context).colorScheme.primary,
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  labelColor: Colors.white,
-                  unselectedLabelColor: isDark
-                      ? theme.colorScheme.onSurfaceVariant
-                      : theme.colorScheme.onSurfaceVariant,
-                  labelStyle: const TextStyle(
-                    fontWeight: FontWeight.w700,
-                    fontSize: 13,
-                  ),
-                  unselectedLabelStyle: const TextStyle(
-                    fontWeight: FontWeight.w600,
-                    fontSize: 13,
-                  ),
-                  labelPadding: const EdgeInsets.symmetric(horizontal: 4),
-                  padding: const EdgeInsets.all(6),
-                  tabs: const [
-                    Tab(
-                      icon: Icon(Icons.how_to_reg_rounded, size: 18),
-                      text: 'الحضور',
-                    ),
-                    Tab(
-                      icon: Icon(Icons.mark_chat_read_rounded, size: 18),
-                      text: 'المتابعة',
-                    ),
-                    Tab(
-                      icon: Icon(Icons.groups_rounded, size: 18),
-                      text: 'التلاميذ',
-                    ),
-                    Tab(
-                      icon: Icon(Icons.diversity_3_rounded, size: 18),
-                      text: 'الخدام',
-                    ),
-                  ],
+            // 4 Primary Navigation Tabs
+            Container(
+              decoration: BoxDecoration(
+                color: theme.colorScheme.surface,
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(
+                  color: theme.colorScheme.outlineVariant,
+                  width: 1.2,
                 ),
               ),
-              const SizedBox(height: 20),
+              child: TabBar(
+                controller: _tabController,
+                isScrollable: false,
+                indicatorSize: TabBarIndicatorSize.tab,
+                indicator: BoxDecoration(
+                  color: Theme.of(context).colorScheme.primary,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                labelColor: Colors.white,
+                unselectedLabelColor: isDark
+                    ? theme.colorScheme.onSurfaceVariant
+                    : theme.colorScheme.onSurfaceVariant,
+                labelStyle: const TextStyle(
+                  fontWeight: FontWeight.w700,
+                  fontSize: 13,
+                ),
+                unselectedLabelStyle: const TextStyle(
+                  fontWeight: FontWeight.w600,
+                  fontSize: 13,
+                ),
+                labelPadding: const EdgeInsets.symmetric(horizontal: 4),
+                padding: const EdgeInsets.all(6),
+                tabs: const [
+                  Tab(
+                    icon: Icon(Icons.how_to_reg_rounded, size: 18),
+                    text: 'الحضور',
+                  ),
+                  Tab(
+                    icon: Icon(Icons.mark_chat_read_rounded, size: 18),
+                    text: 'المتابعة',
+                  ),
+                  Tab(
+                    icon: Icon(Icons.groups_rounded, size: 18),
+                    text: 'التلاميذ',
+                  ),
+                  Tab(
+                    icon: Icon(Icons.diversity_3_rounded, size: 18),
+                    text: 'الخدام',
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 20),
 
-              // Report Data Content
-              reportAsync.when(
-                loading: () => LayoutBuilder(
-                  builder: (context, constraints) {
-                    final scheme = Theme.of(context).colorScheme;
-                    final columns = constraints.maxWidth >= 900 ? 4 : 2;
-                    final cardWidth =
-                        (constraints.maxWidth - 12 * (columns - 1)) / columns;
-                    return Column(
-                      children: [
-                        Wrap(
-                          spacing: 12,
-                          runSpacing: 12,
-                          children: [
-                            for (var index = 0; index < 4; index++)
-                              Container(
-                                width: cardWidth,
-                                height: 132,
-                                decoration: BoxDecoration(
-                                  color: scheme.surface,
-                                  borderRadius: BorderRadius.circular(14),
-                                  border: Border.all(
-                                    color: scheme.outlineVariant,
-                                  ),
-                                ),
-                                padding: const EdgeInsets.all(14),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Container(
-                                      width: 42,
-                                      height: 42,
-                                      decoration: BoxDecoration(
-                                        color: scheme.surfaceContainerHighest,
-                                        borderRadius: BorderRadius.circular(10),
-                                      ),
-                                    ),
-                                    Container(
-                                      width: cardWidth * 0.62,
-                                      height: 12,
-                                      decoration: BoxDecoration(
-                                        color: scheme.surfaceContainerHighest,
-                                        borderRadius: BorderRadius.circular(6),
-                                      ),
-                                    ),
-                                    Container(
-                                      width: cardWidth * 0.42,
-                                      height: 20,
-                                      decoration: BoxDecoration(
-                                        color: scheme.surfaceContainerLow,
-                                        borderRadius: BorderRadius.circular(6),
-                                      ),
-                                    ),
-                                  ],
+            // Report Data Content
+            reportAsync.when(
+              loading: () => LayoutBuilder(
+                builder: (context, constraints) {
+                  final scheme = Theme.of(context).colorScheme;
+                  final columns = constraints.maxWidth >= 900 ? 4 : 2;
+                  final cardWidth =
+                      (constraints.maxWidth - 12 * (columns - 1)) / columns;
+                  return Column(
+                    children: [
+                      Wrap(
+                        spacing: 12,
+                        runSpacing: 12,
+                        children: [
+                          for (var index = 0; index < 4; index++)
+                            Container(
+                              width: cardWidth,
+                              height: 132,
+                              decoration: BoxDecoration(
+                                color: scheme.surface,
+                                borderRadius: BorderRadius.circular(14),
+                                border: Border.all(
+                                  color: scheme.outlineVariant,
                                 ),
                               ),
-                          ],
-                        ),
-                        const SizedBox(height: 18),
-                        Container(
-                          height: 240,
-                          width: double.infinity,
-                          decoration: BoxDecoration(
-                            color: scheme.surface,
-                            borderRadius: BorderRadius.circular(14),
-                            border: Border.all(color: scheme.outlineVariant),
-                          ),
-                          padding: const EdgeInsets.all(16),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Container(
-                                width: 190,
-                                height: 14,
-                                decoration: BoxDecoration(
-                                  color: scheme.surfaceContainerHighest,
-                                  borderRadius: BorderRadius.circular(6),
-                                ),
-                              ),
-                              const Spacer(),
-                              Row(
-                                crossAxisAlignment: CrossAxisAlignment.end,
-                                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              padding: const EdgeInsets.all(14),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                 children: [
-                                  for (final height in [72.0, 118.0, 88.0, 146.0, 104.0])
-                                    Container(
-                                      width: 24,
-                                      height: height,
-                                      decoration: BoxDecoration(
-                                        color: scheme.surfaceContainerHighest,
-                                        borderRadius: const BorderRadius.vertical(
-                                          top: Radius.circular(6),
-                                        ),
-                                      ),
+                                  Container(
+                                    width: 42,
+                                    height: 42,
+                                    decoration: BoxDecoration(
+                                      color: scheme.surfaceContainerHighest,
+                                      borderRadius: BorderRadius.circular(10),
                                     ),
+                                  ),
+                                  Container(
+                                    width: cardWidth * 0.62,
+                                    height: 12,
+                                    decoration: BoxDecoration(
+                                      color: scheme.surfaceContainerHighest,
+                                      borderRadius: BorderRadius.circular(6),
+                                    ),
+                                  ),
+                                  Container(
+                                    width: cardWidth * 0.42,
+                                    height: 20,
+                                    decoration: BoxDecoration(
+                                      color: scheme.surfaceContainerLow,
+                                      borderRadius: BorderRadius.circular(6),
+                                    ),
+                                  ),
                                 ],
                               ),
-                            ],
-                          ),
+                            ),
+                        ],
+                      ),
+                      const SizedBox(height: 18),
+                      Container(
+                        height: 240,
+                        width: double.infinity,
+                        decoration: BoxDecoration(
+                          color: scheme.surface,
+                          borderRadius: BorderRadius.circular(14),
+                          border: Border.all(color: scheme.outlineVariant),
                         ),
-                      ],
-                    );
-                  },
-                ),
-                error: (error, stack) {
-                  debugPrint('Failed to load report analytics: $error');
-                  return Container(
+                        padding: const EdgeInsets.all(16),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Container(
+                              width: 190,
+                              height: 14,
+                              decoration: BoxDecoration(
+                                color: scheme.surfaceContainerHighest,
+                                borderRadius: BorderRadius.circular(6),
+                              ),
+                            ),
+                            const Spacer(),
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: [
+                                for (final height in [
+                                  72.0,
+                                  118.0,
+                                  88.0,
+                                  146.0,
+                                  104.0,
+                                ])
+                                  Container(
+                                    width: 24,
+                                    height: height,
+                                    decoration: BoxDecoration(
+                                      color: scheme.surfaceContainerHighest,
+                                      borderRadius: const BorderRadius.vertical(
+                                        top: Radius.circular(6),
+                                      ),
+                                    ),
+                                  ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  );
+                },
+              ),
+              error: (error, stack) {
+                debugPrint('Failed to load report analytics: $error');
+                return Container(
                   padding: const EdgeInsets.all(32),
                   decoration: BoxDecoration(
                     color: theme.colorScheme.surface,
@@ -312,10 +319,10 @@ class _ReportsPageState extends ConsumerState<ReportsPage>
                           color: AppColors.of(context).absent.foreground,
                         ),
                         const SizedBox(height: 14),
-                        Text(
+                        const Text(
                           'تعذر تحميل بيانات التقرير. تحقق من الاتصال ثم أعد المحاولة.',
                           textAlign: TextAlign.center,
-                          style: const TextStyle(fontWeight: FontWeight.w700),
+                          style: TextStyle(fontWeight: FontWeight.w700),
                         ),
                         const SizedBox(height: 12),
                         FilledButton.icon(
@@ -328,44 +335,44 @@ class _ReportsPageState extends ConsumerState<ReportsPage>
                     ),
                   ),
                 );
-                },
-                data: (report) {
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      // Actionable Insights Banner (if any)
-                      if (report.actionableInsights.isNotEmpty) ...[
-                        ActionableInsightsCard(
-                          insights: report.actionableInsights,
-                          onInsightTap: _onInsightTap,
-                        ),
-                      ],
-
-                      // Tab View Bodies
-                      AnimatedBuilder(
-                        animation: _tabController,
-                        builder: (context, _) {
-                          switch (_tabController.index) {
-                            case 0:
-                              return _buildAttendanceTab(report, isDark);
-                            case 1:
-                              return _buildFollowUpTab(report, isDark);
-                            case 2:
-                              return _buildStudentsTab(report, isDark);
-                            case 3:
-                              return _buildServantsTab(report, isDark);
-                            default:
-                              return _buildAttendanceTab(report, isDark);
-                          }
-                        },
+              },
+              data: (report) {
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    // Actionable Insights Banner (if any)
+                    if (report.actionableInsights.isNotEmpty) ...[
+                      ActionableInsightsCard(
+                        insights: report.actionableInsights,
+                        onInsightTap: _onInsightTap,
                       ),
                     ],
-                  );
-                },
-              ),
-            ],
-          ),
+
+                    // Tab View Bodies
+                    AnimatedBuilder(
+                      animation: _tabController,
+                      builder: (context, _) {
+                        switch (_tabController.index) {
+                          case 0:
+                            return _buildAttendanceTab(report, isDark);
+                          case 1:
+                            return _buildFollowUpTab(report, isDark);
+                          case 2:
+                            return _buildStudentsTab(report, isDark);
+                          case 3:
+                            return _buildServantsTab(report, isDark);
+                          default:
+                            return _buildAttendanceTab(report, isDark);
+                        }
+                      },
+                    ),
+                  ],
+                );
+              },
+            ),
+          ],
         ),
+      ),
     );
   }
 
@@ -449,10 +456,7 @@ class _ReportsPageState extends ConsumerState<ReportsPage>
                 runSpacing: 12,
                 children: [
                   for (final card in cards)
-                    SizedBox(
-                      width: (width - 12) / 2,
-                      child: card,
-                    ),
+                    SizedBox(width: (width - 12) / 2, child: card),
                 ],
               );
             }
@@ -551,10 +555,7 @@ class _ReportsPageState extends ConsumerState<ReportsPage>
                 runSpacing: 12,
                 children: [
                   for (final card in cards)
-                    SizedBox(
-                      width: (width - 12) / 2,
-                      child: card,
-                    ),
+                    SizedBox(width: (width - 12) / 2, child: card),
                 ],
               );
             }
@@ -633,10 +634,7 @@ class _ReportsPageState extends ConsumerState<ReportsPage>
                 runSpacing: 12,
                 children: [
                   for (final card in cards)
-                    SizedBox(
-                      width: (width - 12) / 2,
-                      child: card,
-                    ),
+                    SizedBox(width: (width - 12) / 2, child: card),
                 ],
               );
             }
@@ -707,10 +705,7 @@ class _ReportsPageState extends ConsumerState<ReportsPage>
                 runSpacing: 12,
                 children: [
                   for (final card in cards)
-                    SizedBox(
-                      width: (width - 12) / 2,
-                      child: card,
-                    ),
+                    SizedBox(width: (width - 12) / 2, child: card),
                 ],
               );
             }

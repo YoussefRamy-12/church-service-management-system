@@ -79,9 +79,9 @@ class _ReportExportDialogState extends ConsumerState<ReportExportDialog> {
       debugPrint('Presentation operation failed: $e');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
+          const SnackBar(
             content: Text('تعذر إتمام العملية. حاول مرة أخرى.'),
-            backgroundColor: const Color(0xFFEF4444),
+            backgroundColor: Color(0xFFEF4444),
           ),
         );
       }
@@ -212,7 +212,9 @@ class _ReportExportDialogState extends ConsumerState<ReportExportDialog> {
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 TextButton(
-                  onPressed: exporting ? null : () => Navigator.of(context).pop(),
+                  onPressed: exporting
+                      ? null
+                      : () => Navigator.of(context).pop(),
                   child: const Text('إلغاء'),
                 ),
                 const SizedBox(width: 10),
@@ -258,7 +260,9 @@ class _ReportExportDialogState extends ConsumerState<ReportExportDialog> {
               : (isDark ? const Color(0xFF182234) : const Color(0xFFF8FAFC)),
           borderRadius: BorderRadius.circular(10),
           border: Border.all(
-            color: isSelected ? color : (isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0)),
+            color: isSelected
+                ? color
+                : (isDark ? const Color(0xFF334155) : const Color(0xFFE2E8F0)),
             width: isSelected ? 1.5 : 1,
           ),
         ),
@@ -290,7 +294,9 @@ class _ReportExportDialogState extends ConsumerState<ReportExportDialog> {
                     subtitle,
                     style: TextStyle(
                       fontSize: 12,
-                      color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF64748B),
+                      color: isDark
+                          ? const Color(0xFF94A3B8)
+                          : const Color(0xFF64748B),
                     ),
                   ),
                 ],
@@ -303,8 +309,8 @@ class _ReportExportDialogState extends ConsumerState<ReportExportDialog> {
               color: isSelected
                   ? color
                   : (isDark
-                      ? const Color(0xFF64748B)
-                      : const Color(0xFF94A3B8)),
+                        ? const Color(0xFF64748B)
+                        : const Color(0xFF94A3B8)),
               size: 22,
             ),
           ],
@@ -313,4 +319,3 @@ class _ReportExportDialogState extends ConsumerState<ReportExportDialog> {
     );
   }
 }
-

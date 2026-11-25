@@ -81,7 +81,8 @@ class _QuickFollowUpSheetState extends ConsumerState<QuickFollowUpSheet> {
             if (activeCases.isEmpty) {
               return _buildNoActiveCase(context, student);
             }
-            final selectedId = _selectedCaseId ??
+            final selectedId =
+                _selectedCaseId ??
                 (activeCases.length == 1 ? activeCases.first.id : null);
             return Column(
               mainAxisSize: MainAxisSize.min,
@@ -132,7 +133,10 @@ class _QuickFollowUpSheetState extends ConsumerState<QuickFollowUpSheet> {
                     style: Theme.of(context).textTheme.bodyMedium,
                   ),
                 const SizedBox(height: 12),
-                Text('نوع المتابعة', style: Theme.of(context).textTheme.labelLarge),
+                Text(
+                  'نوع المتابعة',
+                  style: Theme.of(context).textTheme.labelLarge,
+                ),
                 const SizedBox(height: 8),
                 Wrap(
                   spacing: 8,
@@ -149,8 +153,7 @@ class _QuickFollowUpSheetState extends ConsumerState<QuickFollowUpSheet> {
                         avatar: Icon(type.icon, size: 16),
                         label: Text(type.arabicLabel),
                         selected: _activityType == type,
-                        onSelected: (_) =>
-                            setState(() => _activityType = type),
+                        onSelected: (_) => setState(() => _activityType = type),
                       ),
                   ],
                 ),
@@ -236,13 +239,16 @@ class _QuickFollowUpSheetState extends ConsumerState<QuickFollowUpSheet> {
     try {
       final profile = await ref.read(currentServantProfileProvider.future);
       final identity = await ref.read(currentSessionIdentityProvider.future);
-      final actorId = profile?.id ??
+      final actorId =
+          profile?.id ??
           (identity is SuperAdminIdentity ? identity.profile.id : null);
       if (actorId == null) {
         throw Exception('لم يتم التعرف على حساب الخادم المسجل');
       }
 
-      await ref.read(followUpCaseRepositoryProvider).recordActivity(
+      await ref
+          .read(followUpCaseRepositoryProvider)
+          .recordActivity(
             caseId: caseId,
             activityType: _activityType,
             description: description,
@@ -265,7 +271,7 @@ class _QuickFollowUpSheetState extends ConsumerState<QuickFollowUpSheet> {
       debugPrint('Presentation operation failed: $error');
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('تعذر إتمام العملية. حاول مرة أخرى.')),
+        const SnackBar(content: Text('تعذر إتمام العملية. حاول مرة أخرى.')),
       );
     } finally {
       if (mounted) setState(() => _saving = false);

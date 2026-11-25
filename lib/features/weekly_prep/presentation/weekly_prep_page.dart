@@ -85,9 +85,7 @@ class _WeeklyPrepPageState extends ConsumerState<WeeklyPrepPage> {
     } catch (error) {
       debugPrint('Presentation operation failed: $error');
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(
+        ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('تعذر تحديث التحاضير. حاول مرة أخرى.')),
         );
       }
@@ -159,13 +157,13 @@ class _WeeklyPrepPageState extends ConsumerState<WeeklyPrepPage> {
           ),
           error: (err, _) {
             debugPrint('Failed to load account for weekly prep: $err');
-            return Scaffold(
-            body: EmptyState(
-              icon: Icons.error_outline_rounded,
-              title: 'تعذر تحميل الحساب',
-              message: 'تعذر تحميل بيانات الحساب. حاول تحديث الصفحة.',
-            ),
-          );
+            return const Scaffold(
+              body: EmptyState(
+                icon: Icons.error_outline_rounded,
+                title: 'تعذر تحميل الحساب',
+                message: 'تعذر تحميل بيانات الحساب. حاول تحديث الصفحة.',
+              ),
+            );
           },
           data: (profile) {
             if (profile == null) {
@@ -207,17 +205,17 @@ class _WeeklyPrepPageState extends ConsumerState<WeeklyPrepPage> {
                   error: (error, _) {
                     debugPrint('Failed to load weekly lessons: $error');
                     return Scaffold(
-                    body: EmptyState(
-                      icon: Icons.cloud_off_rounded,
-                      title: 'تعذر تحميل التحاضير',
-                      message: 'تحقق من الاتصال ثم حاول تحديث القائمة.',
-                      action: OutlinedButton.icon(
-                        onPressed: _refresh,
-                        icon: const Icon(Icons.refresh),
-                        label: const Text('إعادة المحاولة'),
+                      body: EmptyState(
+                        icon: Icons.cloud_off_rounded,
+                        title: 'تعذر تحميل التحاضير',
+                        message: 'تحقق من الاتصال ثم حاول تحديث القائمة.',
+                        action: OutlinedButton.icon(
+                          onPressed: _refresh,
+                          icon: const Icon(Icons.refresh),
+                          label: const Text('إعادة المحاولة'),
+                        ),
                       ),
-                    ),
-                  );
+                    );
                   },
                   data: (lessons) {
                     // If user is a leader and not toggled to personal servant view:

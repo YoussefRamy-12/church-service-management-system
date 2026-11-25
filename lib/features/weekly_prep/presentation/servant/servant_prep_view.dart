@@ -105,7 +105,9 @@ class _ServantPrepViewState extends ConsumerState<ServantPrepView> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              download ? 'تعذر إتمام العملية. حاول مرة أخرى.' : 'تعذر إتمام العملية. حاول مرة أخرى.',
+              download
+                  ? 'تعذر إتمام العملية. حاول مرة أخرى.'
+                  : 'تعذر إتمام العملية. حاول مرة أخرى.',
             ),
           ),
         );
@@ -182,9 +184,9 @@ class _ServantPrepViewState extends ConsumerState<ServantPrepView> {
     } catch (e) {
       debugPrint('Presentation operation failed: $e');
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('تعذر إتمام العملية. حاول مرة أخرى.')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('تعذر إتمام العملية. حاول مرة أخرى.')),
+        );
       }
     } finally {
       if (mounted) setState(() => _submitting = false);
@@ -413,7 +415,10 @@ class _ServantPrepViewState extends ConsumerState<ServantPrepView> {
             const SizedBox(height: 6),
             const Text(
               'سيتوفر ملف الدرس والتحضير هنا بمجرد أن يقوم القائد برفعه.',
-              style: TextStyle(color: AppDesignColors.lightMutedInk, fontSize: 13),
+              style: TextStyle(
+                color: AppDesignColors.lightMutedInk,
+                fontSize: 13,
+              ),
               textAlign: TextAlign.center,
             ),
           ],
@@ -433,16 +438,12 @@ class _ServantPrepViewState extends ConsumerState<ServantPrepView> {
         padding: EdgeInsets.symmetric(vertical: 40),
         child: LoadingView(message: 'جاري تحميل تفاصيل التحضير...'),
       ),
-      error: (error, _) => SolidCard(
-        padding: const EdgeInsets.all(24),
+      error: (error, _) => const SolidCard(
+        padding: EdgeInsets.all(24),
         child: Column(
           children: [
-            const Icon(
-              Icons.error_outline_rounded,
-              color: Colors.red,
-              size: 36,
-            ),
-            const SizedBox(height: 10),
+            Icon(Icons.error_outline_rounded, color: Colors.red, size: 36),
+            SizedBox(height: 10),
             Text('تعذر إتمام العملية. حاول مرة أخرى.'),
           ],
         ),
@@ -490,7 +491,9 @@ class _ServantPrepViewState extends ConsumerState<ServantPrepView> {
                     decoration: BoxDecoration(
                       color: isCurrentWeek
                           ? Theme.of(context).colorScheme.primaryContainer
-                          : Theme.of(context).colorScheme.surfaceContainerHighest,
+                          : Theme.of(
+                              context,
+                            ).colorScheme.surfaceContainerHighest,
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Icon(
@@ -512,7 +515,9 @@ class _ServantPrepViewState extends ConsumerState<ServantPrepView> {
                             fontWeight: FontWeight.w600,
                             color: isCurrentWeek
                                 ? Theme.of(context).colorScheme.primary
-                                : Theme.of(context).colorScheme.onSurfaceVariant,
+                                : Theme.of(
+                                    context,
+                                  ).colorScheme.onSurfaceVariant,
                           ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
@@ -568,7 +573,10 @@ class _ServantPrepViewState extends ConsumerState<ServantPrepView> {
                 const SizedBox(height: 10),
                 const Text(
                   'ملاحظة: هذا أسبوع سابق (للقراءة والاطلاع فقط). التنزيل وتعديل التحضير متاحان للأسبوع الحالي فقط.',
-                  style: TextStyle(fontSize: 12, color: AppDesignColors.lightMutedInk),
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: AppDesignColors.lightMutedInk,
+                  ),
                 ),
               ],
             ],

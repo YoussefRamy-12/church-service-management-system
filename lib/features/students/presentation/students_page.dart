@@ -88,7 +88,8 @@ class _StudentsPageState extends ConsumerState<StudentsPage> {
         (profile?.role == 'class_servant' || profile?.role == 'class_leader') &&
         profile?.classId != null;
     final canAdd =
-        ref.watch(isSuperAdminProvider) || (profile != null && profile.isActive);
+        ref.watch(isSuperAdminProvider) ||
+        (profile != null && profile.isActive);
     final isMobile = context.isMobile;
 
     return Scaffold(
@@ -138,7 +139,9 @@ class _StudentsPageState extends ConsumerState<StudentsPage> {
                 debugPrint('Presentation operation failed: $error');
                 if (!context.mounted) return;
                 ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('تعذر إتمام العملية. حاول مرة أخرى.')),
+                  const SnackBar(
+                    content: Text('تعذر إتمام العملية. حاول مرة أخرى.'),
+                  ),
                 );
               }
             },
@@ -147,46 +150,43 @@ class _StudentsPageState extends ConsumerState<StudentsPage> {
         ],
       ),
       body: Column(
-          children: [
-            if (!isClassScoped)
-              Padding(
-                padding: const EdgeInsets.fromLTRB(20, 16, 20, 12),
-                child: SegmentedButton<String>(
-                  segments: const [
-                    ButtonSegment(
-                      value: 'students',
-                      icon: Icon(Icons.groups_rounded),
-                      label: Text(
-                        'سجل التلاميذ',
-                        style: TextStyle(fontWeight: FontWeight.w700),
-                      ),
+        children: [
+          if (!isClassScoped)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 16, 20, 12),
+              child: SegmentedButton<String>(
+                segments: const [
+                  ButtonSegment(
+                    value: 'students',
+                    icon: Icon(Icons.groups_rounded),
+                    label: Text(
+                      'سجل التلاميذ',
+                      style: TextStyle(fontWeight: FontWeight.w700),
                     ),
-                    ButtonSegment(
-                      value: 'stages',
-                      icon: Icon(Icons.account_tree_outlined),
-                      label: Text(
-                        'المراحل والفصول',
-                        style: TextStyle(fontWeight: FontWeight.w700),
-                      ),
+                  ),
+                  ButtonSegment(
+                    value: 'stages',
+                    icon: Icon(Icons.account_tree_outlined),
+                    label: Text(
+                      'المراحل والفصول',
+                      style: TextStyle(fontWeight: FontWeight.w700),
                     ),
-                  ],
-                  selected: {view},
-                  onSelectionChanged: (selection) =>
-                      setState(() => view = selection.first),
-                ),
+                  ),
+                ],
+                selected: {view},
+                onSelectionChanged: (selection) =>
+                    setState(() => view = selection.first),
               ),
-            Expanded(
-              child: isClassScoped
-                  ? _studentRegistry(
-                      classId: profile!.classId,
-                      classScoped: true,
-                    )
-                  : view == 'students'
-                      ? _studentRegistry()
-                      : _stageExplorer(repository),
             ),
-          ],
-        ),
+          Expanded(
+            child: isClassScoped
+                ? _studentRegistry(classId: profile!.classId, classScoped: true)
+                : view == 'students'
+                ? _studentRegistry()
+                : _stageExplorer(repository),
+          ),
+        ],
+      ),
     );
   }
 
@@ -211,223 +211,215 @@ class _StudentsPageState extends ConsumerState<StudentsPage> {
     String? classId,
     bool classScoped = false,
   }) => StreamBuilder<List<Student>>(
-        stream: ref
-            .watch(studentRepositoryProvider)
-            .watchStudentsForService(widget.serviceId),
-        builder: (context, snapshot) {
-          final allStudents = snapshot.data ?? const <Student>[];
-          final students = classId == null
-              ? allStudents
-              : allStudents
-                  .where(
-                    (student) =>
-                        student.currentClassId == classId ||
-                        student.proposedClassId == classId,
-                  )
-                  .toList();
+    stream: ref
+        .watch(studentRepositoryProvider)
+        .watchStudentsForService(widget.serviceId),
+    builder: (context, snapshot) {
+      final allStudents = snapshot.data ?? const <Student>[];
+      final students = classId == null
+          ? allStudents
+          : allStudents
+                .where(
+                  (student) =>
+                      student.currentClassId == classId ||
+                      student.proposedClassId == classId,
+                )
+                .toList();
 
-          if (snapshot.connectionState == ConnectionState.waiting &&
-              students.isEmpty) {
-            return const LoadingView(message: 'جاري تحميل سجل التلاميذ...');
-          }
+      if (snapshot.connectionState == ConnectionState.waiting &&
+          students.isEmpty) {
+        return const LoadingView(message: 'جاري تحميل سجل التلاميذ...');
+      }
 
-          if (snapshot.hasError && students.isEmpty) {
-            return ErrorState(
-              message:
-                  'تعذر تحميل سجل التلاميذ. تحقق من الاتصال ثم أعد المحاولة.',
-              onRetry: () {
-                ref
-                    .read(studentRepositoryProvider)
-                    .refreshStudentsForService(widget.serviceId);
-              },
-            );
-          }
+      if (snapshot.hasError && students.isEmpty) {
+        return ErrorState(
+          message: 'تعذر تحميل سجل التلاميذ. تحقق من الاتصال ثم أعد المحاولة.',
+          onRetry: () {
+            ref
+                .read(studentRepositoryProvider)
+                .refreshStudentsForService(widget.serviceId);
+          },
+        );
+      }
 
-          if (students.isEmpty) {
-            return comp.EmptyState(
-              icon: Icons.school_outlined,
-              title: 'لا يوجد تلاميذ في هذه الخدمة',
-              message: 'ستظهر بيانات التلاميذ هنا بعد تسجيلهم أو استيرادهم.',
-              action: OutlinedButton.icon(
-                key: const Key('empty_add_student_button'),
-                onPressed: _addStudent,
-                icon: const Icon(Icons.person_add_alt_1_rounded),
-                label: const Text('إضافة تلميذ'),
-              ),
-            );
-          }
+      if (students.isEmpty) {
+        return comp.EmptyState(
+          icon: Icons.school_outlined,
+          title: 'لا يوجد تلاميذ في هذه الخدمة',
+          message: 'ستظهر بيانات التلاميذ هنا بعد تسجيلهم أو استيرادهم.',
+          action: OutlinedButton.icon(
+            key: const Key('empty_add_student_button'),
+            onPressed: _addStudent,
+            icon: const Icon(Icons.person_add_alt_1_rounded),
+            label: const Text('إضافة تلميذ'),
+          ),
+        );
+      }
 
-          final needle = query.trim().toLowerCase();
-          final filtered = students.where((student) {
-            final matchesStatus = switch (statusFilter) {
-              'pending' => student.isPending,
-              'approved' => student.isApproved,
-              _ => true,
-            };
-            final matchesQuery = needle.isEmpty ||
-                student.name.toLowerCase().contains(needle) ||
-                (student.phone ?? '').contains(needle) ||
-                (student.school ?? '').toLowerCase().contains(needle) ||
-                (student.grade ?? '').toLowerCase().contains(needle);
-            return matchesStatus && matchesQuery;
-          }).toList();
+      final needle = query.trim().toLowerCase();
+      final filtered = students.where((student) {
+        final matchesStatus = switch (statusFilter) {
+          'pending' => student.isPending,
+          'approved' => student.isApproved,
+          _ => true,
+        };
+        final matchesQuery =
+            needle.isEmpty ||
+            student.name.toLowerCase().contains(needle) ||
+            (student.phone ?? '').contains(needle) ||
+            (student.school ?? '').toLowerCase().contains(needle) ||
+            (student.grade ?? '').toLowerCase().contains(needle);
+        return matchesStatus && matchesQuery;
+      }).toList();
 
-          // Sort filtered list
-          filtered.sort((a, b) {
-            int cmp = 0;
-            switch (_sortColumn) {
-              case 'class':
-                final aClass = _classDisplayNames[
-                        a.currentClassId ?? a.proposedClassId] ??
-                    '';
-                final bClass = _classDisplayNames[
-                        b.currentClassId ?? b.proposedClassId] ??
-                    '';
-                cmp = aClass.compareTo(bClass);
-                if (cmp == 0) cmp = a.name.compareTo(b.name);
-                break;
-              case 'status':
-                final aStatus = a.isApproved ? 1 : 0;
-                final bStatus = b.isApproved ? 1 : 0;
-                cmp = aStatus.compareTo(bStatus);
-                if (cmp == 0) cmp = a.name.compareTo(b.name);
-                break;
-              case 'name':
-              default:
-                cmp = a.name.compareTo(b.name);
-                break;
-            }
-            return _sortAscending ? cmp : -cmp;
-          });
+      // Sort filtered list
+      filtered.sort((a, b) {
+        int cmp = 0;
+        switch (_sortColumn) {
+          case 'class':
+            final aClass =
+                _classDisplayNames[a.currentClassId ?? a.proposedClassId] ?? '';
+            final bClass =
+                _classDisplayNames[b.currentClassId ?? b.proposedClassId] ?? '';
+            cmp = aClass.compareTo(bClass);
+            if (cmp == 0) cmp = a.name.compareTo(b.name);
+            break;
+          case 'status':
+            final aStatus = a.isApproved ? 1 : 0;
+            final bStatus = b.isApproved ? 1 : 0;
+            cmp = aStatus.compareTo(bStatus);
+            if (cmp == 0) cmp = a.name.compareTo(b.name);
+            break;
+          case 'name':
+          default:
+            cmp = a.name.compareTo(b.name);
+            break;
+        }
+        return _sortAscending ? cmp : -cmp;
+      });
 
-          return ListView(
-            padding: EdgeInsets.only(bottom: context.isMobile ? 88 : 24),
-            children: [
-              Padding(
-                padding: const EdgeInsets.fromLTRB(20, 12, 20, 12),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    TextField(
-                      key: const Key('service_student_search'),
-                      controller: _searchController,
-                      onChanged: (value) => setState(() => query = value),
-                      decoration: InputDecoration(
-                        prefixIcon: const Icon(Icons.search_rounded),
-                        hintText: 'ابحث بالاسم أو الهاتف...',
-                        suffixIcon: query.isNotEmpty
-                            ? IconButton(
-                                icon: const Icon(Icons.clear_rounded, size: 18),
-                                onPressed: () {
-                                  _searchController.clear();
-                                  setState(() => query = '');
-                                },
-                              )
-                            : null,
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-                    Align(
-                      alignment: AlignmentDirectional.centerStart,
-                      child: Wrap(
-                        spacing: 8,
-                        children: [
-                          _filter('all', 'الكل (${students.length})'),
-                          _filter(
-                            'approved',
-                            'معتمد (${students.where((s) => s.isApproved).length})',
-                          ),
-                          _filter(
-                            'pending',
-                            'بانتظار الاعتماد (${students.where((s) => s.isPending).length})',
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
+      return ListView(
+        padding: EdgeInsets.only(bottom: context.isMobile ? 88 : 24),
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(20, 12, 20, 12),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                TextField(
+                  key: const Key('service_student_search'),
+                  controller: _searchController,
+                  onChanged: (value) => setState(() => query = value),
+                  decoration: InputDecoration(
+                    prefixIcon: const Icon(Icons.search_rounded),
+                    hintText: 'ابحث بالاسم أو الهاتف...',
+                    suffixIcon: query.isNotEmpty
+                        ? IconButton(
+                            icon: const Icon(Icons.clear_rounded, size: 18),
+                            onPressed: () {
+                              _searchController.clear();
+                              setState(() => query = '');
+                            },
+                          )
+                        : null,
+                  ),
                 ),
-              ),
-              Padding(
-                padding: const EdgeInsetsDirectional.fromSTEB(20, 0, 20, 10),
-                child: Row(
+                const SizedBox(height: 10),
+                Align(
+                  alignment: AlignmentDirectional.centerStart,
+                  child: Wrap(
+                    spacing: 8,
+                    children: [
+                      _filter('all', 'الكل (${students.length})'),
+                      _filter(
+                        'approved',
+                        'معتمد (${students.where((s) => s.isApproved).length})',
+                      ),
+                      _filter(
+                        'pending',
+                        'بانتظار الاعتماد (${students.where((s) => s.isPending).length})',
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsetsDirectional.fromSTEB(20, 0, 20, 10),
+            child: Row(
+              children: [
+                Text(
+                  'النتائج',
+                  style: Theme.of(
+                    context,
+                  ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w700),
+                ),
+                const Spacer(),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
                   children: [
+                    Icon(
+                      Icons.cloud_done_outlined,
+                      size: 14,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
+                    const SizedBox(width: 4),
                     Text(
-                      'النتائج',
-                      style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                            fontWeight: FontWeight.w700,
-                          ),
-                    ),
-                    const Spacer(),
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(
-                          Icons.cloud_done_outlined,
-                          size: 14,
-                          color:
-                              Theme.of(context).colorScheme.onSurfaceVariant,
-                        ),
-                        const SizedBox(width: 4),
-                        Text(
-                          classScoped ? 'فصل محفوظ محليًا' : 'سجل محفوظ محليًا',
-                          style:
-                              Theme.of(context).textTheme.bodySmall?.copyWith(
-                                    color: Theme.of(context)
-                                        .colorScheme
-                                        .onSurfaceVariant,
-                                  ),
-                        ),
-                      ],
+                      classScoped ? 'فصل محفوظ محليًا' : 'سجل محفوظ محليًا',
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
                     ),
                   ],
                 ),
-              ),
-              if (filtered.isEmpty)
-                Padding(
-                  padding: const EdgeInsets.only(top: 24),
-                  child: comp.EmptyState(
-                    icon: Icons.search_off_rounded,
-                    title: 'لا توجد نتائج مطابقة',
-                    message:
-                        'لم يتم العثور على أي تلميذ يطابق كلمات البحث أو حالة الاعتماد.',
-                    action: OutlinedButton.icon(
-                      key: const Key('clear_student_search'),
-                      onPressed: () {
-                        _searchController.clear();
-                        setState(() {
-                          query = '';
-                          statusFilter = 'all';
-                        });
-                      },
-                      icon: const Icon(Icons.clear_all_rounded),
-                      label: const Text('إعادة ضبط البحث'),
-                    ),
-                  ),
-                )
-              else if (context.isMobile)
-                ...filtered.map(
-                  (student) => Padding(
-                    padding:
-                        const EdgeInsetsDirectional.fromSTEB(20, 0, 20, 10),
-                    child: _studentCard(student),
-                  ),
-                )
-              else
-                Padding(
-                  padding:
-                      const EdgeInsetsDirectional.fromSTEB(20, 0, 20, 10),
-                  child: _studentDesktopTable(filtered),
+              ],
+            ),
+          ),
+          if (filtered.isEmpty)
+            Padding(
+              padding: const EdgeInsets.only(top: 24),
+              child: comp.EmptyState(
+                icon: Icons.search_off_rounded,
+                title: 'لا توجد نتائج مطابقة',
+                message:
+                    'لم يتم العثور على أي تلميذ يطابق كلمات البحث أو حالة الاعتماد.',
+                action: OutlinedButton.icon(
+                  key: const Key('clear_student_search'),
+                  onPressed: () {
+                    _searchController.clear();
+                    setState(() {
+                      query = '';
+                      statusFilter = 'all';
+                    });
+                  },
+                  icon: const Icon(Icons.clear_all_rounded),
+                  label: const Text('إعادة ضبط البحث'),
                 ),
-            ],
-          );
-        },
+              ),
+            )
+          else if (context.isMobile)
+            ...filtered.map(
+              (student) => Padding(
+                padding: const EdgeInsetsDirectional.fromSTEB(20, 0, 20, 10),
+                child: _studentCard(student),
+              ),
+            )
+          else
+            Padding(
+              padding: const EdgeInsetsDirectional.fromSTEB(20, 0, 20, 10),
+              child: _studentDesktopTable(filtered),
+            ),
+        ],
       );
+    },
+  );
 
   Widget _studentCard(Student student) {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
-    final classLabel = _classDisplayNames[
-            student.currentClassId ?? student.proposedClassId] ??
+    final classLabel =
+        _classDisplayNames[student.currentClassId ?? student.proposedClassId] ??
         (student.grade != null && student.grade!.isNotEmpty
             ? student.grade!
             : 'غير مسجل');
@@ -542,8 +534,10 @@ class _StudentsPageState extends ConsumerState<StudentsPage> {
             ),
             columns: [
               DataColumn(
-                label: const Text('الاسم',
-                    style: TextStyle(fontWeight: FontWeight.w700)),
+                label: const Text(
+                  'الاسم',
+                  style: TextStyle(fontWeight: FontWeight.w700),
+                ),
                 onSort: (columnIndex, ascending) {
                   setState(() {
                     _sortColumn = 'name';
@@ -552,8 +546,10 @@ class _StudentsPageState extends ConsumerState<StudentsPage> {
                 },
               ),
               DataColumn(
-                label: const Text('المرحلة والفصل',
-                    style: TextStyle(fontWeight: FontWeight.w700)),
+                label: const Text(
+                  'المرحلة والفصل',
+                  style: TextStyle(fontWeight: FontWeight.w700),
+                ),
                 onSort: (columnIndex, ascending) {
                   setState(() {
                     _sortColumn = 'class';
@@ -562,8 +558,10 @@ class _StudentsPageState extends ConsumerState<StudentsPage> {
                 },
               ),
               DataColumn(
-                label: const Text('الحالة',
-                    style: TextStyle(fontWeight: FontWeight.w700)),
+                label: const Text(
+                  'الحالة',
+                  style: TextStyle(fontWeight: FontWeight.w700),
+                ),
                 onSort: (columnIndex, ascending) {
                   setState(() {
                     _sortColumn = 'status';
@@ -572,16 +570,19 @@ class _StudentsPageState extends ConsumerState<StudentsPage> {
                 },
               ),
               const DataColumn(
-                label: Text('الهاتف',
-                    style: TextStyle(fontWeight: FontWeight.w700)),
+                label: Text(
+                  'الهاتف',
+                  style: TextStyle(fontWeight: FontWeight.w700),
+                ),
               ),
               const DataColumn(
                 label: Text('', style: TextStyle(fontWeight: FontWeight.w700)),
               ),
             ],
             rows: students.map((student) {
-              final classLabel = _classDisplayNames[
-                      student.currentClassId ?? student.proposedClassId] ??
+              final classLabel =
+                  _classDisplayNames[student.currentClassId ??
+                      student.proposedClassId] ??
                   (student.grade != null && student.grade!.isNotEmpty
                       ? student.grade!
                       : 'غير مسجل');
@@ -653,145 +654,144 @@ class _StudentsPageState extends ConsumerState<StudentsPage> {
   }
 
   Widget _stageExplorer(ServiceRepository repository) => StreamBuilder(
-        stream: repository.watchStages(widget.serviceId),
-        builder: (context, snapshot) {
-          final stages = snapshot.data ?? const [];
-          if (snapshot.connectionState == ConnectionState.waiting &&
-              stages.isEmpty) {
-            return const LoadingView(message: 'جاري تحميل المراحل والفصول...');
-          }
-          if (snapshot.hasError && stages.isEmpty) {
-            return ErrorState(
-              message: 'تعذر تحميل المراحل. تحقق من الاتصال أو حاول مرة أخرى.',
-              onRetry: () => repository.refreshStages(widget.serviceId),
-            );
-          }
-          if (stages.isEmpty) {
-            return const comp.EmptyState(
-              icon: Icons.account_tree_outlined,
-              title: 'لا توجد مراحل محفوظة',
-              message: 'حدّث بيانات الخدمة أو أضف المراحل من الإعدادات.',
-            );
-          }
-          final primary = Theme.of(context).colorScheme.primary;
+    stream: repository.watchStages(widget.serviceId),
+    builder: (context, snapshot) {
+      final stages = snapshot.data ?? const [];
+      if (snapshot.connectionState == ConnectionState.waiting &&
+          stages.isEmpty) {
+        return const LoadingView(message: 'جاري تحميل المراحل والفصول...');
+      }
+      if (snapshot.hasError && stages.isEmpty) {
+        return ErrorState(
+          message: 'تعذر تحميل المراحل. تحقق من الاتصال أو حاول مرة أخرى.',
+          onRetry: () => repository.refreshStages(widget.serviceId),
+        );
+      }
+      if (stages.isEmpty) {
+        return const comp.EmptyState(
+          icon: Icons.account_tree_outlined,
+          title: 'لا توجد مراحل محفوظة',
+          message: 'حدّث بيانات الخدمة أو أضف المراحل من الإعدادات.',
+        );
+      }
+      final primary = Theme.of(context).colorScheme.primary;
 
-          return ListView(
-            key: const Key('students_stage_list'),
-            padding: const EdgeInsets.fromLTRB(20, 8, 20, 28),
-            children: [
-              Text(
-                'اختر مرحلة لاستعراض الفصول',
-                style: Theme.of(context)
-                    .textTheme
-                    .titleMedium
-                    ?.copyWith(fontWeight: FontWeight.w700),
-              ),
-              const SizedBox(height: 12),
-              for (final stage in stages)
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 12),
-                  child: Card(
-                    elevation: 0,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      side: BorderSide(
-                        color: Theme.of(context).colorScheme.outlineVariant,
-                      ),
-                    ),
-                    clipBehavior: Clip.antiAlias,
-                    child: Theme(
-                      data: Theme.of(context)
-                          .copyWith(dividerColor: Colors.transparent),
-                      child: ExpansionTile(
-                        key: Key('stage_${stage.id}'),
-                        leading: Container(
-                          width: 40,
-                          height: 40,
-                          decoration: BoxDecoration(
-                            color: primary.withValues(alpha: 0.08),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Icon(
-                            Icons.layers_outlined,
-                            color: primary,
-                            size: 20,
-                          ),
-                        ),
-                        title: Text(
-                          stage.name,
-                          style: const TextStyle(
-                            fontWeight: FontWeight.w800,
-                            fontSize: 16,
-                          ),
-                        ),
-                        onExpansionChanged: (expanded) {
-                          if (expanded) repository.refreshClasses(stage.id);
-                        },
-                        children: [
-                          StreamBuilder(
-                            stream: repository.watchClasses(stage.id),
-                            builder: (context, classSnapshot) {
-                              final classes = classSnapshot.data ?? const [];
-                              if (classSnapshot.connectionState ==
-                                      ConnectionState.waiting &&
-                                  classes.isEmpty) {
-                                return const Padding(
-                                  padding: EdgeInsets.all(18),
-                                  child: LinearProgressIndicator(),
-                                );
-                              }
-                              if (classes.isEmpty) {
-                                return const Padding(
-                                  padding: EdgeInsets.all(18),
-                                  child: Text(
-                                    'لا توجد فصول محفوظة في هذه المرحلة.',
-                                  ),
-                                );
-                              }
-                              return Column(
-                                children: [
-                                  for (final item in classes)
-                                    ListTile(
-                                      key: Key('class_${item.id}'),
-                                      leading:
-                                          const Icon(Icons.groups_outlined),
-                                      title: Text(
-                                        item.name,
-                                        style: const TextStyle(
-                                          fontWeight: FontWeight.w600,
-                                        ),
-                                      ),
-                                      trailing: const Icon(
-                                        Icons.chevron_left_rounded,
-                                      ),
-                                      onTap: () => Navigator.of(context).push(
-                                        MaterialPageRoute(
-                                          builder: (_) => ClassStudentsPage(
-                                            classId: item.id,
-                                            className: item.name,
-                                            serviceId: widget.serviceId,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                ],
-                              );
-                            },
-                          ),
-                        ],
-                      ),
-                    ),
+      return ListView(
+        key: const Key('students_stage_list'),
+        padding: const EdgeInsets.fromLTRB(20, 8, 20, 28),
+        children: [
+          Text(
+            'اختر مرحلة لاستعراض الفصول',
+            style: Theme.of(
+              context,
+            ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
+          ),
+          const SizedBox(height: 12),
+          for (final stage in stages)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 12),
+              child: Card(
+                elevation: 0,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  side: BorderSide(
+                    color: Theme.of(context).colorScheme.outlineVariant,
                   ),
                 ),
-            ],
-          );
-        },
+                clipBehavior: Clip.antiAlias,
+                child: Theme(
+                  data: Theme.of(
+                    context,
+                  ).copyWith(dividerColor: Colors.transparent),
+                  child: ExpansionTile(
+                    key: Key('stage_${stage.id}'),
+                    leading: Container(
+                      width: 40,
+                      height: 40,
+                      decoration: BoxDecoration(
+                        color: primary.withValues(alpha: 0.08),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Icon(
+                        Icons.layers_outlined,
+                        color: primary,
+                        size: 20,
+                      ),
+                    ),
+                    title: Text(
+                      stage.name,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w800,
+                        fontSize: 16,
+                      ),
+                    ),
+                    onExpansionChanged: (expanded) {
+                      if (expanded) repository.refreshClasses(stage.id);
+                    },
+                    children: [
+                      StreamBuilder(
+                        stream: repository.watchClasses(stage.id),
+                        builder: (context, classSnapshot) {
+                          final classes = classSnapshot.data ?? const [];
+                          if (classSnapshot.connectionState ==
+                                  ConnectionState.waiting &&
+                              classes.isEmpty) {
+                            return const Padding(
+                              padding: EdgeInsets.all(18),
+                              child: LinearProgressIndicator(),
+                            );
+                          }
+                          if (classes.isEmpty) {
+                            return const Padding(
+                              padding: EdgeInsets.all(18),
+                              child: Text(
+                                'لا توجد فصول محفوظة في هذه المرحلة.',
+                              ),
+                            );
+                          }
+                          return Column(
+                            children: [
+                              for (final item in classes)
+                                ListTile(
+                                  key: Key('class_${item.id}'),
+                                  leading: const Icon(Icons.groups_outlined),
+                                  title: Text(
+                                    item.name,
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                  trailing: const Icon(
+                                    Icons.chevron_left_rounded,
+                                  ),
+                                  onTap: () => Navigator.of(context).push(
+                                    MaterialPageRoute(
+                                      builder: (_) => ClassStudentsPage(
+                                        classId: item.id,
+                                        className: item.name,
+                                        serviceId: widget.serviceId,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                            ],
+                          );
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+        ],
       );
+    },
+  );
 
   Widget _filter(String value, String label) => ChoiceChip(
-        key: Key('student_filter_$value'),
-        selected: statusFilter == value,
-        label: Text(label),
-        onSelected: (_) => setState(() => statusFilter = value),
-      );
+    key: Key('student_filter_$value'),
+    selected: statusFilter == value,
+    label: Text(label),
+    onSelected: (_) => setState(() => statusFilter = value),
+  );
 }
