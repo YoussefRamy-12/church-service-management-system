@@ -636,62 +636,80 @@ class _ServiceDashboardPageState extends ConsumerState<ServiceDashboardPage> {
                     ),
                   ),
                   const SizedBox(height: 12),
-                  GridView.count(
-                    crossAxisCount: isMobile ? 2 : 3,
-                    crossAxisSpacing: 12,
-                    mainAxisSpacing: 12,
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    childAspectRatio: isMobile ? 2.4 : 3.0,
-                    children: [
-                      _QuickAction(
-                        key: const Key('dashboard_students'),
-                        icon: Icons.school_rounded,
-                        label: 'التلاميذ',
-                        onTap: () =>
-                            context.go('/service/${widget.serviceId}/students'),
-                      ),
-                      _QuickAction(
-                        key: const Key('dashboard_add_student'),
-                        icon: Icons.person_add_alt_1_rounded,
-                        label: 'إضافة تلميذ',
-                        onTap: _addStudent,
-                      ),
-                      _QuickAction(
-                        icon: Icons.history_edu_rounded,
-                        label: 'المتابعة',
-                        onTap: () => context.go(
-                          '/service/${widget.serviceId}/follow-up',
-                        ),
-                      ),
-                      if (canManage)
+                  Builder(
+                    builder: (context) {
+                      final quickActions = <Widget>[
                         _QuickAction(
-                          key: const Key('dashboard_reports'),
-                          icon: Icons.bar_chart_rounded,
-                          label: 'التقارير',
+                          key: const Key('dashboard_students'),
+                          icon: Icons.school_rounded,
+                          label: 'التلاميذ',
+                          onTap: () =>
+                              context.go('/service/${widget.serviceId}/students'),
+                        ),
+                        _QuickAction(
+                          key: const Key('dashboard_add_student'),
+                          icon: Icons.person_add_alt_1_rounded,
+                          label: 'إضافة تلميذ',
+                          onTap: _addStudent,
+                        ),
+                        _QuickAction(
+                          icon: Icons.history_edu_rounded,
+                          label: 'المتابعة',
                           onTap: () => context.go(
-                            '/service/${widget.serviceId}/reports',
+                            '/service/${widget.serviceId}/follow-up',
                           ),
                         ),
-                      if (isSuperAdmin)
-                        _QuickAction(
-                          key: const Key('dashboard_add_servant'),
-                          icon: Icons.group_add_rounded,
-                          label: 'إضافة خادم',
-                          onTap: () => context.push(
-                            '/service/${widget.serviceId}/servants?add=true',
+                        if (canManage)
+                          _QuickAction(
+                            key: const Key('dashboard_reports'),
+                            icon: Icons.bar_chart_rounded,
+                            label: 'التقارير',
+                            onTap: () => context.go(
+                              '/service/${widget.serviceId}/reports',
+                            ),
                           ),
-                        ),
-                      if (canManage)
-                        _QuickAction(
-                          key: const Key('dashboard_servants'),
-                          icon: Icons.groups_rounded,
-                          label: 'الخدام',
-                          onTap: () => context.go(
-                            '/service/${widget.serviceId}/servants',
+                        if (isSuperAdmin)
+                          _QuickAction(
+                            key: const Key('dashboard_add_servant'),
+                            icon: Icons.group_add_rounded,
+                            label: 'إضافة خادم',
+                            onTap: () => context.push(
+                              '/service/${widget.serviceId}/servants?add=true',
+                            ),
+                          )
+                        else
+                          _QuickAction(
+                            key: const Key('dashboard_notebook'),
+                            icon: Icons.menu_book_rounded,
+                            label: 'النوتة الروحية',
+                            onTap: () => context.go(
+                              '/service/${widget.serviceId}/spiritual-notebook',
+                            ),
                           ),
+                        if (canManage)
+                          _QuickAction(
+                            key: const Key('dashboard_servants'),
+                            icon: Icons.groups_rounded,
+                            label: 'الخدام',
+                            onTap: () => context.go(
+                              '/service/${widget.serviceId}/servants',
+                            ),
+                          ),
+                      ];
+
+                      return GridView.builder(
+                        itemCount: quickActions.length,
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: isMobile ? 2 : 4,
+                          crossAxisSpacing: 12,
+                          mainAxisSpacing: 12,
+                          mainAxisExtent: isMobile ? 68 : 76,
                         ),
-                    ],
+                        itemBuilder: (_, index) => quickActions[index],
+                      );
+                    },
                   ),
 
                   // Role-scoped: Stages & classes exploration (non-class-servant)
@@ -911,6 +929,7 @@ class _ServiceDashboardPageState extends ConsumerState<ServiceDashboardPage> {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        fontSize: 13,
                         color: Theme.of(context).colorScheme.onSurfaceVariant,
                         fontWeight: FontWeight.w600,
                       ),
@@ -918,8 +937,10 @@ class _ServiceDashboardPageState extends ConsumerState<ServiceDashboardPage> {
                     const SizedBox(height: 2),
                     Text(
                       value,
-                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                        fontSize: 28,
                         fontWeight: FontWeight.w800,
+                        height: 1.1,
                       ),
                     ),
                   ],
