@@ -400,7 +400,7 @@ class _SpiritualNotebookStudentPageState
                                         vertical: 12,
                                       ),
                                     ),
-                                    onPressed: saving ? null : _submitRecord,
+                                    onPressed: saving ? null : () => _submitRecord(),
                                     icon: const Icon(
                                       Icons.check_circle_rounded,
                                     ),
@@ -451,7 +451,7 @@ class _SpiritualNotebookStudentPageState
                                         vertical: 14,
                                       ),
                                     ),
-                                    onPressed: saving ? null : _submitRecord,
+                                    onPressed: saving ? null : () => _submitRecord(),
                                     icon: const Icon(
                                       Icons.check_circle_rounded,
                                     ),
