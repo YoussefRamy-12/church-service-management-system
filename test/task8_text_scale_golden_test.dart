@@ -160,7 +160,7 @@ void main() {
     );
   });
 
-  testWidgets('text scale 1.3 — StatusChip all 7 states', (tester) async {
+  testWidgets('text scale 1.3 — StatusChip all 8 states', (tester) async {
     _setMobileViewport(tester);
     await tester.pumpWidget(
       _wrapScaled(
