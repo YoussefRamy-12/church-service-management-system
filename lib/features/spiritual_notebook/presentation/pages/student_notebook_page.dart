@@ -11,7 +11,6 @@ class SpiritualNotebookStudentPage extends ConsumerStatefulWidget {
   final String serviceId, membershipId;
   final List<String> studentIds;
   final int studentIndex;
-
   @override
   ConsumerState<SpiritualNotebookStudentPage> createState() =>
       _SpiritualNotebookStudentPageState();
@@ -24,13 +23,11 @@ class _SpiritualNotebookStudentPageState
   final bonus = TextEditingController();
   final reason = TextEditingController();
   bool saving = false;
-
   @override
   void initState() {
     super.initState();
     data = _load();
   }
-
 
   @override
   void didUpdateWidget(covariant SpiritualNotebookStudentPage oldWidget) {
@@ -42,14 +39,12 @@ class _SpiritualNotebookStudentPageState
       data = _load();
     }
   }
-
   @override
   void dispose() {
     bonus.dispose();
     reason.dispose();
     super.dispose();
   }
-
   @override
   Widget build(BuildContext context) {
     final role = ref.watch(currentServantProfileProvider).value?.role;
