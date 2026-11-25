@@ -697,6 +697,7 @@ class _ServiceDashboardPageState extends ConsumerState<ServiceDashboardPage> {
                           ),
                       ];
 
+                      assert(quickActions.length.isEven);
                       return GridView.builder(
                         itemCount: quickActions.length,
                         shrinkWrap: true,
