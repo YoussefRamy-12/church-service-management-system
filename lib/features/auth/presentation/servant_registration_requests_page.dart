@@ -447,7 +447,7 @@ class _ServantRegistrationRequestsPageState
                               return Text(
                                 enrolledServices.isEmpty
                                     ? 'غير مرتبط بأي خدمة'
-                                    : 'تعذر إتمام العملية. حاول مرة أخرى.',
+                                    : 'الخدمات: ${enrolledServices.join('، ')}',
                                 style: Theme.of(context).textTheme.bodySmall,
                               );
                             },

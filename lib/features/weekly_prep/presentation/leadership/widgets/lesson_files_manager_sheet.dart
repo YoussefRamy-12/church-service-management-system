@@ -181,7 +181,7 @@ class _LessonFilesManagerSheetState
           success++;
         } catch (e) {
           debugPrint('Presentation operation failed: $e');
-          errors.add('تعذر إتمام العملية. حاول مرة أخرى.');
+          errors.add('${item.name}: تعذر حفظ الملف.');
         }
       }
       ref.invalidate(weeklyLessonsProvider(widget.serviceId));
