@@ -17,7 +17,7 @@ class _TabButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final scheme = Theme.of(context).colorScheme;
 
     return Material(
       color: Colors.transparent,
@@ -26,21 +26,14 @@ class _TabButton extends StatelessWidget {
         borderRadius: BorderRadius.circular(8),
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 150),
-          padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 6),
+          constraints: const BoxConstraints(minHeight: 44),
+          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
           decoration: BoxDecoration(
-            color: selected
-                ? (isDark ? Theme.of(context).colorScheme.primary : Colors.white)
-                : Colors.transparent,
+            color: selected ? scheme.primaryContainer : Colors.transparent,
             borderRadius: BorderRadius.circular(8),
-            boxShadow: selected
-                ? [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.05),
-                      blurRadius: 4,
-                      offset: const Offset(0, 1),
-                    ),
-                  ]
-                : null,
+            border: Border.all(
+              color: selected ? scheme.primaryContainer : Colors.transparent,
+            ),
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -49,9 +42,7 @@ class _TabButton extends StatelessWidget {
               Icon(
                 icon,
                 size: 16,
-                color: selected
-                    ? (isDark ? Colors.white : Theme.of(context).colorScheme.primary)
-                    : (isDark ? AppDesignColors.darkMutedInk : appMutedInk),
+                color: selected ? scheme.onPrimary : scheme.onSurfaceVariant,
               ),
               const SizedBox(width: 6),
               Flexible(
@@ -62,9 +53,7 @@ class _TabButton extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 13,
                     fontWeight: selected ? FontWeight.w800 : FontWeight.w600,
-                    color: selected
-                        ? (isDark ? Colors.white : Theme.of(context).colorScheme.primary)
-                        : (isDark ? AppDesignColors.darkMutedInk : appMutedInk),
+                    color: selected ? scheme.onPrimary : scheme.onSurfaceVariant,
                   ),
                 ),
               ),
@@ -77,12 +66,8 @@ class _TabButton extends StatelessWidget {
                   ),
                   decoration: BoxDecoration(
                     color: selected
-                        ? (isDark
-                              ? Colors.white.withValues(alpha: 0.2)
-                              : Theme.of(context).colorScheme.primary.withValues(alpha: 0.1))
-                        : (isDark
-                              ? AppDesignColors.darkBorder
-                              : AppDesignColors.lightBorderSubtle),
+                        ? scheme.onPrimary.withValues(alpha: 0.2)
+                        : scheme.surfaceContainerHigh,
                     borderRadius: BorderRadius.circular(999),
                   ),
                   child: Text(
@@ -91,8 +76,8 @@ class _TabButton extends StatelessWidget {
                       fontSize: 13,
                       fontWeight: FontWeight.w700,
                       color: selected
-                          ? (isDark ? Colors.white : Theme.of(context).colorScheme.primary)
-                          : (isDark ? AppDesignColors.darkMutedInk : appMutedInk),
+                          ? scheme.onPrimary
+                          : scheme.onSurfaceVariant,
                     ),
                   ),
                 ),

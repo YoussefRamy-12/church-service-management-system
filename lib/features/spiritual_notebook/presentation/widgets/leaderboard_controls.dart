@@ -21,14 +21,14 @@ extension _LeaderboardControls on _LeaderboardState {
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
             decoration: BoxDecoration(
               color: selected
-                  ? Theme.of(context).colorScheme.primary
+                  ? Theme.of(context).colorScheme.primaryContainer
                   : (isDark
                         ? AppDesignColors.darkSurfaceSubtle
                         : AppDesignColors.lightSurfaceSubtle),
               borderRadius: BorderRadius.circular(999),
               border: Border.all(
                 color: selected
-                    ? Theme.of(context).colorScheme.primary
+                    ? Theme.of(context).colorScheme.primaryContainer
                     : (isDark
                           ? AppDesignColors.darkBorder
                           : AppDesignColors.lightBorder),
@@ -44,7 +44,7 @@ extension _LeaderboardControls on _LeaderboardState {
                     fontSize: 13,
                     fontWeight: selected ? FontWeight.w800 : FontWeight.w600,
                     color: selected
-                        ? Colors.white
+                        ? Theme.of(context).colorScheme.onPrimary
                         : (isDark ? Colors.white : appInk),
                   ),
                 ),
@@ -56,7 +56,7 @@ extension _LeaderboardControls on _LeaderboardState {
                   ),
                   decoration: BoxDecoration(
                     color: selected
-                        ? Colors.white.withValues(alpha: 0.22)
+                        ? Theme.of(context).colorScheme.onPrimary.withValues(alpha: 0.22)
                         : (isDark
                               ? AppDesignColors.darkBorder
                               : AppDesignColors.lightBorderSubtle),
@@ -68,7 +68,7 @@ extension _LeaderboardControls on _LeaderboardState {
                       fontSize: 13,
                       fontWeight: FontWeight.w700,
                       color: selected
-                          ? Colors.white
+                          ? Theme.of(context).colorScheme.onPrimary
                           : (isDark
                                 ? AppDesignColors.darkMutedInk
                                 : appMutedInk),
