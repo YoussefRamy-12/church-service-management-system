@@ -19,8 +19,8 @@ extension _StudentNotebookActivitySection on _SpiritualNotebookStudentPageState 
                 padding: EdgeInsets.zero,
                 color: isChecked
                     ? Theme.of(context).colorScheme.primary.withValues(
-          alpha: isDark ? 0.12 : 0.05,
-        )
+                        alpha: isDark ? 0.12 : 0.05,
+                      )
                     : null,
                 border: isChecked
                     ? Border.all(color: Theme.of(context).colorScheme.primary, width: 1.5)
@@ -29,62 +29,62 @@ extension _StudentNotebookActivitySection on _SpiritualNotebookStudentPageState 
                   borderRadius: BorderRadius.circular(12),
                   onTap: () {
                     setState(() {
-        if (isChecked) {
-          selected.remove(a['id'] as String);
-        } else {
-          selected.add(a['id'] as String);
-        }
+                      if (isChecked) {
+                        selected.remove(a['id'] as String);
+                      } else {
+                        selected.add(a['id'] as String);
+                      }
                     });
                   },
                   child: Padding(
                     padding: const EdgeInsets.symmetric(
-        horizontal: 14,
-        vertical: 10,
+                      horizontal: 14,
+                      vertical: 10,
                     ),
                     child: Row(
-        children: [
-          Checkbox(
-            value: isChecked,
-            onChanged: (v) {
-              setState(() {
-                if (v == true) {
-                  selected.add(a['id'] as String);
-                } else {
-                  selected.remove(
-                    a['id'] as String,
-                  );
-                }
-              });
-            },
-          ),
-          const SizedBox(width: 6),
-          Expanded(
-            child: Column(
-              crossAxisAlignment:
-                  CrossAxisAlignment.start,
-              children: [
-                Text(
-                  a['name'] as String,
-                  style: TextStyle(
-                    fontWeight: isChecked
-                        ? FontWeight.w800
-                        : FontWeight.w600,
-                    fontSize: 14,
-                  ),
-                ),
-                if (a['description'] != null &&
-                    (a['description'] as String)
-                        .isNotEmpty) ...[
-                  const SizedBox(height: 1),
-                  Text(
-                    a['description'].toString(),
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: theme
-                          .colorScheme
-                          .onSurfaceVariant,
-                    ),
-                  ),
+                      children: [
+                        Checkbox(
+                          value: isChecked,
+                          onChanged: (v) {
+                            setState(() {
+                              if (v == true) {
+                                selected.add(a['id'] as String);
+                              } else {
+                                selected.remove(
+                                  a['id'] as String,
+                                );
+                              }
+                            });
+                          },
+                        ),
+                        const SizedBox(width: 6),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment:
+                                CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                a['name'] as String,
+                                style: TextStyle(
+                                  fontWeight: isChecked
+                                      ? FontWeight.w800
+                                      : FontWeight.w600,
+                                  fontSize: 14,
+                                ),
+                              ),
+                              if (a['description'] != null &&
+                                  (a['description'] as String)
+                                      .isNotEmpty) ...[
+                                const SizedBox(height: 1),
+                                Text(
+                                  a['description'].toString(),
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: theme
+                                        .colorScheme
+                                        .onSurfaceVariant,
+                                  ),
+                                ),
                               ],
                             ],
                           ),
@@ -123,6 +123,7 @@ extension _StudentNotebookActivitySection on _SpiritualNotebookStudentPageState 
             },
           ),
         ],
+
 
       ],
     );
