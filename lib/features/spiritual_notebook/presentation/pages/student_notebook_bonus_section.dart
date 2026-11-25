@@ -6,7 +6,6 @@ extension _StudentNotebookBonusSection on _SpiritualNotebookStudentPageState {
     required bool bonusAllowed,
     required bool isMobile,
     required int maxBonus,
-    required ThemeData theme,
   }) {
     return Column(
       children: [
