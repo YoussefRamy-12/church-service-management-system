@@ -141,7 +141,10 @@ class _SpiritualNotebookStudentPageState
                     SolidCard(
                       padding: EdgeInsets.all(isMobile ? 14 : 20),
                       borderRadius: 14,
-                      child: Row(
+                      child: Wrap(
+                        spacing: 14,
+                        runSpacing: 10,
+                        crossAxisAlignment: WrapCrossAlignment.center,
                         children: [
                           CircleAvatar(
                             radius: isMobile ? 24 : 30,
@@ -151,52 +154,26 @@ class _SpiritualNotebookStudentPageState
                               studentName.trim().isNotEmpty
                                   ? studentName.trim().characters.first
                                   : 'ت',
-                              style: TextStyle(
-                                fontWeight: FontWeight.w800,
-                                fontSize: isMobile ? 20 : 24,
-                              ),
+                              style: TextStyle(fontWeight: FontWeight.w800, fontSize: isMobile ? 20 : 24),
                             ),
                           ),
-                          const SizedBox(width: 14),
-                          Expanded(
+                          SizedBox(
+                            width: isMobile ? 170 : 300,
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(
-                                  studentName,
-                                  style: theme.textTheme.titleMedium?.copyWith(
-                                    fontWeight: FontWeight.w800,
-                                    fontSize: isMobile ? 16 : 18,
-                                    letterSpacing: -0.2,
-                                  ),
-                                ),
+                                Text(studentName, maxLines: 2, overflow: TextOverflow.ellipsis, style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800, fontSize: isMobile ? 16 : 18, letterSpacing: -0.2)),
                                 const SizedBox(height: 2),
-                                Text(
-                                  '${cls?['name'] ?? 'بدون فصل'} • ${stage?['name'] ?? 'بدون مرحلة'}',
-                                  style: TextStyle(
-                                    color: theme.colorScheme.onSurfaceVariant,
-                                    fontWeight: FontWeight.w600,
-                                    fontSize: isMobile ? 12 : 14,
-                                  ),
-                                ),
+                                Text('${cls?['name'] ?? 'بدون فصل'} • ${stage?['name'] ?? 'بدون مرحلة'}', maxLines: 2, overflow: TextOverflow.ellipsis, style: TextStyle(color: theme.colorScheme.onSurfaceVariant, fontWeight: FontWeight.w600, fontSize: isMobile ? 12 : 14)),
                               ],
                             ),
                           ),
                           if (existing != null)
-                            const GlassBadge(
-                              label: 'تم التسجيل',
-                              color: appSuccess,
-                              icon: Icons.check_circle_rounded,
-                            )
+                            const GlassBadge(label: 'مسجَّل', color: appSuccess, icon: Icons.check_circle_rounded)
                           else
-                            const GlassBadge(
-                              label: 'بانتظار التسجيل',
-                              color: appWarning,
-                              icon: Icons.access_time_rounded,
-                            ),
+                            const GlassBadge(label: 'بانتظار التسجيل', color: appWarning, icon: Icons.access_time_rounded),
                         ],
                       ),
-                    ),
                     const SizedBox(height: 16),
 
                     if (existing != null) ...[
