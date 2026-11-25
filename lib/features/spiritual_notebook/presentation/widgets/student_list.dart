@@ -223,28 +223,28 @@ class _StudentListState extends State<_StudentList> {
                     vertical: 4,
                   ),
                   decoration: BoxDecoration(
-                    color: appPrimary.withValues(alpha: isDark ? 0.20 : 0.08),
+                    color: Theme.of(context).colorScheme.primary.withValues(alpha: isDark ? 0.20 : 0.08),
                     borderRadius: BorderRadius.circular(8),
                     border: Border.all(
-                      color: appPrimary.withValues(alpha: 0.25),
+                      color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.25),
                       width: 1,
                     ),
                   ),
                   child: Row(
                     children: [
-                      const Icon(
+                      Icon(
                         Icons.filter_alt_rounded,
                         size: 14,
-                        color: appPrimary,
+                        color: Theme.of(context).colorScheme.primary,
                       ),
                       const SizedBox(width: 6),
                       Expanded(
                         child: Text(
                           'تصفية حسب: ${classMap[selectedClassId] ?? ''} (${filteredStudents.length} تلميذ)',
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.w800,
-                            color: appPrimary,
+                            color: Theme.of(context).colorScheme.primary,
                           ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
@@ -253,8 +253,8 @@ class _StudentListState extends State<_StudentList> {
                       InkWell(
                         onTap: () => setState(() => selectedClassId = null),
                         borderRadius: BorderRadius.circular(4),
-                        child: const Padding(
-                          padding: EdgeInsets.symmetric(
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
                             horizontal: 4,
                             vertical: 2,
                           ),
@@ -264,15 +264,15 @@ class _StudentListState extends State<_StudentList> {
                               Icon(
                                 Icons.close_rounded,
                                 size: 14,
-                                color: appPrimary,
+                                color: Theme.of(context).colorScheme.primary,
                               ),
-                              SizedBox(width: 2),
+                              const SizedBox(width: 2),
                               Text(
                                 'إلغاء',
                                 style: TextStyle(
                                   fontSize: 12,
                                   fontWeight: FontWeight.w700,
-                                  color: appPrimary,
+                                  color: Theme.of(context).colorScheme.primary,
                                 ),
                               ),
                             ],
@@ -336,7 +336,7 @@ class _StudentListState extends State<_StudentList> {
                     final studentName = s['name'] as String? ?? 'بدون اسم';
                     final weekPts = thisWeekPoints[s['id']] ?? 0;
                     final totalPts = totalPointsMap[s['id']] ?? 0;
-                    final avatarBg = _avatarColor(studentName);
+                    final avatarColors = _avatarColors(context, studentName);
 
                     return SolidCard(
                       margin: const EdgeInsets.only(bottom: 8),
@@ -355,10 +355,8 @@ class _StudentListState extends State<_StudentList> {
                               // Avatar with Initial
                               CircleAvatar(
                                 radius: widget.isMobile ? 18 : 22,
-                                backgroundColor: avatarBg.withValues(
-                                  alpha: isDark ? 0.25 : 0.12,
-                                ),
-                                foregroundColor: avatarBg,
+                                backgroundColor: avatarColors.bg,
+                                foregroundColor: avatarColors.fg,
                                 child: Text(
                                   studentName.trim().isNotEmpty
                                       ? studentName.trim().characters.first

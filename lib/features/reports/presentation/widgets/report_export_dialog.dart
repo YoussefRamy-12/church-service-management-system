@@ -109,12 +109,12 @@ class _ReportExportDialogState extends ConsumerState<ReportExportDialog> {
                 Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: const Color(0xFF00236F).withValues(alpha: 0.1),
+                    color: theme.colorScheme.primary.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(10),
                   ),
-                  child: const Icon(
+                  child: Icon(
                     Icons.file_download_rounded,
-                    color: Color(0xFF00236F),
+                    color: theme.colorScheme.primary,
                     size: 24,
                   ),
                 ),

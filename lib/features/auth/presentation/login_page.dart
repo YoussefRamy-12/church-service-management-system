@@ -189,7 +189,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                   isDark ? Icons.light_mode_rounded : Icons.dark_mode_rounded,
                   color: isDark
                       ? const Color(0xFFFBBF24)
-                      : const Color(0xFF00236F),
+                      : Theme.of(context).colorScheme.primary,
                 ),
               ),
             ),

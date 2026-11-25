@@ -29,7 +29,7 @@ class _TabButton extends StatelessWidget {
           padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 6),
           decoration: BoxDecoration(
             color: selected
-                ? (isDark ? appPrimary : Colors.white)
+                ? (isDark ? Theme.of(context).colorScheme.primary : Colors.white)
                 : Colors.transparent,
             borderRadius: BorderRadius.circular(8),
             boxShadow: selected
@@ -50,7 +50,7 @@ class _TabButton extends StatelessWidget {
                 icon,
                 size: 16,
                 color: selected
-                    ? (isDark ? Colors.white : appPrimary)
+                    ? (isDark ? Colors.white : Theme.of(context).colorScheme.primary)
                     : (isDark ? AppDesignColors.darkMutedInk : appMutedInk),
               ),
               const SizedBox(width: 6),
@@ -63,7 +63,7 @@ class _TabButton extends StatelessWidget {
                     fontSize: 12,
                     fontWeight: selected ? FontWeight.w800 : FontWeight.w600,
                     color: selected
-                        ? (isDark ? Colors.white : appPrimary)
+                        ? (isDark ? Colors.white : Theme.of(context).colorScheme.primary)
                         : (isDark ? AppDesignColors.darkMutedInk : appMutedInk),
                   ),
                 ),
@@ -79,7 +79,7 @@ class _TabButton extends StatelessWidget {
                     color: selected
                         ? (isDark
                               ? Colors.white.withValues(alpha: 0.2)
-                              : appPrimary.withValues(alpha: 0.1))
+                              : Theme.of(context).colorScheme.primary.withValues(alpha: 0.1))
                         : (isDark
                               ? AppDesignColors.darkBorder
                               : AppDesignColors.lightBorderSubtle),
@@ -91,7 +91,7 @@ class _TabButton extends StatelessWidget {
                       fontSize: 12,
                       fontWeight: FontWeight.w700,
                       color: selected
-                          ? (isDark ? Colors.white : appPrimary)
+                          ? (isDark ? Colors.white : Theme.of(context).colorScheme.primary)
                           : (isDark ? AppDesignColors.darkMutedInk : appMutedInk),
                     ),
                   ),

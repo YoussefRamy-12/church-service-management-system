@@ -50,11 +50,11 @@ class _LeaderboardState extends State<_Leaderboard> {
               horizontal: widget.isMobile ? 12 : 24,
               vertical: 4,
             ),
-            child: const TabBar(
-              indicatorColor: appPrimary,
-              labelColor: appPrimary,
+            child: TabBar(
+              indicatorColor: Theme.of(context).colorScheme.primary,
+              labelColor: Theme.of(context).colorScheme.primary,
               unselectedLabelColor: appMutedInk,
-              tabs: [
+              tabs: const [
                 Tab(
                   icon: Icon(Icons.calendar_today_rounded, size: 16),
                   text: 'شرف الأسبوع',

@@ -35,12 +35,12 @@ extension _SpiritualNotebookPageLayout on _SpiritualNotebookPageState {
                     width: 36,
                     height: 36,
                     decoration: BoxDecoration(
-                      color: appPrimary.withValues(alpha: isDark ? 0.25 : 0.10),
+                      color: Theme.of(context).colorScheme.primary.withValues(alpha: isDark ? 0.25 : 0.10),
                       borderRadius: BorderRadius.circular(10),
                     ),
-                    child: const Icon(
+                    child: Icon(
                       Icons.auto_stories_rounded,
-                      color: appPrimary,
+                      color: Theme.of(context).colorScheme.primary,
                       size: 20,
                     ),
                   ),
@@ -63,7 +63,7 @@ extension _SpiritualNotebookPageLayout on _SpiritualNotebookPageState {
                             : Icons.insights_outlined,
                         size: 20,
                       ),
-                      color: _showMetrics ? appPrimary : AppDesignColors.darkMutedInk,
+                      color: _showMetrics ? Theme.of(context).colorScheme.primary : AppDesignColors.darkMutedInk,
                       tooltip: _showMetrics
                           ? 'إخفاء الإحصائيات'
                           : 'إظهار الإحصائيات',
@@ -115,10 +115,10 @@ extension _SpiritualNotebookPageLayout on _SpiritualNotebookPageState {
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        const Icon(
+                        Icon(
                           Icons.calendar_month_rounded,
                           size: 14,
-                          color: appPrimary,
+                          color: Theme.of(context).colorScheme.primary,
                         ),
                         const SizedBox(width: 6),
                         Text(
@@ -198,16 +198,16 @@ extension _SpiritualNotebookPageLayout on _SpiritualNotebookPageState {
               width: 44,
               height: 44,
               decoration: BoxDecoration(
-                color: appPrimary.withValues(alpha: isDark ? 0.25 : 0.10),
+                color: Theme.of(context).colorScheme.primary.withValues(alpha: isDark ? 0.25 : 0.10),
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(
-                  color: appPrimary.withValues(alpha: 0.20),
+                  color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.20),
                   width: 1,
                 ),
               ),
-              child: const Icon(
+              child: Icon(
                 Icons.auto_stories_rounded,
-                color: appPrimary,
+                color: Theme.of(context).colorScheme.primary,
                 size: 24,
               ),
             ),
@@ -264,10 +264,10 @@ extension _SpiritualNotebookPageLayout on _SpiritualNotebookPageState {
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      const Icon(
+                      Icon(
                         Icons.calendar_month_rounded,
                         size: 15,
-                        color: appPrimary,
+                        color: Theme.of(context).colorScheme.primary,
                       ),
                       const SizedBox(width: 6),
                       Text(
@@ -347,7 +347,7 @@ extension _SpiritualNotebookPageLayout on _SpiritualNotebookPageState {
                     label: 'إجمالي التلاميذ',
                     value: '$totalStudents',
                     icon: Icons.groups_rounded,
-                    color: appPrimary,
+                    color: Theme.of(context).colorScheme.primary,
                   ),
                 ),
                 const SizedBox(width: 8),
@@ -396,7 +396,7 @@ extension _SpiritualNotebookPageLayout on _SpiritualNotebookPageState {
               label: 'إجمالي التلاميذ',
               value: '$totalStudents',
               icon: Icons.groups_rounded,
-              color: appPrimary,
+              color: Theme.of(context).colorScheme.primary,
               badgeText: 'مسجل',
             ),
           ),

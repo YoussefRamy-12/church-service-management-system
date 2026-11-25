@@ -11,7 +11,7 @@ extension _StudentListFilterBuilders on _StudentListState {
     }) {
       final theme = Theme.of(context);
       final isDark = theme.brightness == Brightness.dark;
-      final activeColor = color ?? appPrimary;
+      final activeColor = color ?? Theme.of(context).colorScheme.primary;
 
       return Material(
         color: Colors.transparent,
@@ -82,12 +82,12 @@ extension _StudentListFilterBuilders on _StudentListState {
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
             decoration: BoxDecoration(
               color: selected
-                  ? appPrimary
+                  ? Theme.of(context).colorScheme.primary
                   : (isDark ? AppDesignColors.darkSurfaceSubtle : AppDesignColors.lightSurfaceSubtle),
               borderRadius: BorderRadius.circular(999),
               border: Border.all(
                 color: selected
-                    ? appPrimary
+                    ? Theme.of(context).colorScheme.primary
                     : (isDark
                           ? AppDesignColors.darkBorder
                           : AppDesignColors.lightBorder),

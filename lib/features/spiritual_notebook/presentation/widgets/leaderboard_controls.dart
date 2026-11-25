@@ -19,12 +19,12 @@ extension _LeaderboardControls on _LeaderboardState {
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
             decoration: BoxDecoration(
               color: selected
-                  ? appPrimary
+                  ? Theme.of(context).colorScheme.primary
                   : (isDark ? AppDesignColors.darkSurfaceSubtle : AppDesignColors.lightSurfaceSubtle),
               borderRadius: BorderRadius.circular(999),
               border: Border.all(
                 color: selected
-                    ? appPrimary
+                    ? Theme.of(context).colorScheme.primary
                     : (isDark
                           ? AppDesignColors.darkBorder
                           : AppDesignColors.lightBorder),
@@ -88,7 +88,7 @@ extension _LeaderboardControls on _LeaderboardState {
         1 => (AppDesignColors.lightGold, Icons.workspace_premium_rounded),
         2 => (AppDesignColors.lightMutedInk, Icons.military_tech_rounded),
         3 => (AppColors.light.warning.foreground, Icons.military_tech_rounded),
-        _ => (appPrimary, Icons.numbers_rounded),
+        _ => (Theme.of(context).colorScheme.primary, Icons.numbers_rounded),
       };
 
       return SolidCard(
@@ -151,15 +151,15 @@ extension _LeaderboardControls on _LeaderboardState {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
               decoration: BoxDecoration(
-                color: appPrimary.withValues(alpha: isDark ? 0.20 : 0.08),
+                color: Theme.of(context).colorScheme.primary.withValues(alpha: isDark ? 0.20 : 0.08),
                 borderRadius: BorderRadius.circular(6),
-                border: Border.all(color: appPrimary.withValues(alpha: 0.2)),
+                border: Border.all(color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.2)),
               ),
               child: Text(
                 '$score ن',
                 style: TextStyle(
                   fontWeight: FontWeight.w800,
-                  color: appPrimary,
+                  color: Theme.of(context).colorScheme.primary,
                   fontSize: isMobile ? 12 : 13,
                 ),
               ),

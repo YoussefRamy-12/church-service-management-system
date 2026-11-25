@@ -268,7 +268,7 @@ class _SystemAdminHomePageState extends ConsumerState<SystemAdminHomePage> {
                         icon: Icons.church_rounded,
                         label: 'الخدمات المتاحة',
                         value: '${services.length}',
-                        color: const Color(0xFF00236F),
+                        color: Theme.of(context).colorScheme.primary,
                       ),
                       const SizedBox(width: 14),
                       const _AdminSummary(
@@ -299,13 +299,15 @@ class _SystemAdminHomePageState extends ConsumerState<SystemAdminHomePage> {
                               decoration: BoxDecoration(
                                 color: (hasPending
                                         ? const Color(0xFFF59E0B)
-                                        : const Color(0xFF00236F))
+                                        : Theme.of(context).colorScheme.primary)
                                     .withValues(alpha: 0.10),
                                 borderRadius: BorderRadius.circular(12),
                                 border: Border.all(
                                   color: (hasPending
                                           ? const Color(0xFFF59E0B)
-                                          : const Color(0xFF00236F))
+                                          : Theme.of(context)
+                                              .colorScheme
+                                              .primary)
                                       .withValues(alpha: 0.25),
                                 ),
                               ),
@@ -313,7 +315,7 @@ class _SystemAdminHomePageState extends ConsumerState<SystemAdminHomePage> {
                                 Icons.person_search_rounded,
                                 color: hasPending
                                     ? const Color(0xFFB45309)
-                                    : const Color(0xFF00236F),
+                                    : Theme.of(context).colorScheme.primary,
                                 size: 24,
                               ),
                             ),
@@ -560,15 +562,17 @@ class _AdminSummary extends StatelessWidget {
     required this.icon,
     required this.label,
     required this.value,
-    this.color = const Color(0xFF00236F),
+    this.color,
   });
   final IconData icon;
   final String label;
   final String value;
-  final Color color;
+  final Color? color;
 
   @override
-  Widget build(BuildContext context) => Expanded(
+  Widget build(BuildContext context) {
+    final resolvedColor = color ?? Theme.of(context).colorScheme.primary;
+    return Expanded(
     child: GlassCard(
       borderRadius: 12,
       padding: const EdgeInsets.all(14),
@@ -578,11 +582,11 @@ class _AdminSummary extends StatelessWidget {
             width: 40,
             height: 40,
             decoration: BoxDecoration(
-              color: color.withValues(alpha: 0.10),
+              color: resolvedColor.withValues(alpha: 0.10),
               borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: color.withValues(alpha: 0.2)),
+              border: Border.all(color: resolvedColor.withValues(alpha: 0.2)),
             ),
-            child: Icon(icon, color: color, size: 20),
+            child: Icon(icon, color: resolvedColor, size: 20),
           ),
           const SizedBox(width: 10),
           Flexible(
@@ -593,7 +597,7 @@ class _AdminSummary extends StatelessWidget {
                   value,
                   style: Theme.of(context).textTheme.titleLarge?.copyWith(
                     fontWeight: FontWeight.w700,
-                    color: color,
+                    color: resolvedColor,
                   ),
                 ),
                 const SizedBox(height: 2),
@@ -613,4 +617,5 @@ class _AdminSummary extends StatelessWidget {
       ),
     ),
   );
+  }
 }

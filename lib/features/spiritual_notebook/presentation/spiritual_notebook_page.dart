@@ -30,19 +30,35 @@ final spiritualNotebookRepositoryProvider = Provider(
 String _date(DateTime d) =>
     '${d.year.toString().padLeft(4, '0')}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
 
-Color _avatarColor(String name) {
+({Color bg, Color fg}) _avatarColors(BuildContext context, String name) {
+  final theme = Theme.of(context);
+  final scheme = theme.colorScheme;
+  final colors = AppColors.of(context);
+  final isDark = theme.brightness == Brightness.dark;
+  if (isDark) {
+    final palette = <({Color bg, Color fg})>[
+      (bg: scheme.primaryContainer, fg: scheme.onPrimaryContainer),
+      (bg: colors.synced.background, fg: colors.synced.foreground),
+      (bg: colors.warning.background, fg: colors.warning.foreground),
+      (bg: colors.excused.background, fg: colors.excused.foreground),
+      (bg: colors.present.background, fg: colors.present.foreground),
+    ];
+    if (name.isEmpty) return palette.first;
+    final code = name.codeUnits.fold<int>(0, (v, u) => v + u);
+    return palette[code % palette.length];
+  }
   final palette = <Color>[
-    AppDesignColors.primary,
-    AppColors.light.synced.foreground,
-    AppColors.light.warning.foreground,
-    AppDesignColors.lightMutedInk,
-    AppColors.light.excused.foreground,
-    AppColors.light.excused.foreground,
-    AppColors.light.present.foreground,
+    scheme.primary,
+    colors.synced.foreground,
+    colors.warning.foreground,
+    scheme.onSurfaceVariant,
+    colors.excused.foreground,
+    colors.present.foreground,
   ];
-  if (name.isEmpty) return palette.first;
-  final code = name.codeUnits.fold<int>(0, (v, u) => v + u);
-  return palette[code % palette.length];
+  final c = name.isEmpty
+      ? palette.first
+      : palette[name.codeUnits.fold<int>(0, (v, u) => v + u) % palette.length];
+  return (bg: c.withValues(alpha: 0.12), fg: c);
 }
 
 class SpiritualNotebookPage extends ConsumerStatefulWidget {

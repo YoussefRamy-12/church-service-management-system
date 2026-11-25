@@ -84,7 +84,7 @@ class _SpiritualNotebookStudentPageState
             .fold<int>(0, (sum, a) => sum + (a['points'] as int));
         final grandTotal = selectedPoints + (bonusAllowed ? b : 0);
         final studentName = d.student['name'] as String? ?? 'التلميذ';
-        final avatarBg = _avatarColor(studentName);
+        final avatarColors = _avatarColors(context, studentName);
 
         return Scaffold(
           appBar: AppBar(
@@ -100,7 +100,7 @@ class _SpiritualNotebookStudentPageState
                 child: Center(
                   child: GlassBadge(
                     label: period.label,
-                    color: appPrimary,
+                    color: Theme.of(context).colorScheme.primary,
                     icon: Icons.calendar_month_rounded,
                     showDot: false,
                   ),
@@ -128,10 +128,8 @@ class _SpiritualNotebookStudentPageState
                         children: [
                           CircleAvatar(
                             radius: isMobile ? 24 : 30,
-                            backgroundColor: avatarBg.withValues(
-                              alpha: isDark ? 0.25 : 0.12,
-                            ),
-                            foregroundColor: avatarBg,
+                            backgroundColor: avatarColors.bg,
+                            foregroundColor: avatarColors.fg,
                             child: Text(
                               studentName.trim().isNotEmpty
                                   ? studentName.trim().characters.first
@@ -255,12 +253,12 @@ class _SpiritualNotebookStudentPageState
                                     child: Container(
                                       padding: const EdgeInsets.all(12),
                                       decoration: BoxDecoration(
-                                        color: appPrimary.withValues(
+                                        color: Theme.of(context).colorScheme.primary.withValues(
                                           alpha: isDark ? 0.15 : 0.08,
                                         ),
                                         borderRadius: BorderRadius.circular(10),
                                         border: Border.all(
-                                          color: appPrimary.withValues(
+                                          color: Theme.of(context).colorScheme.primary.withValues(
                                             alpha: 0.25,
                                           ),
                                         ),
@@ -269,21 +267,25 @@ class _SpiritualNotebookStudentPageState
                                         crossAxisAlignment:
                                             CrossAxisAlignment.start,
                                         children: [
-                                          const Text(
+                                          Text(
                                             'نقاط تشجيعية',
                                             style: TextStyle(
                                               fontSize: 12,
                                               fontWeight: FontWeight.w600,
-                                              color: appPrimary,
+                                              color: Theme.of(context)
+                                                  .colorScheme
+                                                  .primary,
                                             ),
                                           ),
                                           const SizedBox(height: 2),
                                           Text(
                                             '+${existing['bonus_points']} ن',
-                                            style: const TextStyle(
+                                            style: TextStyle(
                                               fontSize: 20,
                                               fontWeight: FontWeight.w800,
-                                              color: appPrimary,
+                                              color: Theme.of(context)
+                                                  .colorScheme
+                                                  .primary,
                                             ),
                                           ),
                                         ],
@@ -313,7 +315,7 @@ class _SpiritualNotebookStudentPageState
                             'حدد الأنشطة التي التزم بها التلميذ هذا الأسبوع',
                         badge: GlassBadge(
                           label: '$selectedPoints نقطة',
-                          color: appPrimary,
+                          color: Theme.of(context).colorScheme.primary,
                           showDot: false,
                         ),
                       ),
@@ -339,12 +341,12 @@ class _SpiritualNotebookStudentPageState
                               borderRadius: 12,
                               padding: EdgeInsets.zero,
                               color: isChecked
-                                  ? appPrimary.withValues(
+                                  ? Theme.of(context).colorScheme.primary.withValues(
                                       alpha: isDark ? 0.12 : 0.05,
                                     )
                                   : null,
                               border: isChecked
-                                  ? Border.all(color: appPrimary, width: 1.5)
+                                  ? Border.all(color: Theme.of(context).colorScheme.primary, width: 1.5)
                                   : null,
                               child: InkWell(
                                 borderRadius: BorderRadius.circular(12),
@@ -417,8 +419,8 @@ class _SpiritualNotebookStudentPageState
                                         ),
                                         decoration: BoxDecoration(
                                           color: isChecked
-                                              ? appPrimary
-                                              : appPrimary.withValues(
+                                              ? Theme.of(context).colorScheme.primary
+                                              : Theme.of(context).colorScheme.primary.withValues(
                                                   alpha: 0.08,
                                                 ),
                                           borderRadius: BorderRadius.circular(
@@ -431,7 +433,7 @@ class _SpiritualNotebookStudentPageState
                                             fontWeight: FontWeight.w800,
                                             color: isChecked
                                                 ? Colors.white
-                                                : appPrimary,
+                                                : Theme.of(context).colorScheme.primary,
                                             fontSize: 12,
                                           ),
                                         ),
@@ -528,7 +530,7 @@ class _SpiritualNotebookStudentPageState
                         padding: const EdgeInsets.all(16),
                         color: isDark ? AppDesignColors.darkSurfaceSubtle : appSoftBlue,
                         border: Border.all(
-                          color: appPrimary.withValues(alpha: 0.3),
+                          color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3),
                           width: 1.2,
                         ),
                         child: isMobile
@@ -549,10 +551,12 @@ class _SpiritualNotebookStudentPageState
                                       ),
                                       Text(
                                         '$grandTotal نقطة',
-                                        style: const TextStyle(
+                                        style: TextStyle(
                                           fontWeight: FontWeight.w800,
                                           fontSize: 22,
-                                          color: appPrimary,
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .primary,
                                         ),
                                       ),
                                     ],
@@ -560,7 +564,7 @@ class _SpiritualNotebookStudentPageState
                                   const SizedBox(height: 12),
                                   FilledButton.icon(
                                     style: FilledButton.styleFrom(
-                                      backgroundColor: appPrimary,
+                                      backgroundColor: Theme.of(context).colorScheme.primary,
                                       foregroundColor: Colors.white,
                                       padding: const EdgeInsets.symmetric(
                                         vertical: 12,
@@ -596,10 +600,12 @@ class _SpiritualNotebookStudentPageState
                                         const SizedBox(height: 2),
                                         Text(
                                           '$grandTotal نقطة',
-                                          style: const TextStyle(
+                                          style: TextStyle(
                                             fontWeight: FontWeight.w800,
                                             fontSize: 24,
-                                            color: appPrimary,
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .primary,
                                             letterSpacing: -0.3,
                                           ),
                                         ),
@@ -608,7 +614,7 @@ class _SpiritualNotebookStudentPageState
                                   ),
                                   FilledButton.icon(
                                     style: FilledButton.styleFrom(
-                                      backgroundColor: appPrimary,
+                                      backgroundColor: Theme.of(context).colorScheme.primary,
                                       foregroundColor: Colors.white,
                                       padding: const EdgeInsets.symmetric(
                                         horizontal: 22,

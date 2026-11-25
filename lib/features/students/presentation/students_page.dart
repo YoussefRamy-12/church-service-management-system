@@ -425,7 +425,6 @@ class _StudentsPageState extends ConsumerState<StudentsPage> {
   Widget _studentCard(Student student) {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
-    final primary = scheme.primary;
     final classLabel = _classDisplayNames[
             student.currentClassId ?? student.proposedClassId] ??
         (student.grade != null && student.grade!.isNotEmpty
@@ -453,11 +452,11 @@ class _StudentsPageState extends ConsumerState<StudentsPage> {
             children: [
               CircleAvatar(
                 radius: 22,
-                backgroundColor: primary.withValues(alpha: 0.12),
+                backgroundColor: scheme.primaryContainer,
                 child: Text(
                   student.name.isEmpty ? '؟' : student.name.characters.first,
                   style: TextStyle(
-                    color: primary,
+                    color: scheme.onPrimaryContainer,
                     fontWeight: FontWeight.w800,
                     fontSize: 16,
                   ),
@@ -601,14 +600,13 @@ class _StudentsPageState extends ConsumerState<StudentsPage> {
                       children: [
                         CircleAvatar(
                           radius: 16,
-                          backgroundColor:
-                              scheme.primary.withValues(alpha: 0.12),
+                          backgroundColor: scheme.primaryContainer,
                           child: Text(
                             student.name.isEmpty
                                 ? '؟'
                                 : student.name.characters.first,
                             style: TextStyle(
-                              color: scheme.primary,
+                              color: scheme.onPrimaryContainer,
                               fontWeight: FontWeight.w700,
                               fontSize: 13,
                             ),

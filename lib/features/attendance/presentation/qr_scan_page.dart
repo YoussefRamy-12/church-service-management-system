@@ -770,8 +770,8 @@ class _QrScanPageState extends State<QrScanPage>
                     icon: const Icon(Icons.search_rounded),
                     label: const Text('بحث بالاسم'),
                     style: FilledButton.styleFrom(
-                      backgroundColor: AppDesignColors.primary,
-                      foregroundColor: AppDesignColors.onPrimary,
+                      backgroundColor: Theme.of(context).colorScheme.primary,
+                      foregroundColor: Theme.of(context).colorScheme.onPrimary,
                     ),
                   ),
                 ),

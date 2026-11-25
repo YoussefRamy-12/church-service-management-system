@@ -28,7 +28,7 @@ class AttendanceCounters extends StatelessWidget {
           label: 'إجمالي المقيدين',
           value: '$totalCount',
           icon: Icons.groups_rounded,
-          color: const Color(0xFF00236F),
+          color: Theme.of(context).colorScheme.primary,
         ),
         AttendanceKpiPill(
           label: 'حاضر',
@@ -52,7 +52,7 @@ class AttendanceCounters extends StatelessWidget {
           label: 'قبل الاجتماع',
           value: '$beforeMeetingCount',
           icon: Icons.access_time_filled_rounded,
-          color: const Color(0xFF00236F),
+          color: Theme.of(context).colorScheme.primary,
         ),
         AttendanceKpiPill(
           label: 'عادي',

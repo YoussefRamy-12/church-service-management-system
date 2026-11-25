@@ -45,11 +45,11 @@ class StudentAnalyticsDetailPage extends ConsumerWidget {
                   children: [
                     CircleAvatar(
                       radius: 36,
-                      backgroundColor: const Color(0xFF00236F).withValues(alpha: 0.1),
-                      child: const Icon(
+                      backgroundColor: theme.colorScheme.primaryContainer,
+                      child: Icon(
                         Icons.person_rounded,
                         size: 40,
-                        color: Color(0xFF00236F),
+                        color: theme.colorScheme.onPrimaryContainer,
                       ),
                     ),
                     const SizedBox(height: 12),

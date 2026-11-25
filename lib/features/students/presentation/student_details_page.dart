@@ -518,7 +518,10 @@ class _StudentDetailsPageState extends ConsumerState<StudentDetailsPage> {
                                   : 'تحميل بطاقة الطالب PDF',
                             ),
                             style: FilledButton.styleFrom(
-                              backgroundColor: AppDesignColors.primary,
+                              backgroundColor:
+                                  Theme.of(context).colorScheme.primary,
+                              foregroundColor:
+                                  Theme.of(context).colorScheme.onPrimary,
                               padding: const EdgeInsets.symmetric(
                                 horizontal: 20,
                                 vertical: 12,
@@ -725,7 +728,6 @@ class _StudentProfileHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    final primary = scheme.primary;
     final subtitle = [
       if (stageName != null && stageName!.isNotEmpty) stageName!,
       if (className != null && className!.isNotEmpty) className!,
@@ -742,11 +744,11 @@ class _StudentProfileHeader extends StatelessWidget {
           children: [
             CircleAvatar(
               radius: 36,
-              backgroundColor: primary.withValues(alpha: 0.12),
+              backgroundColor: scheme.primaryContainer,
               child: Text(
                 student.name.isEmpty ? '؟' : student.name.characters.first,
                 style: TextStyle(
-                  color: primary,
+                  color: scheme.onPrimaryContainer,
                   fontWeight: FontWeight.w800,
                   fontSize: 24,
                 ),

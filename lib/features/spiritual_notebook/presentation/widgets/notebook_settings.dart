@@ -89,7 +89,7 @@ class _NotebookSettingsState extends ConsumerState<_NotebookSettings> {
                   subtitle: 'قائمة الأنشطة المتاحة للتسجيل أسبوعياً',
                   badge: GlassBadge(
                     label: '${widget.activities.length} نشاط',
-                    color: appPrimary,
+                    color: Theme.of(context).colorScheme.primary,
                     showDot: false,
                   ),
                 ),
@@ -166,16 +166,16 @@ class _NotebookSettingsState extends ConsumerState<_NotebookSettings> {
                               vertical: 3,
                             ),
                             decoration: BoxDecoration(
-                              color: appPrimary.withValues(
+                              color: Theme.of(context).colorScheme.primary.withValues(
                                 alpha: isDark ? 0.20 : 0.08,
                               ),
                               borderRadius: BorderRadius.circular(6),
                             ),
                             child: Text(
                               '+${a['points']} ن',
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontWeight: FontWeight.w800,
-                                color: appPrimary,
+                                color: Theme.of(context).colorScheme.primary,
                                 fontSize: 12,
                               ),
                             ),
@@ -183,7 +183,7 @@ class _NotebookSettingsState extends ConsumerState<_NotebookSettings> {
                           const SizedBox(width: 4),
                           IconButton(
                             icon: const Icon(Icons.edit_outlined, size: 18),
-                            color: appPrimary,
+                            color: Theme.of(context).colorScheme.primary,
                             tooltip: 'تعديل',
                             visualDensity: VisualDensity.compact,
                             padding: EdgeInsets.zero,
@@ -247,7 +247,7 @@ class _NotebookSettingsState extends ConsumerState<_NotebookSettings> {
                       const SizedBox(width: 8),
                       FilledButton.icon(
                         style: FilledButton.styleFrom(
-                          backgroundColor: appPrimary,
+                          backgroundColor: Theme.of(context).colorScheme.primary,
                           foregroundColor: Colors.white,
                           padding: const EdgeInsets.symmetric(
                             horizontal: 16,
@@ -288,7 +288,7 @@ class _NotebookSettingsState extends ConsumerState<_NotebookSettings> {
                       const SizedBox(width: 10),
                       FilledButton.icon(
                         style: FilledButton.styleFrom(
-                          backgroundColor: appPrimary,
+                          backgroundColor: Theme.of(context).colorScheme.primary,
                           foregroundColor: Colors.white,
                           padding: const EdgeInsets.symmetric(
                             horizontal: 18,
@@ -337,7 +337,7 @@ class _NotebookSettingsState extends ConsumerState<_NotebookSettings> {
                     const SizedBox(width: 10),
                     FilledButton(
                       style: FilledButton.styleFrom(
-                        backgroundColor: appPrimary,
+                        backgroundColor: Theme.of(context).colorScheme.primary,
                         foregroundColor: Colors.white,
                       ),
                       onPressed: isSavingBonusSettings
@@ -364,7 +364,7 @@ class _NotebookSettingsState extends ConsumerState<_NotebookSettings> {
                     final isChecked = roles.contains(r);
                     return FilterChip(
                       selected: isChecked,
-                      selectedColor: appPrimary.withValues(
+                      selectedColor: Theme.of(context).colorScheme.primary.withValues(
                         alpha: isDark ? 0.25 : 0.12,
                       ),
                       label: Text(
@@ -401,9 +401,9 @@ class _NotebookSettingsState extends ConsumerState<_NotebookSettings> {
                   ),
                   child: Row(
                     children: [
-                      const Icon(
+                      Icon(
                         Icons.info_outline_rounded,
-                        color: appPrimary,
+                        color: Theme.of(context).colorScheme.primary,
                         size: 18,
                       ),
                       const SizedBox(width: 8),

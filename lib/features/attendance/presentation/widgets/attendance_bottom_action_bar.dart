@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../../../../app/design/app_colors.dart';
 import '../../../../app/design/app_radii.dart';
 import '../../../../app/design/app_spacing.dart';
 
@@ -70,8 +69,8 @@ class AttendanceBottomActionBar extends StatelessWidget {
                 icon: const Icon(Icons.qr_code_scanner_rounded, size: 20),
                 label: const Text('مسح QR'),
                 style: FilledButton.styleFrom(
-                  backgroundColor: AppDesignColors.primary,
-                  foregroundColor: AppDesignColors.onPrimary,
+                  backgroundColor: theme.colorScheme.primary,
+                  foregroundColor: theme.colorScheme.onPrimary,
                   minimumSize: const Size.fromHeight(48),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(AppRadii.control),

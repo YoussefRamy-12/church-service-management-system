@@ -351,12 +351,13 @@ class _AddStudentPageState extends ConsumerState<AddStudentPage> {
                               Container(
                                 padding: const EdgeInsets.all(12),
                                 decoration: BoxDecoration(
-                                  color: AppDesignColors.primary.withValues(alpha: 0.1),
+                                  color: theme.colorScheme.primary
+                                      .withValues(alpha: 0.1),
                                   shape: BoxShape.circle,
                                 ),
-                                child: const Icon(
+                                child: Icon(
                                   Icons.person_add_rounded,
-                                  color: AppDesignColors.primary,
+                                  color: theme.colorScheme.primary,
                                   size: 28,
                                 ),
                               ),
@@ -537,9 +538,10 @@ class _AddStudentPageState extends ConsumerState<AddStudentPage> {
                                           ),
                                           child: Row(
                                             children: [
-                                              const Icon(
+                                              Icon(
                                                 Icons.church_outlined,
-                                                color: AppDesignColors.primary,
+                                                color:
+                                                    theme.colorScheme.primary,
                                               ),
                                               const SizedBox(width: 10),
                                               const Expanded(
@@ -903,18 +905,18 @@ class _AddStudentPageState extends ConsumerState<AddStudentPage> {
                                   ),
                                   child: Row(
                                     children: [
-                                      const Icon(
+                                      Icon(
                                         Icons.lock_outline_rounded,
-                                        color: AppDesignColors.primary,
+                                        color: theme.colorScheme.primary,
                                         size: 20,
                                       ),
                                       const SizedBox(width: 10),
                                       Expanded(
                                         child: Text(
                                           'التسكين محدد بفصلك المسند: ${_lockedClassLabel ?? ''}',
-                                          style: const TextStyle(
+                                          style: TextStyle(
                                             fontWeight: FontWeight.w700,
-                                            color: AppDesignColors.primary,
+                                            color: theme.colorScheme.primary,
                                           ),
                                         ),
                                       ),
@@ -1204,18 +1206,19 @@ class _AddStudentPageState extends ConsumerState<AddStudentPage> {
   }
 
   Widget _buildSectionHeader(String title, IconData icon) {
+    final primary = Theme.of(context).colorScheme.primary;
     return Padding(
       padding: const EdgeInsetsDirectional.only(bottom: 12, start: 4),
       child: Row(
         children: [
-          Icon(icon, color: AppDesignColors.primary, size: 20),
+          Icon(icon, color: primary, size: 20),
           const SizedBox(width: 8),
           Text(
             title,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 15,
               fontWeight: FontWeight.w800,
-              color: AppDesignColors.primary,
+              color: primary,
             ),
           ),
         ],

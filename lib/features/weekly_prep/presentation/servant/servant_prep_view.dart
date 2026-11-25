@@ -358,10 +358,10 @@ class _ServantPrepViewState extends ConsumerState<ServantPrepView> {
                   if (val) setState(() => _selectedWeek = w);
                 },
                 avatar: _sameDay(w, currentWeek)
-                    ? const Icon(
+                    ? Icon(
                         Icons.star_rounded,
                         size: 16,
-                        color: appPrimary,
+                        color: Theme.of(context).colorScheme.primary,
                       )
                     : null,
                 label: Text(
@@ -487,15 +487,15 @@ class _ServantPrepViewState extends ConsumerState<ServantPrepView> {
                     height: 44,
                     decoration: BoxDecoration(
                       color: isCurrentWeek
-                          ? appSoftBlue
-                          : AppDesignColors.lightSurfaceSubtle,
+                          ? Theme.of(context).colorScheme.primaryContainer
+                          : Theme.of(context).colorScheme.surfaceContainerHighest,
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Icon(
                       Icons.menu_book_rounded,
                       color: isCurrentWeek
-                          ? appPrimary
-                          : AppDesignColors.lightMutedInk,
+                          ? Theme.of(context).colorScheme.onPrimaryContainer
+                          : Theme.of(context).colorScheme.onSurfaceVariant,
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -509,8 +509,8 @@ class _ServantPrepViewState extends ConsumerState<ServantPrepView> {
                             fontSize: 12,
                             fontWeight: FontWeight.w600,
                             color: isCurrentWeek
-                                ? appPrimary
-                                : AppDesignColors.lightMutedInk,
+                                ? Theme.of(context).colorScheme.primary
+                                : Theme.of(context).colorScheme.onSurfaceVariant,
                           ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
@@ -632,7 +632,7 @@ class _ServantPrepViewState extends ConsumerState<ServantPrepView> {
                       style: FilledButton.styleFrom(
                         backgroundColor: needsRevision
                             ? const Color(0xFFEA580C)
-                            : appPrimary,
+                            : Theme.of(context).colorScheme.primary,
                       ),
                       onPressed: _submitting
                           ? null

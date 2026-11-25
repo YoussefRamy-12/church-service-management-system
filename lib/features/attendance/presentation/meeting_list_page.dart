@@ -251,13 +251,17 @@ class _MeetingListPageState extends ConsumerState<MeetingListPage> {
                           height: 50,
                           decoration: BoxDecoration(
                             color: isCurrent
-                                ? const Color(0xFF00236F).withValues(alpha: 0.08)
-                                : const Color(0xFF64748B).withValues(alpha: 0.08),
+                                ? Theme.of(context).colorScheme.primaryContainer
+                                : Theme.of(context)
+                                    .colorScheme
+                                    .surfaceContainerHighest,
                             borderRadius: BorderRadius.circular(10),
                             border: Border.all(
                               color: isCurrent
-                                  ? const Color(0xFF00236F).withValues(alpha: 0.20)
-                                  : const Color(0xFF64748B).withValues(alpha: 0.20),
+                                  ? Theme.of(context).colorScheme.primary
+                                  : Theme.of(context)
+                                      .colorScheme
+                                      .outlineVariant,
                             ),
                           ),
                           child: Column(
@@ -267,8 +271,10 @@ class _MeetingListPageState extends ConsumerState<MeetingListPage> {
                                 '${meeting.meetingDate.day}',
                                 style: TextStyle(
                                   color: isCurrent
-                                      ? const Color(0xFF00236F)
-                                      : const Color(0xFF334155),
+                                      ? Theme.of(context)
+                                          .colorScheme
+                                          .onPrimaryContainer
+                                      : Theme.of(context).colorScheme.onSurface,
                                   fontWeight: FontWeight.w700,
                                   fontSize: 17,
                                   height: 1,
@@ -279,8 +285,12 @@ class _MeetingListPageState extends ConsumerState<MeetingListPage> {
                                 _monthLabel(meeting.meetingDate.month),
                                 style: TextStyle(
                                   color: isCurrent
-                                      ? const Color(0xFF00236F)
-                                      : const Color(0xFF64748B),
+                                      ? Theme.of(context)
+                                          .colorScheme
+                                          .onPrimaryContainer
+                                      : Theme.of(context)
+                                          .colorScheme
+                                          .onSurfaceVariant,
                                   fontWeight: FontWeight.w600,
                                   fontSize: 13,
                                   height: 1,

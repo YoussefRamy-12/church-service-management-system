@@ -100,7 +100,9 @@ class AttendancePage extends ConsumerWidget {
                             label: '${(progress * 100).toInt()}%',
                             color: progress >= 0.75
                                 ? appSuccess
-                                : (progress >= 0.40 ? appWarning : appPrimary),
+                                : (progress >= 0.40
+                                    ? appWarning
+                                    : Theme.of(context).colorScheme.primary),
                             showDot: false,
                           ),
                         ],
@@ -115,7 +117,9 @@ class AttendancePage extends ConsumerWidget {
                               ? const Color(0xFF1E293B)
                               : appMistBlue,
                           valueColor: AlwaysStoppedAnimation<Color>(
-                            progress >= 0.75 ? appSuccess : appPrimaryContainer,
+                            progress >= 0.75
+                                ? appSuccess
+                                : Theme.of(context).colorScheme.primaryContainer,
                           ),
                         ),
                       ),
@@ -152,9 +156,14 @@ class AttendancePage extends ConsumerWidget {
                           children: [
                             CircleAvatar(
                               radius: 20,
-                              backgroundColor: (present ? appSuccess : appPrimary)
-                                  .withValues(alpha: 0.12),
-                              foregroundColor: present ? appSuccess : appPrimary,
+                              backgroundColor: present
+                                  ? appSuccess.withValues(alpha: 0.12)
+                                  : Theme.of(context).colorScheme.primaryContainer,
+                              foregroundColor: present
+                                  ? appSuccess
+                                  : Theme.of(context)
+                                      .colorScheme
+                                      .onPrimaryContainer,
                               child: Text(
                                 name.trim().isNotEmpty
                                     ? name.trim().characters.first

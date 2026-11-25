@@ -88,37 +88,37 @@ extension _LeaderboardSections on _LeaderboardState {
               margin: const EdgeInsets.only(bottom: 10),
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
               decoration: BoxDecoration(
-                color: appPrimary.withValues(alpha: isDark ? 0.20 : 0.08),
+                color: Theme.of(context).colorScheme.primary.withValues(alpha: isDark ? 0.20 : 0.08),
                 borderRadius: BorderRadius.circular(8),
                 border: Border.all(
-                  color: appPrimary.withValues(alpha: 0.25),
+                  color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.25),
                   width: 1,
                 ),
               ),
               child: Row(
                 children: [
-                  const Icon(Icons.school_rounded, size: 14, color: appPrimary),
+                  Icon(Icons.school_rounded, size: 14, color: Theme.of(context).colorScheme.primary),
                   const SizedBox(width: 6),
                   Expanded(
                     child: Text(
                       'لوحة شرف فصل: ${classMap[selectedClassId] ?? ''}',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w800,
-                        color: appPrimary,
+                        color: Theme.of(context).colorScheme.primary,
                       ),
                     ),
                   ),
                   InkWell(
                     onTap: () => setState(() => selectedClassId = null),
-                    child: const Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
                       child: Text(
                         'عرض الكل',
                         style: TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.w700,
-                          color: appPrimary,
+                          color: Theme.of(context).colorScheme.primary,
                         ),
                       ),
                     ),
@@ -139,7 +139,7 @@ extension _LeaderboardSections on _LeaderboardState {
             subtitle: 'ترتيب التلاميذ بحسب مجموع النقاط',
             badge: GlassBadge(
               label: '${scoredStudents.length} تلميذ',
-              color: appPrimary,
+              color: Theme.of(context).colorScheme.primary,
               showDot: false,
             ),
           ),

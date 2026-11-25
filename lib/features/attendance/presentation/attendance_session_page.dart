@@ -174,14 +174,14 @@ class _AttendanceSessionPageState extends ConsumerState<AttendanceSessionPage> {
         (_allStudentsMode ? 'فصل غير محدد' : 'الفصل المحدد');
   }
 
-  Color _classColorFor(String id) {
-    const palette = <Color>[
-      Color(0xFF00236F),
-      Color(0xFF0D9488),
-      Color(0xFFB45309),
-      Color(0xFF475569),
-      Color(0xFF0369A1),
-      Color(0xFFBE123C),
+  Color _classColorFor(BuildContext context, String id) {
+    final palette = <Color>[
+      Theme.of(context).colorScheme.primary,
+      const Color(0xFF0D9488),
+      const Color(0xFFB45309),
+      const Color(0xFF475569),
+      const Color(0xFF0369A1),
+      const Color(0xFFBE123C),
     ];
     final stableHash = id.codeUnits.fold<int>(0, (value, unit) => value + unit);
     return palette[stableHash % palette.length];
@@ -613,7 +613,8 @@ class _AttendanceSessionPageState extends ConsumerState<AttendanceSessionPage> {
                                   final record = checkedMap[student.id];
                                   final isBusy = busyStudentId == student.id;
                                   final classId = _classIdFor(student);
-                                  final classColor = _classColorFor(classId);
+                                  final classColor =
+                                      _classColorFor(context, classId);
                                   final previousClassId = i == 0
                                       ? null
                                       : _classIdFor(filtered[i - 1]);

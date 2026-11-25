@@ -247,12 +247,13 @@ class _ServiceSettingsPageState extends ConsumerState<ServiceSettingsPage> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Row(
+                        Row(
                           children: [
                             Icon(Icons.install_mobile_rounded,
-                                color: Color(0xFF00236F), size: 22),
-                            SizedBox(width: 10),
-                            Text('استخدام التطبيق على الهاتف',
+                                color: Theme.of(context).colorScheme.primary,
+                                size: 22),
+                            const SizedBox(width: 10),
+                            const Text('استخدام التطبيق على الهاتف',
                                 style: TextStyle(
                                     fontWeight: FontWeight.w800, fontSize: 16)),
                           ],
@@ -284,7 +285,7 @@ class _ServiceSettingsPageState extends ConsumerState<ServiceSettingsPage> {
                             currentThemeMode == ThemeMode.dark
                                 ? Icons.dark_mode_rounded
                                 : Icons.light_mode_rounded,
-                            color: const Color(0xFF00236F),
+                            color: Theme.of(context).colorScheme.primary,
                             size: 22,
                           ),
                           const SizedBox(width: 10),
@@ -329,15 +330,15 @@ class _ServiceSettingsPageState extends ConsumerState<ServiceSettingsPage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Row(
+                      Row(
                         children: [
                           Icon(
                             Icons.church_rounded,
-                            color: Color(0xFF00236F),
+                            color: Theme.of(context).colorScheme.primary,
                             size: 22,
                           ),
-                          SizedBox(width: 10),
-                          Text(
+                          const SizedBox(width: 10),
+                          const Text(
                             'بيانات الخدمة والكنيسة',
                             style: TextStyle(
                               fontWeight: FontWeight.w800,
@@ -371,15 +372,15 @@ class _ServiceSettingsPageState extends ConsumerState<ServiceSettingsPage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Row(
+                      Row(
                         children: [
                           Icon(
                             Icons.schedule_rounded,
-                            color: Color(0xFF00236F),
+                            color: Theme.of(context).colorScheme.primary,
                             size: 22,
                           ),
-                          SizedBox(width: 10),
-                          Text(
+                          const SizedBox(width: 10),
+                          const Text(
                             'جدول ومواعيد الاجتماع',
                             style: TextStyle(
                               fontWeight: FontWeight.w800,
@@ -532,15 +533,15 @@ class _ServiceSettingsPageState extends ConsumerState<ServiceSettingsPage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Row(
+                      Row(
                         children: [
                           Icon(
                             Icons.layers_outlined,
-                            color: Color(0xFF00236F),
+                            color: Theme.of(context).colorScheme.primary,
                             size: 22,
                           ),
-                          SizedBox(width: 10),
-                          Text(
+                          const SizedBox(width: 10),
+                          const Text(
                             'الإدارة الهيكلية والنظام',
                             style: TextStyle(
                               fontWeight: FontWeight.w800,

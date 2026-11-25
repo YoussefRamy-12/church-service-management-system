@@ -255,7 +255,7 @@ class _ImportStudentsExcelPageState
           FilledButton(
             onPressed: () => Navigator.pop(dialogCtx, true),
             style: FilledButton.styleFrom(
-              backgroundColor: AppDesignColors.primary,
+              backgroundColor: Theme.of(dialogCtx).colorScheme.primary,
             ),
             child: const Text('تأكيد الاستيراد'),
           ),
@@ -406,18 +406,22 @@ class _ImportStudentsExcelPageState
                                 ),
                                 child: Row(
                                   children: [
-                                    const Icon(
+                                    Icon(
                                       Icons.lock_outline_rounded,
-                                      color: AppDesignColors.primary,
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .primary,
                                       size: 20,
                                     ),
                                     const SizedBox(width: 10),
                                     Expanded(
                                       child: Text(
                                         'الوجهة محددة بفصلك المصرح لك إدارته: ${_lockedClassLabel ?? ''}',
-                                        style: const TextStyle(
+                                        style: TextStyle(
                                           fontWeight: FontWeight.w700,
-                                          color: AppDesignColors.primary,
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .primary,
                                         ),
                                       ),
                                     ),
@@ -663,25 +667,29 @@ class _ImportStudentsExcelPageState
                                 ),
                                 decoration: BoxDecoration(
                                   border: Border.all(
-                                    color: const Color(
-                                      0xFF00236F,
-                                    ).withValues(alpha: 0.3),
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .primary
+                                        .withValues(alpha: 0.3),
                                     width: 1,
                                   ),
                                   borderRadius: BorderRadius.circular(12),
-                                  color: const Color(
-                                    0xFF00236F,
-                                  ).withValues(alpha: 0.03),
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .primary
+                                      .withValues(alpha: 0.03),
                                 ),
                                 child: Column(
                                   children: [
                                     if (_parsingFile)
                                       const CircularProgressIndicator()
                                     else
-                                      const Icon(
+                                      Icon(
                                         Icons.cloud_upload_outlined,
                                         size: 44,
-                                        color: AppDesignColors.primary,
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .primary,
                                       ),
                                     const SizedBox(height: 12),
                                     Text(
@@ -792,7 +800,7 @@ class _ImportStudentsExcelPageState
           style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 15),
         ),
         style: FilledButton.styleFrom(
-          backgroundColor: AppDesignColors.primary,
+          backgroundColor: Theme.of(context).colorScheme.primary,
           minimumSize: const Size.fromHeight(52),
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
         ),
@@ -808,7 +816,7 @@ class _ImportStudentsExcelPageState
           child: _summaryStatCard(
             'إجمالي الصفوف',
             res.totalRows.toString(),
-            AppDesignColors.primary,
+            Theme.of(context).colorScheme.primary,
             Icons.format_list_numbered_rounded,
           ),
         ),
@@ -1070,7 +1078,7 @@ class _ImportStudentsExcelPageState
       padding: const EdgeInsetsDirectional.only(start: 6, bottom: 8),
       child: Row(
         children: [
-          Icon(icon, size: 20, color: AppDesignColors.primary),
+          Icon(icon, size: 20, color: Theme.of(context).colorScheme.primary),
           const SizedBox(width: 8),
           Expanded(
             child: Text(

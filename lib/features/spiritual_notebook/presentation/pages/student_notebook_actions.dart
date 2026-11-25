@@ -70,11 +70,12 @@ extension _SpiritualNotebookStudentActions on _SpiritualNotebookStudentPageState
       final confirmed = await showDialog<bool>(
         context: context,
         builder: (c) => AlertDialog(
-          title: const Row(
+          title: Row(
             children: [
-              Icon(Icons.verified_rounded, color: appPrimary),
-              SizedBox(width: 8),
-              Text('تأكيد اعتماد النوتة الروحية'),
+              Icon(Icons.verified_rounded,
+                  color: Theme.of(context).colorScheme.primary),
+              const SizedBox(width: 8),
+              const Text('تأكيد اعتماد النوتة الروحية'),
             ],
           ),
           content: Text(

@@ -39,12 +39,12 @@ class StudentAnalyticsView extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(6),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF00236F).withValues(alpha: 0.1),
+                  color: theme.colorScheme.primary.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: const Icon(
+                child: Icon(
                   Icons.groups_rounded,
-                  color: Color(0xFF00236F),
+                  color: theme.colorScheme.primary,
                   size: 20,
                 ),
               ),

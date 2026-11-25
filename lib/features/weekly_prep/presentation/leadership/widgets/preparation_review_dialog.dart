@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'package:church_service_management_system/app/theme.dart';
 import 'package:church_service_management_system/features/auth/domain/entities/servant_profile.dart';
 import '../../../domain/prep_date_formatter.dart';
 import '../../../domain/preparation_status.dart';
@@ -248,7 +247,10 @@ class _PreparationReviewDialogState
     return AlertDialog(
       title: Row(
         children: [
-          const Icon(Icons.rate_review_rounded, color: appPrimary),
+          Icon(
+            Icons.rate_review_rounded,
+            color: Theme.of(context).colorScheme.primary,
+          ),
           const SizedBox(width: 10),
           Expanded(
             child: Text(

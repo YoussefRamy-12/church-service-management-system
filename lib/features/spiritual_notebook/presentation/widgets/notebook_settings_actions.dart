@@ -103,11 +103,12 @@ extension _NotebookSettingsActions on _NotebookSettingsState {
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(16),
             ),
-            title: const Row(
+            title: Row(
               children: [
-                Icon(Icons.edit_note_rounded, color: appPrimary),
-                SizedBox(width: 8),
-                Text(
+                Icon(Icons.edit_note_rounded,
+                    color: Theme.of(context).colorScheme.primary),
+                const SizedBox(width: 8),
+                const Text(
                   'تعديل النشاط الروحي',
                   style: TextStyle(fontWeight: FontWeight.w800, fontSize: 16),
                 ),
@@ -168,10 +169,10 @@ extension _NotebookSettingsActions on _NotebookSettingsState {
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Icon(
+                          Icon(
                             Icons.info_outline_rounded,
                             size: 16,
-                            color: appPrimary,
+                            color: Theme.of(context).colorScheme.primary,
                           ),
                           const SizedBox(width: 6),
                           Expanded(
