@@ -87,7 +87,12 @@ extension _SpiritualNotebookStudentActions on _SpiritualNotebookStudentPageState
         showDragHandle: true,
         builder: (c) => SafeArea(
           child: Padding(
-            padding: const EdgeInsetsDirectional.fromSTEB(20, 8, 20, 20),
+            padding: EdgeInsetsDirectional.fromSTEB(
+              20,
+              8,
+              20,
+              20 + MediaQuery.viewInsetsOf(c).bottom,
+            ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -166,6 +171,9 @@ extension _SpiritualNotebookStudentActions on _SpiritualNotebookStudentPageState
                   children: [
                     Expanded(
                       child: OutlinedButton(
+                        style: OutlinedButton.styleFrom(
+                          minimumSize: const Size(0, 48),
+                        ),
                         onPressed: () => Navigator.pop(c, false),
                         child: const Text('مراجعة التعديلات'),
                       ),
@@ -173,6 +181,9 @@ extension _SpiritualNotebookStudentActions on _SpiritualNotebookStudentPageState
                     const SizedBox(width: 10),
                     Expanded(
                       child: FilledButton.icon(
+                        style: FilledButton.styleFrom(
+                          minimumSize: const Size(0, 48),
+                        ),
                         onPressed: () => Navigator.pop(c, true),
                         icon: const Icon(Icons.save_rounded),
                         label: const Text('حفظ النوتة'),
