@@ -140,6 +140,8 @@ Future<void> _pumpNotebook(
   required Widget home,
   required _FakeSpiritualNotebookRepository repository,
   double width = 390,
+  double textScale = 1,
+  double bottomInset = 0,
 }) async {
   tester.view.physicalSize = Size(width, 844);
   tester.view.devicePixelRatio = 1;
@@ -159,10 +161,20 @@ Future<void> _pumpNotebook(
         supportedLocales: const [Locale('ar'), Locale('en')],
         localizationsDelegates: GlobalMaterialLocalizations.delegates,
         theme: AppTheme.light,
-        home: Directionality(
-          textDirection: TextDirection.rtl,
-          child: home,
-        ),
+        builder: (context, child) {
+          final media = MediaQuery.of(context);
+          return MediaQuery(
+            data: media.copyWith(
+              textScaler: TextScaler.linear(textScale),
+              viewInsets: EdgeInsets.only(bottom: bottomInset),
+            ),
+            child: Directionality(
+              textDirection: TextDirection.rtl,
+              child: child!,
+            ),
+          );
+        },
+        home: home,
       ),
     ),
   );
@@ -351,6 +363,40 @@ void main() {
       find.text('تعذر تحميل بيانات التلميذ. تحقق من الاتصال ثم أعد المحاولة.'),
       findsOneWidget,
     );
+  });
+
+  testWidgets('390px roster shows at least seven rows without overflow', (
+    tester,
+  ) async {
+    final repository = _FakeSpiritualNotebookRepository();
+    await _pumpNotebook(
+      tester,
+      repository: repository,
+      home: const SpiritualNotebookPage(serviceId: 'service-1'),
+    );
+
+    final visibleNames = find.byWidgetPredicate(
+      (widget) =>
+          widget is Text && (widget.data?.startsWith('مينا فايز ') ?? false),
+    );
+    expect(visibleNames.evaluate().length, greaterThanOrEqualTo(7));
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('student form has no overflow with keyboard and 1.3 text scale', (
+    tester,
+  ) async {
+    final repository = _FakeSpiritualNotebookRepository();
+    await _pumpNotebook(
+      tester,
+      repository: repository,
+      textScale: 1.3,
+      bottomInset: 280,
+      home: _studentForm(),
+    );
+
+    expect(find.text('حفظ'), findsOneWidget);
+    expect(tester.takeException(), isNull);
   });
 
   testWidgets('leaderboard and settings remain available as mobile tabs', (
