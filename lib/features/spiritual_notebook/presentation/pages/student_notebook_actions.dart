@@ -67,33 +67,121 @@ extension _SpiritualNotebookStudentActions on _SpiritualNotebookStudentPageState
         return;
       }
 
-      final confirmed = await showDialog<bool>(
+      final selectedActivities = d.activities
+          .where((activity) => selected.contains(activity['id']))
+          .toList();
+      final confirmed = await showModalBottomSheet<bool>(
         context: context,
-        builder: (c) => AlertDialog(
-          title: Row(
-            children: [
-              Icon(Icons.verified_rounded,
-                  color: Theme.of(context).colorScheme.primary),
-              const SizedBox(width: 8),
-              const Text('تأكيد اعتماد النوتة الروحية'),
-            ],
-          ),
-          content: Text(
-            'هل تود اعتماد $grandTotal نقطة للتلميذ «$studentName» لهذا الأسبوع (${period.label})؟\n\nتنبيه: بعد الاعتماد لا يمكن تعديل السجل.',
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(c, false),
-              child: const Text('مراجعة'),
+        isScrollControlled: true,
+        showDragHandle: true,
+        builder: (c) => SafeArea(
+          child: Padding(
+            padding: const EdgeInsetsDirectional.fromSTEB(20, 8, 20, 20),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Text(
+                  'مراجعة النوتة قبل الحفظ',
+                  style: Theme.of(c).textTheme.titleLarge?.copyWith(
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  '$studentName • \${period.label}',
+                  style: Theme.of(c).textTheme.bodyMedium,
+                ),
+                const SizedBox(height: 14),
+                if (selectedActivities.isNotEmpty)
+                  ConstrainedBox(
+                    constraints: BoxConstraints(
+                      maxHeight: MediaQuery.of(c).size.height * 0.30,
+                    ),
+                    child: ListView.separated(
+                      shrinkWrap: true,
+                      itemCount: selectedActivities.length,
+                      separatorBuilder: (_, __) => const Divider(height: 1),
+                      itemBuilder: (context, index) {
+                        final activity = selectedActivities[index];
+                        return ListTile(
+                          dense: true,
+                          contentPadding: EdgeInsets.zero,
+                          title: Text(activity['name'] as String),
+                          trailing: Text(
+                            '+\${activity['points']} ن',
+                            style: const TextStyle(fontWeight: FontWeight.w700),
+                          ),
+                        );
+                      },
+                    ),
+                  )
+                else
+                  const Text('سيتم حفظ النوتة دون أنشطة هذا الأسبوع.'),
+                if (bonusAllowed && b > 0) ...[
+                  const Divider(height: 20),
+                  Row(
+                    children: [
+                      const Expanded(child: Text('النقاط التشجيعية')),
+                      Text('+$b ن'),
+                    ],
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    'السبب: \${reason.text.trim()}',
+                    style: Theme.of(c).textTheme.bodySmall,
+                  ),
+                ],
+                const Divider(height: 24),
+                Row(
+                  children: [
+                    const Expanded(
+                      child: Text(
+                        'إجمالي النقاط',
+                        style: TextStyle(fontWeight: FontWeight.w700),
+                      ),
+                    ),
+                    Text(
+                      '$grandTotal نقطة',
+                      style: Theme.of(c).textTheme.titleLarge?.copyWith(
+                        color: Theme.of(c).colorScheme.primary,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton(
+                        onPressed: () => Navigator.pop(c, false),
+                        child: const Text('مراجعة التعديلات'),
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: FilledButton.icon(
+                        onPressed: () => Navigator.pop(c, true),
+                        icon: const Icon(Icons.save_rounded),
+                        label: const Text('حفظ النوتة'),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  'تنبيه: لا يمكن تعديل السجل بعد الحفظ.',
+                  textAlign: TextAlign.center,
+                  style: Theme.of(c).textTheme.bodySmall?.copyWith(
+                    color: Theme.of(c).colorScheme.onSurfaceVariant,
+                  ),
+                ),
+              ],
             ),
-            FilledButton(
-              onPressed: () => Navigator.pop(c, true),
-              child: const Text('تأكيد واعتماد'),
-            ),
-          ],
+          ),
         ),
       );
-
       if (confirmed != true) return;
       setState(() => saving = true);
 
