@@ -99,28 +99,7 @@ class _SpiritualNotebookStudentPageState
             ),
             title: const Text('دفتر التلميذ الروحي'),
             actions: [
-              if (widget.studentIds.isNotEmpty) ...[
-                IconButton(
-                  tooltip: 'التلميذ السابق',
-                  onPressed: widget.studentIndex > 0
-                      ? () => _openStudentAt(widget.studentIndex - 1)
-                      : null,
-                  icon: const Icon(Icons.chevron_right_rounded),
-                ),
-                Center(
-                  child: Text(
-                    '\${widget.studentIndex + 1}/\${widget.studentIds.length}',
-                    style: theme.textTheme.labelMedium,
-                  ),
-                ),
-                IconButton(
-                  tooltip: 'التلميذ التالي',
-                  onPressed: widget.studentIndex < widget.studentIds.length - 1
-                      ? () => _openStudentAt(widget.studentIndex + 1)
-                      : null,
-                  icon: const Icon(Icons.chevron_left_rounded),
-                ),
-              ],
+              ..._buildStudentNavigationActions(context, theme),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 12),
                 child: Center(
