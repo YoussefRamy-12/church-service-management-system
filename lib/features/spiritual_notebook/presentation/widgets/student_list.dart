@@ -105,9 +105,7 @@ class _StudentListState extends State<_StudentList> {
 
       return true;
     }).toList();
-    final orderedMembershipIds = filteredStudents
-        .map((student) => student['id'] as String)
-        .toList();
+    final orderedMembershipIds = filteredStudents.map((student) => student['id'] as String).toList();
 
 
     return Column(
