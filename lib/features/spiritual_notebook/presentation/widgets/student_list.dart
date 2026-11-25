@@ -1,467 +1,128 @@
 part of '../spiritual_notebook_page.dart';
 
 class _StudentList extends StatefulWidget {
-  const _StudentList({
-    required this.students,
-    required this.submissions,
-    required this.period,
-    required this.isMobile,
-    required this.onOpen,
-  });
-
+  const _StudentList({required this.students, required this.submissions, required this.period, required this.isMobile, required this.onOpen});
   final List<Map<String, dynamic>> students, submissions;
   final WeeklyPeriod period;
   final bool isMobile;
-  final void Function(
-    Map<String, dynamic> student,
-    List<String> orderedMembershipIds,
-    int selectedIndex,
-  ) onOpen;
-
+  final void Function(Map<String, dynamic>, List<String>, int) onOpen;
   @override
   State<_StudentList> createState() => _StudentListState();
 }
 
 class _StudentListState extends State<_StudentList> {
   String query = '';
-  int statusFilter = 2; // Default to students still awaiting this week's entry.
-  String? selectedClassId; // null = all classes
+  int statusFilter = 2;
+  String? selectedClassId;
   final searchController = TextEditingController();
-
   @override
-  void dispose() {
-    searchController.dispose();
-    super.dispose();
-  }
+  void dispose() { searchController.dispose(); super.dispose(); }
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
-    final weekStartStr = _date(widget.period.start);
-
-    final currentSubs = widget.submissions.where(
-      (r) => r['period_start'] == weekStartStr,
-    );
-    final thisWeekPoints = {
-      for (final r in currentSubs) r['student_id']: r['total_points'] as int,
-    };
-
-    final totalPointsMap = <String, int>{};
-    for (final r in widget.submissions) {
-      totalPointsMap.update(
-        r['student_id'] as String,
-        (v) => v + (r['total_points'] as int),
-        ifAbsent: () => r['total_points'] as int,
-      );
-    }
-
-    // Extract all unique classes and counts
+    final scheme = Theme.of(context).colorScheme;
+    final week = _date(widget.period.start);
+    final weekSubs = widget.submissions.where((r) => r['period_start'] == week);
+    final points = <String, int>{for (final row in weekSubs) row['student_id'] as String: row['total_points'] as int? ?? 0};
     final classMap = <String, String>{};
     final classCounts = <String, int>{};
-    for (final s in widget.students) {
-      final cls = s['classes'] as Map<String, dynamic>?;
-      final classId =
-          s['current_class_id'] as String? ??
-          cls?['id'] as String? ??
-          'unassigned';
-      final className = cls?['name'] as String? ?? 'بدون فصل';
-      classMap[classId] = className;
-      classCounts[classId] = (classCounts[classId] ?? 0) + 1;
+    for (final student in widget.students) {
+      final cls = student['classes'] as Map<String, dynamic>?;
+      final id = student['current_class_id'] as String? ?? cls?['id'] as String? ?? 'unassigned';
+      classMap[id] = cls?['name'] as String? ?? 'بدون فصل';
+      classCounts[id] = (classCounts[id] ?? 0) + 1;
     }
-    final sortedClasses = classMap.entries.toList()
-      ..sort((a, b) => a.value.compareTo(b.value));
-
-    // Students filtered by class
-    final classScopedStudents = selectedClassId == null
-        ? widget.students
-        : widget.students.where((s) {
-            final cls = s['classes'] as Map<String, dynamic>?;
-            final classId =
-                s['current_class_id'] as String? ??
-                cls?['id'] as String? ??
-                'unassigned';
-            return classId == selectedClassId;
-          }).toList();
-
-    final registeredCount = classScopedStudents
-        .where((s) => thisWeekPoints.containsKey(s['id']))
-        .length;
-    final pendingCount = classScopedStudents.length - registeredCount;
-
-    final filteredStudents = classScopedStudents.where((s) {
-      final name = (s['name'] as String? ?? '').toLowerCase();
+    final classes = classMap.entries.toList()..sort((a, b) => a.value.compareTo(b.value));
+    final scoped = selectedClassId == null ? widget.students : widget.students.where((s) {
       final cls = s['classes'] as Map<String, dynamic>?;
-      final className = (cls?['name'] as String? ?? '').toLowerCase();
-
-      final matchesQuery =
-          name.contains(query.toLowerCase()) ||
-          className.contains(query.toLowerCase());
-      if (!matchesQuery) return false;
-
-      final isDone = thisWeekPoints.containsKey(s['id']);
-      if (statusFilter == 1 && !isDone) return false;
-      if (statusFilter == 2 && isDone) return false;
-
-      return true;
+      return (s['current_class_id'] as String? ?? cls?['id'] as String? ?? 'unassigned') == selectedClassId;
     }).toList();
-    final orderedMembershipIds = filteredStudents.map((student) => student['id'] as String).toList();
+    final registered = scoped.where((s) => points.containsKey(s['id'])).length;
+    final pending = scoped.length - registered;
+    final matches = scoped.where((s) {
+      final cls = s['classes'] as Map<String, dynamic>?;
+      final q = query.trim().toLowerCase();
+      if (!(('${s['name'] ?? ''}').toLowerCase().contains(q) || ('${cls?['name'] ?? ''}').toLowerCase().contains(q))) return false;
+      final done = points.containsKey(s['id']);
+      return statusFilter == 0 || (statusFilter == 1 && done) || (statusFilter == 2 && !done);
+    }).toList();
+    final pendingQueue = scoped.where((s) {
+      final cls = s['classes'] as Map<String, dynamic>?;
+      final q = query.trim().toLowerCase();
+      return !points.containsKey(s['id']) && (('${s['name'] ?? ''}').toLowerCase().contains(q) || ('${cls?['name'] ?? ''}').toLowerCase().contains(q));
+    }).toList();
+    final queueIds = pendingQueue.map((s) => s['id'] as String).toList();
 
-
-    return Column(
-      children: [
-        // Controls Row (Search + Status Chips + Class Filter Buttons)
-        Padding(
-          padding: EdgeInsets.symmetric(
-            horizontal: widget.isMobile ? 12 : 20,
-            vertical: 4,
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              // Preserve a 48px touch target for the mobile search field.
-              SizedBox(
-                height: 48,
-                child: AppSearchField(
-                  controller: searchController,
-                  hintText: 'ابحث باسم التلميذ أو الفصل...',
-                  onChanged: (v) => setState(() => query = v),
-                ),
-              ),
-              const SizedBox(height: 6),
-
-              // Filter Row 1: Status Chips (الكل، مسجَّل، بانتظار التسجيل)
-              ScrollableChipRow(
-                padding: const EdgeInsetsDirectional.symmetric(horizontal: 4),
-                child: Row(
-                  children: [
-                    _filterChip(
-                      label: 'الكل',
-                      count: classScopedStudents.length,
-                      selected: statusFilter == 0,
-                      onTap: () => setState(() => statusFilter = 0),
-                    ),
-                    const SizedBox(width: 6),
-                    _filterChip(
-                      label: 'مسجَّل',
-                      count: registeredCount,
-                      color: appSuccess,
-                      icon: Icons.check_circle_rounded,
-                      selected: statusFilter == 1,
-                      onTap: () => setState(() => statusFilter = 1),
-                    ),
-                    const SizedBox(width: 6),
-                    _filterChip(
-                      label: 'بانتظار التسجيل',
-                      count: pendingCount,
-                      color: appWarning,
-                      icon: Icons.schedule_rounded,
-                      selected: statusFilter == 2,
-                      onTap: () => setState(() => statusFilter = 2),
-                    ),
-                  ],
-                ),
-              ),
-
-              if (sortedClasses.isNotEmpty) ...[
-                const SizedBox(height: 6),
-                Align(
-                  alignment: AlignmentDirectional.centerStart,
-                  child: OutlinedButton.icon(
-                    style: OutlinedButton.styleFrom(
-                      minimumSize: const Size(0, 44),
-                      padding: const EdgeInsets.symmetric(horizontal: 12),
-                    ),
-                    onPressed: () => _showClassFilterSheet(
-                      context,
-                      sortedClasses,
-                      classCounts,
-                    ),
-                    icon: const Icon(Icons.meeting_room_outlined, size: 18),
-                    label: Text(
-                      selectedClassId == null
-                          ? 'جميع الفصول'
-                          : (classMap[selectedClassId] ?? 'الفصل'),
-                    ),
-                  ),
-                ),
-              ],
-
-              // Active Class Filter Notification Banner
-              if (selectedClassId != null) ...[
-                const SizedBox(height: 6),
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 10,
-                    vertical: 4,
-                  ),
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.primary.withValues(alpha: isDark ? 0.20 : 0.08),
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(
-                      color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.25),
-                      width: 1,
-                    ),
-                  ),
-                  child: Row(
-                    children: [
-                      Icon(
-                        Icons.filter_alt_rounded,
-                        size: 14,
-                        color: Theme.of(context).colorScheme.primary,
-                      ),
-                      const SizedBox(width: 6),
-                      Expanded(
-                        child: Text(
-                          'تصفية حسب: ${classMap[selectedClassId] ?? ''} (${filteredStudents.length} تلميذ)',
-                          style: TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w800,
-                            color: Theme.of(context).colorScheme.primary,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
+    return Column(children: [
+      Padding(
+        padding: EdgeInsetsDirectional.fromSTEB(widget.isMobile ? 12 : 20, 4, widget.isMobile ? 12 : 20, 4),
+        child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+          Row(children: [
+            Expanded(child: SizedBox(height: 48, child: AppSearchField(controller: searchController, hintText: 'ابحث باسم التلميذ أو الفصل...', onChanged: (v) => setState(() => query = v)))),
+            const SizedBox(width: 8),
+            OutlinedButton(
+              style: OutlinedButton.styleFrom(minimumSize: const Size(44, 48), padding: const EdgeInsetsDirectional.symmetric(horizontal: 10)),
+              onPressed: () => _showClassFilterSheet(context, classes, classCounts),
+              child: Row(mainAxisSize: MainAxisSize.min, children: [
+                ConstrainedBox(constraints: const BoxConstraints(maxWidth: 105), child: Text('الفصل: ${selectedClassId == null ? 'الكل' : classMap[selectedClassId] ?? 'الفصل'}', maxLines: 1, overflow: TextOverflow.ellipsis)),
+                const SizedBox(width: 3), const Icon(Icons.expand_more_rounded, size: 18),
+              ]),
+            ),
+          ]),
+          const SizedBox(height: 4),
+          SingleChildScrollView(scrollDirection: Axis.horizontal, child: Row(children: [
+            _filterChip(label: 'بانتظار التسجيل', count: pending, selected: statusFilter == 2, onTap: () => setState(() => statusFilter = 2)),
+            const SizedBox(width: 6),
+            _filterChip(label: 'مسجَّل', count: registered, selected: statusFilter == 1, onTap: () => setState(() => statusFilter = 1)),
+            const SizedBox(width: 6),
+            _filterChip(label: 'الكل', count: scoped.length, selected: statusFilter == 0, onTap: () => setState(() => statusFilter = 0)),
+          ])),
+        ]),
+      ),
+      Expanded(child: matches.isEmpty
+        ? Center(child: EmptyState(
+            icon: Icons.search_off_rounded,
+            title: statusFilter == 2 && query.isEmpty ? 'لا يوجد تلاميذ بانتظار التسجيل' : 'لم يتم العثور على تلاميذ',
+            message: query.isNotEmpty ? 'لا يوجد تلميذ يطابق بحثك.' : 'جرّب عرض كل التلاميذ أو تغيير الفصل.',
+            action: statusFilter != 0 ? OutlinedButton(onPressed: () => setState(() => statusFilter = 0), child: const Text('عرض الكل')) : null,
+          ))
+        : ListView.builder(
+            padding: EdgeInsetsDirectional.fromSTEB(widget.isMobile ? 12 : 20, 4, widget.isMobile ? 12 : 20, 16),
+            itemCount: matches.length,
+            itemBuilder: (context, i) {
+              final student = matches[i];
+              final cls = student['classes'] as Map<String, dynamic>?;
+              final name = student['name'] as String? ?? 'بدون اسم';
+              final done = points.containsKey(student['id']);
+              final avatar = _avatarColors(context, name);
+              final queueIndex = queueIds.indexOf(student['id'] as String);
+              return SolidCard(
+                margin: const EdgeInsetsDirectional.only(bottom: 6), padding: EdgeInsets.zero, borderRadius: 12,
+                child: InkWell(
+                  onTap: () => widget.onOpen(student, queueIds, queueIndex < 0 ? 0 : queueIndex),
+                  borderRadius: BorderRadius.circular(12),
+                  child: SizedBox(minHeight: 64, child: Padding(
+                    padding: const EdgeInsetsDirectional.symmetric(horizontal: 10, vertical: 6),
+                    child: Row(children: [
+                      CircleAvatar(radius: 19, backgroundColor: avatar.bg, foregroundColor: avatar.fg, child: Text(name.trim().isEmpty ? 'ت' : name.trim().characters.first, style: const TextStyle(fontWeight: FontWeight.w700))),
+                      const SizedBox(width: 10),
+                      Expanded(child: Column(mainAxisAlignment: MainAxisAlignment.center, crossAxisAlignment: CrossAxisAlignment.start, children: [
+                        Text(name, maxLines: 2, softWrap: true, style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w700)),
+                        const SizedBox(height: 1),
+                        Text(cls?['name'] as String? ?? 'بدون فصل', maxLines: 1, overflow: TextOverflow.ellipsis, style: Theme.of(context).textTheme.bodySmall?.copyWith(color: scheme.onSurfaceVariant)),
+                      ])),
+                      if (done) ...[
+                        const SizedBox(width: 6),
+                        Container(padding: const EdgeInsetsDirectional.symmetric(horizontal: 8, vertical: 5), decoration: BoxDecoration(color: AppColors.of(context).present.background, borderRadius: BorderRadius.circular(99)),
+                          child: Row(mainAxisSize: MainAxisSize.min, children: [Icon(Icons.check_rounded, size: 15, color: AppColors.of(context).present.foreground), const SizedBox(width: 3), Text('+${points[student['id']]} ن', style: TextStyle(color: AppColors.of(context).present.foreground, fontSize: 13, fontWeight: FontWeight.w700))]),
                         ),
-                      ),
-                      InkWell(
-                        onTap: () => setState(() => selectedClassId = null),
-                        borderRadius: BorderRadius.circular(4),
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 4,
-                            vertical: 2,
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(
-                                Icons.close_rounded,
-                                size: 14,
-                                color: Theme.of(context).colorScheme.primary,
-                              ),
-                              const SizedBox(width: 2),
-                              Text(
-                                'إلغاء',
-                                style: TextStyle(
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.w700,
-                                  color: Theme.of(context).colorScheme.primary,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
+                      ],
+                    ]),
+                  )),
                 ),
-              ],
-            ],
-          ),
-        ),
-
-        // Students Roster
-        Expanded(
-          child: filteredStudents.isEmpty
-              ? LayoutBuilder(
-                  builder: (context, constraints) {
-                    return SingleChildScrollView(
-                      physics: const AlwaysScrollableScrollPhysics(),
-                      child: ConstrainedBox(
-                        constraints: BoxConstraints(
-                          minHeight: constraints.maxHeight,
-                        ),
-                        child: Center(
-                          child: EmptyState(
-                            icon: Icons.search_off_rounded,
-                            title: 'لم يتم العثور على تلاميذ',
-                            message: query.isNotEmpty
-                                ? 'لا يوجد تلميذ يطابق بحثك "$query"'
-                                : 'لا توجد سجلات تلاميذ تحت هذا التصنيف في هذا الأسبوع.',
-                            action: query.isNotEmpty
-                                ? OutlinedButton(
-                                    onPressed: () {
-                                      searchController.clear();
-                                      setState(() => query = '');
-                                    },
-                                    child: const Text('إعادة ضبط البحث'),
-                                  )
-                                : null,
-                          ),
-                        ),
-                      ),
-                    );
-                  },
-                )
-              : ListView.builder(
-                  padding: EdgeInsets.fromLTRB(
-                    widget.isMobile ? 12 : 20,
-                    6,
-                    widget.isMobile ? 12 : 20,
-                    24,
-                  ),
-                  itemCount: filteredStudents.length,
-                  itemBuilder: (context, i) {
-                    final s = filteredStudents[i];
-                    final cls = s['classes'] as Map<String, dynamic>?;
-                    final stage = cls?['stages'] as Map<String, dynamic>?;
-                    final done = thisWeekPoints.containsKey(s['id']);
-                    final studentName = s['name'] as String? ?? 'بدون اسم';
-                    final weekPts = thisWeekPoints[s['id']] ?? 0;
-                    final totalPts = totalPointsMap[s['id']] ?? 0;
-                    final avatarColors = _avatarColors(context, studentName);
-
-                    return SolidCard(
-                      margin: const EdgeInsets.only(bottom: 8),
-                      padding: EdgeInsets.zero,
-                      borderRadius: 12,
-                      child: InkWell(
-                        onTap: () => widget.onOpen(s, orderedMembershipIds, i),
-                        borderRadius: BorderRadius.circular(12),
-                        child: Padding(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: widget.isMobile ? 12 : 16,
-                            vertical: widget.isMobile ? 10 : 12,
-                          ),
-                          child: Row(
-                            children: [
-                              // Avatar with Initial
-                              CircleAvatar(
-                                radius: widget.isMobile ? 18 : 22,
-                                backgroundColor: avatarColors.bg,
-                                foregroundColor: avatarColors.fg,
-                                child: Text(
-                                  studentName.trim().isNotEmpty
-                                      ? studentName.trim().characters.first
-                                      : 'ت',
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.w800,
-                                    fontSize: widget.isMobile ? 14 : 16,
-                                  ),
-                                ),
-                              ),
-                              SizedBox(width: widget.isMobile ? 10 : 14),
-
-                              // Name & Class
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Row(
-                                      children: [
-                                        Flexible(
-                                          child: Text(
-                                            studentName,
-                                            style: TextStyle(
-                                              fontWeight: FontWeight.w800,
-                                              fontSize: widget.isMobile
-                                                  ? 14
-                                                  : 15,
-                                            ),
-                                            maxLines: 1,
-                                            overflow: TextOverflow.ellipsis,
-                                          ),
-                                        ),
-                                        const SizedBox(width: 6),
-                                        if (done)
-                                          const GlassBadge(
-                                            label: 'مسجَّل',
-                                            color: appSuccess,
-                                            icon: Icons.check_circle_rounded,
-                                          )
-                                        else
-                                          Semantics(
-                                            label: 'بانتظار التسجيل',
-                                            child: GlassBadge(
-                                              label: widget.isMobile
-                                                  ? 'بانتظار'
-                                                  : 'بانتظار التسجيل',
-                                              color: appWarning,
-                                              icon: Icons.access_time_rounded,
-                                            ),
-                                          ),
-                                      ],
-                                    ),
-                                    const SizedBox(height: 3),
-                                    Text(
-                                      '${cls?['name'] ?? 'بدون فصل'} • ${stage?['name'] ?? 'بدون مرحلة'}',
-                                      style: TextStyle(
-                                        color:
-                                            theme.colorScheme.onSurfaceVariant,
-                                        fontSize: widget.isMobile ? 12 : 13,
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              const SizedBox(width: 10),
-
-                              // Weekly & Total Points
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.end,
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 6,
-                                      vertical: 2.5,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      color: done
-                                          ? appSuccess.withValues(alpha: 0.12)
-                                          : (isDark
-                                                ? AppDesignColors.darkSurfaceSubtle
-                                                : AppDesignColors.lightSurfaceSubtle),
-                                      borderRadius: BorderRadius.circular(6),
-                                    ),
-                                    child: Text(
-                                      done ? '+$weekPts ن' : '—',
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.w800,
-                                        fontSize: 13,
-                                        color: done
-                                            ? appSuccess
-                                            : (isDark
-                                                  ? AppDesignColors.darkMutedInk
-                                                  : appMutedInk),
-                                      ),
-                                    ),
-                                  ),
-                                  const SizedBox(height: 2),
-                                  Text(
-                                    'إجمالي: $totalPts',
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.w600,
-                                      fontSize: 13,
-                                      color: isDark
-                                          ? AppDesignColors.darkMutedInk
-                                          : appMutedInk,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(width: 4),
-                              Icon(
-                                Icons.chevron_left_rounded,
-                                color: AppDesignColors.darkMutedInk,
-                                size: widget.isMobile ? 18 : 20,
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    );
-                  },
-                ),
-        ),
-      ],
-    );
+              );
+            },
+          )),
+    ]);
   }
-
-
-
-
 }

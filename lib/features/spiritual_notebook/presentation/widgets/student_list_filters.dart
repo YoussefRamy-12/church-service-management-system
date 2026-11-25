@@ -1,77 +1,28 @@
-// ignore_for_file: invalid_use_of_protected_member
-
 part of '../spiritual_notebook_page.dart';
 
 extension _StudentListFilterBuilders on _StudentListState {
-
-  Widget _filterChip({
-      required String label,
-      required int count,
-      required bool selected,
-      required VoidCallback onTap,
-      Color? color,
-      IconData? icon,
-    }) {
-      final theme = Theme.of(context);
-      final isDark = theme.brightness == Brightness.dark;
-      final activeColor = color ?? Theme.of(context).colorScheme.primary;
-
-      return Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: onTap,
-          borderRadius: BorderRadius.circular(999),
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(minHeight: 44),
-            child: Center(
-              widthFactor: 1.0,
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-            decoration: BoxDecoration(
-              color: selected
-                  ? activeColor.withValues(alpha: isDark ? 0.25 : 0.12)
-                  : (isDark ? AppDesignColors.darkSurfaceSubtle : AppDesignColors.lightSurfaceSubtle),
-              borderRadius: BorderRadius.circular(999),
-              border: Border.all(
-                color: selected
-                    ? activeColor
-                    : (isDark
-                          ? AppDesignColors.darkBorder
-                          : AppDesignColors.lightBorder),
-                width: selected ? 1.5 : 1,
-              ),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                if (icon != null) ...[
-                  Icon(icon, size: 16, color: color ?? activeColor),
-                  const SizedBox(width: 5),
-                ],
-                Text(
-                  '$label ($count)',
-                  style: TextStyle(
-                    fontSize: 13,
-                    fontWeight: selected ? FontWeight.w800 : FontWeight.w600,
-                    color: selected
-                        ? (isDark ? Colors.white : activeColor)
-                        : (isDark ? AppDesignColors.darkMutedInk : appMutedInk),
-                  ),
-                ),
-              ],
-            ),
-          ),
-            ),
-          ),
+  Widget _filterChip({required String label, required int count, required bool selected, required VoidCallback onTap}) {
+    final scheme = Theme.of(context).colorScheme;
+    return Semantics(
+      button: true,
+      selected: selected,
+      label: '$label، $count',
+      child: Padding(
+        padding: const EdgeInsetsDirectional.symmetric(vertical: 2),
+        child: ChoiceChip(
+          label: Text('$label ($count)', style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
+          selected: selected,
+          onSelected: (_) => onTap(),
+          showCheckmark: false,
+          selectedColor: scheme.secondaryContainer,
+          side: BorderSide(color: selected ? scheme.secondary : scheme.outlineVariant),
+          visualDensity: VisualDensity.standard,
         ),
-      );
-    }
+      ),
+    );
+  }
 
-  void _showClassFilterSheet(
-    BuildContext context,
-    List<MapEntry<String, String>> sortedClasses,
-    Map<String, int> classCounts,
-  ) {
+  void _showClassFilterSheet(BuildContext context, List<MapEntry<String, String>> classes, Map<String, int> counts) {
     showModalBottomSheet<void>(
       context: context,
       useSafeArea: true,
@@ -79,56 +30,20 @@ extension _StudentListFilterBuilders on _StudentListState {
       builder: (sheetContext) => Padding(
         padding: const EdgeInsetsDirectional.fromSTEB(16, 8, 16, 16),
         child: ConstrainedBox(
-          constraints: BoxConstraints(
-            maxHeight: MediaQuery.sizeOf(sheetContext).height * 0.72,
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Text(
-                'اختيار الفصل',
-                style: Theme.of(sheetContext).textTheme.titleLarge?.copyWith(
-                  fontWeight: FontWeight.w800,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Expanded(
-                child: ListView(
-                  children: [
-                    ListTile(
-                      minTileHeight: 48,
-                      selected: selectedClassId == null,
-                      leading: const Icon(Icons.groups_outlined),
-                      title: const Text('جميع الفصول'),
-                      trailing: Text(widget.students.length.toString()),
-                      onTap: () {
-                        setState(() => selectedClassId = null);
-                        Navigator.pop(sheetContext);
-                      },
-                    ),
-                    for (final entry in sortedClasses)
-                      ListTile(
-                        minTileHeight: 48,
-                        selected: selectedClassId == entry.key,
-                        leading: const Icon(Icons.meeting_room_outlined),
-                        title: Text(entry.value),
-                        trailing: Text(
-                          (classCounts[entry.key] ?? 0).toString(),
-                        ),
-                        onTap: () {
-                          setState(() => selectedClassId = entry.key);
-                          Navigator.pop(sheetContext);
-                        },
-                      ),
-                  ],
-                ),
-              ),
-            ],
-          ),
+          constraints: BoxConstraints(maxHeight: MediaQuery.sizeOf(sheetContext).height * 0.72),
+          child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+            Text('اختيار الفصل', style: Theme.of(sheetContext).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700)),
+            const SizedBox(height: 8),
+            Expanded(child: ListView(children: [
+              RadioListTile<String?>(value: null, groupValue: selectedClassId, title: const Text('كل الفصول'), secondary: Text(widget.students.length.toString()),
+                onChanged: (_) { setState(() => selectedClassId = null); Navigator.pop(sheetContext); }),
+              for (final entry in classes)
+                RadioListTile<String?>(value: entry.key, groupValue: selectedClassId, title: Text(entry.value), secondary: Text('${counts[entry.key] ?? 0}'),
+                  onChanged: (_) { setState(() => selectedClassId = entry.key); Navigator.pop(sheetContext); }),
+            ])),
+          ]),
         ),
       ),
     );
   }
-
-
-  }
+}
