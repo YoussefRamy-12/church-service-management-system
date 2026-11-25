@@ -7,6 +7,7 @@ extension _StudentNotebookBonusSection on _SpiritualNotebookStudentPageState {
     required bool isMobile,
     required int maxBonus,
   }) {
+    final showReason = (int.tryParse(bonus.text) ?? 0) > 0;
     return Column(
       children: [
         if (bonusAllowed) ...[
@@ -35,16 +36,17 @@ extension _StudentNotebookBonusSection on _SpiritualNotebookStudentPageState {
                     ),
                     onChanged: (_) => setState(() {}),
                   ),
-                  const SizedBox(height: 10),
-                  TextField(
-                    controller: reason,
-                    decoration: const InputDecoration(
-                      labelText:
-                          'سبب الإضافة (مطلوب إذا وضعت نقاط)',
-                      prefixIcon: Icon(Icons.comment_outlined),
+                  if (showReason) ...[
+                    const SizedBox(height: 10),
+                    TextField(
+                      controller: reason,
+                      decoration: const InputDecoration(
+                        labelText: 'سبب الإضافة (مطلوب)',
+                        prefixIcon: Icon(Icons.comment_outlined),
+                      ),
+                      onChanged: (_) => setState(() {}),
                     ),
-                    onChanged: (_) => setState(() {}),
-                  ),
+                  ],
                 ] else ...[
                   Row(
                     children: [
@@ -62,20 +64,19 @@ extension _StudentNotebookBonusSection on _SpiritualNotebookStudentPageState {
                           onChanged: (_) => setState(() {}),
                         ),
                       ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: TextField(
-                          controller: reason,
-                          decoration: const InputDecoration(
-                            labelText:
-                                'سبب الإضافة (مطلوب إذا وضعت نقاط)',
-                            prefixIcon: Icon(
-                              Icons.comment_outlined,
+                      if (showReason) ...[
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: TextField(
+                            controller: reason,
+                            decoration: const InputDecoration(
+                              labelText: 'سبب الإضافة (مطلوب)',
+                              prefixIcon: Icon(Icons.comment_outlined),
                             ),
+                            onChanged: (_) => setState(() {}),
                           ),
-                          onChanged: (_) => setState(() {}),
                         ),
-                      ),
+                      ],
                     ],
                   ),
                 ],
