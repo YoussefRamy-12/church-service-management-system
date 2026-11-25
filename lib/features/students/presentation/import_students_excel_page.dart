@@ -308,7 +308,7 @@ class _ImportStudentsExcelPageState
           successCount++;
         } catch (error) {
           debugPrint('Presentation operation failed: $error');
-          row.errors.add('تعذر إتمام العملية. حاول مرة أخرى.');
+          row.errors.add('${row.name}: تعذر استيراد هذا الصف.');
         }
       }
 
