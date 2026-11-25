@@ -174,6 +174,7 @@ class _SpiritualNotebookStudentPageState
                             const GlassBadge(label: 'بانتظار التسجيل', color: appWarning, icon: Icons.access_time_rounded),
                         ],
                       ),
+                    ),
                     const SizedBox(height: 16),
 
                     if (existing != null) ...[
