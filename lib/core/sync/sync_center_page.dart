@@ -44,10 +44,11 @@ class _SyncCenterPageState extends ConsumerState<SyncCenterPage> {
         ),
       );
     } catch (error) {
+      debugPrint('Sync presentation action failed: $error');
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('تعذرت المزامنة: $error')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('تعذرت المزامنة. حاول مرة أخرى.')),
+        );
       }
     } finally {
       if (mounted) setState(() => _working = false);
@@ -138,17 +139,6 @@ class _SyncCenterPageState extends ConsumerState<SyncCenterPage> {
                           'لا توجد تغييرات معلقة أو تعارضات. بيانات هذا الجهاز متزامنة.',
                     )
                   else ...[
-                    if (conflictCount > 0)
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: 12),
-                        child: StatusBanner(
-                          icon: Icons.warning_amber_rounded,
-                          title: 'تعارضات تحتاج مراجعة ($conflictCount)',
-                          message:
-                              'افتح شاشة مراجعة التعارضات لاختيار النسخة المعتمدة قبل إعادة المزامنة.',
-                          tone: StatusTone.error,
-                        ),
-                      ),
                     if (pendingCount > 0)
                       FutureBuilder(
                         future: queue.pending(),
