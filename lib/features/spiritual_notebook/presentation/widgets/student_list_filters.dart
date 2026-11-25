@@ -18,8 +18,12 @@ extension _StudentListFilterBuilders on _StudentListState {
         child: InkWell(
           onTap: onTap,
           borderRadius: BorderRadius.circular(999),
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(minHeight: 44),
+            child: Center(
+              widthFactor: 1.0,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
             decoration: BoxDecoration(
               color: selected
                   ? activeColor.withValues(alpha: isDark ? 0.25 : 0.12)
@@ -61,6 +65,8 @@ extension _StudentListFilterBuilders on _StudentListState {
               ],
             ),
           ),
+            ),
+          ),
         ),
       );
     }
@@ -77,9 +83,13 @@ extension _StudentListFilterBuilders on _StudentListState {
         child: InkWell(
           onTap: onTap,
           borderRadius: BorderRadius.circular(999),
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 140),
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(minHeight: 44),
+            child: Center(
+              widthFactor: 1.0,
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 140),
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
             decoration: BoxDecoration(
               color: selected
                   ? Theme.of(context).colorScheme.primary
@@ -130,6 +140,8 @@ extension _StudentListFilterBuilders on _StudentListState {
                   ),
                 ),
               ],
+            ),
+          ),
             ),
           ),
         ),

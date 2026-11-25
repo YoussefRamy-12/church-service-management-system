@@ -949,3 +949,95 @@ class ModernSectionHeader extends StatelessWidget {
     );
   }
 }
+
+/// Horizontally scrollable chip row with start/end padding and edge fade
+/// when content clips beyond the viewport.
+class ScrollableChipRow extends StatefulWidget {
+  const ScrollableChipRow({
+    super.key,
+    required this.child,
+    this.padding = const EdgeInsetsDirectional.symmetric(horizontal: 4),
+  });
+
+  final Widget child;
+  final EdgeInsetsGeometry padding;
+
+  @override
+  State<ScrollableChipRow> createState() => _ScrollableChipRowState();
+}
+
+class _ScrollableChipRowState extends State<ScrollableChipRow> {
+  final ScrollController _controller = ScrollController();
+  bool _fadeLeft = false;
+  bool _fadeRight = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller.addListener(_updateFades);
+    WidgetsBinding.instance.addPostFrameCallback((_) => _updateFades());
+  }
+
+  @override
+  void didUpdateWidget(covariant ScrollableChipRow oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    WidgetsBinding.instance.addPostFrameCallback((_) => _updateFades());
+  }
+
+  @override
+  void dispose() {
+    _controller.removeListener(_updateFades);
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void _updateFades() {
+    if (!mounted || !_controller.hasClients) return;
+    final pos = _controller.position;
+    final isRtl = Directionality.of(context) == TextDirection.rtl;
+    final hasBefore = pos.extentBefore > 2;
+    final hasAfter = pos.extentAfter > 2;
+    final nextLeft = isRtl ? hasAfter : hasBefore;
+    final nextRight = isRtl ? hasBefore : hasAfter;
+    if (nextLeft != _fadeLeft || nextRight != _fadeRight) {
+      setState(() {
+        _fadeLeft = nextLeft;
+        _fadeRight = nextRight;
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final scrollView = NotificationListener<ScrollMetricsNotification>(
+      onNotification: (_) {
+        _updateFades();
+        return false;
+      },
+      child: SingleChildScrollView(
+        controller: _controller,
+        scrollDirection: Axis.horizontal,
+        padding: widget.padding,
+        child: widget.child,
+      ),
+    );
+
+    if (!_fadeLeft && !_fadeRight) return scrollView;
+
+    return ShaderMask(
+      blendMode: BlendMode.dstIn,
+      shaderCallback: (bounds) => LinearGradient(
+        begin: Alignment.centerLeft,
+        end: Alignment.centerRight,
+        colors: [
+          _fadeLeft ? Colors.transparent : Colors.white,
+          Colors.white,
+          Colors.white,
+          _fadeRight ? Colors.transparent : Colors.white,
+        ],
+        stops: const [0.0, 0.05, 0.95, 1.0],
+      ).createShader(bounds),
+      child: scrollView,
+    );
+  }
+}

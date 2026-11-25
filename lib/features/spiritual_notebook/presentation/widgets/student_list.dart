@@ -124,8 +124,8 @@ class _StudentListState extends State<_StudentList> {
               const SizedBox(height: 6),
 
               // Filter Row 1: Status Chips (الكل، المسجلون، بانتظار التسجيل)
-              SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
+              ScrollableChipRow(
+                padding: const EdgeInsetsDirectional.symmetric(horizontal: 4),
                 child: Row(
                   children: [
                     _filterChip(
@@ -157,8 +157,8 @@ class _StudentListState extends State<_StudentList> {
               // Filter Row 2: Ready Class Filter Buttons (فصول الخدمة)
               if (sortedClasses.isNotEmpty) ...[
                 const SizedBox(height: 6),
-                SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
+                ScrollableChipRow(
+                  padding: const EdgeInsetsDirectional.symmetric(horizontal: 4),
                   child: Row(
                     children: [
                       Container(

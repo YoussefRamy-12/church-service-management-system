@@ -345,8 +345,8 @@ class _ServantPrepViewState extends ConsumerState<ServantPrepView> {
     DateTime selectedWeek,
     DateTime currentWeek,
   ) {
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
+    return ScrollableChipRow(
+      padding: const EdgeInsetsDirectional.symmetric(horizontal: 4),
       child: Row(
         children: [
           for (final w in weeks) ...[

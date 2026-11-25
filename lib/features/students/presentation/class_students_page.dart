@@ -252,8 +252,7 @@ class _ClassStudentsPageState extends ConsumerState<ClassStudentsPage> {
                     ),
                   ),
                 ),
-                SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
+                ScrollableChipRow(
                   padding: const EdgeInsetsDirectional.only(
                     start: 16,
                     end: 16,
