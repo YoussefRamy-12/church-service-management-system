@@ -5,6 +5,9 @@ on:
     branches: [main]
   pull_request:
 
+permissions:
+  contents: write
+
 concurrency:
   group: flutter-ci-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
@@ -43,10 +46,82 @@ jobs:
         run: flutter test --reporter expanded --timeout 60s --update-goldens test/task6_mobile_golden_test.dart
       - name: Generate Task 7 notebook and weekly prep mobile goldens
         run: flutter test --reporter expanded --timeout 60s --update-goldens test/task7_notebook_prep_mobile_golden_test.dart
+      - name: Generate Task 12 spiritual notebook mobile goldens
+        run: flutter test --reporter expanded --timeout 60s --update-goldens test/task12_spiritual_notebook_golden_test.dart
+      - name: Create notebook contact sheet
+        run: |
+          python -m pip install --user pillow
+          python - <<'PY'
+          from pathlib import Path
+          from PIL import Image, ImageDraw, ImageFont
+
+          source = Path("test/goldens/images/task12")
+          images = sorted(source.glob("notebook_*.png"))
+          if len(images) != 16:
+              raise SystemExit(f"Expected 16 notebook goldens, found {len(images)}")
+
+          columns = 4
+          thumb_width, thumb_height = 195, 422
+          label_height, padding = 28, 12
+          tile_width = thumb_width + padding * 2
+          tile_height = thumb_height + label_height + padding * 2
+          rows = (len(images) + columns - 1) // columns
+          sheet = Image.new(
+              "RGB",
+              (columns * tile_width, rows * tile_height),
+              (245, 246, 248),
+          )
+          draw = ImageDraw.Draw(sheet)
+          font = ImageFont.truetype(
+              "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
+              13,
+          )
+
+          for index, path in enumerate(images):
+              column, row = index % columns, index // columns
+              x, y = column * tile_width, row * tile_height
+              image = Image.open(path).convert("RGB")
+              image.thumbnail((thumb_width, thumb_height), Image.Resampling.LANCZOS)
+              draw.text(
+                  (x + padding, y + padding),
+                  path.stem,
+                  fill=(28, 35, 45),
+                  font=font,
+              )
+              sheet.paste(image, (x + padding, y + padding + label_height))
+
+          output = Path("docs/review-sheets/notebook.png")
+          output.parent.mkdir(parents=True, exist_ok=True)
+          sheet.save(output)
+          print(f"Created {output} ({sheet.width}x{sheet.height})")
+          PY
+      - name: Commit Task 12 golden baselines and review sheet
+        if: success() && github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
+        env:
+          HEAD_REF: ${{ github.head_ref }}
+        run: |
+          cp -R test/goldens/images/task12 /tmp/task12-goldens
+          cp docs/review-sheets/notebook.png /tmp/notebook.png
+          git fetch origin "$HEAD_REF"
+          git checkout -B notebook-golden-update FETCH_HEAD
+          mkdir -p test/goldens/images/task12 docs/review-sheets
+          cp -R /tmp/task12-goldens/. test/goldens/images/task12/
+          cp /tmp/notebook.png docs/review-sheets/notebook.png
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add test/goldens/images/task12 docs/review-sheets/notebook.png
+          if git diff --cached --quiet; then
+            echo "Golden baselines and contact sheet are already current."
+            exit 0
+          fi
+          git commit -m "test: add spiritual notebook mobile goldens"
+          git push origin "HEAD:refs/heads/$HEAD_REF"
       - name: Upload golden baselines
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: task-5-to-7-goldens
-          path: test/goldens/
+          name: task-5-to-12-goldens
+          path: |
+            test/goldens/
+            docs/review-sheets/notebook.png
           if-no-files-found: warn
