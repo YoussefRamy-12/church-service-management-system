@@ -167,7 +167,7 @@ class _SpiritualNotebookStudentPageState
                           ),
                           if (existing != null)
                             const GlassBadge(
-                              label: 'معتمد',
+                              label: 'تم التسجيل',
                               color: appSuccess,
                               icon: Icons.check_circle_rounded,
                             )
@@ -186,9 +186,9 @@ class _SpiritualNotebookStudentPageState
                       const StatusBanner(
                         icon: Icons.lock_rounded,
                         tone: StatusTone.success,
-                        title: 'تم اعتماد النوتة الروحية لهذا الأسبوع',
+                        title: 'تم حفظ النوتة الروحية لهذا الأسبوع',
                         message:
-                            'تم رصد واعتماد درجات التلميذ لهذا الأسبوع بنجاح. لا يمكن تعديل السجل بعد الاعتماد.',
+                            'تم تسجيل درجات التلميذ لهذا الأسبوع. لا يمكن تعديل السجل بعد الحفظ.',
                       ),
                       const SizedBox(height: 14),
                       SolidCard(
@@ -226,7 +226,7 @@ class _SpiritualNotebookStudentPageState
                                           CrossAxisAlignment.start,
                                       children: [
                                         const Text(
-                                          'إجمالي النقاط المعتمدة',
+                                          'إجمالي النقاط المسجلة',
                                           style: TextStyle(
                                             fontSize: 12,
                                             fontWeight: FontWeight.w600,
@@ -576,8 +576,8 @@ class _SpiritualNotebookStudentPageState
                                     ),
                                     label: Text(
                                       saving
-                                          ? 'جارٍ الاعتماد...'
-                                          : 'اعتماد وحفظ السجل',
+                                          ? 'جارٍ الحفظ...'
+                                          : 'حفظ النوتة',
                                     ),
                                   ),
                                 ],
@@ -627,8 +627,8 @@ class _SpiritualNotebookStudentPageState
                                     ),
                                     label: Text(
                                       saving
-                                          ? 'جارٍ الاعتماد...'
-                                          : 'اعتماد وحفظ السجل',
+                                          ? 'جارٍ الحفظ...'
+                                          : 'حفظ النوتة',
                                     ),
                                   ),
                                 ],
