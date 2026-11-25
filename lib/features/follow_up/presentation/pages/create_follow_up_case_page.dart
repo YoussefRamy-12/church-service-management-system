@@ -115,7 +115,7 @@ class _CreateFollowUpCasePageState
                                   Text(
                                     _selectedStudent!.phone!,
                                     style: TextStyle(
-                                      fontSize: 12,
+                                      fontSize: 13,
                                       color: theme.colorScheme.onSurfaceVariant,
                                     ),
                                   ),
@@ -296,7 +296,7 @@ class _CreateFollowUpCasePageState
                         if (eligibleServants.isEmpty) {
                           return const Text(
                             'لا يوجد خدام متاحين في نطاق هذا الفصل.',
-                            style: TextStyle(fontSize: 12),
+                            style: TextStyle(fontSize: 13),
                           );
                         }
 

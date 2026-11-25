@@ -56,11 +56,13 @@ class EarlyRegularDistributionChart extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 10),
-              Text(
-                'توزيع الحضور الزمني والغياب',
-                style: theme.textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.w800,
-                  fontSize: 15,
+              Expanded(
+                child: Text(
+                  'توزيع الحضور الزمني والغياب',
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w800,
+                    fontSize: 15,
+                  ),
                 ),
               ),
             ],
@@ -193,7 +195,7 @@ class EarlyRegularDistributionChart extends StatelessWidget {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: TextStyle(
-                    fontSize: 12,
+                    fontSize: 13,
                     fontWeight: FontWeight.w600,
                     color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),

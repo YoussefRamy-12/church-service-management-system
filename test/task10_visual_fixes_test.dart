@@ -13,6 +13,9 @@ import 'package:church_service_management_system/features/follow_up/domain/entit
 import 'package:church_service_management_system/features/follow_up/domain/entities/follow_up_student_item.dart';
 import 'package:church_service_management_system/features/follow_up/presentation/follow_up_case_providers.dart';
 import 'package:church_service_management_system/features/follow_up/presentation/follow_up_hub_page.dart';
+import 'package:church_service_management_system/features/reports/presentation/report_providers.dart';
+import 'package:church_service_management_system/features/reports/presentation/reports_page.dart';
+import 'package:church_service_management_system/features/service/presentation/service_providers.dart';
 import 'package:church_service_management_system/features/students/domain/entities/student.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -99,77 +102,185 @@ void main() {
     expect(find.text('بانتظار الاعتماد'), findsNothing);
   });
 
-  testWidgets('FollowUpHubPage FAB sits above mobile bottom navigation in AppShell', (
-    tester,
-  ) async {
-    tester.view.physicalSize = const Size(390, 844);
-    tester.view.devicePixelRatio = 1;
-    addTearDown(tester.view.resetPhysicalSize);
-    addTearDown(tester.view.resetDevicePixelRatio);
+  testWidgets(
+    'FollowUpHubPage FAB sits above mobile bottom navigation in AppShell',
+    (tester) async {
+      tester.view.physicalSize = const Size(390, 844);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
 
-    final db = AppDatabase.forTesting();
-    addTearDown(db.close);
-    final queue = GoldenFakeSyncQueueRepository(db);
-    final engine = SyncEngine(
-      queue: queue,
-      transport: GoldenNoopTransport(),
-      enabled: false,
-    );
-    addTearDown(engine.dispose);
+      final db = AppDatabase.forTesting();
+      addTearDown(db.close);
+      final queue = GoldenFakeSyncQueueRepository(db);
+      final engine = SyncEngine(
+        queue: queue,
+        transport: GoldenNoopTransport(),
+        enabled: false,
+      );
+      addTearDown(engine.dispose);
 
-    final router = GoRouter(
-      initialLocation: '/service/$goldenServiceId/follow-up',
-      routes: [
-        ShellRoute(
-          builder: (context, state, child) =>
-              AppShell(serviceId: goldenServiceId, child: child),
-          routes: [
-            GoRoute(
-              path: '/service/$goldenServiceId/follow-up',
-              builder: (_, _) =>
-                  const FollowUpHubPage(serviceId: goldenServiceId),
-            ),
-          ],
-        ),
-      ],
-    );
-    addTearDown(router.dispose);
-
-    await tester.pumpWidget(
-      ProviderScope(
-        overrides: [
-          appDatabaseProvider.overrideWithValue(db),
-          currentServantProfileProvider.overrideWith(
-            (ref) async => goldenLeaderProfile,
-          ),
-          currentSessionIdentityProvider.overrideWith(
-            (ref) async => const ServantIdentity(goldenLeaderProfile),
-          ),
-          syncQueueRepositoryProvider.overrideWithValue(queue),
-          syncEngineProvider.overrideWithValue(engine),
-          followUpStudentItemsProvider(goldenServiceId).overrideWith(
-            (ref) async => const <FollowUpStudentItem>[],
-          ),
-          followUpCasesInScopeProvider(goldenServiceId).overrideWith(
-            (ref) => Stream.value(const <FollowUpCase>[]),
-          ),
-          followUpActivitiesInScopeProvider(goldenServiceId).overrideWith(
-            (ref) => Stream.value(const <FollowUpActivity>[]),
+      final router = GoRouter(
+        initialLocation: '/service/$goldenServiceId/follow-up',
+        routes: [
+          ShellRoute(
+            builder: (context, state, child) =>
+                AppShell(serviceId: goldenServiceId, child: child),
+            routes: [
+              GoRoute(
+                path: '/service/$goldenServiceId/follow-up',
+                builder: (_, _) =>
+                    const FollowUpHubPage(serviceId: goldenServiceId),
+              ),
+            ],
           ),
         ],
-        child: MaterialApp.router(
-          locale: const Locale('ar'),
-          supportedLocales: const [Locale('ar')],
-          localizationsDelegates: GlobalMaterialLocalizations.delegates,
-          theme: AppTheme.light,
-          routerConfig: router,
-        ),
-      ),
-    );
-    await tester.pumpAndSettle();
+      );
+      addTearDown(router.dispose);
 
-    final fabRect = tester.getRect(find.byType(FloatingActionButton));
-    final navRect = tester.getRect(find.byType(NavigationBar));
-    expect(fabRect.bottom, lessThanOrEqualTo(navRect.top));
-  });
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            appDatabaseProvider.overrideWithValue(db),
+            currentServantProfileProvider.overrideWith(
+              (ref) async => goldenLeaderProfile,
+            ),
+            currentSessionIdentityProvider.overrideWith(
+              (ref) async => const ServantIdentity(goldenLeaderProfile),
+            ),
+            syncQueueRepositoryProvider.overrideWithValue(queue),
+            syncEngineProvider.overrideWithValue(engine),
+            followUpStudentItemsProvider(
+              goldenServiceId,
+            ).overrideWith((ref) async => const <FollowUpStudentItem>[]),
+            followUpCasesInScopeProvider(
+              goldenServiceId,
+            ).overrideWith((ref) => Stream.value(const <FollowUpCase>[])),
+            followUpActivitiesInScopeProvider(
+              goldenServiceId,
+            ).overrideWith((ref) => Stream.value(const <FollowUpActivity>[])),
+          ],
+          child: MaterialApp.router(
+            locale: const Locale('ar'),
+            supportedLocales: const [Locale('ar')],
+            localizationsDelegates: GlobalMaterialLocalizations.delegates,
+            theme: AppTheme.light,
+            routerConfig: router,
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      final fabRect = tester.getRect(find.byType(FloatingActionButton));
+      final navRect = tester.getRect(find.byType(NavigationBar));
+      expect(fabRect.bottom, lessThanOrEqualTo(navRect.top));
+    },
+  );
+
+  testWidgets(
+    'FollowUpHubPage renders at 390px with text scale 1.3 without overflow',
+    (tester) async {
+      tester.view.physicalSize = const Size(390, 844);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            currentServantProfileProvider.overrideWith(
+              (ref) async => goldenLeaderProfile,
+            ),
+            currentSessionIdentityProvider.overrideWith(
+              (ref) async => const ServantIdentity(goldenLeaderProfile),
+            ),
+            followUpStudentItemsProvider(
+              goldenServiceId,
+            ).overrideWith((ref) async => goldenFollowUpStudentItems),
+            followUpCasesInScopeProvider(
+              goldenServiceId,
+            ).overrideWith((ref) => Stream.value(goldenFollowUpCases)),
+            followUpActivitiesInScopeProvider(
+              goldenServiceId,
+            ).overrideWith((ref) => Stream.value(goldenFollowUpActivities)),
+          ],
+          child: MaterialApp(
+            locale: const Locale('ar'),
+            supportedLocales: const [Locale('ar')],
+            localizationsDelegates: GlobalMaterialLocalizations.delegates,
+            theme: AppTheme.light,
+            builder: (context, child) => MediaQuery(
+              data: MediaQuery.of(context).copyWith(
+                textScaler: const TextScaler.linear(1.3),
+              ),
+              child: child!,
+            ),
+            home: const Directionality(
+              textDirection: TextDirection.rtl,
+              child: FollowUpHubPage(serviceId: goldenServiceId),
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(tester.takeException(), isNull);
+    },
+  );
+
+  testWidgets(
+    'ReportsPage renders at 390px with text scale 1.3 without overflow',
+    (tester) async {
+      tester.view.physicalSize = const Size(390, 844);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            serviceRepositoryProvider.overrideWithValue(
+              GoldenFakeServiceRepository(),
+            ),
+            currentServantProfileProvider.overrideWith(
+              (ref) async => goldenLeaderProfile,
+            ),
+            currentSessionIdentityProvider.overrideWith(
+              (ref) async => const ServantIdentity(goldenLeaderProfile),
+            ),
+            reportUserScopeProvider(goldenServiceId).overrideWith(
+              (ref) async => const ReportUserScope(
+                role: 'overall_leader',
+                isServiceWide: true,
+                stageId: null,
+                classId: null,
+                accessibleClassIds: null,
+                accessibleStageIds: null,
+              ),
+            ),
+            reportsAnalyticsProvider(
+              goldenServiceId,
+            ).overrideWith((ref) async => goldenServiceReport),
+          ],
+          child: MaterialApp(
+            locale: const Locale('ar'),
+            supportedLocales: const [Locale('ar')],
+            localizationsDelegates: GlobalMaterialLocalizations.delegates,
+            theme: AppTheme.light,
+            builder: (context, child) => MediaQuery(
+              data: MediaQuery.of(context).copyWith(
+                textScaler: const TextScaler.linear(1.3),
+              ),
+              child: child!,
+            ),
+            home: const Directionality(
+              textDirection: TextDirection.rtl,
+              child: ReportsPage(serviceId: goldenServiceId),
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(tester.takeException(), isNull);
+    },
+  );
 }

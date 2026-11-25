@@ -124,7 +124,7 @@ class FollowUpStudentCard extends StatelessWidget {
                 label: Text(
                   reason,
                   style: TextStyle(
-                    fontSize: 12,
+                    fontSize: 13,
                     fontWeight: FontWeight.w600,
                     color: reasonColor,
                   ),
@@ -170,7 +170,7 @@ class FollowUpStudentCard extends StatelessWidget {
                       'غياب: ${item.absenceCount}',
                       style: TextStyle(
                         fontWeight: FontWeight.w700,
-                        fontSize: 12,
+                        fontSize: 13,
                         color: hasHighAbsence
                             ? semantic.absent.foreground
                             : theme.colorScheme.onSurfaceVariant,
@@ -184,18 +184,24 @@ class FollowUpStudentCard extends StatelessWidget {
           const SizedBox(height: 12),
           const Divider(height: 1, thickness: 0.6),
           const SizedBox(height: 10),
-          Row(
-            children: [
-              if (item.student.phone != null && item.student.phone!.isNotEmpty)
-                PhoneContactActions(phone: item.student.phone!, compact: true),
-              const Spacer(),
-              if (onLogFollowUp != null)
-                FilledButton.tonalIcon(
-                  onPressed: onLogFollowUp,
-                  icon: const Icon(Icons.edit_note_rounded, size: 18),
-                  label: const Text('تسجيل متابعة'),
-                ),
-            ],
+          SizedBox(
+            width: double.infinity,
+            child: Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              alignment: WrapAlignment.spaceBetween,
+              crossAxisAlignment: WrapCrossAlignment.center,
+              children: [
+                if (item.student.phone != null && item.student.phone!.isNotEmpty)
+                  PhoneContactActions(phone: item.student.phone!, compact: true),
+                if (onLogFollowUp != null)
+                  FilledButton.tonalIcon(
+                    onPressed: onLogFollowUp,
+                    icon: const Icon(Icons.edit_note_rounded, size: 18),
+                    label: const Text('تسجيل متابعة'),
+                  ),
+              ],
+            ),
           ),
           const SizedBox(height: 8),
           // Footer Info: Active Cases + Latest Follow-up
@@ -227,7 +233,7 @@ class FollowUpStudentCard extends StatelessWidget {
                       Text(
                         formatOpenCasesCount(item.activeCasesCount),
                         style: TextStyle(
-                          fontSize: 12,
+                          fontSize: 13,
                           fontWeight: FontWeight.w700,
                           color: theme.colorScheme.primary,
                         ),
@@ -242,7 +248,7 @@ class FollowUpStudentCard extends StatelessWidget {
                       ? 'لا توجد حالات متابعة'
                       : 'الحالات السابقة: ${item.totalCasesCount}',
                   style: TextStyle(
-                    fontSize: 12,
+                    fontSize: 13,
                     color: theme.colorScheme.onSurfaceVariant,
                   ),
                 ),
@@ -269,7 +275,7 @@ class FollowUpStudentCard extends StatelessWidget {
                 Text(
                   'لم تتم متابعته بعد',
                   style: TextStyle(
-                    fontSize: 12,
+                    fontSize: 13,
                     color: theme.colorScheme.onSurfaceVariant,
                   ),
                 ),

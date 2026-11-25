@@ -151,7 +151,7 @@ class AttendanceStudentTile extends StatelessWidget {
                               classLabel,
                               style: TextStyle(
                                 color: classColor,
-                                fontSize: 12,
+                                fontSize: 13,
                                 fontWeight: FontWeight.w700,
                               ),
                             ),
@@ -172,7 +172,7 @@ class AttendanceStudentTile extends StatelessWidget {
                               'بانتظار الاعتماد',
                               style: TextStyle(
                                 color: palette.pending.foreground,
-                                fontSize: 12,
+                                fontSize: 13,
                                 fontWeight: FontWeight.w700,
                               ),
                             ),

@@ -155,7 +155,7 @@ class ReportFilterBar extends ConsumerWidget {
                           child: Text(
                             'الفترة: ${formatter.format(filter.start)} – ${formatter.format(filter.end)}',
                             style: TextStyle(
-                              fontSize: 12,
+                              fontSize: 13,
                               fontWeight: FontWeight.w600,
                               color: theme.colorScheme.onSurface,
                             ),
@@ -232,14 +232,14 @@ class ReportFilterBar extends ConsumerWidget {
                       items: [
                         const DropdownMenuItem(
                           value: null,
-                          child: Text('جميع المراحل', style: TextStyle(fontSize: 12)),
+                          child: Text('جميع المراحل', style: TextStyle(fontSize: 13)),
                         ),
                         for (final s in availableStages)
                           DropdownMenuItem(
                             value: s.id as String,
                             child: Text(
                               s.name as String,
-                              style: const TextStyle(fontSize: 12),
+                              style: const TextStyle(fontSize: 13),
                             ),
                           ),
                       ],
@@ -259,14 +259,14 @@ class ReportFilterBar extends ConsumerWidget {
                       items: [
                         const DropdownMenuItem(
                           value: null,
-                          child: Text('جميع الفصول المتاحة', style: TextStyle(fontSize: 12)),
+                          child: Text('جميع الفصول المتاحة', style: TextStyle(fontSize: 13)),
                         ),
                         for (final c in availableClasses)
                           DropdownMenuItem(
                             value: c.id as String,
                             child: Text(
                               c.name as String,
-                              style: const TextStyle(fontSize: 12),
+                              style: const TextStyle(fontSize: 13),
                             ),
                           ),
                       ],
@@ -296,7 +296,7 @@ class ReportFilterBar extends ConsumerWidget {
                         Text(
                           'مقارنة بالفترة السابقة',
                           style: TextStyle(
-                            fontSize: 12,
+                            fontSize: 13,
                             fontWeight: FontWeight.w600,
                             color: theme.colorScheme.onSurfaceVariant,
                           ),
@@ -311,7 +311,7 @@ class ReportFilterBar extends ConsumerWidget {
                   icon: const Icon(Icons.refresh_rounded, size: 16),
                   label: const Text(
                     'إعادة ضبط',
-                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700),
+                    style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700),
                   ),
                 ),
               ],
@@ -468,7 +468,7 @@ class ReportFilterBar extends ConsumerWidget {
             Text(
               label,
               style: TextStyle(
-                fontSize: 12,
+                fontSize: 13,
                 fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,
                 color: isSelected ? Theme.of(context).colorScheme.onPrimary : Theme.of(context).colorScheme.primary,
               ),
@@ -491,7 +491,7 @@ class ReportFilterBar extends ConsumerWidget {
     return InputDecoration(
       labelText: label,
       labelStyle: TextStyle(
-        fontSize: 12,
+        fontSize: 13,
         color: Theme.of(context).colorScheme.onSurfaceVariant,
       ),
       contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),

@@ -62,7 +62,7 @@ class FollowUpActivityCard extends StatelessWidget {
                           activity.authorName ?? 'خادم',
                           style: const TextStyle(
                             fontWeight: FontWeight.w600,
-                            fontSize: 12,
+                            fontSize: 13,
                           ),
                         ),
                         if (activity.authorRole != null) ...[
@@ -131,7 +131,7 @@ class FollowUpActivityCard extends StatelessWidget {
                     Text(
                       activity.studentName!,
                       style: TextStyle(
-                        fontSize: 12,
+                        fontSize: 13,
                         fontWeight: FontWeight.w600,
                         color: theme.colorScheme.primary,
                       ),
@@ -149,7 +149,7 @@ class FollowUpActivityCard extends StatelessWidget {
                       child: Text(
                         activity.caseTitle!,
                         style: TextStyle(
-                          fontSize: 12,
+                          fontSize: 13,
                           color: theme.colorScheme.onSurfaceVariant,
                         ),
                         maxLines: 1,

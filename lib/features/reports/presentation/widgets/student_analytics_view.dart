@@ -75,7 +75,7 @@ class StudentAnalyticsView extends StatelessWidget {
                       const Text(
                         'التلاميذ المعتمدون والنشطون',
                         style: TextStyle(
-                          fontSize: 12,
+                          fontSize: 13,
                           fontWeight: FontWeight.w600,
                           color: Color(0xFF047857),
                         ),
@@ -107,7 +107,7 @@ class StudentAnalyticsView extends StatelessWidget {
                       const Text(
                         'تلاميذ قيد الاعتماد',
                         style: TextStyle(
-                          fontSize: 12,
+                          fontSize: 13,
                           fontWeight: FontWeight.w600,
                           color: Color(0xFFB45309),
                         ),
@@ -204,7 +204,7 @@ class StudentAnalyticsView extends StatelessWidget {
               textAlign: TextAlign.center,
               maxLines: 2,
               style: TextStyle(
-                fontSize: 12.5,
+                fontSize: 13,
                 fontWeight: FontWeight.w600,
                 color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF475569),
               ),

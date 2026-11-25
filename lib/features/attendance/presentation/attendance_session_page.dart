@@ -675,7 +675,7 @@ class _AttendanceSessionPageState extends ConsumerState<AttendanceSessionPage> {
                                                   '${filtered.where((item) => _classIdFor(item) == classId).length} تلميذ',
                                                   style: TextStyle(
                                                     color: classColor,
-                                                    fontSize: 12,
+                                                    fontSize: 13,
                                                     fontWeight:
                                                         FontWeight.w700,
                                                   ),

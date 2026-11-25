@@ -96,7 +96,7 @@ class _AssignServantsDialogState extends ConsumerState<AssignServantsDialog> {
                   subtitle: Text(
                     formatRoleLabel(servant.role),
                     style: TextStyle(
-                      fontSize: 12,
+                      fontSize: 13,
                       color: theme.colorScheme.onSurfaceVariant,
                     ),
                   ),

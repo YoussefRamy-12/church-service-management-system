@@ -54,15 +54,17 @@ class ActionableInsightsCard extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 10),
-              Text(
-                'مؤشرات تحتاج إلى تدخل',
-                style: theme.textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.w800,
-                  fontSize: 16,
-                  color: isDark ? Colors.white : const Color(0xFF0F172A),
+              Expanded(
+                child: Text(
+                  'مؤشرات تحتاج إلى تدخل',
+                  style: theme.textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w800,
+                    fontSize: 16,
+                    color: isDark ? Colors.white : const Color(0xFF0F172A),
+                  ),
                 ),
               ),
-              const Spacer(),
+              const SizedBox(width: 8),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                 decoration: BoxDecoration(
@@ -72,7 +74,7 @@ class ActionableInsightsCard extends StatelessWidget {
                 child: Text(
                   '${insights.length} تنبيهات',
                   style: const TextStyle(
-                    fontSize: 12,
+                    fontSize: 13,
                     fontWeight: FontWeight.w700,
                     color: Color(0xFFB45309),
                   ),
@@ -134,7 +136,7 @@ class ActionableInsightsCard extends StatelessWidget {
                             Text(
                               insight.description,
                               style: TextStyle(
-                                fontSize: 12,
+                                fontSize: 13,
                                 color: isDark
                                     ? const Color(0xFF94A3B8)
                                     : const Color(0xFF475569),

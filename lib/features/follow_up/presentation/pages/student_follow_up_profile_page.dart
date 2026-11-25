@@ -374,7 +374,7 @@ class StudentFollowUpProfilePage extends ConsumerWidget {
                 Text(
                   title,
                   style: TextStyle(
-                    fontSize: 12,
+                    fontSize: 13,
                     fontWeight: FontWeight.w600,
                     color: theme.colorScheme.onSurfaceVariant,
                   ),
@@ -396,7 +396,7 @@ class StudentFollowUpProfilePage extends ConsumerWidget {
             Text(
               subtitle,
               style: TextStyle(
-                fontSize: 12,
+                fontSize: 13,
                 color: theme.colorScheme.onSurfaceVariant,
               ),
               maxLines: 1,

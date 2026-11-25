@@ -96,7 +96,7 @@ class AttendanceKpiPill extends StatelessWidget {
           Text(
             label,
             style: TextStyle(
-              fontSize: 12,
+              fontSize: 13,
               fontWeight: FontWeight.w600,
               color: color,
             ),
@@ -113,7 +113,7 @@ class AttendanceKpiPill extends StatelessWidget {
               style: const TextStyle(
                 color: Colors.white,
                 fontWeight: FontWeight.w800,
-                fontSize: 12,
+                fontSize: 13,
               ),
             ),
           ),

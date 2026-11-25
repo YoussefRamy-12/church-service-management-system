@@ -88,7 +88,7 @@ class _AddFollowUpActivityPageState
                               Text(
                                 'التلميذ: ${widget.studentName}',
                                 style: TextStyle(
-                                  fontSize: 12,
+                                  fontSize: 13,
                                   color: theme.colorScheme.onSurfaceVariant,
                                 ),
                               ),
@@ -189,7 +189,7 @@ class _AddFollowUpActivityPageState
                           const Spacer(),
                           const Text(
                             'تغيير التاريخ',
-                            style: TextStyle(fontSize: 12),
+                            style: TextStyle(fontSize: 13),
                           ),
                         ],
                       ),

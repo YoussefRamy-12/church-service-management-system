@@ -241,7 +241,7 @@ class _FollowUpHubPageState extends ConsumerState<FollowUpHubPage>
                               _StudentSort.latestFollowUp => 'أحدث متابعة',
                             },
                             style: const TextStyle(
-                              fontSize: 12,
+                              fontSize: 13,
                               fontWeight: FontWeight.w600,
                             ),
                           ),
@@ -375,7 +375,7 @@ class _FollowUpHubPageState extends ConsumerState<FollowUpHubPage>
       selected: isSelected,
       label: Text(label),
       labelStyle: TextStyle(
-        fontSize: 12,
+        fontSize: 13,
         fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
       ),
       onSelected: (selected) {
@@ -457,7 +457,7 @@ class _FollowUpHubPageState extends ConsumerState<FollowUpHubPage>
                           fontWeight: isSelected
                               ? FontWeight.bold
                               : FontWeight.normal,
-                          fontSize: 12,
+                          fontSize: 13,
                         ),
                         onSelected: (selected) {
                           if (selected) {

@@ -178,7 +178,7 @@ class ClassComparisonTable extends StatelessWidget {
                 Text(
                   '${classComparisons.length} فصول',
                   style: TextStyle(
-                    fontSize: 12,
+                    fontSize: 13,
                     fontWeight: FontWeight.w600,
                     color: theme.colorScheme.onSurfaceVariant,
                   ),
@@ -231,7 +231,7 @@ class ClassComparisonTable extends StatelessWidget {
                           Text(
                             c.stageName,
                             style: TextStyle(
-                              fontSize: 12,
+                              fontSize: 13,
                               color: theme.colorScheme.onSurfaceVariant,
                             ),
                           ),
@@ -254,7 +254,7 @@ class ClassComparisonTable extends StatelessWidget {
                               '${rate.toStringAsFixed(1)}%',
                               style: TextStyle(
                                 fontWeight: FontWeight.w700,
-                                fontSize: 12,
+                                fontSize: 13,
                                 color: rateColor,
                               ),
                             ),

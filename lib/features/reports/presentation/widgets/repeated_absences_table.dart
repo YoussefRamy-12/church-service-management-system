@@ -53,7 +53,7 @@ class RepeatedAbsencesTable extends StatelessWidget {
               Text(
                 'جميع التلاميذ المسجلين يلتزمون بالحضور دون انقطاع مستمر.',
                 style: TextStyle(
-                  fontSize: 12,
+                  fontSize: 13,
                   color: theme.colorScheme.onSurfaceVariant,
                 ),
               ),
@@ -80,30 +80,35 @@ class RepeatedAbsencesTable extends StatelessWidget {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(6),
-                      decoration: BoxDecoration(
-                        color: AppColors.of(context).absent.background,
-                        borderRadius: BorderRadius.circular(8),
+                Expanded(
+                  child: Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(6),
+                        decoration: BoxDecoration(
+                          color: AppColors.of(context).absent.background,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Icon(
+                          Icons.person_off_rounded,
+                          color: AppColors.of(context).absent.foreground,
+                          size: 20,
+                        ),
                       ),
-                      child: Icon(
-                        Icons.person_off_rounded,
-                        color: AppColors.of(context).absent.foreground,
-                        size: 20,
+                      const SizedBox(width: 10),
+                      Flexible(
+                        child: Text(
+                          'سجل الغياب المتكرر',
+                          style: theme.textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.w800,
+                            fontSize: 16,
+                          ),
+                        ),
                       ),
-                    ),
-                    const SizedBox(width: 10),
-                    Text(
-                      'سجل الغياب المتكرر',
-                      style: theme.textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.w800,
-                        fontSize: 16,
-                      ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
+                const SizedBox(width: 8),
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                   decoration: BoxDecoration(
@@ -113,7 +118,7 @@ class RepeatedAbsencesTable extends StatelessWidget {
                   child: Text(
                     '${repeatedAbsences.length} تلميذ',
                     style: TextStyle(
-                      fontSize: 12,
+                      fontSize: 13,
                       fontWeight: FontWeight.w700,
                       color: AppColors.of(context).absent.foreground,
                     ),
@@ -173,7 +178,7 @@ class RepeatedAbsencesTable extends StatelessWidget {
                             Text(
                               '${item.className} • آخر حضور: ${item.lastAttendedDate ?? "لم يسجل حضور مؤخراً"}',
                               style: TextStyle(
-                                fontSize: 12,
+                                fontSize: 13,
                                 color: theme.colorScheme.onSurfaceVariant,
                               ),
                             ),

@@ -79,11 +79,11 @@ class AttendanceTrendChart extends StatelessWidget {
                   ),
                 ],
               ),
-              Row(
-                mainAxisSize: MainAxisSize.min,
+              Wrap(
+                spacing: 12,
+                runSpacing: 6,
                 children: [
                   _legendItem(AppColors.of(context).present.foreground, Icons.schedule_rounded, 'حضور مبكر'),
-                  const SizedBox(width: 12),
                   _legendItem(theme.colorScheme.primary, Icons.check_circle_outline_rounded, 'حضور عادي'),
                 ],
               ),
@@ -117,7 +117,7 @@ class AttendanceTrendChart extends StatelessWidget {
                             Text(
                               '${item.attendanceRate.toStringAsFixed(0)}%',
                               style: TextStyle(
-                                fontSize: 12,
+                                fontSize: 13,
                                 fontWeight: FontWeight.w700,
                                 color: item.attendanceRate >= 70
                                     ? AppColors.of(context).present.foreground
@@ -209,7 +209,7 @@ class AttendanceTrendChart extends StatelessWidget {
         const SizedBox(width: 4),
         Text(
           label,
-          style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+          style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
         ),
       ],
     );

@@ -522,7 +522,7 @@ class _PendingRegistrationState extends ConsumerState<_PendingRegistration> {
                           Text(
                             'هذه البيانات تساعد مسؤول النظام في تحديد هويتك.',
                             style: TextStyle(
-                              fontSize: 12,
+                              fontSize: 13,
                               color: Theme.of(
                                 context,
                               ).colorScheme.onSurfaceVariant,

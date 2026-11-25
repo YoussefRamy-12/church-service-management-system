@@ -110,7 +110,7 @@ class FollowUpAnalyticsView extends StatelessWidget {
                     Text(
                       'تم حسم $resolvedCases من إجمالي $totalCases حالة متابعة مسجلة، بالإضافة إلى $totalActivities نشاط افتقادي منفذ.',
                       style: TextStyle(
-                        fontSize: 12,
+                        fontSize: 13,
                         color: isDark
                             ? const Color(0xFF94A3B8)
                             : const Color(0xFF64748B),
@@ -169,7 +169,7 @@ class FollowUpAnalyticsView extends StatelessWidget {
                   child: Text(
                     '$label: ${e.value}',
                     style: TextStyle(
-                      fontSize: 12,
+                      fontSize: 13,
                       fontWeight: FontWeight.w600,
                       color: isDark ? Colors.white : const Color(0xFF1E293B),
                     ),
@@ -208,7 +208,7 @@ class FollowUpAnalyticsView extends StatelessWidget {
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: TextStyle(
-                fontSize: 12,
+                fontSize: 13,
                 fontWeight: FontWeight.w600,
                 color: isDark ? const Color(0xFF94A3B8) : const Color(0xFF475569),
               ),

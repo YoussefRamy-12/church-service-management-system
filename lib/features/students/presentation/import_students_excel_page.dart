@@ -871,7 +871,7 @@ class _ImportStudentsExcelPageState
           const SizedBox(height: 2),
           Text(
             label,
-            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+            style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
             textAlign: TextAlign.center,
           ),
         ],
@@ -923,7 +923,7 @@ class _ImportStudentsExcelPageState
                       child: Text(
                         '${r.rowNumber}',
                         style: TextStyle(
-                          fontSize: 12,
+                          fontSize: 13,
                           fontWeight: FontWeight.bold,
                           color: badgeColor,
                         ),
@@ -946,7 +946,7 @@ class _ImportStudentsExcelPageState
                             Text(
                               r.school!,
                               style: const TextStyle(
-                                fontSize: 12,
+                                fontSize: 13,
                                 color: AppDesignColors.lightMutedInk,
                               ),
                             ),
@@ -957,7 +957,7 @@ class _ImportStudentsExcelPageState
                                   : (r.duplicateReason ?? 'مكرر'),
                               maxLines: 2,
                               overflow: TextOverflow.ellipsis,
-                              style: TextStyle(fontSize: 12, color: badgeColor),
+                              style: TextStyle(fontSize: 13, color: badgeColor),
                             ),
                         ],
                       ),
@@ -967,7 +967,7 @@ class _ImportStudentsExcelPageState
                       child: Text(
                         r.phone ?? 'بدون هاتف',
                         style: const TextStyle(
-                          fontSize: 12,
+                          fontSize: 13,
                           color: AppDesignColors.lightMutedInk,
                         ),
                       ),
@@ -1045,7 +1045,7 @@ class _ImportStudentsExcelPageState
               padding: const EdgeInsets.only(top: 4),
               child: Text(
                 'تم استبعاد $_failedCount صف لوجود تكرار أو أخطاء في البيانات.',
-                style: const TextStyle(fontSize: 12, color: Color(0xFFD97706)),
+                style: const TextStyle(fontSize: 13, color: Color(0xFFD97706)),
               ),
             ),
           const SizedBox(height: 14),

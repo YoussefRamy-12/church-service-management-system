@@ -341,7 +341,7 @@ class _AbsencePrioritizationPageState
                               Text(
                                 '${item.absences} غياب من أصل ${item.availableMeetings} لقاء${item.followUpDue ? ' • متابعة مستحقة' : ''}',
                                 style: TextStyle(
-                                  fontSize: 12,
+                                  fontSize: 13,
                                   color: item.followUpDue
                                       ? const Color(0xFFDC2626)
                                       : Theme.of(

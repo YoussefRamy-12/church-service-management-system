@@ -156,7 +156,7 @@ class ServantWorkloadTable extends StatelessWidget {
                 Text(
                   '${servantWorkloads.length} خدام',
                   style: TextStyle(
-                    fontSize: 12,
+                    fontSize: 13,
                     fontWeight: FontWeight.w600,
                     color: theme.colorScheme.onSurfaceVariant,
                   ),
@@ -212,7 +212,7 @@ class ServantWorkloadTable extends StatelessWidget {
                         child: Text(
                           roleLabel,
                           style: TextStyle(
-                            fontSize: 12,
+                            fontSize: 13,
                             fontWeight: FontWeight.w600,
                             color: theme.colorScheme.primary,
                           ),

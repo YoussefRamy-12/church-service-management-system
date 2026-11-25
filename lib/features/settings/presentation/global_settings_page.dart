@@ -452,7 +452,7 @@ class _ProfileRow extends StatelessWidget {
                 Text(
                   label,
                   style: TextStyle(
-                    fontSize: 12,
+                    fontSize: 13,
                     fontWeight: FontWeight.w600,
                     color: subtextColor,
                   ),
@@ -1052,7 +1052,7 @@ class _AboutRow extends StatelessWidget {
                 Text(
                   label,
                   style: TextStyle(
-                    fontSize: 12,
+                    fontSize: 13,
                     fontWeight: FontWeight.w600,
                     color: subtextColor,
                   ),

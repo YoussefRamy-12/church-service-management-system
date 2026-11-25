@@ -282,7 +282,7 @@ class _MeetingListPageState extends ConsumerState<MeetingListPage> {
                                       ? const Color(0xFF00236F)
                                       : const Color(0xFF64748B),
                                   fontWeight: FontWeight.w600,
-                                  fontSize: 12,
+                                  fontSize: 13,
                                   height: 1,
                                 ),
                               ),
@@ -343,7 +343,7 @@ class _MeetingListPageState extends ConsumerState<MeetingListPage> {
                                       color: Theme.of(
                                         context,
                                       ).colorScheme.onSurfaceVariant,
-                                      fontSize: 12,
+                                      fontSize: 13,
                                       fontWeight: FontWeight.w500,
                                     ),
                                   ),

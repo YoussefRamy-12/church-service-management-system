@@ -74,7 +74,7 @@ class FollowUpCaseCard extends StatelessWidget {
                 Text(
                   caseItem.className!,
                   style: TextStyle(
-                    fontSize: 12,
+                    fontSize: 13,
                     color: theme.colorScheme.onSurfaceVariant,
                   ),
                 ),
@@ -87,7 +87,7 @@ class FollowUpCaseCard extends StatelessWidget {
             Text(
               caseItem.description!,
               style: TextStyle(
-                fontSize: 12,
+                fontSize: 13,
                 color: theme.colorScheme.onSurfaceVariant,
               ),
               maxLines: 2,
@@ -114,7 +114,7 @@ class FollowUpCaseCard extends StatelessWidget {
                         ? caseItem.assignedServantNames.join('، ')
                         : '${caseItem.assignedServantCount} خدام مكلفين',
                 style: TextStyle(
-                  fontSize: 12,
+                  fontSize: 13,
                   color: caseItem.assignedServantCount == 0
                       ? const Color(0xFFD97706)
                       : theme.colorScheme.onSurfaceVariant,
@@ -137,7 +137,7 @@ class FollowUpCaseCard extends StatelessWidget {
                 Text(
                   'آخر تحديث: ${caseItem.latestActivityAuthorName}',
                   style: TextStyle(
-                    fontSize: 12,
+                    fontSize: 13,
                     color: theme.colorScheme.onSurfaceVariant,
                   ),
                 ),

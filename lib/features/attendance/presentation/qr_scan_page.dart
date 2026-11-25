@@ -602,7 +602,7 @@ class _QrScanPageState extends State<QrScanPage>
             Flexible(
               child: Text(
                 'تعذر قراءة الكاميرا — استخدم البحث اليدوي أدناه',
-                style: TextStyle(color: colors.conflict.foreground, fontSize: 12),
+                style: TextStyle(color: colors.conflict.foreground, fontSize: 13),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
@@ -630,7 +630,7 @@ class _QrScanPageState extends State<QrScanPage>
                 'تم التعرف على الطالب بنجاح',
                 style: TextStyle(
                   color: colors.present.foreground,
-                  fontSize: 12,
+                  fontSize: 13,
                   fontWeight: FontWeight.w700,
                 ),
                 maxLines: 1,
@@ -976,7 +976,7 @@ class _StudentReviewPanel extends StatelessWidget {
                             'شماس',
                             style: TextStyle(
                               color: colors.excused.foreground,
-                              fontSize: 12,
+                              fontSize: 13,
                               fontWeight: FontWeight.w700,
                             ),
                           ),
@@ -1119,7 +1119,7 @@ class _ReviewChip extends StatelessWidget {
           const SizedBox(width: 6),
           Text(
             label,
-            style: const TextStyle(color: AppDesignColors.darkInk, fontSize: 12),
+            style: const TextStyle(color: AppDesignColors.darkInk, fontSize: 13),
           ),
         ],
       ),
@@ -1292,12 +1292,12 @@ class _ManualStudentSearchSheetState extends State<_ManualStudentSearchSheet> {
                             ].join(' • '),
                             style: const TextStyle(
                               color: AppDesignColors.darkMutedInk,
-                              fontSize: 12,
+                              fontSize: 13,
                             ),
                           ),
                           trailing: isPresent
                               ? Chip(
-                                  label: const Text('مسجل', style: TextStyle(fontSize: 12)),
+                                  label: const Text('مسجل', style: TextStyle(fontSize: 13)),
                                   backgroundColor: colors.present.background,
                                   labelStyle: TextStyle(color: colors.present.foreground),
                                   visualDensity: VisualDensity.compact,

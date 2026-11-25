@@ -168,7 +168,7 @@ class FollowUpCaseDetailsPage extends ConsumerWidget {
                             Text(
                               'أنشأها: ${caseItem.creatorName ?? "خادم"}',
                               style: TextStyle(
-                                fontSize: 12,
+                                fontSize: 13,
                                 color: theme.colorScheme.onSurfaceVariant,
                               ),
                             ),
@@ -265,7 +265,7 @@ class FollowUpCaseDetailsPage extends ConsumerWidget {
                               Expanded(
                                 child: Text(
                                   'لم يتم تكليف أي خادم بعد. يمكن لأمين الفصل أو المسؤولين تكليف خدام.',
-                                  style: TextStyle(fontSize: 12),
+                                  style: TextStyle(fontSize: 13),
                                 ),
                               ),
                             ],
@@ -284,7 +284,7 @@ class FollowUpCaseDetailsPage extends ConsumerWidget {
                               child: Text(
                                 a.servantName?.characters.first ?? 'خ',
                                 style: TextStyle(
-                                  fontSize: 12,
+                                  fontSize: 13,
                                   fontWeight: FontWeight.bold,
                                   color: theme.colorScheme.primary,
                                 ),
@@ -417,7 +417,7 @@ class FollowUpCaseDetailsPage extends ConsumerWidget {
             Text(
               'تغيير الحالة',
               style: TextStyle(
-                fontSize: 12,
+                fontSize: 13,
                 fontWeight: FontWeight.bold,
                 color: Theme.of(context).colorScheme.primary,
               ),
