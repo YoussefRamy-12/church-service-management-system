@@ -293,12 +293,14 @@ class ReportFilterBar extends ConsumerWidget {
                           visualDensity: VisualDensity.compact,
                         ),
                         const SizedBox(width: 4),
-                        Text(
-                          'مقارنة بالفترة السابقة',
-                          style: TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w600,
-                            color: theme.colorScheme.onSurfaceVariant,
+                        Flexible(
+                          child: Text(
+                            'مقارنة بالفترة السابقة',
+                            style: TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w600,
+                              color: theme.colorScheme.onSurfaceVariant,
+                            ),
                           ),
                         ),
                       ],
