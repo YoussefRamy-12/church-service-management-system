@@ -235,6 +235,7 @@ class _FollowUpPageState extends ConsumerState<FollowUpPage> {
                         );
                         if (mounted) setState(() => saving = false);
                       } catch (error) {
+                        debugPrint('Presentation operation failed: $error');
                         if (mounted) {
                           setState(() => saving = false);
                           ScaffoldMessenger.of(context).showSnackBar(

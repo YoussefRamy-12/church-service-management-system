@@ -45,10 +45,11 @@ class _StructureSettingsPageState extends ConsumerState<StructureSettingsPage> {
         ).showSnackBar(const SnackBar(content: Text('تمت إضافة المرحلة.')));
       }
     } catch (error) {
+      debugPrint('Presentation operation failed: $error');
       if (mounted) {
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(SnackBar(content: Text('تعذرت إضافة المرحلة: $error')));
+        ).showSnackBar(SnackBar(content: Text('تعذر إتمام العملية. حاول مرة أخرى.')));
       }
     } finally {
       if (mounted) setState(() => saving = false);
@@ -72,10 +73,11 @@ class _StructureSettingsPageState extends ConsumerState<StructureSettingsPage> {
         ).showSnackBar(const SnackBar(content: Text('تمت إضافة الفصل.')));
       }
     } catch (error) {
+      debugPrint('Presentation operation failed: $error');
       if (mounted) {
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(SnackBar(content: Text('تعذرت إضافة الفصل: $error')));
+        ).showSnackBar(SnackBar(content: Text('تعذر إتمام العملية. حاول مرة أخرى.')));
       }
     } finally {
       if (mounted) setState(() => saving = false);
@@ -123,10 +125,11 @@ class _StructureSettingsPageState extends ConsumerState<StructureSettingsPage> {
         ).showSnackBar(const SnackBar(content: Text('تم تعديل المرحلة.')));
       }
     } catch (error) {
+      debugPrint('Presentation operation failed: $error');
       if (mounted) {
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(SnackBar(content: Text('تعذر تعديل المرحلة: $error')));
+        ).showSnackBar(SnackBar(content: Text('تعذر إتمام العملية. حاول مرة أخرى.')));
       }
     } finally {
       if (mounted) setState(() => saving = false);
@@ -154,11 +157,12 @@ class _StructureSettingsPageState extends ConsumerState<StructureSettingsPage> {
         ).showSnackBar(const SnackBar(content: Text('تم حذف المرحلة.')));
       }
     } catch (error) {
+      debugPrint('Presentation operation failed: $error');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              'تعذر حذف المرحلة. قد تحتوي على فصول أو بيانات مرتبطة. $error',
+              'تعذر إتمام العملية. حاول مرة أخرى.',
             ),
           ),
         );
@@ -189,10 +193,11 @@ class _StructureSettingsPageState extends ConsumerState<StructureSettingsPage> {
         ).showSnackBar(const SnackBar(content: Text('تم تعديل الفصل.')));
       }
     } catch (error) {
+      debugPrint('Presentation operation failed: $error');
       if (mounted) {
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(SnackBar(content: Text('تعذر تعديل الفصل: $error')));
+        ).showSnackBar(SnackBar(content: Text('تعذر إتمام العملية. حاول مرة أخرى.')));
       }
     } finally {
       if (mounted) setState(() => saving = false);
@@ -220,11 +225,12 @@ class _StructureSettingsPageState extends ConsumerState<StructureSettingsPage> {
         ).showSnackBar(const SnackBar(content: Text('تم حذف الفصل.')));
       }
     } catch (error) {
+      debugPrint('Presentation operation failed: $error');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              'تعذر حذف الفصل. قد يحتوي على تلاميذ أو سجلات مرتبطة. $error',
+              'تعذر إتمام العملية. حاول مرة أخرى.',
             ),
           ),
         );

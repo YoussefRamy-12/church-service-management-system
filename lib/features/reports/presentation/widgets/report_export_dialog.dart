@@ -76,10 +76,11 @@ class _ReportExportDialogState extends ConsumerState<ReportExportDialog> {
         );
       }
     } catch (e) {
+      debugPrint('Presentation operation failed: $e');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('تعذر استخراج التقرير: ${e.toString()}'),
+            content: Text('تعذر إتمام العملية. حاول مرة أخرى.'),
             backgroundColor: const Color(0xFFEF4444),
           ),
         );

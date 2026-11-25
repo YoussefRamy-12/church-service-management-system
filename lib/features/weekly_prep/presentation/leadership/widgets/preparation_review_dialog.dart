@@ -155,10 +155,11 @@ class _PreparationReviewDialogState
         );
       }
     } catch (e) {
+      debugPrint('Presentation operation failed: $e');
       if (mounted) {
         setState(() {
           _submitting = false;
-          _errorMessage = 'تعذر اعتماد التحضير: $e';
+          _errorMessage = 'تعذر إتمام العملية. حاول مرة أخرى.';
         });
       }
     }
@@ -228,10 +229,11 @@ class _PreparationReviewDialogState
         );
       }
     } catch (e) {
+      debugPrint('Presentation operation failed: $e');
       if (mounted) {
         setState(() {
           _submitting = false;
-          _errorMessage = 'تعذر تسجيل المراجعة: $e';
+          _errorMessage = 'تعذر إتمام العملية. حاول مرة أخرى.';
         });
       }
     }

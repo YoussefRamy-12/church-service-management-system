@@ -355,17 +355,20 @@ class _FollowUpHubPageState extends ConsumerState<FollowUpHubPage>
           );
         },
       ),
-      error: (err, _) => EmptyState(
-        icon: Icons.error_outline_rounded,
-        title: 'تعذر تحميل الطلاب',
-        message: 'تحقق من الاتصال ثم حاول تحديث القائمة.',
-        action: FilledButton.icon(
-          onPressed: () =>
-              ref.invalidate(followUpStudentItemsProvider(widget.serviceId)),
-          icon: const Icon(Icons.refresh_rounded),
-          label: const Text('إعادة المحاولة'),
-        ),
-      ),
+      error: (err, _) {
+        debugPrint('Failed to load students for follow-up: $err');
+        return EmptyState(
+          icon: Icons.error_outline_rounded,
+          title: 'تعذر تحميل الطلاب',
+          message: 'تحقق من الاتصال ثم حاول تحديث القائمة.',
+          action: FilledButton.icon(
+            onPressed: () =>
+                ref.invalidate(followUpStudentItemsProvider(widget.serviceId)),
+            icon: const Icon(Icons.refresh_rounded),
+            label: const Text('إعادة المحاولة'),
+          ),
+        );
+      },
     );
   }
 
@@ -520,11 +523,13 @@ class _FollowUpHubPageState extends ConsumerState<FollowUpHubPage>
         );
       },
       loading: () => const LoadingView(message: 'جاري تحميل حالات المتابعة...'),
-      error: (err, _) => EmptyState(
-        icon: Icons.error_outline_rounded,
-        title: 'تعذر تحميل الحالات',
-        message: '$err',
-      ),
+      error: (err, _) {
+        return const EmptyState(
+          icon: Icons.error_outline_rounded,
+          title: 'تعذر تحميل الحالات',
+          message: 'حاول تحديث القائمة.',
+        );
+      },
     );
   }
 
@@ -573,11 +578,13 @@ class _FollowUpHubPageState extends ConsumerState<FollowUpHubPage>
         );
       },
       loading: () => const LoadingView(message: 'جاري تحميل سجل الأنشطة...'),
-      error: (err, _) => EmptyState(
-        icon: Icons.error_outline_rounded,
-        title: 'تعذر تحميل الأنشطة',
-        message: '$err',
-      ),
+      error: (err, _) {
+        return const EmptyState(
+          icon: Icons.error_outline_rounded,
+          title: 'تعذر تحميل الأنشطة',
+          message: 'حاول تحديث القائمة.',
+        );
+      },
     );
   }
 }

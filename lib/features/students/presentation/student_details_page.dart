@@ -124,10 +124,11 @@ class _StudentDetailsPageState extends ConsumerState<StudentDetailsPage> {
         );
       }
     } catch (e) {
+      debugPrint('Presentation operation failed: $e');
       if (mounted) {
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(SnackBar(content: Text('تعذر إنشاء بطاقة الطالب: $e')));
+        ).showSnackBar(SnackBar(content: Text('تعذر إتمام العملية. حاول مرة أخرى.')));
       }
     } finally {
       if (mounted) setState(() => _downloadingPdf = false);
@@ -159,6 +160,7 @@ class _StudentDetailsPageState extends ConsumerState<StudentDetailsPage> {
         ),
       );
     } catch (error) {
+      debugPrint('Presentation operation failed: $error');
       if (!mounted) return;
       ScaffoldMessenger.of(
         context,
@@ -212,6 +214,7 @@ class _StudentDetailsPageState extends ConsumerState<StudentDetailsPage> {
         ),
       );
     } catch (error) {
+      debugPrint('Presentation operation failed: $error');
       if (!mounted) return;
       ScaffoldMessenger.of(
         context,
@@ -262,6 +265,7 @@ class _StudentDetailsPageState extends ConsumerState<StudentDetailsPage> {
         ),
       );
     } catch (error) {
+      debugPrint('Presentation operation failed: $error');
       if (!mounted) return;
       final message = error is StateError
           ? error.message
@@ -337,6 +341,7 @@ class _StudentDetailsPageState extends ConsumerState<StudentDetailsPage> {
         ),
       );
     } catch (error) {
+      debugPrint('Presentation operation failed: $error');
       if (mounted) {
         ScaffoldMessenger.of(
           context,

@@ -234,6 +234,7 @@ extension _SpiritualNotebookStudentActions on _SpiritualNotebookStudentPageState
           }
         }
       } catch (e) {
+        debugPrint('Presentation operation failed: $e');
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('تعذر حفظ النوتة. حاول مرة أخرى.'), backgroundColor: appError),

@@ -298,7 +298,9 @@ class FollowUpCaseDetailsPage extends ConsumerWidget {
                       );
                     },
                     loading: () => const LinearProgressIndicator(),
-                    error: (err, _) => Text('خطأ في تحميل التكليفات: $err'),
+                    error: (err, _) {
+                      return const Text('تعذر تحميل التكليفات. حاول تحديث الصفحة.');
+                    },
                   ),
                   const SizedBox(height: 24),
 
@@ -372,21 +374,25 @@ class FollowUpCaseDetailsPage extends ConsumerWidget {
                       padding: EdgeInsets.all(20),
                       child: Center(child: CircularProgressIndicator()),
                     ),
-                    error: (err, _) => EmptyState(
-                      icon: Icons.error_outline_rounded,
-                      title: 'تعذر تحميل الأنشطة',
-                      message: '$err',
-                    ),
+                    error: (err, _) {
+                      return const EmptyState(
+                        icon: Icons.error_outline_rounded,
+                        title: 'تعذر تحميل الأنشطة',
+                        message: 'حاول تحديث الصفحة.',
+                      );
+                    },
                   ),
                 ],
               );
             },
             loading: () => const LoadingView(message: 'جاري تحميل تفاصيل الحالة...'),
-            error: (err, _) => EmptyState(
-              icon: Icons.error_outline_rounded,
-              title: 'تعذر تحميل الحالة',
-              message: '$err',
-            ),
+            error: (err, _) {
+              return const EmptyState(
+                icon: Icons.error_outline_rounded,
+                title: 'تعذر تحميل الحالة',
+                message: 'حاول تحديث الصفحة.',
+              );
+            },
           ),
         ),
     );

@@ -119,6 +119,7 @@ class _ServiceSettingsPageState extends ConsumerState<ServiceSettingsPage> {
         ),
       );
     } catch (error) {
+      debugPrint('Presentation operation failed: $error');
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('تعذر الحفظ: ${NetworkErrorFormatter.format(error)}')),

@@ -90,6 +90,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
       // before rendering the appropriate authenticated area.
       context.go('/session');
     } catch (error) {
+      debugPrint('Presentation operation failed: $error');
       if (!mounted) return;
       final confirmationRequired = _isEmailNotConfirmed(error);
       setState(() {
@@ -125,6 +126,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
         ),
       );
     } catch (error) {
+      debugPrint('Presentation operation failed: $error');
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(

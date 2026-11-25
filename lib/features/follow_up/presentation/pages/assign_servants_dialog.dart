@@ -178,9 +178,10 @@ class _AssignServantsDialogState extends ConsumerState<AssignServantsDialog> {
         );
       }
     } catch (e) {
+      debugPrint('Presentation operation failed: $e');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('تعذر حفظ التكليفات: $e')),
+          SnackBar(content: Text('تعذر إتمام العملية. حاول مرة أخرى.')),
         );
       }
     } finally {

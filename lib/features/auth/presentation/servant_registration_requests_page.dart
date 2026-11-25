@@ -271,6 +271,7 @@ class _ServantRegistrationRequestsPageState
         context,
       ).showSnackBar(SnackBar(content: Text(message)));
     } catch (error) {
+      debugPrint('Presentation operation failed: $error');
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -331,10 +332,11 @@ class _ServantRegistrationRequestsPageState
           .eq('auth_user_id', request['auth_user_id']);
       if (mounted) _reload();
     } catch (error) {
+      debugPrint('Presentation operation failed: $error');
       if (mounted) {
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(SnackBar(content: Text('تعذر تحديث الطلب: $error')));
+        ).showSnackBar(SnackBar(content: Text('تعذر إتمام العملية. حاول مرة أخرى.')));
       }
     }
   }
@@ -371,7 +373,7 @@ class _ServantRegistrationRequestsPageState
                 children: [
                   const Text('تعذر تحميل حسابات الخدام المسجلة.'),
                   const SizedBox(height: 8),
-                  Text('${snapshot.error}', textAlign: TextAlign.center),
+                  const Text('تحقق من الاتصال ثم حاول تحديث القائمة.'),
                   TextButton.icon(
                     onPressed: _reload,
                     icon: const Icon(Icons.refresh),
@@ -445,7 +447,7 @@ class _ServantRegistrationRequestsPageState
                               return Text(
                                 enrolledServices.isEmpty
                                     ? 'غير مرتبط بأي خدمة'
-                                    : 'الخدمات: ${enrolledServices.join('، ')}',
+                                    : 'تعذر إتمام العملية. حاول مرة أخرى.',
                                 style: Theme.of(context).textTheme.bodySmall,
                               );
                             },

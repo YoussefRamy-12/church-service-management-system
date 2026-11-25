@@ -248,16 +248,18 @@ class _LeadershipPrepDashboardState
   }) {
     return prepsAsync.when(
       loading: () => const LoadingView(message: 'جاري تحميل سجل التحضيرات...'),
-      error: (error, _) => EmptyState(
-        icon: Icons.error_outline_rounded,
-        title: 'تعذر تحميل التحضيرات',
-        message: '$error',
-        action: OutlinedButton.icon(
-          onPressed: () => ref.invalidate(dashboardPreparationsProvider),
-          icon: const Icon(Icons.refresh),
-          label: const Text('إعادة المحاولة'),
-        ),
-      ),
+      error: (error, _) {
+        return EmptyState(
+          icon: Icons.error_outline_rounded,
+          title: 'تعذر تحميل التحضيرات',
+          message: 'تحقق من الاتصال ثم حاول مرة أخرى.',
+          action: OutlinedButton.icon(
+            onPressed: () => ref.invalidate(dashboardPreparationsProvider),
+            icon: const Icon(Icons.refresh),
+            label: const Text('إعادة المحاولة'),
+          ),
+        );
+      },
       data: (allPreps) {
         final list = onlyPending
             ? allPreps

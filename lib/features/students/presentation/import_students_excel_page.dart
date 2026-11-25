@@ -198,11 +198,12 @@ class _ImportStudentsExcelPageState
         });
       }
     } catch (e) {
+      debugPrint('Presentation operation failed: $e');
       if (mounted) {
         setState(() => _parsingFile = false);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('تعذر قراءة ملف Excel: $e'),
+            content: Text('تعذر إتمام العملية. حاول مرة أخرى.'),
             backgroundColor: const Color(0xFFDC2626),
           ),
         );
@@ -306,7 +307,8 @@ class _ImportStudentsExcelPageState
           }
           successCount++;
         } catch (error) {
-          row.errors.add('تعذر استيراد هذا الصف (${row.name}): $error');
+          debugPrint('Presentation operation failed: $error');
+          row.errors.add('تعذر إتمام العملية. حاول مرة أخرى.');
         }
       }
 
@@ -318,11 +320,12 @@ class _ImportStudentsExcelPageState
         });
       }
     } catch (error) {
+      debugPrint('Presentation operation failed: $error');
       if (mounted) {
         setState(() => _importing = false);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('فشل أثناء تنفيذ الاستيراد: $error'),
+            content: Text('تعذر إتمام العملية. حاول مرة أخرى.'),
             backgroundColor: const Color(0xFFDC2626),
           ),
         );

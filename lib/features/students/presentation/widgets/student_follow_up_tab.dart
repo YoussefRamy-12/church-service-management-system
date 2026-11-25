@@ -67,11 +67,13 @@ class StudentFollowUpTab extends ConsumerWidget {
             loading: () => const LoadingView(
               message: 'جاري تحميل حالات المتابعة...',
             ),
-            error: (error, _) => EmptyState(
-              icon: Icons.error_outline_rounded,
-              title: 'تعذر تحميل حالات المتابعة',
-              message: '$error',
-            ),
+            error: (error, _) {
+              return const EmptyState(
+                icon: Icons.error_outline_rounded,
+                title: 'تعذر تحميل حالات المتابعة',
+                message: 'حاول تحديث الصفحة.',
+              );
+            },
             data: (cases) {
               if (cases.isEmpty) {
                 return const EmptyState(
@@ -136,11 +138,13 @@ class StudentFollowUpTab extends ConsumerWidget {
             loading: () => const LoadingView(
               message: 'جاري تحميل سجل الأنشطة...',
             ),
-            error: (error, _) => EmptyState(
-              icon: Icons.error_outline_rounded,
-              title: 'تعذر تحميل سجل الأنشطة',
-              message: '$error',
-            ),
+            error: (error, _) {
+              return const EmptyState(
+                icon: Icons.error_outline_rounded,
+                title: 'تعذر تحميل سجل الأنشطة',
+                message: 'حاول تحديث الصفحة.',
+              );
+            },
             data: (activities) {
               if (activities.isEmpty) {
                 return const EmptyState(

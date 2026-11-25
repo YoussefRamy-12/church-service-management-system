@@ -45,8 +45,12 @@ class _MeetingSchedulesPageState extends ConsumerState<MeetingSchedulesPage> {
         });
       }
     } catch (error) {
+      debugPrint('Presentation operation failed: $error');
       if (mounted) {
-        setState(() { _error = error.toString(); _loading = false; });
+        setState(() {
+          _error = 'تعذر تحميل إعدادات الاجتماعات. تحقق من الاتصال.';
+          _loading = false;
+        });
       }
     }
   }
@@ -154,9 +158,10 @@ class _MeetingSchedulesPageState extends ConsumerState<MeetingSchedulesPage> {
         );
       }
     } catch (error) {
+      debugPrint('Presentation operation failed: $error');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('تعذر إنشاء جدول الاجتماع: $error')),
+          const SnackBar(content: Text('تعذر إنشاء جدول الاجتماع. حاول مرة أخرى.')),
         );
         await _load();
       }

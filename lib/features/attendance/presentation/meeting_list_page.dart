@@ -84,6 +84,7 @@ class _MeetingListPageState extends ConsumerState<MeetingListPage> {
         ),
       );
     } catch (e) {
+      debugPrint('Presentation operation failed: $e');
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('تعذر إنشاء الاجتماع: ${NetworkErrorFormatter.format(e)}')),

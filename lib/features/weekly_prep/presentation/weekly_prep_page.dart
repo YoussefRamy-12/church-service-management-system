@@ -83,10 +83,13 @@ class _WeeklyPrepPageState extends ConsumerState<WeeklyPrepPage> {
       ref.invalidate(dashboardStatusCountsProvider);
       await ref.read(weeklyLessonsProvider(widget.serviceId).future);
     } catch (error) {
+      debugPrint('Presentation operation failed: $error');
       if (mounted) {
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(SnackBar(content: Text('تعذر تحديث التحاضير: $error')));
+        ).showSnackBar(
+          const SnackBar(content: Text('تعذر تحديث التحاضير. حاول مرة أخرى.')),
+        );
       }
     } finally {
       if (mounted) setState(() => _refreshing = false);
@@ -154,13 +157,16 @@ class _WeeklyPrepPageState extends ConsumerState<WeeklyPrepPage> {
           loading: () => const Scaffold(
             body: LoadingView(message: 'جاري تحميل بيانات الخدمة...'),
           ),
-          error: (err, _) => Scaffold(
+          error: (err, _) {
+            debugPrint('Failed to load account for weekly prep: $err');
+            return Scaffold(
             body: EmptyState(
               icon: Icons.error_outline_rounded,
               title: 'تعذر تحميل الحساب',
-              message: '$err',
+              message: 'تعذر تحميل بيانات الحساب. حاول تحديث الصفحة.',
             ),
-          ),
+          );
+          },
           data: (profile) {
             if (profile == null) {
               return const Scaffold(
@@ -198,18 +204,21 @@ class _WeeklyPrepPageState extends ConsumerState<WeeklyPrepPage> {
                   loading: () => const Scaffold(
                     body: LoadingView(message: 'جاري تحميل ملفات التحضير...'),
                   ),
-                  error: (error, _) => Scaffold(
+                  error: (error, _) {
+                    debugPrint('Failed to load weekly lessons: $error');
+                    return Scaffold(
                     body: EmptyState(
                       icon: Icons.cloud_off_rounded,
                       title: 'تعذر تحميل التحاضير',
-                      message: '$error',
+                      message: 'تحقق من الاتصال ثم حاول تحديث القائمة.',
                       action: OutlinedButton.icon(
                         onPressed: _refresh,
                         icon: const Icon(Icons.refresh),
                         label: const Text('إعادة المحاولة'),
                       ),
                     ),
-                  ),
+                  );
+                  },
                   data: (lessons) {
                     // If user is a leader and not toggled to personal servant view:
                     if (isLeader && !_forceServantView) {

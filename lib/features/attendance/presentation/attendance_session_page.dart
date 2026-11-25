@@ -229,10 +229,11 @@ class _AttendanceSessionPageState extends ConsumerState<AttendanceSessionPage> {
         );
       }
     } catch (e) {
+      debugPrint('Presentation operation failed: $e');
       if (mounted) {
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(SnackBar(content: Text('تعذر تسجيل الحضور: $e')));
+        ).showSnackBar(SnackBar(content: Text('تعذر إتمام العملية. حاول مرة أخرى.')));
       }
     } finally {
       if (mounted) setState(() => busyStudentId = null);
@@ -278,6 +279,7 @@ class _AttendanceSessionPageState extends ConsumerState<AttendanceSessionPage> {
         ),
       );
     } catch (e) {
+      debugPrint('Presentation operation failed: $e');
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -343,10 +345,11 @@ class _AttendanceSessionPageState extends ConsumerState<AttendanceSessionPage> {
         }
       }
     } catch (error) {
+      debugPrint('Presentation operation failed: $error');
       if (mounted) {
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(SnackBar(content: Text('تعذر فتح ماسح QR: $error')));
+        ).showSnackBar(SnackBar(content: Text('تعذر إتمام العملية. حاول مرة أخرى.')));
       }
     } finally {
       if (mounted) setState(() => openingQrScanner = false);

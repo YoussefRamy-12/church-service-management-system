@@ -100,11 +100,12 @@ class _ServantPrepViewState extends ConsumerState<ServantPrepView> {
         throw Exception('تعذر فتح الرابط');
       }
     } catch (e) {
+      debugPrint('Presentation operation failed: $e');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              download ? 'تعذر تنزيل الملف: $e' : 'تعذر فتح الملف: $e',
+              download ? 'تعذر إتمام العملية. حاول مرة أخرى.' : 'تعذر إتمام العملية. حاول مرة أخرى.',
             ),
           ),
         );
@@ -179,10 +180,11 @@ class _ServantPrepViewState extends ConsumerState<ServantPrepView> {
         );
       }
     } catch (e) {
+      debugPrint('Presentation operation failed: $e');
       if (mounted) {
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(SnackBar(content: Text('تعذر إرسال التحضير: $e')));
+        ).showSnackBar(SnackBar(content: Text('تعذر إتمام العملية. حاول مرة أخرى.')));
       }
     } finally {
       if (mounted) setState(() => _submitting = false);
@@ -441,7 +443,7 @@ class _ServantPrepViewState extends ConsumerState<ServantPrepView> {
               size: 36,
             ),
             const SizedBox(height: 10),
-            Text('تعذر تحميل بيانات التحضير: $error'),
+            Text('تعذر إتمام العملية. حاول مرة أخرى.'),
           ],
         ),
       ),
