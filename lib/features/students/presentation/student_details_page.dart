@@ -819,7 +819,9 @@ class _StudentProfileHeader extends StatelessWidget {
             ),
             if (quickPhone != null) ...[
               const SizedBox(height: 12),
-              Row(
+              Wrap(
+                spacing: 8,
+                crossAxisAlignment: WrapCrossAlignment.center,
                 children: [
                   Text(
                     'تواصل سريع:',
@@ -828,7 +830,6 @@ class _StudentProfileHeader extends StatelessWidget {
                       fontWeight: FontWeight.w600,
                     ),
                   ),
-                  const SizedBox(width: 8),
                   PhoneContactActions(phone: quickPhone, compact: false),
                 ],
               ),
