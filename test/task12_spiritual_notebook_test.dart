@@ -193,17 +193,13 @@ SpiritualNotebookStudentPage _studentForm({
   studentIndex: studentIndex,
 );
 
-IconButton _iconButtonWithTooltip(
-  WidgetTester tester,
-  String tooltip,
-) {
-  final button = find.ancestor(
-    of: find.byTooltip(tooltip),
-    matching: find.byType(IconButton),
-  );
-  return tester.widget<IconButton>(button.first);
-}
-
+IconButton _iconButtonWithTooltip(WidgetTester tester, String tooltip) =>
+    tester.widget<IconButton>(
+      find.ancestor(
+        of: find.byTooltip(tooltip),
+        matching: find.byType(IconButton),
+      ).first,
+    );
 void main() {
   testWidgets('roster defaults to pending and class selection uses a sheet', (
     tester,
