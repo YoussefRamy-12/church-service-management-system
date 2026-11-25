@@ -74,6 +74,9 @@ extension _StudentNotebookFooterSection on _SpiritualNotebookStudentPageState {
     return [
       IconButton(
         tooltip: 'التلميذ السابق',
+        visualDensity: VisualDensity.compact,
+        padding: EdgeInsets.zero,
+        constraints: const BoxConstraints.tightFor(width: 40, height: 40),
         onPressed: widget.studentIndex > 0
             ? () => _openStudentAt(widget.studentIndex - 1)
             : null,
@@ -82,11 +85,14 @@ extension _StudentNotebookFooterSection on _SpiritualNotebookStudentPageState {
       Center(
         child: Text(
           '${widget.studentIndex + 1}/${widget.studentIds.length}',
-          style: theme.textTheme.labelMedium,
+          style: theme.textTheme.labelSmall,
         ),
       ),
       IconButton(
         tooltip: 'التلميذ التالي',
+        visualDensity: VisualDensity.compact,
+        padding: EdgeInsets.zero,
+        constraints: const BoxConstraints.tightFor(width: 40, height: 40),
         onPressed: widget.studentIndex < widget.studentIds.length - 1
             ? () => _openStudentAt(widget.studentIndex + 1)
             : null,
