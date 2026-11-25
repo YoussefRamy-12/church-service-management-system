@@ -227,10 +227,9 @@ class AppShell extends ConsumerWidget {
   }
 
   bool _isFullScreenFlow(String path) {
-    // QR scan, add-student and import screens are pushed on the root Navigator,
-    // so they cover this shell without changing its GoRouter location. The
-    // only GoRouter full-screen flow in app.dart is attendance/session (plus
-    // the legacy top-level attendance route).
+    // QR scan, add-student and import screens cover this shell on the root
+    // Navigator. Attendance sessions and the spiritual-notebook student form
+    // own their focused mobile layouts and therefore hide shell navigation.
     return path.startsWith('/service/$serviceId/attendance/session/') ||
         path.startsWith('/service/$serviceId/spiritual-notebook/student/') ||
         RegExp(r'^/attendance/[^/]+/[^/]+
