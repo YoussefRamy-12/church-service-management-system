@@ -231,10 +231,22 @@ class _ChurchServiceAppState extends ConsumerState<ChurchServiceApp> {
                 routes: [
                   GoRoute(
                     path: 'student/:membershipId',
-                    builder: (context, state) => SpiritualNotebookStudentPage(
-                      serviceId: state.pathParameters['serviceId']!,
-                      membershipId: state.pathParameters['membershipId']!,
-                    ),
+                    builder: (context, state) {
+                      final extra = state.extra;
+                      final navigation = extra is Map
+                          ? extra
+                          : const <String, dynamic>{};
+                      return SpiritualNotebookStudentPage(
+                        serviceId: state.pathParameters['serviceId']!,
+                        membershipId: state.pathParameters['membershipId']!,
+                        studentIds:
+                            (navigation['studentIds'] as List<dynamic>? ?? const [])
+                                .whereType<String>()
+                                .toList(),
+                        studentIndex:
+                            navigation['studentIndex'] as int? ?? 0,
+                      );
+                    },
                   ),
                 ],
               ),
