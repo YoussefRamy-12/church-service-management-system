@@ -131,8 +131,14 @@ class FollowUpStudentCard extends StatelessWidget {
                 ),
                 visualDensity: VisualDensity.compact,
                 materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                backgroundColor: reasonColor.withValues(alpha: 0.10),
-                side: BorderSide(color: reasonColor.withValues(alpha: 0.25)),
+                backgroundColor: item.needsFollowUp
+                    ? semantic.warning.background
+                    : theme.colorScheme.surfaceContainerHighest,
+                side: BorderSide(
+                  color: item.needsFollowUp
+                      ? semantic.warning.foreground.withValues(alpha: 0.35)
+                      : theme.colorScheme.outlineVariant,
+                ),
               ),
               // Absence Badge
               Container(

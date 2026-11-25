@@ -186,8 +186,8 @@ class _FollowUpHubPageState extends ConsumerState<FollowUpHubPage>
             const SizedBox(height: 12),
 
             // Filter Chips & Sort Controls
-            SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
+            ScrollableChipRow(
+              padding: const EdgeInsetsDirectional.symmetric(horizontal: 4),
               child: Row(
                 children: [
                   _buildStudentFilterChip(
@@ -370,13 +370,19 @@ class _FollowUpHubPageState extends ConsumerState<FollowUpHubPage>
   }
 
   Widget _buildStudentFilterChip(String label, _StudentFilter filter) {
+    final theme = Theme.of(context);
     final isSelected = _studentFilter == filter;
     return ChoiceChip(
       selected: isSelected,
       label: Text(label),
+      selectedColor: theme.colorScheme.primary,
+      checkmarkColor: theme.colorScheme.onPrimary,
       labelStyle: TextStyle(
         fontSize: 13,
         fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+        color: isSelected
+            ? theme.colorScheme.onPrimary
+            : theme.colorScheme.onSurface,
       ),
       onSelected: (selected) {
         if (selected) setState(() => _studentFilter = filter);
@@ -431,13 +437,24 @@ class _FollowUpHubPageState extends ConsumerState<FollowUpHubPage>
             const SizedBox(height: 12),
 
             // Status Filter Chips
-            SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
+            ScrollableChipRow(
+              padding: const EdgeInsetsDirectional.symmetric(horizontal: 4),
               child: Row(
                 children: [
                   ChoiceChip(
                     selected: _caseStatusFilter == null,
                     label: Text('الكل (${cases.length})'),
+                    selectedColor: theme.colorScheme.primary,
+                    checkmarkColor: theme.colorScheme.onPrimary,
+                    labelStyle: TextStyle(
+                      color: _caseStatusFilter == null
+                          ? theme.colorScheme.onPrimary
+                          : theme.colorScheme.onSurface,
+                      fontWeight: _caseStatusFilter == null
+                          ? FontWeight.bold
+                          : FontWeight.normal,
+                      fontSize: 13,
+                    ),
                     onSelected: (selected) {
                       if (selected) setState(() => _caseStatusFilter = null);
                     },
@@ -451,9 +468,12 @@ class _FollowUpHubPageState extends ConsumerState<FollowUpHubPage>
                       child: ChoiceChip(
                         selected: isSelected,
                         label: Text('${status.arabicLabel} ($count)'),
-                        selectedColor: status.color.withValues(alpha: 0.2),
+                        selectedColor: theme.colorScheme.primary,
+                        checkmarkColor: theme.colorScheme.onPrimary,
                         labelStyle: TextStyle(
-                          color: isSelected ? status.color : null,
+                          color: isSelected
+                              ? theme.colorScheme.onPrimary
+                              : theme.colorScheme.onSurface,
                           fontWeight: isSelected
                               ? FontWeight.bold
                               : FontWeight.normal,
