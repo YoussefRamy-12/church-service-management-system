@@ -63,195 +63,230 @@ class _SyncCenterPageState extends ConsumerState<SyncCenterPage> {
       appBar: AppBar(title: const Text('مركز المزامنة')),
       body: AppContent(
         maxWidth: 850,
-        child: ListView(
-          padding: const EdgeInsets.symmetric(vertical: 20),
-          children: [
-            if (!offlineSyncEnabled) ...[
-              const StatusBanner(
-                icon: Icons.info_outline,
-                title: 'نمط الاتصال المباشر فقط (Online-Only)',
-                message:
-                    'تم تعطيل المزامنة المحلية والعمل دون اتصال مؤقتًا. يتصل التطبيق مباشرة بقاعدة البيانات المركزية.',
-              ),
-              const SizedBox(height: 12),
-            ],
-            Text(
-              'حالة البيانات على هذا الجهاز',
-              style: Theme.of(
-                context,
-              ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w800),
-            ),
-            const SizedBox(height: 12),
-            _StatusCard(status: engine.status),
-            const SizedBox(height: 14),
-            StreamBuilder<int>(
-              stream: queue.watchCountByStatus('pending'),
-              builder: (context, pending) => StreamBuilder<int>(
-                stream: queue.watchCountByStatus('conflict'),
-                builder: (context, conflict) {
-                  final pendingCount = pending.data ?? 0;
-                  final conflictCount = conflict.data ?? 0;
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
+        child: StreamBuilder<int>(
+          stream: queue.watchCountByStatus('pending'),
+          builder: (context, pending) => StreamBuilder<int>(
+            stream: queue.watchCountByStatus('conflict'),
+            builder: (context, conflict) {
+              final pendingCount = pending.data ?? 0;
+              final conflictCount = conflict.data ?? 0;
+              final syncState = conflictCount > 0
+                  ? SyncState.conflict
+                  : (pendingCount > 0 ? SyncState.pending : SyncState.synced);
+
+              return ListView(
+                padding: const EdgeInsets.symmetric(vertical: 20),
+                children: [
+                  _SyncStatusHero(
+                    offlineSyncEnabled: offlineSyncEnabled,
+                    engineStatus: engine.status,
+                    syncState: syncState,
+                    pendingCount: pendingCount,
+                    conflictCount: conflictCount,
+                  ),
+                  const SizedBox(height: 14),
+                  Row(
                     children: [
-                      Wrap(
-                        spacing: 8,
-                        runSpacing: 8,
-                        children: [
-                          SyncBadge(state: conflictCount > 0 ? SyncState.conflict : SyncState.synced, count: conflictCount, label: conflictCount > 0 ? 'تعارضات تحتاج مراجعة ($conflictCount)' : 'لا توجد تعارضات'),
-                          SyncBadge(state: pendingCount > 0 ? SyncState.pending : SyncState.synced, count: pendingCount, label: pendingCount > 0 ? 'في انتظار المزامنة ($pendingCount)' : 'لا توجد تغييرات معلقة'),
-                        ],
-                      ),
-                      const SizedBox(height: 8),
-                      const Text('المزامنة ترسل التغييرات المحفوظة على هذا الجهاز. العناصر المعلقة لم تصل إلى قاعدة البيانات بعد، والتعارضات تحتاج مراجعة قبل إعادة المحاولة.'),
-                      const SizedBox(height: 14),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: _CountCard(
-                              icon: Icons.cloud_upload_outlined,
-                              title: 'بانتظار المزامنة',
-                              count: pendingCount,
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: _CountCard(
-                              icon: Icons.warning_amber_rounded,
-                              title: 'تحتاج مراجعة',
-                              count: conflictCount,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 14),
-                      FilledButton.icon(
-                        key: const Key('sync_now'),
-                        onPressed: (_working || !offlineSyncEnabled) ? null : _sync,
-                        icon: _working
-                            ? const SizedBox(
-                                width: 18,
-                                height: 18,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                ),
-                              )
-                            : const Icon(Icons.sync_rounded),
-                        label: Text(
-                          !offlineSyncEnabled
-                              ? 'المزامنة معطلة مؤقتًا'
-                              : (_working ? 'جارٍ التحقق...' : 'مزامنة الآن'),
+                      Expanded(
+                        child: _CountCard(
+                          icon: Icons.cloud_upload_outlined,
+                          title: 'بانتظار المزامنة',
+                          count: pendingCount,
                         ),
                       ),
-                      const SizedBox(height: 8),
-                      if (conflictCount > 0)
-                        OutlinedButton.icon(
-                          onPressed: () => context.push('/sync/conflicts'),
-                          icon: const Icon(Icons.rule_folder_outlined),
-                          label: Text('مراجعة التعارضات ($conflictCount)'),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: _CountCard(
+                          icon: Icons.warning_amber_rounded,
+                          title: 'تحتاج مراجعة',
+                          count: conflictCount,
                         ),
-                      if (pendingCount == 0 && conflictCount == 0)
-                        const Padding(
-                          padding: EdgeInsets.only(top: 14),
-                          child: EmptyState(
-                            icon: Icons.cloud_done_outlined,
-                            title: 'كل شيء متزامن',
-                            message: 'لا توجد تغييرات معلقة أو تعارضات. بيانات هذا الجهاز متزامنة.',
-                          ),
-                        ),
+                      ),
                     ],
-                  );
-                },
-              ),
-            ),
-            if (offlineSyncEnabled) ...[
-              StreamBuilder<int>(
-                stream: queue.watchCountByStatus('pending'),
-                builder: (context, pendingSnapshot) {
-                  if ((pendingSnapshot.data ?? 0) == 0) return const SizedBox.shrink();
-                  return FutureBuilder(
-                    future: queue.pending(),
-                    builder: (context, itemsSnapshot) {
-                      final items = itemsSnapshot.data;
-                      if (items == null || items.isEmpty) return const SizedBox.shrink();
-                      return Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          Text('التغييرات في انتظار المزامنة', style: Theme.of(context).textTheme.titleMedium),
-                          const SizedBox(height: 8),
-                          for (final item in items)
-                            Card(
-                              child: ListTile(
-                                leading: const Icon(Icons.cloud_upload_outlined),
-                                title: Text(item.entityType),
-                                subtitle: Text(item.operationType),
-                                trailing: const Icon(Icons.schedule),
+                  ),
+                  const SizedBox(height: 14),
+                  FilledButton.icon(
+                    key: const Key('sync_now'),
+                    onPressed: (_working || !offlineSyncEnabled) ? null : _sync,
+                    icon: _working
+                        ? const SizedBox(
+                            width: 18,
+                            height: 18,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : const Icon(Icons.sync_rounded),
+                    label: Text(
+                      !offlineSyncEnabled
+                          ? 'المزامنة معطلة مؤقتًا'
+                          : (_working ? 'جارٍ التحقق...' : 'مزامنة الآن'),
+                    ),
+                  ),
+                  if (conflictCount > 0) ...[
+                    const SizedBox(height: 8),
+                    OutlinedButton.icon(
+                      onPressed: () => context.push('/sync/conflicts'),
+                      icon: const Icon(Icons.rule_folder_outlined),
+                      label: Text('مراجعة التعارضات ($conflictCount)'),
+                    ),
+                  ],
+                  const SizedBox(height: 16),
+                  if (pendingCount == 0 && conflictCount == 0)
+                    const EmptyState(
+                      icon: Icons.cloud_done_outlined,
+                      title: 'كل شيء متزامن',
+                      message:
+                          'لا توجد تغييرات معلقة أو تعارضات. بيانات هذا الجهاز متزامنة.',
+                    )
+                  else ...[
+                    if (conflictCount > 0)
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 12),
+                        child: StatusBanner(
+                          icon: Icons.warning_amber_rounded,
+                          title: 'تعارضات تحتاج مراجعة ($conflictCount)',
+                          message:
+                              'افتح شاشة مراجعة التعارضات لاختيار النسخة المعتمدة قبل إعادة المزامنة.',
+                          tone: StatusTone.error,
+                        ),
+                      ),
+                    if (pendingCount > 0)
+                      FutureBuilder(
+                        future: queue.pending(),
+                        builder: (context, itemsSnapshot) {
+                          final items = itemsSnapshot.data;
+                          if (items == null || items.isEmpty) {
+                            return const SizedBox.shrink();
+                          }
+                          return Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              Text(
+                                'التغييرات في انتظار المزامنة',
+                                style: Theme.of(context).textTheme.titleMedium,
                               ),
-                            ),
-                        ],
-                      );
-                    },
-                  );
-                },
-              ),
-            ],
-            const SizedBox(height: 16),
-            Card(
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Text(
-                  offlineSyncEnabled
-                      ? 'يمكنك الاستمرار في تسجيل البيانات دون اتصال. ستبقى محفوظة محليًا حتى تتوفر الشبكة، ثم تُرسل إلى الخدمة عند المزامنة.'
-                      : 'يعمل التطبيق حاليًا بالاتصال المباشر بقاعدة البيانات المركزية (Online-only). تم تعطيل الحفظ المحلي والمزامنة مؤقتًا لحين اكتمال التحديثات. البيانات العالقة محفوظة بأمان ولن تُفقد.',
-                ),
-              ),
-            ),
-          ],
+                              const SizedBox(height: 8),
+                              for (final item in items)
+                                Card(
+                                  child: ListTile(
+                                    leading: const Icon(
+                                      Icons.cloud_upload_outlined,
+                                    ),
+                                    title: Text(item.entityType),
+                                    subtitle: Text(item.operationType),
+                                    trailing: const Icon(Icons.schedule),
+                                  ),
+                                ),
+                            ],
+                          );
+                        },
+                      ),
+                  ],
+                ],
+              );
+            },
+          ),
         ),
       ),
     );
   }
 }
 
-class _StatusCard extends StatelessWidget {
-  const _StatusCard({required this.status});
-  final SyncStatus status;
+class _SyncStatusHero extends StatelessWidget {
+  const _SyncStatusHero({
+    required this.offlineSyncEnabled,
+    required this.engineStatus,
+    required this.syncState,
+    required this.pendingCount,
+    required this.conflictCount,
+  });
+
+  final bool offlineSyncEnabled;
+  final SyncStatus engineStatus;
+  final SyncState syncState;
+  final int pendingCount;
+  final int conflictCount;
+
   @override
   Widget build(BuildContext context) {
-    final (icon, title, detail, tone) = switch (status) {
-      SyncStatus.offline => (
-        Icons.cloud_off_rounded,
-        'غير متصل',
-        'التغييرات محفوظة محليًا على هذا الجهاز.',
-        StatusTone.warning,
-      ),
-      SyncStatus.syncing => (
-        Icons.sync_rounded,
-        'جارٍ التزامن',
-        'يتم إرسال التغييرات المحفوظة.',
-        StatusTone.neutral,
-      ),
-      SyncStatus.error => (
-        Icons.error_outline_rounded,
-        'تعذرت المزامنة',
-        'تحقق من الشبكة ثم أعد المحاولة.',
-        StatusTone.error,
-      ),
-      SyncStatus.idle => (
-        Icons.cloud_done_rounded,
-        'جاهز للمزامنة',
-        'سيتم إرسال التغييرات عند توفر الاتصال.',
-        StatusTone.success,
-      ),
-    };
+    final theme = Theme.of(context);
+    final (icon, title, detail, tone) = !offlineSyncEnabled
+        ? (
+            Icons.cloud_queue_rounded,
+            'الاتصال المباشر فقط',
+            'تم تعطيل المزامنة المحلية مؤقتًا، ويتصل التطبيق مباشرة بقاعدة البيانات المركزية.',
+            StatusTone.neutral,
+          )
+        : conflictCount > 0
+        ? (
+            Icons.warning_amber_rounded,
+            'تعارضات تحتاج مراجعة',
+            'توجد عناصر متعارضة تحتاج مراجعتك قبل إعادة المزامنة.',
+            StatusTone.error,
+          )
+        : switch (engineStatus) {
+            SyncStatus.offline => (
+              Icons.cloud_off_rounded,
+              'غير متصل',
+              'التغييرات محفوظة محليًا على هذا الجهاز.',
+              StatusTone.warning,
+            ),
+            SyncStatus.syncing => (
+              Icons.sync_rounded,
+              'جارٍ التزامن',
+              'يتم إرسال التغييرات المحفوظة.',
+              StatusTone.neutral,
+            ),
+            SyncStatus.error => (
+              Icons.error_outline_rounded,
+              'تعذرت المزامنة',
+              'تحقق من الشبكة ثم أعد المحاولة.',
+              StatusTone.error,
+            ),
+            SyncStatus.idle => pendingCount > 0
+                ? (
+                    Icons.hourglass_top_rounded,
+                    'في انتظار المزامنة',
+                    'توجد تغييرات محفوظة محليًا جاهزة للإرسال عند المزامنة.',
+                    StatusTone.warning,
+                  )
+                : (
+                    Icons.cloud_done_rounded,
+                    'تمت المزامنة',
+                    'كل البيانات على هذا الجهاز محدثة ومتزامنة.',
+                    StatusTone.success,
+                  ),
+          };
+
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(16),
-        child: StatusBanner(
-          icon: icon,
-          title: title,
-          message: detail,
-          tone: tone,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    'حالة البيانات على هذا الجهاز',
+                    style: theme.textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                ),
+                SyncBadge(
+                  state: syncState,
+                  count: pendingCount,
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            StatusBanner(
+              icon: icon,
+              title: title,
+              message: detail,
+              tone: tone,
+            ),
+          ],
         ),
       ),
     );
