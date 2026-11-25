@@ -190,140 +190,156 @@ class _ServantManagementPageState extends ConsumerState<ServantManagementPage> {
 
             return AppContent(
               maxWidth: 900,
-              child: ListView(
-                padding: const EdgeInsets.fromLTRB(20, 16, 20, 32),
-                children: [
-                  ResponsiveMetricGrid(
-                    spacing: 10,
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  final isMobile = constraints.maxWidth < 768;
+                  return ListView(
+                    padding: EdgeInsets.fromLTRB(
+                      isMobile ? 16 : 20,
+                      isMobile ? 12 : 16,
+                      isMobile ? 16 : 20,
+                      32,
+                    ),
                     children: [
-                      ModernMetricCard(
-                        label: 'إجمالي الخدام',
-                        value: '${all.length}',
-                        icon: Icons.people_outline_rounded,
-                        color: Theme.of(context).colorScheme.primary,
-                      ),
-                      ModernMetricCard(
-                        label: 'نشط',
-                        value: '$activeCount',
-                        icon: Icons.check_circle_outline_rounded,
-                        color: AppColors.of(context).present.foreground,
-                      ),
-                      ModernMetricCard(
-                        label: 'معلق',
-                        value: '$pendingCount',
-                        icon: Icons.hourglass_top_rounded,
-                        color: AppColors.of(context).pending.foreground,
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  AppCard(
-                    padding: const EdgeInsets.all(12),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        TextField(
-                          decoration: InputDecoration(
-                            isDense: true,
-                            labelText: 'بحث بالاسم أو الهاتف',
-                            prefixIcon: const Icon(Icons.search_rounded),
-                            suffixIcon: search.isNotEmpty
-                                ? IconButton(
-                                    tooltip: 'مسح البحث',
-                                    icon: const Icon(Icons.clear_rounded),
-                                    onPressed: () =>
-                                        setState(() => search = ''),
-                                  )
-                                : null,
-                          ),
-                          onChanged: (value) => setState(() => search = value),
-                        ),
-                        const SizedBox(height: 12),
-                        ServantRoleFilter(
-                          selectedRole: roleFilter,
-                          onChanged: (value) =>
-                              setState(() => roleFilter = value),
-                        ),
-                        const SizedBox(height: 10),
-                        Text(
-                          'حالة الحساب',
-                          style: Theme.of(context).textTheme.labelLarge,
-                        ),
-                        const SizedBox(height: 6),
-                        Wrap(
-                          spacing: 8,
-                          runSpacing: 8,
+                      if (isMobile)
+                        _buildCompactMobileStatsRow(
+                          context,
+                          total: all.length,
+                          active: activeCount,
+                          pending: pendingCount,
+                        )
+                      else
+                        ResponsiveMetricGrid(
+                          spacing: 10,
                           children: [
-                            for (final option in const [
-                              ('all', 'الكل'),
-                              ('active', 'نشط'),
-                              ('pending', 'معلق'),
-                              ('inactive', 'غير نشط'),
-                            ])
-                              ChoiceChip(
-                                label: Text(option.$2),
-                                selected: statusFilter == option.$1,
-                                onSelected: (_) => setState(
-                                  () => statusFilter = option.$1,
-                                ),
-                              ),
+                            ModernMetricCard(
+                              label: 'إجمالي الخدام',
+                              value: '${all.length}',
+                              icon: Icons.people_outline_rounded,
+                              color: Theme.of(context).colorScheme.primary,
+                            ),
+                            ModernMetricCard(
+                              label: 'نشط',
+                              value: '$activeCount',
+                              icon: Icons.check_circle_outline_rounded,
+                              color: AppColors.of(context).present.foreground,
+                            ),
+                            ModernMetricCard(
+                              label: 'معلق',
+                              value: '$pendingCount',
+                              icon: Icons.hourglass_top_rounded,
+                              color: AppColors.of(context).pending.foreground,
+                            ),
                           ],
                         ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  if (filtered.isEmpty)
-                    const EmptyState(
-                      icon: Icons.people_outline_rounded,
-                      title: 'لا توجد خدام مطابقة',
-                      message: 'جرّب تغيير البحث أو عوامل التصفية.',
-                    )
-                  else
-                    LayoutBuilder(
-                      builder: (context, constraints) {
-                        if (constraints.maxWidth >= 768) {
-                          return AppCard(
-                            padding: const EdgeInsets.all(8),
-                            child: SingleChildScrollView(
-                              scrollDirection: Axis.horizontal,
-                              child: DataTable(
-                                columnSpacing: 28,
-                                headingRowHeight: 48,
-                                dataRowMinHeight: 56,
-                                dataRowMaxHeight: 64,
-                                columns: const [
-                                  DataColumn(label: Text('الخادم')),
-                                  DataColumn(label: Text('الدور')),
-                                  DataColumn(label: Text('النطاق')),
-                                  DataColumn(label: Text('الحالة')),
-                                  DataColumn(label: Text('إجراءات')),
-                                ],
-                                rows: [
-                                  for (final servant in filtered)
-                                    DataRow(
-                                      onSelectChanged: (_) =>
-                                          _openEditor(servant),
-                                      cells: [
-                                        DataCell(Text(servant.name)),
-                                        DataCell(Text(_roleLabel(servant.role))),
-                                        DataCell(Text(_assignmentLabel(servant))),
-                                        DataCell(_statusBadge(context, servant)),
-                                        DataCell(
-                                          _servantActionsMenu(
-                                            servant,
-                                            isSuperAdmin,
-                                          ),
-                                        ),
-                                      ],
+                      SizedBox(height: isMobile ? 10 : 16),
+                      if (isMobile)
+                        _buildMobileFilterBar(context)
+                      else
+                        AppCard(
+                          padding: const EdgeInsets.all(12),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              TextField(
+                                decoration: InputDecoration(
+                                  isDense: true,
+                                  labelText: 'بحث بالاسم أو الهاتف',
+                                  prefixIcon: const Icon(Icons.search_rounded),
+                                  suffixIcon: search.isNotEmpty
+                                      ? IconButton(
+                                          tooltip: 'مسح البحث',
+                                          icon: const Icon(Icons.clear_rounded),
+                                          onPressed: () =>
+                                              setState(() => search = ''),
+                                        )
+                                      : null,
+                                ),
+                                onChanged: (value) =>
+                                    setState(() => search = value),
+                              ),
+                              const SizedBox(height: 12),
+                              ServantRoleFilter(
+                                selectedRole: roleFilter,
+                                onChanged: (value) =>
+                                    setState(() => roleFilter = value),
+                              ),
+                              const SizedBox(height: 10),
+                              Text(
+                                'حالة الحساب',
+                                style: Theme.of(context).textTheme.labelLarge,
+                              ),
+                              const SizedBox(height: 6),
+                              Wrap(
+                                spacing: 8,
+                                runSpacing: 8,
+                                children: [
+                                  for (final option in const [
+                                    ('all', 'الكل'),
+                                    ('active', 'نشط'),
+                                    ('pending', 'معلق'),
+                                    ('inactive', 'غير نشط'),
+                                  ])
+                                    ChoiceChip(
+                                      label: Text(option.$2),
+                                      selected: statusFilter == option.$1,
+                                      onSelected: (_) => setState(
+                                        () => statusFilter = option.$1,
+                                      ),
                                     ),
                                 ],
                               ),
+                            ],
+                          ),
+                        ),
+                      SizedBox(height: isMobile ? 12 : 16),
+                      if (filtered.isEmpty)
+                        const EmptyState(
+                          icon: Icons.people_outline_rounded,
+                          title: 'لا توجد خدام مطابقة',
+                          message: 'جرّب تغيير البحث أو عوامل التصفية.',
+                        )
+                      else if (!isMobile)
+                        AppCard(
+                          padding: const EdgeInsets.all(8),
+                          child: SingleChildScrollView(
+                            scrollDirection: Axis.horizontal,
+                            child: DataTable(
+                              columnSpacing: 28,
+                              headingRowHeight: 48,
+                              dataRowMinHeight: 56,
+                              dataRowMaxHeight: 64,
+                              columns: const [
+                                DataColumn(label: Text('الخادم')),
+                                DataColumn(label: Text('الدور')),
+                                DataColumn(label: Text('النطاق')),
+                                DataColumn(label: Text('الحالة')),
+                                DataColumn(label: Text('إجراءات')),
+                              ],
+                              rows: [
+                                for (final servant in filtered)
+                                  DataRow(
+                                    onSelectChanged: (_) =>
+                                        _openEditor(servant),
+                                    cells: [
+                                      DataCell(Text(servant.name)),
+                                      DataCell(Text(_roleLabel(servant.role))),
+                                      DataCell(Text(_assignmentLabel(servant))),
+                                      DataCell(_statusBadge(context, servant)),
+                                      DataCell(
+                                        _servantActionsMenu(
+                                          servant,
+                                          isSuperAdmin,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                              ],
                             ),
-                          );
-                        }
-
-                        return Column(
+                          ),
+                        )
+                      else
+                        Column(
                           children: [
                             for (final servant in filtered)
                               Padding(
@@ -335,14 +351,256 @@ class _ServantManagementPageState extends ConsumerState<ServantManagementPage> {
                                 ),
                               ),
                           ],
-                        );
-                      },
-                    ),
-                ],
+                        ),
+                    ],
+                  );
+                },
               ),
             );
           },
         ),
+    );
+  }
+
+  Widget _buildCompactMobileStatsRow(
+    BuildContext context, {
+    required int total,
+    required int active,
+    required int pending,
+  }) {
+    final theme = Theme.of(context);
+    final colors = AppColors.of(context);
+    return AppCard(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      child: Row(
+        children: [
+          _compactStatCell(
+            context,
+            label: 'إجمالي الخدام',
+            value: '$total',
+            color: theme.colorScheme.primary,
+          ),
+          Container(
+            width: 1,
+            height: 28,
+            color: theme.colorScheme.outlineVariant,
+          ),
+          _compactStatCell(
+            context,
+            label: 'نشط',
+            value: '$active',
+            color: colors.present.foreground,
+          ),
+          Container(
+            width: 1,
+            height: 28,
+            color: theme.colorScheme.outlineVariant,
+          ),
+          _compactStatCell(
+            context,
+            label: 'معلق',
+            value: '$pending',
+            color: colors.pending.foreground,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _compactStatCell(
+    BuildContext context, {
+    required String label,
+    required String value,
+    required Color color,
+  }) {
+    final theme = Theme.of(context);
+    return Expanded(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            value,
+            style: theme.textTheme.titleLarge?.copyWith(
+              fontWeight: FontWeight.w800,
+              color: color,
+              height: 1.1,
+            ),
+          ),
+          const SizedBox(height: 2),
+          Text(
+            label,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: theme.textTheme.bodySmall?.copyWith(
+              fontSize: 12,
+              color: theme.colorScheme.onSurfaceVariant,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildMobileFilterBar(BuildContext context) {
+    final activeFiltersCount =
+        (roleFilter != 'all' ? 1 : 0) + (statusFilter != 'all' ? 1 : 0);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Row(
+          children: [
+            Expanded(
+              child: TextField(
+                decoration: InputDecoration(
+                  isDense: true,
+                  labelText: 'بحث بالاسم أو الهاتف',
+                  prefixIcon: const Icon(Icons.search_rounded),
+                  suffixIcon: search.isNotEmpty
+                      ? IconButton(
+                          tooltip: 'مسح البحث',
+                          icon: const Icon(Icons.clear_rounded),
+                          onPressed: () => setState(() => search = ''),
+                        )
+                      : null,
+                ),
+                onChanged: (value) => setState(() => search = value),
+              ),
+            ),
+            const SizedBox(width: 8),
+            OutlinedButton.icon(
+              key: const Key('servants_filter_button'),
+              onPressed: () => _openMobileFilterSheet(context),
+              icon: const Icon(Icons.tune_rounded, size: 18),
+              label: Text(
+                activeFiltersCount > 0
+                    ? 'تصفية ($activeFiltersCount)'
+                    : 'تصفية',
+              ),
+            ),
+          ],
+        ),
+        if (activeFiltersCount > 0) ...[
+          const SizedBox(height: 8),
+          Align(
+            alignment: AlignmentDirectional.centerStart,
+            child: Wrap(
+              spacing: 8,
+              runSpacing: 6,
+              children: [
+                if (roleFilter != 'all')
+                  InputChip(
+                    label: Text('الدور: ${_roleLabel(roleFilter)}'),
+                    onDeleted: () => setState(() => roleFilter = 'all'),
+                  ),
+                if (statusFilter != 'all')
+                  InputChip(
+                    label: Text('الحالة: ${_statusFilterLabel(statusFilter)}'),
+                    onDeleted: () => setState(() => statusFilter = 'all'),
+                  ),
+              ],
+            ),
+          ),
+        ],
+      ],
+    );
+  }
+
+  String _statusFilterLabel(String value) => switch (value) {
+    'active' => 'نشط',
+    'pending' => 'معلق',
+    'inactive' => 'غير نشط',
+    _ => 'الكل',
+  };
+
+  Future<void> _openMobileFilterSheet(BuildContext context) {
+    final theme = Theme.of(context);
+    return showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      useSafeArea: true,
+      builder: (sheetContext) => StatefulBuilder(
+        builder: (sheetContext, setSheetState) => SafeArea(
+          child: Padding(
+            padding: EdgeInsets.only(
+              left: 16,
+              right: 16,
+              top: 16,
+              bottom: MediaQuery.viewInsetsOf(sheetContext).bottom + 16,
+            ),
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          'تصفية الخدام',
+                          style: theme.textTheme.titleLarge,
+                        ),
+                      ),
+                      if (roleFilter != 'all' || statusFilter != 'all')
+                        TextButton(
+                          onPressed: () {
+                            setState(() {
+                              roleFilter = 'all';
+                              statusFilter = 'all';
+                            });
+                            setSheetState(() {});
+                          },
+                          child: const Text('إعادة ضبط'),
+                        ),
+                      IconButton(
+                        tooltip: 'إغلاق',
+                        onPressed: () => Navigator.pop(sheetContext),
+                        icon: const Icon(Icons.close_rounded),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  ServantRoleFilter(
+                    selectedRole: roleFilter,
+                    onChanged: (value) {
+                      setState(() => roleFilter = value);
+                      setSheetState(() {});
+                    },
+                  ),
+                  const SizedBox(height: 14),
+                  Text('حالة الحساب', style: theme.textTheme.labelLarge),
+                  const SizedBox(height: 8),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: [
+                      for (final option in const [
+                        ('all', 'الكل'),
+                        ('active', 'نشط'),
+                        ('pending', 'معلق'),
+                        ('inactive', 'غير نشط'),
+                      ])
+                        ChoiceChip(
+                          label: Text(option.$2),
+                          selected: statusFilter == option.$1,
+                          onSelected: (_) {
+                            setState(() => statusFilter = option.$1);
+                            setSheetState(() {});
+                          },
+                        ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  FilledButton(
+                    onPressed: () => Navigator.pop(sheetContext),
+                    child: const Text('تطبيق'),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
     );
   }
 
