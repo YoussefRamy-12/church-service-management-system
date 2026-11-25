@@ -331,9 +331,15 @@ class _StudentsPageState extends ConsumerState<StudentsPage> {
                       child: Wrap(
                         spacing: 8,
                         children: [
-                          _filter('all', 'الكل'),
-                          _filter('approved', 'معتمد'),
-                          _filter('pending', 'بانتظار الاعتماد'),
+                          _filter('all', 'الكل (${students.length})'),
+                          _filter(
+                            'approved',
+                            'معتمد (${students.where((s) => s.isApproved).length})',
+                          ),
+                          _filter(
+                            'pending',
+                            'بانتظار الاعتماد (${students.where((s) => s.isPending).length})',
+                          ),
                         ],
                       ),
                     ),
@@ -345,7 +351,7 @@ class _StudentsPageState extends ConsumerState<StudentsPage> {
                 child: Row(
                   children: [
                     Text(
-                      'النتائج (${filtered.length})',
+                      'النتائج',
                       style: Theme.of(context).textTheme.titleSmall?.copyWith(
                             fontWeight: FontWeight.w700,
                           ),

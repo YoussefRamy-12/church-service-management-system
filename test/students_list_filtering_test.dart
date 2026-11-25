@@ -216,7 +216,10 @@ void main() {
     expect(find.text('كيرلس أمير'), findsOneWidget);
     expect(find.text('مينا سمير'), findsOneWidget);
     expect(find.text('بيشوي رزق'), findsOneWidget);
-    expect(find.textContaining('النتائج (3)'), findsOneWidget);
+    expect(find.text('الكل (3)'), findsOneWidget);
+    expect(find.text('معتمد (2)'), findsOneWidget);
+    expect(find.text('بانتظار الاعتماد (1)'), findsOneWidget);
+    expect(find.text('النتائج'), findsOneWidget);
   });
 
   testWidgets('StudentsPage filters by status chip', (tester) async {
