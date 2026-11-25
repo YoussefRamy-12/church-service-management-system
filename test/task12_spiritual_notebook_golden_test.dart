@@ -117,7 +117,7 @@ dynamic _overrides(_NotebookGoldenRepository repository) => [
 SpiritualNotebookStudentPage _form() => const SpiritualNotebookStudentPage(
   serviceId: 'service-1',
   membershipId: 'membership-1',
-  studentIds: const [
+  studentIds: [
     'membership-1',
     'membership-2',
     'membership-3',
