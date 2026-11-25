@@ -2,7 +2,6 @@
 library;
 
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -109,13 +108,13 @@ class _NotebookGoldenRepository extends SpiritualNotebookRepository {
   };
 }
 
-List<Override> _overrides(_NotebookGoldenRepository repository) => [
+dynamic _overrides(_NotebookGoldenRepository repository) => [
   spiritualNotebookRepositoryProvider.overrideWithValue(repository),
   currentServantProfileProvider.overrideWith((ref) async => _leader),
   isSuperAdminProvider.overrideWith((ref) => false),
 ];
 
-SpiritualNotebookStudentPage _form() => SpiritualNotebookStudentPage(
+SpiritualNotebookStudentPage _form() => const SpiritualNotebookStudentPage(
   serviceId: 'service-1',
   membershipId: 'membership-1',
   studentIds: const [
