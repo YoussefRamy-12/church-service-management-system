@@ -51,6 +51,7 @@ These are separate renderable page surfaces discovered under feature presentatio
 | Screen/widget | File | Current golden status |
 |---|---|---|
 | Attendance entry page | `lib/features/attendance/presentation/attendance_page.dart` | Not covered |
+| Meeting picker | `lib/features/attendance/presentation/meeting_picker_page.dart` | Not covered |
 | QR scanner | `lib/features/attendance/presentation/qr_scan_page.dart` | Baseline mobile/desktop states; icon/camera placeholder requires verification |
 | Add student | `lib/features/students/presentation/add_student_page.dart` | Validation-only baseline; normal state missing |
 | Class students | `lib/features/students/presentation/class_students_page.dart` | Not covered |
@@ -70,7 +71,7 @@ These are separate renderable page surfaces discovered under feature presentatio
 
 The following requested surfaces are confirmed to exist in source and are currently missing the requested complete matrix:
 
-- **Attendance:** `AttendanceClassPickerPage`, `MeetingListPage`, `MeetingPickerPage`, `MeetingSchedulesPage`. Note: no `meeting_picker_page.dart` exists in the inspected `lib/` tree; the actual picker-like routed page is `AttendanceClassPickerPage`. Confirm whether “meeting picker” means a dialog/sheet embedded in another page.
+- **Attendance:** `AttendanceClassPickerPage`, `MeetingListPage`, `MeetingPickerPage` (`lib/features/attendance/presentation/meeting_picker_page.dart` exists as a separate page surface), and `MeetingSchedulesPage`.
 - **Auth/admin:** `ServantSignUpPage`, `ServantRegistrationRequestsPage`, `SystemAdminHomePage`.
 - **Follow-up:** `CreateFollowUpCasePage`, `FollowUpCaseDetailsPage`, `AddFollowUpActivityPage`, `StudentFollowUpProfilePage`, `WeeklyFollowUpPage`, `AbsencePrioritizationPage`, `FollowUpPage`.
 - **Students:** `ClassStudentsPage`, `ImportStudentsExcelPage`, normal `AddStudentPage` state.
