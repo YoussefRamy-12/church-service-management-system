@@ -191,28 +191,32 @@ class _AttendanceSessionPageState extends ConsumerState<AttendanceSessionPage> {
     return palette[stableHash % palette.length];
   }
 
-  Future<void> _checkIn(Student student) async {
-    if (_readOnly) return;
-    if (busyStudentId != null) return;
+  Future<bool> _checkIn(Student student, {bool showFeedback = true}) async {
+    if (_readOnly) return false;
+    if (busyStudentId != null) return false;
     final classId =
         student.currentClassId ??
         student.proposedClassId ??
         (_allStudentsMode ? null : widget.classId);
     if (classId == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('لا يمكن تسجيل الحضور قبل إسناد التلميذ إلى فصل.'),
-        ),
-      );
-      return;
+      if (showFeedback) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('لا يمكن تسجيل الحضور قبل إسناد التلميذ إلى فصل.'),
+          ),
+        );
+      }
+      return false;
     }
     if (student.membershipId == null || student.serviceId != widget.serviceId) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('لا يمكن تسجيل الحضور بدون عضوية صحيحة في هذه الخدمة.'),
-        ),
-      );
-      return;
+      if (showFeedback) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('لا يمكن تسجيل الحضور بدون عضوية صحيحة في هذه الخدمة.'),
+          ),
+        );
+      }
+      return false;
     }
     setState(() => busyStudentId = student.id);
     try {
@@ -227,7 +231,7 @@ class _AttendanceSessionPageState extends ConsumerState<AttendanceSessionPage> {
             recordedBy: widget.recordedBy,
             checkedInAt: DateTime.now(),
           );
-      if (mounted) {
+      if (showFeedback && mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('تم تسجيل حضور ${student.name} بنجاح.'),
@@ -235,13 +239,15 @@ class _AttendanceSessionPageState extends ConsumerState<AttendanceSessionPage> {
           ),
         );
       }
+      return true;
     } catch (e) {
       debugPrint('Presentation operation failed: $e');
-      if (mounted) {
+      if (showFeedback && mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('تعذر إتمام العملية. حاول مرة أخرى.')),
         );
       }
+      return false;
     } finally {
       if (mounted) setState(() => busyStudentId = null);
     }
@@ -335,25 +341,18 @@ class _AttendanceSessionPageState extends ConsumerState<AttendanceSessionPage> {
           .first;
       if (!mounted) return;
 
-      final studentId = await Navigator.of(context, rootNavigator: true)
-          .push<String>(
+      await Navigator.of(context, rootNavigator: true).push<void>(
             MaterialPageRoute(
               builder: (_) => QrScanPage(
                 students: students,
                 presentStudentIds: attendance
                     .map((record) => record.studentId)
                     .toSet(),
+                onCheckIn: (student) =>
+                    _checkIn(student, showFeedback: false),
               ),
             ),
           );
-      if (!mounted || studentId == null) return;
-
-      for (final student in students) {
-        if (student.id == studentId) {
-          await _checkIn(student);
-          break;
-        }
-      }
     } catch (error) {
       debugPrint('Presentation operation failed: $error');
       if (mounted) {

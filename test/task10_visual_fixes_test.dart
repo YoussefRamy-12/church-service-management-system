@@ -25,6 +25,8 @@ import 'package:go_router/go_router.dart';
 
 import 'goldens/golden_test_helper.dart';
 
+Future<bool> _noOpQrCheckIn(Student student) async => true;
+
 void main() {
   test('AppDateFormatter formats dates as dd/MM/yyyy', () {
     expect(AppDateFormatter.format(DateTime(2026, 11, 20)), '20/11/2026');
@@ -53,6 +55,7 @@ void main() {
           child: QrScanPage(
             students: [],
             presentStudentIds: {},
+            onCheckIn: _noOpQrCheckIn,
             initialCameraError:
                 'يلزم السماح بالوصول إلى الكاميرا لمسح رمز الحضور.',
           ),
@@ -91,6 +94,7 @@ void main() {
             students: [student],
             presentStudentIds: {},
             initialScannedStudent: student,
+            onCheckIn: _noOpQrCheckIn,
           ),
         ),
       ),
@@ -210,9 +214,9 @@ void main() {
             localizationsDelegates: GlobalMaterialLocalizations.delegates,
             theme: AppTheme.light,
             builder: (context, child) => MediaQuery(
-              data: MediaQuery.of(context).copyWith(
-                textScaler: const TextScaler.linear(1.3),
-              ),
+              data: MediaQuery.of(
+                context,
+              ).copyWith(textScaler: const TextScaler.linear(1.3)),
               child: child!,
             ),
             home: const Directionality(
@@ -267,9 +271,9 @@ void main() {
             localizationsDelegates: GlobalMaterialLocalizations.delegates,
             theme: AppTheme.light,
             builder: (context, child) => MediaQuery(
-              data: MediaQuery.of(context).copyWith(
-                textScaler: const TextScaler.linear(1.3),
-              ),
+              data: MediaQuery.of(
+                context,
+              ).copyWith(textScaler: const TextScaler.linear(1.3)),
               child: child!,
             ),
             home: const Directionality(

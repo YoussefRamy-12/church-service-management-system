@@ -586,9 +586,10 @@ void main() {
       testWidgets('qr success panel — ${vp.label} $mode', (tester) async {
         await _setViewport(tester, vp.size);
         await tester.pumpWidget(_buildApp(
-          home: const QrScanPage(
+          home: QrScanPage(
             students: goldenStudentsList,
             presentStudentIds: {},
+            onCheckIn: (_) async => true,
           ),
           isDark: dark,
           overrides: _makeBaseOverrides(),
@@ -611,9 +612,10 @@ void main() {
       testWidgets('qr already present — ${vp.label} $mode', (tester) async {
         await _setViewport(tester, vp.size);
         await tester.pumpWidget(_buildApp(
-          home: const QrScanPage(
+          home: QrScanPage(
             students: goldenStudentsList,
             presentStudentIds: {'student-1'},
+            onCheckIn: (_) async => true,
           ),
           isDark: dark,
           overrides: _makeBaseOverrides(),
@@ -636,9 +638,10 @@ void main() {
       testWidgets('qr not found — ${vp.label} $mode', (tester) async {
         await _setViewport(tester, vp.size);
         await tester.pumpWidget(_buildApp(
-          home: const QrScanPage(
+          home: QrScanPage(
             students: goldenStudentsList,
             presentStudentIds: {},
+            onCheckIn: (_) async => true,
           ),
           isDark: dark,
           overrides: _makeBaseOverrides(),
