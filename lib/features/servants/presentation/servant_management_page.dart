@@ -368,40 +368,35 @@ class _ServantManagementPageState extends ConsumerState<ServantManagementPage> {
   }) {
     final theme = Theme.of(context);
     final colors = AppColors.of(context);
-    return AppCard(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-      child: Row(
-        children: [
-          _compactStatCell(
+    return Row(
+      children: [
+        Expanded(
+          child: _compactStatCell(
             context,
             label: 'إجمالي الخدام',
             value: '$total',
             color: theme.colorScheme.primary,
           ),
-          Container(
-            width: 1,
-            height: 28,
-            color: theme.colorScheme.outlineVariant,
-          ),
-          _compactStatCell(
+        ),
+        const SizedBox(width: 8),
+        Expanded(
+          child: _compactStatCell(
             context,
             label: 'نشط',
             value: '$active',
             color: colors.present.foreground,
           ),
-          Container(
-            width: 1,
-            height: 28,
-            color: theme.colorScheme.outlineVariant,
-          ),
-          _compactStatCell(
+        ),
+        const SizedBox(width: 8),
+        Expanded(
+          child: _compactStatCell(
             context,
             label: 'معلق',
             value: '$pending',
             color: colors.pending.foreground,
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
@@ -412,13 +407,22 @@ class _ServantManagementPageState extends ConsumerState<ServantManagementPage> {
     required Color color,
   }) {
     final theme = Theme.of(context);
-    return Expanded(
+    return Container(
+      padding: const EdgeInsetsDirectional.symmetric(
+        horizontal: 8,
+        vertical: 6,
+      ),
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surfaceContainerLow,
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: theme.colorScheme.outlineVariant),
+      ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           Text(
             value,
-            style: theme.textTheme.titleLarge?.copyWith(
+            style: theme.textTheme.titleMedium?.copyWith(
               fontWeight: FontWeight.w800,
               color: color,
               height: 1.1,
