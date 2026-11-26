@@ -73,12 +73,13 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -A -- ':(glob)test/goldens/images/**/*.png'
+          git add -A -- test/goldens/images test/goldens/task6 test/goldens/task7 test/goldens/task8 docs/review-sheets
           if git diff --cached --quiet; then
             echo "No golden PNG changes to commit."
             exit 0
           fi
           git commit -m "test(goldens): regenerate [skip ci]"
+          git pull --rebase origin "$GITHUB_REF_NAME"
           git push origin "HEAD:refs/heads/${GITHUB_REF_NAME}"
 
       - name: Verify golden determinism without updating
