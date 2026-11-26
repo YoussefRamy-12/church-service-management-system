@@ -502,7 +502,7 @@ class _ServantPrepViewState extends ConsumerState<ServantPrepView> {
       error: (error, _) {
         debugPrint('Failed to load servant preparation: $error');
         return SolidCard(
-          padding: EdgeInsets.all(24),
+          padding: const EdgeInsets.all(24),
           child: Column(
             children: [
               Icon(
@@ -510,9 +510,9 @@ class _ServantPrepViewState extends ConsumerState<ServantPrepView> {
                 color: Theme.of(context).colorScheme.error,
                 size: 36,
               ),
-              SizedBox(height: 10),
-              Text('تعذر إتمام العملية. حاول مرة أخرى.'),
-              SizedBox(height: 8),
+              const SizedBox(height: 10),
+              const Text('تعذر إتمام العملية. حاول مرة أخرى.'),
+              const SizedBox(height: 8),
               TextButton.icon(
                 onPressed: () => ref.invalidate(
                   servantPreparationProvider((
@@ -520,8 +520,8 @@ class _ServantPrepViewState extends ConsumerState<ServantPrepView> {
                     servantProfileId: widget.profile.id,
                   )),
                 ),
-                icon: Icon(Icons.refresh_rounded),
-                label: Text('إعادة المحاولة'),
+                icon: const Icon(Icons.refresh_rounded),
+                label: const Text('إعادة المحاولة'),
               ),
             ],
           ),

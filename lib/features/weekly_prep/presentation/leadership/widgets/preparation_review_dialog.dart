@@ -154,7 +154,7 @@ class _PreparationReviewDialogState
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             backgroundColor: AppColors.of(context).present.foreground,
-            content: Text('تم اعتماد التحضير بنجاح.'),
+            content: const Text('تم اعتماد التحضير بنجاح.'),
           ),
         );
       }
@@ -228,7 +228,7 @@ class _PreparationReviewDialogState
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             backgroundColor: AppColors.of(context).warning.foreground,
-            content: Text('تمت إعادة التحضير للخادم مع الملاحظات.'),
+            content: const Text('تمت إعادة التحضير للخادم مع الملاحظات.'),
           ),
         );
       }

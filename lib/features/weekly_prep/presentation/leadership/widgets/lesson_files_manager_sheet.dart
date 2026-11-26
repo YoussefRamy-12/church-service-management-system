@@ -367,7 +367,7 @@ class _LessonFilesManagerSheetState
                                 IconButton(
                                   tooltip: 'فتح الملف',
                                   onPressed: () => _openPdf(lesson),
-                                  icon: Icon(
+                                  icon: const Icon(
                                     Icons.open_in_new_rounded,
                                     size: 20,
                                   ),
@@ -379,7 +379,10 @@ class _LessonFilesManagerSheetState
                                     week: week,
                                     existingLesson: lesson,
                                   ),
-                                  icon: Icon(Icons.edit_outlined, size: 20),
+                                  icon: const Icon(
+                                    Icons.edit_outlined,
+                                    size: 20,
+                                  ),
                                 ),
                                 IconButton(
                                   tooltip: 'حذف',

@@ -66,7 +66,7 @@ class PreparationHistorySheet extends StatelessWidget {
           const Divider(height: 24),
           if (reviews.isEmpty)
             Padding(
-              padding: EdgeInsets.symmetric(vertical: 36),
+              padding: const EdgeInsets.symmetric(vertical: 36),
               child: Center(
                 child: Text(
                   'لا توجد مراجعات سابقة لهذا الدرس بعد.',
