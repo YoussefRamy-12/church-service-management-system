@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../../app/design/app_colors.dart';
 import '../../../domain/preparation_status.dart';
 
 class PreparationMetricsRow extends StatelessWidget {
@@ -15,141 +16,99 @@ class PreparationMetricsRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final pending = counts[PreparationStatus.submitted] ?? 0;
-    final approved = counts[PreparationStatus.approved] ?? 0;
-    final revision = counts[PreparationStatus.needsRevision] ?? 0;
-    final notSubmitted = counts[PreparationStatus.notSubmitted] ?? 0;
-    final total =
-        totalServants ?? (pending + approved + revision + notSubmitted);
-
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final isCompact = constraints.maxWidth < 780;
-
-        final items = [
-          _MetricCard(
+    final total = totalServants ?? counts.values.fold<int>(0, (a, b) => a + b);
+    final colors = AppColors.of(context);
+    return Row(
+      children: [
+        Expanded(
+          child: _MetricTile(
             label: 'إجمالي الخدام',
-            value: total.toString(),
+            value: total,
             icon: Icons.people_outline_rounded,
-            color: const Color(0xFF6366F1), // indigo
-            bgColor: const Color(0xFFEEF2FF),
+            foreground: colors.accent.foreground,
+            background: colors.accent.background,
           ),
-          _MetricCard(
+        ),
+        const SizedBox(width: 8),
+        Expanded(
+          child: _MetricTile(
             label: 'بانتظار المراجعة',
-            value: pending.toString(),
+            value: pending,
             icon: Icons.hourglass_top_rounded,
-            color: const Color(0xFFF59E0B), // amber
-            bgColor: const Color(0xFFFEF3C7),
+            foreground: colors.warning.foreground,
+            background: colors.warning.background,
           ),
-          _MetricCard(
+        ),
+        const SizedBox(width: 8),
+        Expanded(
+          child: _MetricTile(
             label: 'تم الاعتماد',
-            value: approved.toString(),
+            value: counts[PreparationStatus.approved] ?? 0,
             icon: Icons.check_circle_outline_rounded,
-            color: const Color(0xFF10B981), // emerald
-            bgColor: const Color(0xFFD1FAE5),
+            foreground: colors.present.foreground,
+            background: colors.present.background,
           ),
-          _MetricCard(
-            label: 'يحتاج لتعديل',
-            value: revision.toString(),
-            icon: Icons.edit_note_rounded,
-            color: const Color(0xFFEF4444), // red
-            bgColor: const Color(0xFFFEE2E2),
-          ),
-          _MetricCard(
-            label: 'لم يتم الإرسال',
-            value: notSubmitted.toString(),
-            icon: Icons.cancel_outlined,
-            color: const Color(0xFF94A3B8), // slate
-            bgColor: const Color(0xFFF1F5F9),
-          ),
-        ];
-
-        if (isCompact) {
-          return SizedBox(
-            height: 90,
-            child: ListView.separated(
-              scrollDirection: Axis.horizontal,
-              itemCount: items.length,
-              separatorBuilder: (_, _) => const SizedBox(width: 10),
-              itemBuilder: (context, index) =>
-                  SizedBox(width: 140, child: items[index]),
-            ),
-          );
-        }
-
-        return Row(
-          children: [
-            for (var i = 0; i < items.length; i++) ...[
-              Expanded(child: items[i]),
-              if (i < items.length - 1) const SizedBox(width: 10),
-            ],
-          ],
-        );
-      },
+        ),
+      ],
     );
   }
 }
 
-class _MetricCard extends StatelessWidget {
-  const _MetricCard({
+class _MetricTile extends StatelessWidget {
+  const _MetricTile({
     required this.label,
     required this.value,
     required this.icon,
-    required this.color,
-    required this.bgColor,
+    required this.foreground,
+    required this.background,
   });
 
   final String label;
-  final String value;
+  final int value;
   final IconData icon;
-  final Color color;
-  final Color bgColor;
+  final Color foreground;
+  final Color background;
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+      constraints: const BoxConstraints(minHeight: 76),
+      padding: const EdgeInsetsDirectional.symmetric(horizontal: 8, vertical: 6),
       decoration: BoxDecoration(
-        color: bgColor,
+        color: background,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: color.withValues(alpha: 0.35), width: 1.2),
+        border: Border.all(color: foreground.withValues(alpha: 0.35)),
       ),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Row(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(icon, size: 18, color: color),
-              const Spacer(),
-              Flexible(
-                child: FittedBox(
-                  fit: BoxFit.scaleDown,
-                  child: Text(
-                    value,
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.w900,
-                      color: color,
-                      height: 1.1,
-                    ),
-                  ),
+              Icon(icon, size: 17, color: foreground),
+              const SizedBox(width: 5),
+              Text(
+                '$value',
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.w800,
+                  color: foreground,
+                  height: 1,
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 6),
-          FittedBox(
-            fit: BoxFit.scaleDown,
-            alignment: AlignmentDirectional.centerStart,
-            child: Text(
-              label,
-              style: TextStyle(
-                fontSize: 12.5,
-                fontWeight: FontWeight.w700,
-                color: color,
-              ),
-              maxLines: 1,
+          const SizedBox(height: 4),
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 13,
+              fontWeight: FontWeight.w700,
+              color: foreground,
             ),
+            maxLines: 2,
+            textAlign: TextAlign.center,
+            overflow: TextOverflow.ellipsis,
           ),
         ],
       ),
