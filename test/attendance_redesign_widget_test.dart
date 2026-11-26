@@ -470,6 +470,7 @@ void main() {
           home: QrScanPage(
             students: testStudents,
             presentStudentIds: const {'student-1'},
+            onCheckIn: (_) async => true,
           ),
         ),
       );
@@ -477,7 +478,8 @@ void main() {
       await tester.pump(const Duration(milliseconds: 100));
 
       // Large Close/Back control is present
-      expect(find.byTooltip('إغلاق الكاميرا'), findsOneWidget);
+      expect(find.byKey(const Key('qr_finish')), findsOneWidget);
+      expect(find.text('إنهاء'), findsOneWidget);
       expect(find.byKey(const Key('qr_manual_search_btn')), findsOneWidget);
 
       // Tap manual search fallback
@@ -510,6 +512,93 @@ void main() {
       // Success panel is shown with check-in button
       expect(find.byKey(const ValueKey('qr_success_panel')), findsOneWidget);
       expect(find.text('تسجيل الحضور'), findsOneWidget);
+    });
+
+    testWidgets('QR confirmation checks in and resumes scanning', (tester) async {
+      final checkIn = Completer<bool>();
+      var checkInCalls = 0;
+      final student = testStudents[1];
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: AppTheme.dark,
+          home: QrScanPage(
+            students: testStudents,
+            presentStudentIds: const {},
+            initialScannedStudent: student,
+            onCheckIn: (_) {
+              checkInCalls++;
+              return checkIn.future;
+            },
+          ),
+        ),
+      );
+
+      await tester.tap(find.text('تسجيل الحضور'));
+      await tester.pump();
+      expect(checkInCalls, 1);
+      expect(find.text('جارٍ التسجيل...'), findsOneWidget);
+      final submitButton = tester.widget<FilledButton>(
+        find.ancestor(
+          of: find.text('جارٍ التسجيل...'),
+          matching: find.byType(FilledButton),
+        ),
+      );
+      expect(submitButton.onPressed, isNull);
+
+      checkIn.complete(true);
+      await tester.pump();
+      expect(find.byKey(const ValueKey('qr_checkin_success_panel')), findsOneWidget);
+      expect(find.text('تم تسجيل كيرلس يوسف'), findsOneWidget);
+      expect(find.text('تم تسجيل 1'), findsOneWidget);
+
+      await tester.pump(const Duration(milliseconds: 1500));
+      await tester.pump();
+      expect(find.byKey(const Key('qr_manual_search_btn')), findsOneWidget);
+      expect(find.byKey(const ValueKey('qr_checkin_success_panel')), findsNothing);
+    });
+
+    testWidgets('QR check-in failure keeps the scanner open', (tester) async {
+      final student = testStudents[1];
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: AppTheme.dark,
+          home: QrScanPage(
+            students: testStudents,
+            presentStudentIds: const {},
+            initialScannedStudent: student,
+            onCheckIn: (_) async => false,
+          ),
+        ),
+      );
+
+      await tester.tap(find.text('تسجيل الحضور'));
+      await tester.pump();
+      await tester.pump();
+      expect(find.text('تعذر تسجيل الحضور. حاول مرة أخرى.'), findsOneWidget);
+      expect(find.byKey(const ValueKey('qr_success_panel')), findsOneWidget);
+      expect(find.byKey(const Key('qr_finish')), findsOneWidget);
+    });
+
+    testWidgets('QR callback exceptions show only the Arabic fallback', (tester) async {
+      final student = testStudents[1];
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: AppTheme.dark,
+          home: QrScanPage(
+            students: testStudents,
+            presentStudentIds: const {},
+            initialScannedStudent: student,
+            onCheckIn: (_) async => throw StateError('raw internal detail'),
+          ),
+        ),
+      );
+
+      await tester.tap(find.text('تسجيل الحضور'));
+      await tester.pump();
+      await tester.pump();
+      expect(find.text('تعذر تسجيل الحضور. حاول مرة أخرى.'), findsOneWidget);
+      expect(find.textContaining('raw internal detail'), findsNothing);
+      expect(find.byKey(const ValueKey('qr_success_panel')), findsOneWidget);
     });
 
     testWidgets('Renders without overflow at 360x640 with text scale 1.3', (tester) async {

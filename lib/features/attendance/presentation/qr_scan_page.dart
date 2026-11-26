@@ -21,12 +21,14 @@ class QrScanPage extends StatefulWidget {
     super.key,
     required this.students,
     required this.presentStudentIds,
+    required this.onCheckIn,
     @visibleForTesting this.initialCameraError,
     @visibleForTesting this.initialScannedStudent,
   });
 
   final List<Student> students;
   final Set<String> presentStudentIds;
+  final Future<bool> Function(Student) onCheckIn;
   final String? initialCameraError;
   final Student? initialScannedStudent;
 
@@ -45,6 +47,11 @@ class _QrScanPageState extends State<QrScanPage>
   late final Animation<double> _laserPosition;
 
   Student? _scannedStudent;
+  Student? _checkedInStudent;
+  late final Set<String> _presentStudentIds;
+  int _sessionCheckInCount = 0;
+  bool _isSubmittingCheckIn = false;
+  String? _checkInError;
   bool _unknownCode = false;
   bool _handlingResult = false;
   bool _closing = false;
@@ -59,6 +66,7 @@ class _QrScanPageState extends State<QrScanPage>
     WidgetsBinding.instance.addObserver(this);
     _cameraError = widget.initialCameraError;
     _scannedStudent = widget.initialScannedStudent;
+    _presentStudentIds = {...widget.presentStudentIds};
 
     _laserAnimController = AnimationController(
       vsync: this,
@@ -190,7 +198,7 @@ class _QrScanPageState extends State<QrScanPage>
     }
 
     if (student != null) {
-      final alreadyPresent = widget.presentStudentIds.contains(student.id);
+      final alreadyPresent = _presentStudentIds.contains(student.id);
       if (alreadyPresent) {
         HapticFeedback.selectionClick();
       } else {
@@ -214,11 +222,52 @@ class _QrScanPageState extends State<QrScanPage>
       _unknownCode = false;
       _handlingResult = false;
       _cameraError = null;
+      _checkedInStudent = null;
+      _checkInError = null;
+      _isSubmittingCheckIn = false;
     });
     await _startCamera();
   }
 
-  Future<void> _closeScanner([String? studentId]) async {
+  Future<void> _confirmCheckIn(Student student) async {
+    if (_isSubmittingCheckIn || _presentStudentIds.contains(student.id)) {
+      return;
+    }
+    setState(() {
+      _isSubmittingCheckIn = true;
+      _checkInError = null;
+    });
+
+    var succeeded = false;
+    try {
+      succeeded = await widget.onCheckIn(student);
+    } catch (error) {
+      debugPrint('QR check-in callback failed: $error');
+    }
+
+    if (!mounted || _closing) return;
+    if (!succeeded) {
+      setState(() {
+        _isSubmittingCheckIn = false;
+        _checkInError = 'تعذر تسجيل الحضور. حاول مرة أخرى.';
+      });
+      return;
+    }
+
+    setState(() {
+      _isSubmittingCheckIn = false;
+      _presentStudentIds.add(student.id);
+      _checkedInStudent = student;
+      _sessionCheckInCount++;
+    });
+    HapticFeedback.lightImpact();
+
+    await Future<void>.delayed(const Duration(milliseconds: 1500));
+    if (!mounted || _closing || _checkedInStudent != student) return;
+    await _resumeScanning();
+  }
+
+  Future<void> _closeScanner() async {
     if (_closing && _allowPop) return;
     _closing = true;
     if (mounted) setState(() {});
@@ -245,7 +294,7 @@ class _QrScanPageState extends State<QrScanPage>
 
     if (mounted) {
       _allowPop = true;
-      Navigator.of(context).pop(studentId);
+      Navigator.of(context).pop();
     }
   }
 
@@ -260,14 +309,14 @@ class _QrScanPageState extends State<QrScanPage>
       backgroundColor: Colors.transparent,
       builder: (context) => _ManualStudentSearchSheet(
         students: widget.students,
-        presentIds: widget.presentStudentIds,
+        presentIds: _presentStudentIds,
       ),
     );
 
     if (!mounted || _closing) return;
 
     if (selected != null) {
-      final alreadyPresent = widget.presentStudentIds.contains(selected.id);
+      final alreadyPresent = _presentStudentIds.contains(selected.id);
       if (alreadyPresent) {
         HapticFeedback.selectionClick();
       } else {
@@ -302,9 +351,9 @@ class _QrScanPageState extends State<QrScanPage>
     final colors = AppColors.of(context);
     final student = _scannedStudent;
     final alreadyPresent =
-        student != null && widget.presentStudentIds.contains(student.id);
+        student != null && _presentStudentIds.contains(student.id);
 
-    return PopScope<String>(
+    return PopScope<void>(
       canPop: _allowPop,
       onPopInvokedWithResult: (didPop, result) {
         if (!didPop) _closeScanner();
@@ -410,14 +459,15 @@ class _QrScanPageState extends State<QrScanPage>
       child: Row(
         children: [
           // Large Close button (minimum 44x44 tap target)
-          IconButton(
-            onPressed: _closing ? null : () => _closeScanner(),
-            icon: const Icon(Icons.arrow_back_rounded, color: AppDesignColors.darkInk),
-            tooltip: 'إغلاق الكاميرا',
-            style: IconButton.styleFrom(
-              backgroundColor: AppDesignColors.darkSurfaceSubtle,
+          TextButton.icon(
+            key: const Key('qr_finish'),
+            onPressed: _closing ? null : _closeScanner,
+            icon: const Icon(Icons.close_rounded),
+            label: const Text('إنهاء'),
+            style: TextButton.styleFrom(
+              foregroundColor: AppDesignColors.darkInk,
               minimumSize: const Size(44, 44),
-              padding: const EdgeInsets.all(AppSpacing.xs),
+              padding: const EdgeInsetsDirectional.symmetric(horizontal: 8),
             ),
           ),
           const SizedBox(width: AppSpacing.sm),
@@ -438,7 +488,7 @@ class _QrScanPageState extends State<QrScanPage>
                   ),
                 ),
                 Text(
-                  'المسجلين: ${widget.presentStudentIds.length} من ${widget.students.length}',
+                  'المسجلين: ${_presentStudentIds.length} من ${widget.students.length}',
                   style: const TextStyle(
                     color: AppDesignColors.darkMutedInk,
                     fontSize: 12,
@@ -673,6 +723,13 @@ class _QrScanPageState extends State<QrScanPage>
     required bool alreadyPresent,
     required AppColors colors,
   }) {
+    if (_checkedInStudent != null) {
+      return _CheckInSuccessPanel(
+        student: _checkedInStudent!,
+        sessionCount: _sessionCheckInCount,
+      );
+    }
+
     if (_cameraError != null) {
       return Container(
         padding: const EdgeInsets.all(AppSpacing.md),
@@ -789,7 +846,9 @@ class _QrScanPageState extends State<QrScanPage>
         alreadyPresent: alreadyPresent,
         colors: colors,
         onCancel: _resumeScanning,
-        onConfirm: alreadyPresent ? null : () => _closeScanner(student.id),
+        onConfirm: alreadyPresent ? null : () => _confirmCheckIn(student),
+        isSubmitting: _isSubmittingCheckIn,
+        errorMessage: _checkInError,
       );
     }
 
@@ -895,6 +954,67 @@ class _ScannerReticlePainter extends CustomPainter {
       oldDelegate.reticleLength != reticleLength;
 }
 
+class _CheckInSuccessPanel extends StatelessWidget {
+  const _CheckInSuccessPanel({
+    required this.student,
+    required this.sessionCount,
+  });
+
+  final Student student;
+  final int sessionCount;
+
+  @override
+  Widget build(BuildContext context) {
+    final present = AppColors.of(context).present;
+    return Container(
+      key: const ValueKey('qr_checkin_success_panel'),
+      width: double.infinity,
+      padding: const EdgeInsetsDirectional.fromSTEB(
+        AppSpacing.md,
+        AppSpacing.md,
+        AppSpacing.md,
+        AppSpacing.lg,
+      ),
+      decoration: const BoxDecoration(
+        color: AppDesignColors.darkSurface,
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(AppRadii.bottomSheet),
+        ),
+        border: Border(
+          top: BorderSide(color: AppDesignColors.primaryContainer, width: 1.5),
+        ),
+      ),
+      child: Row(
+        children: [
+          Icon(Icons.check_circle_rounded, color: present.foreground, size: 30),
+          const SizedBox(width: AppSpacing.sm),
+          Expanded(
+            child: Text(
+              'تم تسجيل ${student.name}',
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(
+                color: AppDesignColors.darkInk,
+                fontSize: 16,
+                fontWeight: FontWeight.w800,
+              ),
+            ),
+          ),
+          const SizedBox(width: AppSpacing.sm),
+          Text(
+            'تم تسجيل $sessionCount',
+            style: TextStyle(
+              color: present.foreground,
+              fontSize: 13,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 /// Student Review Card in QR Scan
 class _StudentReviewPanel extends StatelessWidget {
   const _StudentReviewPanel({
@@ -903,6 +1023,8 @@ class _StudentReviewPanel extends StatelessWidget {
     required this.colors,
     required this.onCancel,
     required this.onConfirm,
+    required this.isSubmitting,
+    required this.errorMessage,
   });
 
   final Student student;
@@ -910,6 +1032,8 @@ class _StudentReviewPanel extends StatelessWidget {
   final AppColors colors;
   final VoidCallback onCancel;
   final VoidCallback? onConfirm;
+  final bool isSubmitting;
+  final String? errorMessage;
 
   @override
   Widget build(BuildContext context) {
@@ -1025,6 +1149,18 @@ class _StudentReviewPanel extends StatelessWidget {
 
             const SizedBox(height: AppSpacing.md),
 
+            if (errorMessage != null) ...[
+              Text(
+                errorMessage!,
+                style: TextStyle(
+                  color: colors.absent.foreground,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              const SizedBox(height: AppSpacing.sm),
+            ],
+
             // Actions & Status
             if (alreadyPresent)
               Container(
@@ -1076,9 +1212,17 @@ class _StudentReviewPanel extends StatelessWidget {
                   const SizedBox(width: AppSpacing.sm),
                   Expanded(
                     child: FilledButton.icon(
-                      onPressed: onConfirm,
-                      icon: const Icon(Icons.check_rounded, size: 20),
-                      label: const Text('تسجيل الحضور'),
+                      onPressed: isSubmitting ? null : onConfirm,
+                      icon: isSubmitting
+                          ? const SizedBox(
+                              width: 18,
+                              height: 18,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            )
+                          : const Icon(Icons.check_rounded, size: 20),
+                      label: Text(
+                        isSubmitting ? 'جارٍ التسجيل...' : 'تسجيل الحضور',
+                      ),
                       style: FilledButton.styleFrom(
                         backgroundColor: colors.present.foreground,
                         foregroundColor: AppDesignColors.onPrimary,
