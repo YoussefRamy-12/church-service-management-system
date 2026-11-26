@@ -23,8 +23,12 @@ class PreparationStatusBadge extends StatelessWidget {
       // Needs-revision is a correction/error state, distinct from all others.
       PreparationStatus.needsRevision => colors.absent,
     };
-    final foreground = isPendingSync ? colors.synced.foreground : pair.foreground;
-    final background = isPendingSync ? colors.synced.background : pair.background;
+    final foreground = isPendingSync
+        ? colors.synced.foreground
+        : pair.foreground;
+    final background = isPendingSync
+        ? colors.synced.background
+        : pair.background;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
       decoration: BoxDecoration(

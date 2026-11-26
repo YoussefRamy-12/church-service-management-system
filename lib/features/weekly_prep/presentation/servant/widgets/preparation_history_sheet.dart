@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../../app/design/app_colors.dart';
 import '../../../domain/prep_date_formatter.dart';
 import '../../../domain/preparation_review.dart';
 import '../../../domain/preparation_status.dart';
@@ -17,7 +18,7 @@ class PreparationHistorySheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
+    final semantic = AppColors.of(context);
 
     return Container(
       padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
@@ -46,9 +47,9 @@ class PreparationHistorySheet extends StatelessWidget {
                     ),
                     Text(
                       lessonFileName,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 12,
-                        color: Color(0xFF64748B),
+                        color: theme.colorScheme.onSurfaceVariant,
                       ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
@@ -64,13 +65,13 @@ class PreparationHistorySheet extends StatelessWidget {
           ),
           const Divider(height: 24),
           if (reviews.isEmpty)
-            const Padding(
+            Padding(
               padding: EdgeInsets.symmetric(vertical: 36),
               child: Center(
                 child: Text(
                   'لا توجد مراجعات سابقة لهذا الدرس بعد.',
                   style: TextStyle(
-                    color: Color(0xFF64748B),
+                    color: theme.colorScheme.onSurfaceVariant,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -86,9 +87,8 @@ class PreparationHistorySheet extends StatelessWidget {
                   final review = reviews[index];
                   final isApproved =
                       review.action == PreparationStatus.approved;
-                  final statusColor = isApproved
-                      ? const Color(0xFF10B981)
-                      : const Color(0xFFEF4444);
+                  final pair = isApproved ? semantic.present : semantic.absent;
+                  final statusColor = pair.foreground;
                   final dateFormatted = PrepDateFormatter.formatDateTime(
                     review.reviewedAt,
                   );
@@ -96,9 +96,7 @@ class PreparationHistorySheet extends StatelessWidget {
                   return Container(
                     padding: const EdgeInsets.all(14),
                     decoration: BoxDecoration(
-                      color: isDark
-                          ? const Color(0xFF1E293B)
-                          : const Color(0xFFF8FAFC),
+                      color: theme.colorScheme.surfaceContainerHighest,
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(
                         color: statusColor.withValues(alpha: 0.35),
@@ -129,9 +127,9 @@ class PreparationHistorySheet extends StatelessWidget {
                             const Spacer(),
                             Text(
                               dateFormatted,
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 12,
-                                color: Color(0xFF94A3B8),
+                                color: theme.colorScheme.onSurfaceVariant,
                               ),
                             ),
                           ],
@@ -140,10 +138,10 @@ class PreparationHistorySheet extends StatelessWidget {
                           const SizedBox(height: 6),
                           Text(
                             'المراجع: ${review.reviewerName}',
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 12,
                               fontWeight: FontWeight.w600,
-                              color: Color(0xFF64748B),
+                              color: theme.colorScheme.onSurfaceVariant,
                             ),
                           ),
                         ],
@@ -154,14 +152,10 @@ class PreparationHistorySheet extends StatelessWidget {
                             width: double.infinity,
                             padding: const EdgeInsets.all(10),
                             decoration: BoxDecoration(
-                              color: isDark
-                                  ? const Color(0xFF0F172A)
-                                  : Colors.white,
+                              color: theme.colorScheme.surface,
                               borderRadius: BorderRadius.circular(8),
                               border: Border.all(
-                                color: isDark
-                                    ? const Color(0xFF334155)
-                                    : const Color(0xFFE2E8F0),
+                                color: theme.colorScheme.outlineVariant,
                               ),
                             ),
                             child: Text(

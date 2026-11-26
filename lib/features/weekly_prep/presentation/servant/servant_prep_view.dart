@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import '../../../../app/theme.dart';
+import '../../../../app/design/app_colors.dart';
 import '../../../../app/ui/app_ui.dart';
 import '../../../auth/domain/entities/servant_profile.dart';
 import '../../../service/domain/entities/stage.dart';
@@ -174,7 +174,7 @@ class _ServantPrepViewState extends ConsumerState<ServantPrepView> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            backgroundColor: const Color(0xFF10B981),
+            backgroundColor: AppColors.of(context).present.foreground,
             content: Text(
               isResubmission
                   ? 'تمت إعادة إرسال التحضير للمراجعة بنجاح.'
@@ -233,6 +233,17 @@ class _ServantPrepViewState extends ConsumerState<ServantPrepView> {
     final selectedWeek = _selectedWeek ?? currentWeek;
     final isCurrentWeek = _sameDay(selectedWeek, currentWeek);
     final lesson = _findLessonForWeek(selectedWeek);
+    final selectedPrep = lesson == null
+        ? null
+        : ref
+              .watch(
+                servantPreparationProvider((
+                  lessonId: lesson.id,
+                  servantProfileId: widget.profile.id,
+                )),
+              )
+              .asData
+              ?.value;
 
     // Build deduplicated list of available weeks: current week + previous weeks with lessons
     final allWeeks = <DateTime>[];
@@ -256,62 +267,111 @@ class _ServantPrepViewState extends ConsumerState<ServantPrepView> {
     allWeeks.sort((a, b) => b.compareTo(a)); // Newest first
 
     return Scaffold(
+      bottomNavigationBar:
+          lesson != null &&
+              isCurrentWeek &&
+              selectedPrep != null &&
+              (selectedPrep.status == PreparationStatus.notSubmitted ||
+                  selectedPrep.status == PreparationStatus.needsRevision)
+          ? SafeArea(
+              top: false,
+              child: Padding(
+                padding: const EdgeInsetsDirectional.fromSTEB(16, 8, 16, 12),
+                child: SizedBox(
+                  height: 48,
+                  width: double.infinity,
+                  child: FilledButton.icon(
+                    onPressed: _submitting
+                        ? null
+                        : () =>
+                              _handleSubmit(lesson: lesson, prep: selectedPrep),
+                    icon: _submitting
+                        ? const SizedBox(
+                            width: 18,
+                            height: 18,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : Icon(
+                            selectedPrep.status ==
+                                    PreparationStatus.needsRevision
+                                ? Icons.refresh_rounded
+                                : Icons.send_rounded,
+                          ),
+                    label: Text(
+                      selectedPrep.status == PreparationStatus.needsRevision
+                          ? 'إعادة الإرسال'
+                          : 'إرسال التحضير',
+                    ),
+                  ),
+                ),
+              ),
+            )
+          : null,
       body: AppContent(
         maxWidth: 820,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            if (widget.headerAction != null)
-              Align(
-                alignment: AlignmentDirectional.centerEnd,
-                child: widget.headerAction,
+            Align(
+              alignment: AlignmentDirectional.centerEnd,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  if (widget.headerAction != null) widget.headerAction!,
+                  IconButton(
+                    onPressed: widget.refreshing ? null : widget.onRefresh,
+                    tooltip: 'تحديث',
+                    icon: widget.refreshing
+                        ? const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : const Icon(Icons.refresh),
+                  ),
+                ],
               ),
+            ),
             const SizedBox(height: 12),
 
-            // Stage categorization bar
+            // Keep the stage choice compact when multiple stages are available.
             if (widget.stages.length > 1) ...[
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                crossAxisAlignment: WrapCrossAlignment.center,
-                children: [
-                  const Text(
-                    'المرحلة الدراسية:',
-                    style: TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w700,
-                      color: AppDesignColors.lightMutedInk,
-                    ),
+              DropdownButtonFormField<String>(
+                initialValue: _selectedStageId,
+                isExpanded: true,
+                decoration: const InputDecoration(
+                  labelText: 'المرحلة الدراسية',
+                  contentPadding: EdgeInsetsDirectional.symmetric(
+                    horizontal: 12,
+                    vertical: 8,
                   ),
+                ),
+                items: [
                   for (final stage in widget.stages)
-                    ChoiceChip(
-                      label: Text(stage.name),
-                      selected: _selectedStageId == stage.id,
-                      onSelected: (val) {
-                        if (val) setState(() => _selectedStageId = stage.id);
-                      },
+                    DropdownMenuItem(
+                      value: stage.id,
+                      child: Text(
+                        stage.name,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
                     ),
                 ],
+                onChanged: (id) {
+                  if (id != null) setState(() => _selectedStageId = id);
+                },
               ),
               const SizedBox(height: 10),
             ] else if (widget.stages.isNotEmpty) ...[
-              Row(
-                children: [
-                  const Icon(
-                    Icons.school_outlined,
-                    size: 16,
-                    color: AppDesignColors.lightMutedInk,
-                  ),
-                  const SizedBox(width: 6),
-                  Text(
-                    'المرحلة: ${widget.stages.first.name}',
-                    style: const TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w700,
-                      color: AppDesignColors.lightMutedInk,
-                    ),
-                  ),
-                ],
+              Text(
+                'المرحلة: ${widget.stages.first.name}',
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w700,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
               ),
               const SizedBox(height: 10),
             ],
@@ -341,40 +401,49 @@ class _ServantPrepViewState extends ConsumerState<ServantPrepView> {
     DateTime selectedWeek,
     DateTime currentWeek,
   ) {
-    return ScrollableChipRow(
-      padding: const EdgeInsetsDirectional.symmetric(horizontal: 4),
-      child: Row(
-        children: [
-          for (final w in weeks) ...[
-            Padding(
-              padding: const EdgeInsetsDirectional.only(end: 8),
-              child: ChoiceChip(
-                selected: _sameDay(w, selectedWeek),
-                onSelected: (val) {
-                  if (val) setState(() => _selectedWeek = w);
-                },
-                avatar: _sameDay(w, currentWeek)
-                    ? Icon(
-                        Icons.star_rounded,
-                        size: 16,
-                        color: Theme.of(context).colorScheme.primary,
-                      )
-                    : null,
-                label: Text(
-                  _sameDay(w, currentWeek)
-                      ? 'الأسبوع الحالي (${PrepDateFormatter.formatDayMonth(w)})'
-                      : PrepDateFormatter.formatWeek(w),
-                  style: TextStyle(
-                    fontWeight: _sameDay(w, selectedWeek)
-                        ? FontWeight.w800
-                        : FontWeight.w500,
-                  ),
+    final index = weeks.indexWhere((week) => _sameDay(week, selectedWeek));
+    final hasOlder = index >= 0 && index + 1 < weeks.length;
+    final hasNewer = index > 0;
+    return Row(
+      children: [
+        IconButton(
+          tooltip: 'الأسبوع التالي',
+          onPressed: hasNewer
+              ? () => setState(() => _selectedWeek = weeks[index - 1])
+              : null,
+          icon: const Icon(Icons.chevron_right_rounded),
+        ),
+        Expanded(
+          child: Column(
+            children: [
+              Text(
+                _sameDay(selectedWeek, currentWeek)
+                    ? 'الأسبوع الحالي'
+                    : PrepDateFormatter.formatWeek(selectedWeek),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(fontWeight: FontWeight.w700),
+              ),
+              Text(
+                PrepDateFormatter.formatWeek(selectedWeek),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  fontSize: 12,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
               ),
-            ),
-          ],
-        ],
-      ),
+            ],
+          ),
+        ),
+        IconButton(
+          tooltip: 'الأسبوع السابق',
+          onPressed: hasOlder
+              ? () => setState(() => _selectedWeek = weeks[index + 1])
+              : null,
+          icon: const Icon(Icons.chevron_left_rounded),
+        ),
+      ],
     );
   }
 
@@ -391,10 +460,10 @@ class _ServantPrepViewState extends ConsumerState<ServantPrepView> {
         padding: const EdgeInsets.all(28),
         child: Column(
           children: [
-            const Icon(
+            Icon(
               Icons.menu_book_outlined,
               size: 48,
-              color: AppDesignColors.darkMutedInk,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
             ),
             const SizedBox(height: 14),
             Text(
@@ -405,10 +474,10 @@ class _ServantPrepViewState extends ConsumerState<ServantPrepView> {
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 6),
-            const Text(
+            Text(
               'سيتوفر ملف الدرس والتحضير هنا بمجرد أن يقوم القائد برفعه.',
               style: TextStyle(
-                color: AppDesignColors.lightMutedInk,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
                 fontSize: 13,
               ),
               textAlign: TextAlign.center,
@@ -430,16 +499,34 @@ class _ServantPrepViewState extends ConsumerState<ServantPrepView> {
         padding: EdgeInsets.symmetric(vertical: 40),
         child: LoadingView(message: 'جاري تحميل تفاصيل التحضير...'),
       ),
-      error: (error, _) => const SolidCard(
-        padding: EdgeInsets.all(24),
-        child: Column(
-          children: [
-            Icon(Icons.error_outline_rounded, color: Colors.red, size: 36),
-            SizedBox(height: 10),
-            Text('تعذر إتمام العملية. حاول مرة أخرى.'),
-          ],
-        ),
-      ),
+      error: (error, _) {
+        debugPrint('Failed to load servant preparation: $error');
+        return SolidCard(
+          padding: EdgeInsets.all(24),
+          child: Column(
+            children: [
+              Icon(
+                Icons.error_outline_rounded,
+                color: Theme.of(context).colorScheme.error,
+                size: 36,
+              ),
+              SizedBox(height: 10),
+              Text('تعذر إتمام العملية. حاول مرة أخرى.'),
+              SizedBox(height: 8),
+              TextButton.icon(
+                onPressed: () => ref.invalidate(
+                  servantPreparationProvider((
+                    lessonId: lesson.id,
+                    servantProfileId: widget.profile.id,
+                  )),
+                ),
+                icon: Icon(Icons.refresh_rounded),
+                label: Text('إعادة المحاولة'),
+              ),
+            ],
+          ),
+        );
+      },
       data: (prep) {
         return _buildLessonContent(
           lesson: lesson,
@@ -460,8 +547,6 @@ class _ServantPrepViewState extends ConsumerState<ServantPrepView> {
     final status = prep.status;
     final isAwaiting = status == PreparationStatus.submitted;
     final isApproved = status == PreparationStatus.approved;
-    final needsRevision = status == PreparationStatus.needsRevision;
-    final isNotSubmitted = status == PreparationStatus.notSubmitted;
     final stage = _stageForId(lesson.stageId);
 
     return Column(
@@ -473,9 +558,8 @@ class _ServantPrepViewState extends ConsumerState<ServantPrepView> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Top badge row - responsive and guarded against overflow
               Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Container(
                     width: 44,
@@ -511,8 +595,7 @@ class _ServantPrepViewState extends ConsumerState<ServantPrepView> {
                                     context,
                                   ).colorScheme.onSurfaceVariant,
                           ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
+                          softWrap: true,
                         ),
                         const SizedBox(height: 2),
                         Text(
@@ -522,52 +605,100 @@ class _ServantPrepViewState extends ConsumerState<ServantPrepView> {
                             fontWeight: FontWeight.w800,
                           ),
                           maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
+                          overflow: TextOverflow.fade,
                         ),
                       ],
                     ),
                   ),
-                  const SizedBox(width: 8),
-                  Flexible(
-                    child: PreparationStatusBadge(
-                      status: status,
-                      isPendingSync: prep.isPendingSync,
-                    ),
-                  ),
                 ],
+              ),
+              const SizedBox(height: 10),
+              Align(
+                alignment: AlignmentDirectional.centerStart,
+                child: PreparationStatusBadge(
+                  status: status,
+                  isPendingSync: prep.isPendingSync,
+                ),
               ),
               const Divider(height: 28),
               // PDF action buttons
-              Wrap(
-                spacing: 10,
-                runSpacing: 10,
-                children: [
-                  FilledButton.tonalIcon(
-                    onPressed: () => _openPdf(lesson, download: false),
-                    icon: const Icon(Icons.open_in_new_rounded, size: 18),
-                    label: const Text('فتح الدرس (PDF)'),
-                  ),
-                  OutlinedButton.icon(
-                    onPressed: isCurrentWeek
-                        ? () => _openPdf(lesson, download: true)
-                        : null,
-                    icon: const Icon(Icons.download_rounded, size: 18),
-                    label: const Text('تنزيل الملف'),
-                  ),
-                  TextButton.icon(
-                    onPressed: () => _showHistorySheet(lesson: lesson),
-                    icon: const Icon(Icons.history_rounded, size: 18),
-                    label: const Text('سجل المراجعات'),
-                  ),
-                ],
+              LayoutBuilder(
+                builder: (context, constraints) {
+                  final width = (constraints.maxWidth - 16) / 3;
+                  return Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: [
+                      SizedBox(
+                        width: width,
+                        child: TextButton.icon(
+                          style: TextButton.styleFrom(
+                            minimumSize: const Size(0, 48),
+                            padding: const EdgeInsetsDirectional.symmetric(
+                              horizontal: 2,
+                            ),
+                          ),
+                          onPressed: () => _openPdf(lesson, download: false),
+                          icon: const Icon(Icons.open_in_new_rounded, size: 18),
+                          label: const Text(
+                            'فتح الدرس (PDF)',
+                            maxLines: 2,
+                            textAlign: TextAlign.center,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ),
+                      SizedBox(
+                        width: width,
+                        child: TextButton.icon(
+                          style: TextButton.styleFrom(
+                            minimumSize: const Size(0, 48),
+                            padding: const EdgeInsetsDirectional.symmetric(
+                              horizontal: 2,
+                            ),
+                          ),
+                          onPressed: isCurrentWeek
+                              ? () => _openPdf(lesson, download: true)
+                              : null,
+                          icon: const Icon(Icons.download_rounded, size: 18),
+                          label: const Text(
+                            'تنزيل الملف',
+                            maxLines: 2,
+                            textAlign: TextAlign.center,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ),
+                      SizedBox(
+                        width: width,
+                        child: TextButton.icon(
+                          style: TextButton.styleFrom(
+                            minimumSize: const Size(0, 48),
+                            padding: const EdgeInsetsDirectional.symmetric(
+                              horizontal: 2,
+                            ),
+                          ),
+                          onPressed: () => _showHistorySheet(lesson: lesson),
+                          icon: const Icon(Icons.history_rounded, size: 18),
+                          label: const Text(
+                            'سجل المراجعات',
+                            maxLines: 2,
+                            textAlign: TextAlign.center,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ),
+                    ],
+                  );
+                },
               ),
               if (!isCurrentWeek) ...[
                 const SizedBox(height: 10),
-                const Text(
+                Text(
                   'ملاحظة: هذا أسبوع سابق (للقراءة والاطلاع فقط). التنزيل وتعديل التحضير متاحان للأسبوع الحالي فقط.',
                   style: TextStyle(
                     fontSize: 12,
-                    color: AppDesignColors.lightMutedInk,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
                 ),
               ],
@@ -580,155 +711,44 @@ class _ServantPrepViewState extends ConsumerState<ServantPrepView> {
 
         const SizedBox(height: 18),
 
-        // Submission Action Section
-        SolidCard(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Icon(
-                    isApproved
-                        ? Icons.check_circle_rounded
-                        : isAwaiting
-                        ? Icons.hourglass_top_rounded
-                        : needsRevision
-                        ? Icons.warning_amber_rounded
-                        : Icons.send_rounded,
-                    color: status.color,
-                  ),
-                  const SizedBox(width: 8),
-                  Text(
-                    'حالة تسليم التحضير',
-                    style: TextStyle(
-                      fontSize: 15.5,
-                      fontWeight: FontWeight.w800,
-                      color: status.color,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 8),
-              Text(
-                isApproved
-                    ? 'تم اعتماد تحضيرك لهذا الدرس من قِبل القائد. مبارك!'
-                    : isAwaiting
-                    ? 'تم إرسال تحضيرك وهو الآن بانتظار مراجعة القائد. لا يمكن تعديل التحضير أو سحبه أثناء المراجعة.'
-                    : needsRevision
-                    ? 'طلب القائد تعديلات على التحضير. راجع الملاحظات أعلاه ثم اضغط على إعادة الإرسال بعد إتمام التعديلات.'
-                    : 'بعد قراءة ملف الدرس والانتهاء من التحضير، اضغط على الزر أدناه لإرساله للقائد للمراجعة والاعتماد.',
-                style: const TextStyle(
-                  fontSize: 13.5,
-                  height: 1.5,
-                  color: AppDesignColors.lightMutedInk,
+        if (isAwaiting || isApproved)
+          Container(
+            margin: const EdgeInsetsDirectional.only(top: 12),
+            padding: const EdgeInsets.all(14),
+            decoration: BoxDecoration(
+              color: isApproved
+                  ? AppColors.of(context).present.background
+                  : AppColors.of(context).warning.background,
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Row(
+              children: [
+                Icon(
+                  isApproved
+                      ? Icons.verified_rounded
+                      : Icons.hourglass_top_rounded,
+                  color: isApproved
+                      ? AppColors.of(context).present.foreground
+                      : AppColors.of(context).warning.foreground,
                 ),
-              ),
-              const SizedBox(height: 18),
-              if (isCurrentWeek) ...[
-                if (isNotSubmitted || needsRevision)
-                  SizedBox(
-                    width: double.infinity,
-                    height: 48,
-                    child: FilledButton.icon(
-                      style: FilledButton.styleFrom(
-                        backgroundColor: needsRevision
-                            ? const Color(0xFFEA580C)
-                            : Theme.of(context).colorScheme.primary,
-                      ),
-                      onPressed: _submitting
-                          ? null
-                          : () => _handleSubmit(lesson: lesson, prep: prep),
-                      icon: _submitting
-                          ? const SizedBox(
-                              width: 18,
-                              height: 18,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                color: Colors.white,
-                              ),
-                            )
-                          : Icon(
-                              needsRevision
-                                  ? Icons.refresh_rounded
-                                  : Icons.send_rounded,
-                            ),
-                      label: Text(
-                        isResubmission(prep)
-                            ? 'إعادة الإرسال للمراجعة'
-                            : 'إرسال التحضير للمراجعة',
-                        style: const TextStyle(
-                          fontSize: 15,
-                          fontWeight: FontWeight.w800,
-                        ),
-                      ),
-                    ),
-                  )
-                else if (isAwaiting)
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(14),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFFEF3C7),
-                      borderRadius: BorderRadius.circular(10),
-                      border: Border.all(color: const Color(0xFFFDE68A)),
-                    ),
-                    child: const Row(
-                      children: [
-                        Icon(
-                          Icons.hourglass_top_rounded,
-                          color: Color(0xFFB45309),
-                          size: 20,
-                        ),
-                        SizedBox(width: 10),
-                        Expanded(
-                          child: Text(
-                            'تم تسليم التحضير وهو قيد المراجعة حالياً من قِبل القائد.',
-                            style: TextStyle(
-                              color: Color(0xFFB45309),
-                              fontWeight: FontWeight.w700,
-                              fontSize: 13.5,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  )
-                else if (isApproved)
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(14),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFD1FAE5),
-                      borderRadius: BorderRadius.circular(10),
-                      border: Border.all(color: const Color(0xFFA7F3D0)),
-                    ),
-                    child: const Row(
-                      children: [
-                        Icon(
-                          Icons.verified_rounded,
-                          color: Color(0xFF047857),
-                          size: 20,
-                        ),
-                        SizedBox(width: 10),
-                        Expanded(
-                          child: Text(
-                            'تم اعتماد هذا التحضير بنجاح.',
-                            style: TextStyle(
-                              color: Color(0xFF047857),
-                              fontWeight: FontWeight.w700,
-                              fontSize: 13.5,
-                            ),
-                          ),
-                        ),
-                      ],
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    isApproved
+                        ? 'تم اعتماد هذا التحضير بنجاح.'
+                        : 'تم تسليم التحضير وهو بانتظار مراجعة القائد.',
+                    style: TextStyle(
+                      color: isApproved
+                          ? AppColors.of(context).present.foreground
+                          : AppColors.of(context).warning.foreground,
+                      fontWeight: FontWeight.w700,
+                      fontSize: 13.5,
                     ),
                   ),
+                ),
               ],
-            ],
+            ),
           ),
-        ),
-        const SizedBox(height: 32),
       ],
     );
   }

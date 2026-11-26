@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../../app/design/app_colors.dart';
 import '../../../domain/prep_date_formatter.dart';
 import '../../../domain/preparation_status.dart';
 import '../../../domain/weekly_preparation.dart';
@@ -21,15 +22,11 @@ class ReviewFeedbackCard extends StatelessWidget {
         ? PrepDateFormatter.formatDateTime(preparation.reviewedAt)
         : null;
 
-    final primaryColor = isRevision
-        ? const Color(0xFFEF4444)
-        : const Color(0xFF10B981);
-    final bgColor = isRevision
-        ? const Color(0xFFFEF2F2)
-        : const Color(0xFFECFDF5);
-    final borderColor = isRevision
-        ? const Color(0xFFFECACA)
-        : const Color(0xFFA7F3D0);
+    final colors = AppColors.of(context);
+    final pair = isRevision ? colors.absent : colors.present;
+    final primaryColor = pair.foreground;
+    final bgColor = pair.background;
+    final borderColor = pair.foreground.withValues(alpha: 0.35);
 
     return Container(
       margin: const EdgeInsets.only(top: 16),
@@ -71,7 +68,7 @@ class ReviewFeedbackCard extends StatelessWidget {
               width: double.infinity,
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: Theme.of(context).colorScheme.surface,
                 borderRadius: BorderRadius.circular(10),
                 border: Border.all(color: borderColor),
               ),
@@ -95,17 +92,17 @@ class ReviewFeedbackCard extends StatelessWidget {
                 Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Icon(
+                    Icon(
                       Icons.person_outline_rounded,
                       size: 16,
-                      color: Color(0xFF64748B),
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
                     ),
                     const SizedBox(width: 4),
                     Text(
                       'المراجع: ${preparation.reviewerName}',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 12,
-                        color: Color(0xFF64748B),
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
                         fontWeight: FontWeight.w500,
                       ),
                     ),
@@ -115,17 +112,17 @@ class ReviewFeedbackCard extends StatelessWidget {
                 Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Icon(
+                    Icon(
                       Icons.access_time_rounded,
                       size: 16,
-                      color: Color(0xFF64748B),
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
                     ),
                     const SizedBox(width: 4),
                     Text(
                       dateStr,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 12,
-                        color: Color(0xFF64748B),
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
                         fontWeight: FontWeight.w500,
                       ),
                     ),
