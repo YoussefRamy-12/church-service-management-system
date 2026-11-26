@@ -25,6 +25,8 @@ class LeadershipPrepDashboard extends ConsumerStatefulWidget {
     required this.weeks,
     required this.lessons,
     required this.onRefresh,
+    this.headerAction,
+    this.canManageLessons = false,
     this.refreshing = false,
   });
 
@@ -34,6 +36,8 @@ class LeadershipPrepDashboard extends ConsumerStatefulWidget {
   final List<DateTime> weeks;
   final List<WeeklyLesson> lessons;
   final Future<void> Function() onRefresh;
+  final Widget? headerAction;
+  final bool canManageLessons;
   final bool refreshing;
 
   @override
@@ -137,17 +141,12 @@ class _LeadershipPrepDashboardState
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            ResponsiveHeaderRow(
-              title: 'متابعة التحضيرات الأسبوعية',
-              subtitle: 'لوحة قيادة مراجعة واعتماد تحضير الدروس للخدام',
-              action: Wrap(
-                spacing: 8,
+            Align(
+              alignment: AlignmentDirectional.centerEnd,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  FilledButton.tonalIcon(
-                    onPressed: _openFilesManager,
-                    icon: const Icon(Icons.folder_shared_rounded, size: 18),
-                    label: const Text('إدارة ملفات الدروس'),
-                  ),
+                  if (widget.headerAction != null) widget.headerAction!,
                   IconButton(
                     onPressed: widget.refreshing ? null : widget.onRefresh,
                     tooltip: 'تحديث',
@@ -159,6 +158,17 @@ class _LeadershipPrepDashboardState
                           )
                         : const Icon(Icons.refresh),
                   ),
+                  if (widget.canManageLessons)
+                    PopupMenuButton<String>(
+                      tooltip: 'المزيد',
+                      onSelected: (_) => _openFilesManager(),
+                      itemBuilder: (_) => const [
+                        PopupMenuItem(
+                          value: 'files',
+                          child: Text('إدارة ملفات الدروس'),
+                        ),
+                      ],
+                    ),
                 ],
               ),
             ),

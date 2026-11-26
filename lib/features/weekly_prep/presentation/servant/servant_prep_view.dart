@@ -25,6 +25,7 @@ class ServantPrepView extends ConsumerStatefulWidget {
     this.initialStageId,
     required this.currentWeekMonday,
     required this.onRefresh,
+    this.headerAction,
     this.refreshing = false,
   });
 
@@ -35,6 +36,7 @@ class ServantPrepView extends ConsumerStatefulWidget {
   final String? initialStageId;
   final DateTime currentWeekMonday;
   final Future<void> Function() onRefresh;
+  final Widget? headerAction;
   final bool refreshing;
 
   @override
@@ -259,21 +261,11 @@ class _ServantPrepViewState extends ConsumerState<ServantPrepView> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            ResponsiveHeaderRow(
-              title: 'تحضيري',
-              subtitle: 'تحضير الدروس الأسبوعية وإرسالها للمراجعة والاعتماد',
-              action: IconButton(
-                onPressed: widget.refreshing ? null : widget.onRefresh,
-                tooltip: 'تحديث',
-                icon: widget.refreshing
-                    ? const SizedBox(
-                        width: 20,
-                        height: 20,
-                        child: CircularProgressIndicator(strokeWidth: 2),
-                      )
-                    : const Icon(Icons.refresh),
+            if (widget.headerAction != null)
+              Align(
+                alignment: AlignmentDirectional.centerEnd,
+                child: widget.headerAction,
               ),
-            ),
             const SizedBox(height: 12),
 
             // Stage categorization bar
