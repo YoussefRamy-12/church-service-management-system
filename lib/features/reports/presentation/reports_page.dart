@@ -147,7 +147,7 @@ class _ReportsPageState extends ConsumerState<ReportsPage>
               ),
               child: TabBar(
                 controller: _tabController,
-                isScrollable: false,
+                isScrollable: true,
                 indicatorSize: TabBarIndicatorSize.tab,
                 indicator: BoxDecoration(
                   color: Theme.of(context).colorScheme.primary,
