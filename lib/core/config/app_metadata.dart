@@ -6,16 +6,16 @@ class AppMetadata {
   static const String shortName = 'إدارة الخدمة';
 
   /// Semantic version of the application.
-  static const String version = '0.2.0';
+  static const String version = '0.3.0';
 
   /// Monotonically increasing build number for deployment & cache busting.
-  static const String buildNumber = '2';
+  static const String buildNumber = '3';
 
   /// Full version display representation (e.g. "0.2.0+2").
   static const String versionDisplay = '$version+$buildNumber';
 
   /// Release date for the current deployment.
-  static const String releaseDate = '2026-11-08';
+  static const String releaseDate = '2026-11-26';
 
   /// Firebase Hosting primary production domain.
   static const String hostingUrl = 'https://church-services-management.web.app';

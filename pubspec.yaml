@@ -1,7 +1,7 @@
 name: church_service_management_system
 description: Offline-first Church Service Management System.
 publish_to: "none"
-version: 0.2.0+2
+version: 0.3.0+3
 
 environment:
   sdk: ">=3.10.0 <4.0.0"
@@ -52,4 +52,3 @@ flutter:
           weight: 600
         - asset: assets/fonts/IBMPlexSansArabic-Bold.ttf
           weight: 700
-
