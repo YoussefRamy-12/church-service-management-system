@@ -202,7 +202,7 @@ Future<void> pumpGoldenWidget(
 Future<void> expectGoldenImage(WidgetTester tester, String fileName) async {
   await expectLater(
     find.byType(MaterialApp),
-    matchesGoldenFile('goldens/images/$fileName'),
+    matchesGoldenFile('images/$fileName'),
   );
 }
 
