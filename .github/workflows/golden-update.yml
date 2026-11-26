@@ -62,7 +62,7 @@ jobs:
               echo "Golden regeneration tests exited with status $test_status."
               echo
               echo "### Failed test names / failure markers"
-              grep -E '\\[E\\]|Some tests failed|Test failed|Expected:|Exception:' /tmp/golden-update.log | tail -n 120 || true
+              grep -E '\[E\]|Some tests failed|Test failed|Expected:|Exception:' /tmp/golden-update.log | tail -n 120 || true
             fi
           } >> "$GITHUB_STEP_SUMMARY"
 
