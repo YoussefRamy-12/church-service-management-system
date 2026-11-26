@@ -12,6 +12,7 @@ import '../domain/prep_date_formatter.dart';
 import '../domain/weekly_prep_permissions.dart';
 import 'leadership/leadership_prep_dashboard.dart';
 import 'servant/servant_prep_view.dart';
+import 'weekly_prep_view_switcher.dart';
 import 'weekly_prep_providers.dart';
 
 class WeeklyPrepPage extends ConsumerStatefulWidget {
@@ -221,35 +222,33 @@ class _WeeklyPrepPageState extends ConsumerState<WeeklyPrepPage> {
                     // If user is a leader and not toggled to personal servant view:
                     if (isLeader && !_forceServantView) {
                       return LeadershipPrepDashboard(
-                            serviceId: widget.serviceId,
-                            currentLeader: profile,
-                            stages: allowedStages,
-                            weeks: weeks,
-                            lessons: lessons,
-                            onRefresh: _refresh,
-                            refreshing: _refreshing,
-                            canManageLessons:
-                                WeeklyPrepPermissions.canManageLessons(
-                                  profile: profile,
-                                  isSuperAdmin: superAdmin,
-                                ),
-                            headerAction: _viewSwitcher(),
+                        serviceId: widget.serviceId,
+                        currentLeader: profile,
+                        stages: allowedStages,
+                        weeks: weeks,
+                        lessons: lessons,
+                        onRefresh: _refresh,
+                        refreshing: _refreshing,
+                        canManageLessons:
+                            WeeklyPrepPermissions.canManageLessons(
+                              profile: profile,
+                              isSuperAdmin: superAdmin,
+                            ),
+                        headerAction: _viewSwitcher(profile, superAdmin),
                       );
                     }
 
                     // Otherwise, Servant preparation view:
                     return ServantPrepView(
-                          serviceId: widget.serviceId,
-                          profile: profile,
-                          lessons: lessons,
-                          stages: allowedStages,
-                          initialStageId: profile.stageId ?? _classStageId,
-                          currentWeekMonday: currentWeekMonday,
-                          onRefresh: _refresh,
-                          refreshing: _refreshing,
-                          headerAction: isLeader
-                              ? _viewSwitcher()
-                              : null,
+                      serviceId: widget.serviceId,
+                      profile: profile,
+                      lessons: lessons,
+                      stages: allowedStages,
+                      initialStageId: profile.stageId ?? _classStageId,
+                      currentWeekMonday: currentWeekMonday,
+                      onRefresh: _refresh,
+                      refreshing: _refreshing,
+                      headerAction: _viewSwitcher(profile, superAdmin),
                     );
                   },
                 );
@@ -261,14 +260,11 @@ class _WeeklyPrepPageState extends ConsumerState<WeeklyPrepPage> {
     );
   }
 
-  Widget _viewSwitcher() => SegmentedButton<bool>(
-    segments: const [
-      ButtonSegment(value: true, label: Text('تحضيري')),
-      ButtonSegment(value: false, label: Text('متابعة الخدام')),
-    ],
-    selected: {_forceServantView},
-    onSelectionChanged: (selection) =>
-        setState(() => _forceServantView = selection.first),
-    showSelectedIcon: false,
-  );
+  Widget _viewSwitcher(ServantProfile profile, bool superAdmin) =>
+      WeeklyPrepViewSwitcher(
+        profile: profile,
+        isSuperAdmin: superAdmin,
+        isServantView: _forceServantView,
+        onChanged: (value) => setState(() => _forceServantView = value),
+      );
 }

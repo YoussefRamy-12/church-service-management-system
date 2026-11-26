@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../../app/theme.dart';
 import '../../../../app/ui/app_ui.dart';
 import '../../../auth/domain/entities/servant_profile.dart';
 import '../../../service/domain/entities/stage.dart';
@@ -46,18 +45,14 @@ class LeadershipPrepDashboard extends ConsumerStatefulWidget {
 }
 
 class _LeadershipPrepDashboardState
-    extends ConsumerState<LeadershipPrepDashboard>
-    with SingleTickerProviderStateMixin {
-  late final TabController _tabController;
-
+    extends ConsumerState<LeadershipPrepDashboard> {
   Stage? _selectedStage;
   DateTime? _selectedWeek;
-  PreparationStatus? _selectedStatus;
+  PreparationStatus? _selectedStatus = PreparationStatus.submitted;
 
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 2, vsync: this);
     // Default to the current week if available
     final normalizedMonday = PrepDateFormatter.normalizeToMondayUtc(
       DateTime.now(),
@@ -65,12 +60,6 @@ class _LeadershipPrepDashboardState
     _selectedWeek = widget.weeks.any((w) => _sameDay(w, normalizedMonday))
         ? normalizedMonday
         : (widget.weeks.isNotEmpty ? widget.weeks.first : null);
-  }
-
-  @override
-  void dispose() {
-    _tabController.dispose();
-    super.dispose();
   }
 
   bool _sameDay(DateTime a, DateTime b) =>
@@ -134,8 +123,6 @@ class _LeadershipPrepDashboardState
           PreparationStatus.needsRevision: 0,
         };
 
-    final pendingCount = counts[PreparationStatus.submitted] ?? 0;
-
     return Scaffold(
       body: AppContent(
         child: Column(
@@ -179,45 +166,6 @@ class _LeadershipPrepDashboardState
 
             const SizedBox(height: 14),
 
-            // Tab bar
-            TabBar(
-              controller: _tabController,
-              tabs: [
-                const Tab(text: 'سجل التحضير الكامل'),
-                Tab(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Text('بانتظار المراجعة'),
-                      if (pendingCount > 0) ...[
-                        const SizedBox(width: 8),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 7,
-                            vertical: 2,
-                          ),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFF59E0B),
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: Text(
-                            '$pendingCount',
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 12,
-                              fontWeight: FontWeight.w800,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ],
-                  ),
-                ),
-              ],
-            ),
-
-            const SizedBox(height: 12),
-
             // Filter bar
             PreparationFilterBar(
               stages: widget.stages,
@@ -229,23 +177,12 @@ class _LeadershipPrepDashboardState
               weeks: widget.weeks,
               selectedWeek: _selectedWeek,
               onWeekChanged: (week) => setState(() => _selectedWeek = week),
+              counts: counts,
             ),
 
-            const SizedBox(height: 14),
+            const SizedBox(height: 6),
 
-            // Tab views
-            Expanded(
-              child: TabBarView(
-                controller: _tabController,
-                children: [
-                  // Tab 1: All preparations with filters
-                  _buildPreparationsList(prepsAsync, onlyPending: false),
-
-                  // Tab 2: Pending review queue only
-                  _buildPreparationsList(prepsAsync, onlyPending: true),
-                ],
-              ),
-            ),
+            Expanded(child: _buildPreparationsList(prepsAsync)),
           ],
         ),
       ),
@@ -253,12 +190,61 @@ class _LeadershipPrepDashboardState
   }
 
   Widget _buildPreparationsList(
-    AsyncValue<List<WeeklyPreparation>> prepsAsync, {
-    required bool onlyPending,
-  }) {
+    AsyncValue<List<WeeklyPreparation>> prepsAsync,
+  ) {
     return prepsAsync.when(
-      loading: () => const LoadingView(message: 'جاري تحميل سجل التحضيرات...'),
+      loading: () => ListView.builder(
+        itemCount: 6,
+        itemBuilder: (context, index) => SolidCard(
+          margin: const EdgeInsetsDirectional.only(bottom: 6),
+          padding: const EdgeInsetsDirectional.symmetric(
+            horizontal: 12,
+            vertical: 8,
+          ),
+          child: Row(
+            children: [
+              CircleAvatar(
+                backgroundColor: Theme.of(
+                  context,
+                ).colorScheme.surfaceContainerHighest,
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      height: 12,
+                      width: 130,
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.surfaceContainerHighest,
+                    ),
+                    const SizedBox(height: 6),
+                    Container(
+                      height: 10,
+                      width: 95,
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.surfaceContainerHighest,
+                    ),
+                  ],
+                ),
+              ),
+              Container(
+                height: 24,
+                width: 82,
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
       error: (error, _) {
+        debugPrint('Failed to load weekly preparations: $error');
         return EmptyState(
           icon: Icons.error_outline_rounded,
           title: 'تعذر تحميل التحضيرات',
@@ -271,23 +257,23 @@ class _LeadershipPrepDashboardState
         );
       },
       data: (allPreps) {
-        final list = onlyPending
-            ? allPreps
-                  .where((p) => p.status == PreparationStatus.submitted)
-                  .toList()
-            : allPreps;
+        final list = allPreps;
 
         if (list.isEmpty) {
           return EmptyState(
-            icon: onlyPending
+            icon: _selectedStatus == PreparationStatus.submitted
                 ? Icons.check_circle_outline_rounded
                 : Icons.menu_book_outlined,
-            title: onlyPending
+            title: _selectedStatus == PreparationStatus.submitted
                 ? 'لا توجد تحضيرات بانتظار المراجعة'
                 : 'لا توجد سجلات مطابقة',
-            message: onlyPending
-                ? 'تمت مراجعة واعتماد جميع التحضيرات المسلمة.'
-                : 'حاول تغيير معايير البحث أو اختيار أسبوع آخر.',
+            message: 'حاول تغيير معايير التصفية أو اختيار أسبوع آخر.',
+            action: _selectedStatus != null
+                ? TextButton(
+                    onPressed: () => setState(() => _selectedStatus = null),
+                    child: const Text('عرض الكل'),
+                  )
+                : null,
           );
         }
 
@@ -295,217 +281,68 @@ class _LeadershipPrepDashboardState
           itemCount: list.length,
           itemBuilder: (context, index) {
             final prep = list[index];
-            final isSelf = prep.servantProfileId == widget.currentLeader.id;
-            final isPending = prep.status == PreparationStatus.submitted;
-
-            final submittedDateStr = prep.submittedAt != null
-                ? PrepDateFormatter.formatShortDateTime(prep.submittedAt)
-                : null;
-
             return SolidCard(
-              margin: const EdgeInsets.only(bottom: 10),
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              child: LayoutBuilder(
-                builder: (context, constraints) {
-                  final isNarrow = constraints.maxWidth < 620;
-
-                  final actionWidget =
-                      prep.status != PreparationStatus.notSubmitted
-                      ? FilledButton.tonal(
-                          style: isPending
-                              ? FilledButton.styleFrom(
-                                  backgroundColor: const Color(0xFFFEF3C7),
-                                  foregroundColor: const Color(0xFFB45309),
-                                )
-                              : null,
-                          onPressed: () => _openReviewDialog(prep),
-                          child: Text(
-                            isPending
-                                ? (isSelf ? 'تفاصيل تحضيرك' : 'مراجعة واعتماد')
-                                : 'عرض المراجعة',
-                            style: const TextStyle(fontWeight: FontWeight.w700),
-                          ),
-                        )
-                      : const Padding(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 6,
-                          ),
-                          child: Text(
-                            'لم يسلم',
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: AppDesignColors.darkMutedInk,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        );
-
-                  if (isNarrow) {
-                    return Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        Row(
-                          children: [
-                            CircleAvatar(
-                              backgroundColor: prep.status.backgroundColor,
-                              radius: 18,
-                              child: Icon(
-                                prep.status.icon,
-                                color: prep.status.color,
-                                size: 18,
-                              ),
-                            ),
-                            const SizedBox(width: 10),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Row(
-                                    children: [
-                                      Flexible(
-                                        child: Text(
-                                          prep.servantName ?? 'خادم غير محدد',
-                                          style: const TextStyle(
-                                            fontWeight: FontWeight.w800,
-                                            fontSize: 14,
-                                          ),
-                                          maxLines: 1,
-                                          overflow: TextOverflow.ellipsis,
-                                        ),
-                                      ),
-                                      if (isSelf) ...[
-                                        const SizedBox(width: 6),
-                                        Container(
-                                          padding: const EdgeInsets.symmetric(
-                                            horizontal: 5,
-                                            vertical: 1.5,
-                                          ),
-                                          decoration: BoxDecoration(
-                                            color: AppDesignColors.lightSurfaceSubtle,
-                                            borderRadius: BorderRadius.circular(
-                                              6,
-                                            ),
-                                          ),
-                                          child: const Text(
-                                            'أنت',
-                                            style: TextStyle(
-                                              fontSize: 12,
-                                              color: AppDesignColors.lightMutedInk,
-                                              fontWeight: FontWeight.w700,
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ],
-                                  ),
-                                  const SizedBox(height: 2),
-                                  Text(
-                                    '${prep.stageName ?? 'المرحلة'} • ${prep.className ?? 'الفصل'}',
-                                    style: const TextStyle(
-                                      fontSize: 12.5,
-                                      color: AppDesignColors.lightMutedInk,
-                                    ),
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                ],
-                              ),
-                            ),
-                            const SizedBox(width: 8),
-                            PreparationStatusBadge(status: prep.status),
-                          ],
-                        ),
-                        if (submittedDateStr != null) ...[
-                          const SizedBox(height: 6),
-                          Text(
-                            'تاريخ الإرسال: $submittedDateStr',
-                            style: const TextStyle(
-                              fontSize: 12,
-                              color: AppDesignColors.darkMutedInk,
-                            ),
-                          ),
-                        ],
-                        const SizedBox(height: 10),
-                        Align(
-                          alignment: AlignmentDirectional.centerEnd,
-                          child: actionWidget,
-                        ),
-                      ],
-                    );
-                  }
-
-                  return Row(
+              margin: const EdgeInsetsDirectional.only(bottom: 6),
+              padding: const EdgeInsetsDirectional.symmetric(
+                horizontal: 10,
+                vertical: 4,
+              ),
+              child: InkWell(
+                onTap: () => _openReviewDialog(prep),
+                child: SizedBox(
+                  height: 68,
+                  child: Row(
                     children: [
                       CircleAvatar(
-                        backgroundColor: prep.status.backgroundColor,
-                        child: Icon(
-                          prep.status.icon,
-                          color: prep.status.color,
-                          size: 20,
+                        radius: 19,
+                        backgroundColor: Theme.of(
+                          context,
+                        ).colorScheme.primaryContainer,
+                        child: Text(
+                          (prep.servantName?.trim().isNotEmpty ?? false)
+                              ? prep.servantName!.trim().substring(0, 1)
+                              : '؟',
+                          style: TextStyle(
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.onPrimaryContainer,
+                          ),
                         ),
                       ),
-                      const SizedBox(width: 14),
+                      const SizedBox(width: 8),
                       Expanded(
                         child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Row(
-                              children: [
-                                Flexible(
-                                  child: Text(
-                                    prep.servantName ?? 'خادم غير محدد',
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.w800,
-                                      fontSize: 14.5,
-                                    ),
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                ),
-                                if (isSelf) ...[
-                                  const SizedBox(width: 8),
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 6,
-                                      vertical: 2,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      color: AppDesignColors.lightSurfaceSubtle,
-                                      borderRadius: BorderRadius.circular(6),
-                                    ),
-                                    child: const Text(
-                                      'أنت',
-                                      style: TextStyle(
-                                        fontSize: 12.5,
-                                        color: AppDesignColors.lightMutedInk,
-                                        fontWeight: FontWeight.w700,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ],
-                            ),
-                            const SizedBox(height: 3),
                             Text(
-                              '${prep.stageName ?? 'المرحلة'} • ${prep.className ?? 'الفصل'}${submittedDateStr != null ? ' • تاريخ الإرسال: $submittedDateStr' : ''}',
+                              prep.servantName ?? 'خادم غير محدد',
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
                               style: const TextStyle(
-                                fontSize: 12,
-                                color: AppDesignColors.lightMutedInk,
+                                fontSize: 13,
+                                fontWeight: FontWeight.w700,
                               ),
+                            ),
+                            Text(
+                              '${prep.stageName ?? 'المرحلة'} • ${prep.className ?? 'الفصل'}',
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.onSurfaceVariant,
+                              ),
                             ),
                           ],
                         ),
                       ),
-                      const SizedBox(width: 10),
+                      const SizedBox(width: 6),
                       PreparationStatusBadge(status: prep.status),
-                      const SizedBox(width: 10),
-                      actionWidget,
                     ],
-                  );
-                },
+                  ),
+                ),
               ),
             );
           },

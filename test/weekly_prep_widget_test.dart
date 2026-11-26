@@ -15,13 +15,19 @@ import 'package:church_service_management_system/features/weekly_prep/presentati
 import 'package:church_service_management_system/features/weekly_prep/presentation/servant/widgets/preparation_history_sheet.dart';
 import 'package:church_service_management_system/features/weekly_prep/presentation/servant/widgets/preparation_status_badge.dart';
 import 'package:church_service_management_system/features/weekly_prep/presentation/servant/widgets/review_feedback_card.dart';
+import 'package:church_service_management_system/features/weekly_prep/presentation/leadership/leadership_prep_dashboard.dart';
+import 'package:church_service_management_system/features/weekly_prep/presentation/leadership/widgets/preparation_filter_bar.dart';
+import 'package:church_service_management_system/features/weekly_prep/presentation/weekly_prep_view_switcher.dart';
 import 'package:church_service_management_system/features/weekly_prep/presentation/weekly_prep_providers.dart';
+import 'package:church_service_management_system/app/design/app_colors.dart';
+import 'package:church_service_management_system/app/design/app_theme.dart';
 
 /// Minimal in-memory fake that avoids opening a real Drift database.
 /// Used to prevent the test runner from hanging in tearDownAll due to
 /// undisposed Drift stream subscriptions.
 class _FakeWeeklyPreparationRepository implements WeeklyPreparationRepository {
-  final WeeklyPreparation Function(String lessonId, String servantProfileId) _getPrep;
+  final WeeklyPreparation Function(String lessonId, String servantProfileId)
+  _getPrep;
 
   _FakeWeeklyPreparationRepository(this._getPrep);
 
@@ -74,7 +80,8 @@ class _FakeWeeklyPreparationRepository implements WeeklyPreparationRepository {
   }) async => const {};
 
   @override
-  Stream<void> watchChanges({required String serviceId}) => const Stream.empty();
+  Stream<void> watchChanges({required String serviceId}) =>
+      const Stream.empty();
 }
 
 void main() {
@@ -131,6 +138,47 @@ void main() {
       expect(find.text('تم الاعتماد'), findsOneWidget);
       expect(find.text('يحتاج إلى تعديل'), findsOneWidget);
       expect(find.text('بانتظار المراجعة (بانتظار المزامنة)'), findsOneWidget);
+      final cases = <(String, Color)>[
+        ('لم يتم الإرسال', AppColors.light.notMarked.background),
+        ('بانتظار المراجعة', AppColors.light.warning.background),
+        ('تم الاعتماد', AppColors.light.present.background),
+        ('يحتاج إلى تعديل', AppColors.light.absent.background),
+      ];
+      for (final item in cases) {
+        final container = tester.widget<Container>(
+          find
+              .ancestor(
+                of: find.text(item.$1),
+                matching: find.byType(Container),
+              )
+              .first,
+        );
+        expect((container.decoration! as BoxDecoration).color, item.$2);
+      }
+    });
+
+    testWidgets('view switch appears only for leadership roles', (
+      tester,
+    ) async {
+      Future<void> showFor(ServantProfile profile) => tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: WeeklyPrepViewSwitcher(
+              profile: profile,
+              isSuperAdmin: false,
+              isServantView: false,
+              onChanged: (_) {},
+            ),
+          ),
+        ),
+      );
+
+      await showFor(testServant);
+      expect(find.byType(SegmentedButton<bool>), findsNothing);
+      await showFor(testServant.copyWith(role: 'stage_leader'));
+      expect(find.byType(SegmentedButton<bool>), findsOneWidget);
+      expect(find.text('تحضيري'), findsOneWidget);
+      expect(find.text('متابعة الخدام'), findsOneWidget);
     });
 
     testWidgets(
@@ -258,9 +306,9 @@ void main() {
 
       await tester.pumpAndSettle();
 
-      expect(find.text('تحضيري'), findsOneWidget);
+      expect(find.byType(SegmentedButton<bool>), findsNothing);
       expect(find.text('درس داود وجليات.pdf'), findsOneWidget);
-      expect(find.text('إرسال التحضير للمراجعة'), findsOneWidget);
+      expect(find.text('إرسال التحضير'), findsOneWidget);
       expect(find.text('فتح الدرس (PDF)'), findsOneWidget);
       expect(find.text('تنزيل الملف'), findsOneWidget);
     });
@@ -313,11 +361,11 @@ void main() {
 
         expect(find.text('بانتظار المراجعة'), findsAtLeast(1));
         expect(
-          find.text('تم تسليم التحضير وهو قيد المراجعة حالياً من قِبل القائد.'),
+          find.text('تم تسليم التحضير وهو بانتظار مراجعة القائد.'),
           findsOneWidget,
         );
         // Submit button is NOT present when awaiting review
-        expect(find.text('إرسال التحضير للمراجعة'), findsNothing);
+        expect(find.text('إرسال التحضير'), findsNothing);
       },
     );
   });
@@ -348,10 +396,138 @@ void main() {
       expect(find.text('2'), findsOneWidget);
       expect(find.text('تم الاعتماد'), findsOneWidget);
       expect(find.text('8'), findsOneWidget);
-      expect(find.text('يحتاج لتعديل'), findsOneWidget);
-      expect(find.text('1'), findsOneWidget);
-      expect(find.text('لم يتم الإرسال'), findsOneWidget);
-      expect(find.text('4'), findsOneWidget);
+      expect(find.text('يحتاج لتعديل'), findsNothing);
+      expect(find.text('لم يتم الإرسال'), findsNothing);
     });
+  });
+
+  testWidgets('leadership status filters show the provided counts', (
+    tester,
+  ) async {
+    PreparationStatus? selected;
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: PreparationFilterBar(
+            stages: const [],
+            selectedStage: null,
+            onStageChanged: (_) {},
+            selectedStatus: PreparationStatus.submitted,
+            onStatusChanged: (value) => selected = value,
+            weeks: [testMonday],
+            selectedWeek: testMonday,
+            onWeekChanged: (_) {},
+            counts: const {
+              PreparationStatus.submitted: 3,
+              PreparationStatus.notSubmitted: 2,
+              PreparationStatus.approved: 4,
+              PreparationStatus.needsRevision: 1,
+            },
+          ),
+        ),
+      ),
+    );
+    expect(find.text('بانتظار المراجعة (3)'), findsOneWidget);
+    expect(find.text('لم يسلم (2)'), findsOneWidget);
+    expect(find.text('معتمد (4)'), findsOneWidget);
+    expect(find.text('الكل (10)'), findsOneWidget);
+    await tester.tap(find.text('معتمد (4)'));
+    await tester.pump();
+    expect(selected, PreparationStatus.approved);
+  });
+
+  testWidgets('both preparation views fit 360x640 at text scale 1.3', (
+    tester,
+  ) async {
+    tester.view.physicalSize = const Size(360, 640);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    final prep = WeeklyPreparation(
+      weeklyLessonId: testLesson.id,
+      servantProfileId: testServant.id,
+      status: PreparationStatus.notSubmitted,
+      updatedAt: testMonday,
+    );
+    final fakeRepo = _FakeWeeklyPreparationRepository((_, _) => prep);
+    Widget scaled(Widget child) => MediaQuery(
+      data: const MediaQueryData(textScaler: TextScaler.linear(1.3)),
+      child: child,
+    );
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          weeklyPreparationRepositoryProvider.overrideWithValue(fakeRepo),
+          servantPreparationProvider((
+            lessonId: testLesson.id,
+            servantProfileId: testServant.id,
+          )).overrideWith((ref) => Future.value(prep)),
+        ],
+        child: scaled(
+          MaterialApp(
+            theme: AppTheme.light,
+            locale: const Locale('ar'),
+            builder: (context, child) => MediaQuery(
+              data: MediaQuery.of(
+                context,
+              ).copyWith(textScaler: const TextScaler.linear(1.3)),
+              child: child!,
+            ),
+            home: ServantPrepView(
+              serviceId: 'service-1',
+              profile: testServant,
+              lessons: [testLesson],
+              stages: const [
+                Stage(
+                  id: 'stage-5',
+                  serviceId: 'service-1',
+                  name: 'الصف الخامس الابتدائي',
+                ),
+              ],
+              currentWeekMonday: testMonday,
+              onRefresh: () async {},
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(tester.takeException(), isNull);
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          weeklyPreparationRepositoryProvider.overrideWithValue(fakeRepo),
+          servantPreparationProvider((
+            lessonId: testLesson.id,
+            servantProfileId: testServant.id,
+          )).overrideWith((ref) => Future.value(prep)),
+        ],
+        child: scaled(
+          MaterialApp(
+            theme: AppTheme.light,
+            locale: const Locale('ar'),
+            builder: (context, child) => MediaQuery(
+              data: MediaQuery.of(
+                context,
+              ).copyWith(textScaler: const TextScaler.linear(1.3)),
+              child: child!,
+            ),
+            home: LeadershipPrepDashboard(
+              serviceId: 'service-1',
+              currentLeader: testServant.copyWith(role: 'overall_leader'),
+              stages: const [],
+              weeks: [testMonday],
+              lessons: const [],
+              onRefresh: () async {},
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(tester.takeException(), isNull);
   });
 }

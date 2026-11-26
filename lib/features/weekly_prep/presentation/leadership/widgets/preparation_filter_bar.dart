@@ -15,6 +15,7 @@ class PreparationFilterBar extends StatelessWidget {
     required this.weeks,
     required this.selectedWeek,
     required this.onWeekChanged,
+    required this.counts,
   });
 
   final List<Stage> stages;
@@ -25,119 +26,166 @@ class PreparationFilterBar extends StatelessWidget {
   final List<DateTime> weeks;
   final DateTime? selectedWeek;
   final ValueChanged<DateTime?> onWeekChanged;
+  final Map<PreparationStatus, int> counts;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-      decoration: BoxDecoration(
-        color: Theme.of(context).cardColor,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: Theme.of(context).colorScheme.outlineVariant,
-          width: 1.1,
-        ),
+    final weekIndex = selectedWeek == null
+        ? -1
+        : weeks.indexWhere((week) => _sameDay(week, selectedWeek!));
+    final selectedLabel = selectedWeek == null
+        ? 'جميع الأسابيع'
+        : PrepDateFormatter.formatWeek(selectedWeek!);
+    final statuses = <(PreparationStatus?, String, int)>[
+      (
+        PreparationStatus.submitted,
+        'بانتظار المراجعة',
+        counts[PreparationStatus.submitted] ?? 0,
       ),
-      child: Wrap(
-        spacing: 12,
-        runSpacing: 10,
-        crossAxisAlignment: WrapCrossAlignment.center,
-        children: [
-          // Stage dropdown
-          SizedBox(
-            width: 170,
-            child: DropdownButtonFormField<Stage?>(
-              initialValue: selectedStage,
-              isDense: true,
-              decoration: const InputDecoration(
-                labelText: 'المرحلة',
-                contentPadding: EdgeInsets.symmetric(
-                  horizontal: 10,
-                  vertical: 8,
-                ),
-              ),
-              items: [
-                const DropdownMenuItem<Stage?>(
-                  value: null,
-                  child: Text('كل المراحل'),
-                ),
-                for (final stage in stages)
-                  DropdownMenuItem<Stage?>(
-                    value: stage,
-                    child: Text(stage.name),
-                  ),
-              ],
-              onChanged: onStageChanged,
-            ),
-          ),
+      (
+        PreparationStatus.notSubmitted,
+        'لم يسلم',
+        counts[PreparationStatus.notSubmitted] ?? 0,
+      ),
+      (
+        PreparationStatus.approved,
+        'معتمد',
+        counts[PreparationStatus.approved] ?? 0,
+      ),
+      (null, 'الكل', counts.values.fold<int>(0, (a, b) => a + b)),
+    ];
 
-          // Week dropdown
-          SizedBox(
-            width: 230,
-            child: DropdownButtonFormField<DateTime?>(
-              initialValue: selectedWeek,
-              isDense: true,
-              decoration: const InputDecoration(
-                labelText: 'الأسبوع',
-                contentPadding: EdgeInsets.symmetric(
-                  horizontal: 10,
-                  vertical: 8,
-                ),
-              ),
-              items: [
-                const DropdownMenuItem<DateTime?>(
-                  value: null,
-                  child: Text('جميع الأسابيع'),
-                ),
-                for (final w in weeks)
-                  DropdownMenuItem<DateTime?>(
-                    value: w,
-                    child: Text(
-                      PrepDateFormatter.formatWeek(w),
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-              ],
-              onChanged: onWeekChanged,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Row(
+          children: [
+            IconButton(
+              tooltip: 'الأسبوع التالي',
+              onPressed: weekIndex == -1 && weeks.isNotEmpty
+                  ? () => onWeekChanged(weeks.first)
+                  : weekIndex > 0
+                  ? () => onWeekChanged(weeks[weekIndex - 1])
+                  : null,
+              icon: const Icon(Icons.chevron_right_rounded),
             ),
-          ),
-
-          // Status filter
-          SizedBox(
-            width: 170,
-            child: DropdownButtonFormField<PreparationStatus?>(
-              initialValue: selectedStatus,
-              isDense: true,
-              decoration: const InputDecoration(
-                labelText: 'حالة التحضير',
-                contentPadding: EdgeInsets.symmetric(
-                  horizontal: 10,
-                  vertical: 8,
-                ),
+            Expanded(
+              child: Text(
+                selectedLabel,
+                textAlign: TextAlign.center,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(fontWeight: FontWeight.w700),
               ),
-              items: [
-                const DropdownMenuItem<PreparationStatus?>(
-                  value: null,
-                  child: Text('جميع الحالات'),
-                ),
-                for (final status in PreparationStatus.values)
-                  DropdownMenuItem<PreparationStatus?>(
-                    value: status,
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(status.icon, size: 14, color: status.color),
-                        const SizedBox(width: 6),
-                        Text(status.labelArabic),
-                      ],
-                    ),
-                  ),
-              ],
-              onChanged: onStatusChanged,
             ),
+            IconButton(
+              tooltip: 'الأسبوع السابق',
+              onPressed: weekIndex >= 0 && weekIndex + 1 < weeks.length
+                  ? () => onWeekChanged(weeks[weekIndex + 1])
+                  : null,
+              icon: const Icon(Icons.chevron_left_rounded),
+            ),
+            OutlinedButton.icon(
+              onPressed: () => _openFilterSheet(context),
+              icon: const Icon(Icons.filter_list_rounded, size: 18),
+              label: const Text('تصفية'),
+            ),
+          ],
+        ),
+        const SizedBox(height: 4),
+        Wrap(
+          spacing: 6,
+          runSpacing: 2,
+          children: [
+            for (final option in statuses)
+              ChoiceChip(
+                label: Text('${option.$2} (${option.$3})'),
+                selected: selectedStatus == option.$1,
+                onSelected: (_) => onStatusChanged(option.$1),
+              ),
+          ],
+        ),
+        if (selectedStage != null || selectedWeek != null) ...[
+          const SizedBox(height: 4),
+          Wrap(
+            spacing: 6,
+            children: [
+              if (selectedStage != null)
+                InputChip(
+                  label: Text(selectedStage!.name),
+                  onDeleted: () => onStageChanged(null),
+                ),
+              if (selectedWeek != null)
+                InputChip(
+                  label: Text(selectedLabel),
+                  onDeleted: () => onWeekChanged(null),
+                ),
+            ],
           ),
         ],
+      ],
+    );
+  }
+
+  Future<void> _openFilterSheet(BuildContext context) async {
+    var stage = selectedStage;
+    await showModalBottomSheet<void>(
+      context: context,
+      useSafeArea: true,
+      isScrollControlled: true,
+      builder: (sheetContext) => StatefulBuilder(
+        builder: (context, setSheetState) => Padding(
+          padding: EdgeInsetsDirectional.fromSTEB(
+            20,
+            20,
+            20,
+            MediaQuery.viewInsetsOf(context).bottom + 20,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text(
+                'تصفية التحضيرات',
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
+              const SizedBox(height: 12),
+              DropdownButtonFormField<Stage?>(
+                initialValue: stage,
+                isExpanded: true,
+                decoration: const InputDecoration(labelText: 'المرحلة'),
+                items: [
+                  const DropdownMenuItem<Stage?>(
+                    value: null,
+                    child: Text('كل المراحل'),
+                  ),
+                  for (final item in stages)
+                    DropdownMenuItem<Stage?>(
+                      value: item,
+                      child: Text(
+                        item.name,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                ],
+                onChanged: (value) => setSheetState(() => stage = value),
+              ),
+              const SizedBox(height: 12),
+              FilledButton(
+                onPressed: () {
+                  onStageChanged(stage);
+                  Navigator.pop(sheetContext);
+                },
+                child: const Text('تطبيق'),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
+
+  bool _sameDay(DateTime a, DateTime b) =>
+      a.year == b.year && a.month == b.month && a.day == b.day;
 }

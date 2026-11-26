@@ -1,6 +1,5 @@
 import 'dart:typed_data';
 
-import 'package:church_service_management_system/app/theme.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -54,7 +53,9 @@ class _LessonFilesManagerSheetState
             child: const Text('إلغاء'),
           ),
           FilledButton(
-            style: FilledButton.styleFrom(backgroundColor: Colors.red),
+            style: FilledButton.styleFrom(
+              backgroundColor: Theme.of(ctx).colorScheme.error,
+            ),
             onPressed: () => Navigator.pop(ctx, true),
             child: const Text('حذف'),
           ),
@@ -201,7 +202,10 @@ class _LessonFilesManagerSheetState
                     for (final error in errors)
                       Text(
                         error,
-                        style: const TextStyle(color: Colors.red, fontSize: 12),
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.error,
+                          fontSize: 12,
+                        ),
                       ),
                   ],
                 ),
@@ -284,10 +288,10 @@ class _LessonFilesManagerSheetState
                     padding: const EdgeInsets.symmetric(vertical: 8),
                     child: Text(
                       stage.name,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w800,
-                        color: AppDesignColors.lightMutedInk,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
                       ),
                     ),
                   ),
@@ -310,10 +314,12 @@ class _LessonFilesManagerSheetState
                             vertical: 10,
                           ),
                           decoration: BoxDecoration(
-                            color: AppDesignColors.lightSurface,
+                            color: Theme.of(context).colorScheme.surface,
                             borderRadius: BorderRadius.circular(10),
                             border: Border.all(
-                              color: AppDesignColors.lightBorderSubtle,
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.outlineVariant,
                             ),
                           ),
                           child: Row(
@@ -324,8 +330,10 @@ class _LessonFilesManagerSheetState
                                     : Icons.upload_file_rounded,
                                 size: 22,
                                 color: lesson != null
-                                    ? Colors.red
-                                    : AppDesignColors.darkMutedInk,
+                                    ? Theme.of(context).colorScheme.error
+                                    : Theme.of(
+                                        context,
+                                      ).colorScheme.onSurfaceVariant,
                               ),
                               const SizedBox(width: 12),
                               Expanded(
@@ -344,8 +352,12 @@ class _LessonFilesManagerSheetState
                                       style: TextStyle(
                                         fontSize: 12,
                                         color: lesson != null
-                                            ? AppDesignColors.darkBorder
-                                            : AppDesignColors.darkMutedInk,
+                                            ? Theme.of(
+                                                context,
+                                              ).colorScheme.outline
+                                            : Theme.of(
+                                                context,
+                                              ).colorScheme.onSurfaceVariant,
                                       ),
                                     ),
                                   ],
@@ -355,7 +367,7 @@ class _LessonFilesManagerSheetState
                                 IconButton(
                                   tooltip: 'فتح الملف',
                                   onPressed: () => _openPdf(lesson),
-                                  icon: const Icon(
+                                  icon: Icon(
                                     Icons.open_in_new_rounded,
                                     size: 20,
                                   ),
@@ -367,18 +379,15 @@ class _LessonFilesManagerSheetState
                                     week: week,
                                     existingLesson: lesson,
                                   ),
-                                  icon: const Icon(
-                                    Icons.edit_outlined,
-                                    size: 20,
-                                  ),
+                                  icon: Icon(Icons.edit_outlined, size: 20),
                                 ),
                                 IconButton(
                                   tooltip: 'حذف',
                                   onPressed: () => _deleteLesson(lesson),
-                                  icon: const Icon(
+                                  icon: Icon(
                                     Icons.delete_outline_rounded,
                                     size: 20,
-                                    color: Colors.red,
+                                    color: Theme.of(context).colorScheme.error,
                                   ),
                                 ),
                               ] else
@@ -546,7 +555,11 @@ class _BulkUploadDialogState extends State<_BulkUploadDialog> {
                                   .map(
                                     (s) => DropdownMenuItem(
                                       value: s,
-                                      child: Text(s.name),
+                                      child: Text(
+                                        s.name,
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
                                     ),
                                   )
                                   .toList(),
@@ -566,7 +579,11 @@ class _BulkUploadDialogState extends State<_BulkUploadDialog> {
                                   .map(
                                     (w) => DropdownMenuItem(
                                       value: w,
-                                      child: Text(label(w)),
+                                      child: Text(
+                                        label(w),
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
                                     ),
                                   )
                                   .toList(),
@@ -576,12 +593,12 @@ class _BulkUploadDialogState extends State<_BulkUploadDialog> {
                         ],
                       ),
                       if (item.week == null)
-                        const Align(
+                        Align(
                           alignment: AlignmentDirectional.centerStart,
                           child: Text(
                             'حدد الأسبوع يدوياً',
                             style: TextStyle(
-                              color: Colors.deepOrange,
+                              color: Theme.of(context).colorScheme.tertiary,
                               fontSize: 12,
                             ),
                           ),
@@ -714,7 +731,9 @@ class _SingleLessonUploadDialogState extends State<_SingleLessonUploadDialog> {
             const SizedBox(height: 8),
             Text(
               'الأسبوع: ${PrepDateFormatter.formatWeek(widget.week)}',
-              style: const TextStyle(color: AppDesignColors.lightMutedInk),
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
             ),
             const SizedBox(height: 16),
             OutlinedButton.icon(
@@ -727,7 +746,10 @@ class _SingleLessonUploadDialogState extends State<_SingleLessonUploadDialog> {
             ),
             if (_error != null) ...[
               const SizedBox(height: 8),
-              Text(_error!, style: const TextStyle(color: Colors.red)),
+              Text(
+                _error!,
+                style: TextStyle(color: Theme.of(context).colorScheme.error),
+              ),
             ],
           ],
         ),

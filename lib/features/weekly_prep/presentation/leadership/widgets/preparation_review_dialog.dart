@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'package:church_service_management_system/features/auth/domain/entities/servant_profile.dart';
+import '../../../../../app/design/app_colors.dart';
 import '../../../domain/prep_date_formatter.dart';
 import '../../../domain/preparation_status.dart';
 import '../../../domain/preparation_review.dart';
@@ -76,7 +77,10 @@ class _PreparationReviewDialogState
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Icon(Icons.error_outline, color: Colors.red),
+                    Icon(
+                      Icons.error_outline,
+                      color: Theme.of(context).colorScheme.error,
+                    ),
                     const SizedBox(height: 8),
                     const Text('تعذر تحميل سجل المراجعات.'),
                     TextButton(
@@ -117,7 +121,7 @@ class _PreparationReviewDialogState
           ),
           FilledButton(
             style: FilledButton.styleFrom(
-              backgroundColor: const Color(0xFF10B981),
+              backgroundColor: AppColors.of(context).present.foreground,
             ),
             onPressed: () => Navigator.pop(ctx, true),
             child: const Text('نعم، اعتماد'),
@@ -148,8 +152,8 @@ class _PreparationReviewDialogState
         Navigator.pop(context);
         widget.onReviewed();
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            backgroundColor: Color(0xFF10B981),
+          SnackBar(
+            backgroundColor: AppColors.of(context).present.foreground,
             content: Text('تم اعتماد التحضير بنجاح.'),
           ),
         );
@@ -193,7 +197,7 @@ class _PreparationReviewDialogState
           ),
           FilledButton(
             style: FilledButton.styleFrom(
-              backgroundColor: const Color(0xFFEF4444),
+              backgroundColor: AppColors.of(ctx).absent.foreground,
             ),
             onPressed: () => Navigator.pop(ctx, true),
             child: const Text('إعادة للتعديل'),
@@ -222,8 +226,8 @@ class _PreparationReviewDialogState
         Navigator.pop(context);
         widget.onReviewed();
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            backgroundColor: Color(0xFFEA580C),
+          SnackBar(
+            backgroundColor: AppColors.of(context).warning.foreground,
             content: Text('تمت إعادة التحضير للخادم مع الملاحظات.'),
           ),
         );
@@ -275,9 +279,11 @@ class _PreparationReviewDialogState
               Container(
                 padding: const EdgeInsets.all(14),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFF8FAFC),
+                  color: Theme.of(context).colorScheme.surfaceContainerHighest,
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: const Color(0xFFE2E8F0)),
+                  border: Border.all(
+                    color: Theme.of(context).colorScheme.outlineVariant,
+                  ),
                 ),
                 child: Column(
                   children: [
@@ -297,11 +303,13 @@ class _PreparationReviewDialogState
                     const SizedBox(height: 6),
                     Row(
                       children: [
-                        const Text(
+                        Text(
                           'الحالة الحالية:',
                           style: TextStyle(
                             fontSize: 13,
-                            color: Color(0xFF64748B),
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.onSurfaceVariant,
                             fontWeight: FontWeight.w600,
                           ),
                         ),
@@ -335,13 +343,15 @@ class _PreparationReviewDialogState
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: const Color(0xFFF1F5F9),
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.surfaceContainerHighest,
                     borderRadius: BorderRadius.circular(10),
                   ),
-                  child: const Text(
+                  child: Text(
                     'هذه مراجعة سابقة للقراءة فقط. يمكنك الاطلاع على سجل المراجعات دون تغيير القرار.',
                     style: TextStyle(
-                      color: Color(0xFF475569),
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
                       fontSize: 13,
                       fontWeight: FontWeight.w600,
                     ),
@@ -353,8 +363,8 @@ class _PreparationReviewDialogState
                 const SizedBox(height: 10),
                 Text(
                   _errorMessage!,
-                  style: const TextStyle(
-                    color: Colors.red,
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.error,
                     fontSize: 12.5,
                     fontWeight: FontWeight.w600,
                   ),
@@ -363,10 +373,10 @@ class _PreparationReviewDialogState
 
               if (_isSelf) ...[
                 const SizedBox(height: 10),
-                const Text(
+                Text(
                   'تنبيه: هذا هو تحضيرك الشخصي. لا يمكنك اعتماد أو مراجعة تحضيرك بنفسك.',
                   style: TextStyle(
-                    color: Colors.orange,
+                    color: Theme.of(context).colorScheme.tertiary,
                     fontSize: 12.5,
                     fontWeight: FontWeight.w700,
                   ),
@@ -393,7 +403,7 @@ class _PreparationReviewDialogState
         if (_canReview) ...[
           FilledButton.icon(
             style: FilledButton.styleFrom(
-              backgroundColor: const Color(0xFFEF4444),
+              backgroundColor: AppColors.of(context).absent.foreground,
             ),
             onPressed: _submitting ? null : _handleRequestRevision,
             icon: const Icon(Icons.edit_note_rounded, size: 18),
@@ -401,7 +411,7 @@ class _PreparationReviewDialogState
           ),
           FilledButton.icon(
             style: FilledButton.styleFrom(
-              backgroundColor: const Color(0xFF10B981),
+              backgroundColor: AppColors.of(context).present.foreground,
             ),
             onPressed: _submitting ? null : _handleApprove,
             icon: const Icon(Icons.check_rounded, size: 18),
@@ -430,9 +440,9 @@ class _DetailRow extends StatelessWidget {
       children: [
         Text(
           label,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 13,
-            color: Color(0xFF64748B),
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
             fontWeight: FontWeight.w600,
           ),
         ),
