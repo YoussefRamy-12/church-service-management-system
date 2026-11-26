@@ -220,9 +220,7 @@ class _WeeklyPrepPageState extends ConsumerState<WeeklyPrepPage> {
                   data: (lessons) {
                     // If user is a leader and not toggled to personal servant view:
                     if (isLeader && !_forceServantView) {
-                      return Stack(
-                        children: [
-                          LeadershipPrepDashboard(
+                      return LeadershipPrepDashboard(
                             serviceId: widget.serviceId,
                             currentLeader: profile,
                             stages: allowedStages,
@@ -230,27 +228,17 @@ class _WeeklyPrepPageState extends ConsumerState<WeeklyPrepPage> {
                             lessons: lessons,
                             onRefresh: _refresh,
                             refreshing: _refreshing,
-                          ),
-                          // Floating toggle to switch to personal servant preparation view
-                          PositionedDirectional(
-                            start: 24,
-                            bottom: 24,
-                            child: FloatingActionButton.extended(
-                              heroTag: 'toggle_prep_view',
-                              onPressed: () =>
-                                  setState(() => _forceServantView = true),
-                              icon: const Icon(Icons.person_rounded),
-                              label: const Text('تحضيري الشخصي'),
-                            ),
-                          ),
-                        ],
+                            canManageLessons:
+                                WeeklyPrepPermissions.canManageLessons(
+                                  profile: profile,
+                                  isSuperAdmin: superAdmin,
+                                ),
+                            headerAction: _viewSwitcher(),
                       );
                     }
 
                     // Otherwise, Servant preparation view:
-                    return Stack(
-                      children: [
-                        ServantPrepView(
+                    return ServantPrepView(
                           serviceId: widget.serviceId,
                           profile: profile,
                           lessons: lessons,
@@ -259,20 +247,9 @@ class _WeeklyPrepPageState extends ConsumerState<WeeklyPrepPage> {
                           currentWeekMonday: currentWeekMonday,
                           onRefresh: _refresh,
                           refreshing: _refreshing,
-                        ),
-                        if (isLeader)
-                          PositionedDirectional(
-                            start: 24,
-                            bottom: 24,
-                            child: FloatingActionButton.extended(
-                              heroTag: 'toggle_leader_view',
-                              onPressed: () =>
-                                  setState(() => _forceServantView = false),
-                              icon: const Icon(Icons.dashboard_rounded),
-                              label: const Text('لوحة المتابعة'),
-                            ),
-                          ),
-                      ],
+                          headerAction: isLeader
+                              ? _viewSwitcher()
+                              : null,
                     );
                   },
                 );
@@ -283,4 +260,15 @@ class _WeeklyPrepPageState extends ConsumerState<WeeklyPrepPage> {
       },
     );
   }
+
+  Widget _viewSwitcher() => SegmentedButton<bool>(
+    segments: const [
+      ButtonSegment(value: true, label: Text('تحضيري')),
+      ButtonSegment(value: false, label: Text('متابعة الخدام')),
+    ],
+    selected: {_forceServantView},
+    onSelectionChanged: (selection) =>
+        setState(() => _forceServantView = selection.first),
+    showSelectedIcon: false,
+  );
 }
