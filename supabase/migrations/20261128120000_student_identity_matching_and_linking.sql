@@ -51,12 +51,12 @@ BEGIN
   IF v_digits = '' THEN
     RETURN NULL;
   ELSIF v_digits ~ '^0020[0-9]{10}$' THEN
-    RETURN '0' || pg_catalog.substring(v_digits FROM 5);
+    RETURN '0' || pg_catalog.substr(v_digits, 5);
   ELSIF v_digits ~ '^20[0-9]{10}$' THEN
-    RETURN '0' || pg_catalog.substring(v_digits FROM 3);
+    RETURN '0' || pg_catalog.substr(v_digits, 3);
   ELSIF v_digits ~ '^[1-9][0-9]{8}$' THEN
     RETURN '0' || v_digits;
-  ELSIF v_digits ~ '^[0-9]{10}$' THEN
+  ELSIF v_digits ~ '^[1-9][0-9]{9}$' THEN
     RETURN '0' || v_digits;
   END IF;
 
@@ -68,11 +68,13 @@ REVOKE ALL ON FUNCTION private.normalize_ar_name(text)
   FROM PUBLIC, anon, authenticated, service_role;
 REVOKE ALL ON FUNCTION private.normalize_phone(text)
   FROM PUBLIC, anon, authenticated, service_role;
+GRANT EXECUTE ON FUNCTION private.normalize_ar_name(text), private.normalize_phone(text) TO authenticated;
 
 ALTER TABLE public.students
   ADD COLUMN IF NOT EXISTS normalized_name text
   GENERATED ALWAYS AS (private.normalize_ar_name(name)) STORED;
 
+-- Known limitation: namesakes born on the same day cannot be created while the unique index on (normalized_name, birth_date) exists.
 DO $migration_guard$
 BEGIN
   IF EXISTS (
@@ -269,11 +271,6 @@ BEGIN
     LEFT JOIN public.services AS sv
       ON sv.id = ss.service_id
     WHERE s.normalized_name OPERATOR(extensions.%) i.normalized_name
-       OR (p_birth_date IS NOT NULL AND s.birth_date = p_birth_date)
-       OR (
-         i.normalized_phone IS NOT NULL
-         AND private.normalize_phone(s.phone) = i.normalized_phone
-       )
     GROUP BY s.id, s.name, s.birth_date, i.normalized_name, i.normalized_phone
   )
   SELECT
@@ -329,6 +326,9 @@ DECLARE
   v_class_id uuid;
   v_proposed_class_id uuid;
   v_identity_service_id uuid;
+  v_current_name text;
+  v_current_birth_date date;
+  v_current_phone text;
   v_is_super_admin boolean;
   v_is_overall_admin boolean;
 BEGIN
@@ -361,19 +361,30 @@ BEGIN
       USING ERRCODE = '42501';
   END IF;
 
-  SELECT s.service_id INTO v_identity_service_id
+  SELECT s.service_id, s.name, s.birth_date, s.phone
+  INTO v_identity_service_id, v_current_name, v_current_birth_date, v_current_phone
   FROM public.students AS s
   WHERE s.id = v_student_id;
 
   IF v_is_super_admin
      OR (v_identity_service_id = v_service_id AND v_is_overall_admin) THEN
-    UPDATE public.students AS s
-    SET name = pg_catalog.btrim(p_name),
-        birth_date = COALESCE(p_birth_date, s.birth_date),
-        phone = NULLIF(pg_catalog.btrim(COALESCE(p_phone, '')), ''),
-        photo_path = NULLIF(pg_catalog.btrim(COALESCE(p_photo_path, '')), ''),
-        updated_at = pg_catalog.now()
-    WHERE s.id = v_student_id;
+    BEGIN
+      UPDATE public.students AS s
+      SET name = pg_catalog.btrim(p_name),
+          birth_date = COALESCE(p_birth_date, s.birth_date),
+          phone = NULLIF(pg_catalog.btrim(COALESCE(p_phone, '')), ''),
+          photo_path = NULLIF(pg_catalog.btrim(COALESCE(p_photo_path, '')), ''),
+          updated_at = pg_catalog.now()
+      WHERE s.id = v_student_id;
+    EXCEPTION
+      WHEN unique_violation THEN
+        RAISE EXCEPTION 'possible_duplicate' USING ERRCODE = '23505';
+    END;
+  ELSIF pg_catalog.btrim(p_name) IS DISTINCT FROM pg_catalog.btrim(v_current_name)
+     OR (p_birth_date IS NOT NULL AND p_birth_date IS DISTINCT FROM v_current_birth_date)
+     OR NULLIF(pg_catalog.btrim(COALESCE(p_phone, '')), '')
+        IS DISTINCT FROM NULLIF(pg_catalog.btrim(COALESCE(v_current_phone, '')), '') THEN
+    RAISE EXCEPTION 'identity_edit_not_allowed' USING ERRCODE = '42501';
   END IF;
 
   UPDATE public.service_students AS ss
@@ -638,7 +649,7 @@ BEGIN
     ) AS c
     WHERE c.student_id = p_existing_student_id;
 
-    IF v_match_score IS NULL THEN
+    IF v_match_score IS NULL OR v_match_score < 60 THEN
       RAISE EXCEPTION 'candidate_no_longer_matches' USING ERRCODE = '23514';
     END IF;
 
@@ -942,7 +953,7 @@ BEGIN
       v_request.service_id, v_name, v_birth_date, v_phone
     ) AS c
     WHERE c.student_id = p_student_id;
-    IF v_match_score IS NULL THEN
+    IF v_match_score IS NULL OR v_match_score < 60 THEN
       RAISE EXCEPTION 'candidate_no_longer_matches' USING ERRCODE = '23514';
     END IF;
 
