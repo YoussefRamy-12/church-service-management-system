@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../auth/domain/entities/servant_profile.dart';
+import '../data/servant_candidate.dart';
 import '../../service/domain/entities/service_class.dart';
 import '../../service/domain/entities/stage.dart';
 
@@ -28,24 +29,29 @@ class ServantEditResult {
 class NewServantValues {
   const NewServantValues({
     required this.authUserId,
-    required this.name,
-    required this.phone,
     required this.role,
     this.stageId,
     this.classId,
   });
+
   final String authUserId;
-  final String name;
-  final String phone;
   final String role;
   final String? stageId;
   final String? classId;
 }
 
 class NewServantDialog extends StatefulWidget {
-  const NewServantDialog({super.key, required this.stages, required this.classes});
+  const NewServantDialog({
+    super.key,
+    required this.stages,
+    required this.classes,
+    required this.onSearch,
+  });
+
   final List<Stage> stages;
   final List<ServiceClass> classes;
+  final Future<List<ServantCandidate>> Function(String name, String phone)
+  onSearch;
 
   @override
   State<NewServantDialog> createState() => NewServantDialogState();
@@ -54,17 +60,48 @@ class NewServantDialog extends StatefulWidget {
 class NewServantDialogState extends State<NewServantDialog> {
   final _name = TextEditingController();
   final _phone = TextEditingController();
-  final _authId = TextEditingController();
+  List<ServantCandidate> candidates = const [];
+  ServantCandidate? selected;
   String role = 'class_servant';
   String? stageId;
   String? classId;
+  bool searching = false;
+  String? searchError;
 
   @override
   void dispose() {
     _name.dispose();
     _phone.dispose();
-    _authId.dispose();
     super.dispose();
+  }
+
+  Future<void> _search() async {
+    if (_name.text.trim().length < 3 && _phone.text.trim().length < 7) {
+      setState(() {
+        searchError = 'أدخل ثلاثة أحرف من الاسم أو سبعة أرقام على الأقل.';
+        candidates = const [];
+        selected = null;
+      });
+      return;
+    }
+    setState(() {
+      searching = true;
+      searchError = null;
+      selected = null;
+    });
+    try {
+      final result = await widget.onSearch(_name.text, _phone.text);
+      if (!mounted) return;
+      setState(() => candidates = result);
+    } catch (_) {
+      if (!mounted) return;
+      setState(() {
+        candidates = const [];
+        searchError = 'تعذر البحث عن الخدام. تحقق من الاتصال وحاول مرة أخرى.';
+      });
+    } finally {
+      if (mounted) setState(() => searching = false);
+    }
   }
 
   @override
@@ -75,117 +112,124 @@ class NewServantDialogState extends State<NewServantDialog> {
     return AlertDialog(
       title: const Text('إضافة خادم للخدمة'),
       content: SizedBox(
-        width: 500,
+        width: 520,
         child: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               const Text(
-                'يجب أن يكون للخادم حساب مسجل مسبقًا. أدخل معرّف مستخدم Auth لربط الحساب بهذا الدور.',
+                'ابحث عن الخادم الحالي أولًا حتى يُضاف حسابه نفسه إلى هذه الخدمة.',
+                textAlign: TextAlign.center,
               ),
               const SizedBox(height: 12),
               TextField(
-                controller: _authId,
-                decoration: const InputDecoration(
-                  labelText: 'معرّف مستخدم Auth *',
-                ),
-              ),
-              TextField(
                 controller: _name,
-                decoration: const InputDecoration(labelText: 'اسم الخادم *'),
+                decoration: const InputDecoration(labelText: 'اسم الخادم'),
               ),
               TextField(
                 controller: _phone,
-                decoration: const InputDecoration(labelText: 'الهاتف'),
+                keyboardType: TextInputType.phone,
+                decoration: const InputDecoration(labelText: 'رقم الهاتف'),
               ),
-              DropdownButtonFormField<String>(
-                initialValue: role,
-                decoration: const InputDecoration(labelText: 'الدور'),
-                items: const [
-                  DropdownMenuItem(
-                    value: 'overall_leader',
-                    child: Text('أمين الخدمة'),
-                  ),
-                  DropdownMenuItem(
-                    value: 'overall_helper',
-                    child: Text('أمين مساعد'),
-                  ),
-                  DropdownMenuItem(
-                    value: 'stage_leader',
-                    child: Text('أمين المرحلة'),
-                  ),
-                  DropdownMenuItem(
-                    value: 'class_leader',
-                    child: Text('أمين الفصل'),
-                  ),
-                  DropdownMenuItem(
-                    value: 'class_servant',
-                    child: Text('خادم الفصل'),
-                  ),
-                ],
-                onChanged: (value) => setState(() {
-                  role = value ?? role;
-                  if (role != 'stage_leader') stageId = null;
-                  if (role != 'class_leader' && role != 'class_servant') {
-                    classId = null;
-                  }
-                }),
-              ),
-              if (role == 'stage_leader')
-                DropdownButtonFormField<String>(
-                  initialValue: stageId,
-                  decoration: const InputDecoration(labelText: 'المرحلة'),
-                  items: widget.stages
-                      .map(
-                        (item) => DropdownMenuItem(
-                          value: item.id,
-                          child: Text(item.name),
-                        ),
+              const SizedBox(height: 8),
+              OutlinedButton.icon(
+                onPressed: searching ? null : _search,
+                icon: searching
+                    ? const SizedBox(
+                        width: 18,
+                        height: 18,
+                        child: CircularProgressIndicator(strokeWidth: 2),
                       )
-                      .toList(),
-                  onChanged: (value) => setState(() {
-                    stageId = value;
-                    classId = null;
-                  }),
+                    : const Icon(Icons.search_rounded),
+                label: const Text('بحث عن خادم موجود'),
+              ),
+              if (searchError != null) ...[
+                const SizedBox(height: 8),
+                Text(
+                  searchError!,
+                  style: TextStyle(color: Theme.of(context).colorScheme.error),
                 ),
-              if (role == 'class_leader' || role == 'class_servant') ...[
+              ],
+              if (!searching && candidates.isEmpty && searchError == null)
+                const Padding(
+                  padding: EdgeInsets.all(8),
+                  child: Text('استخدم البحث بالاسم أو الهاتف لعرض الخدام المطابقين.'),
+                ),
+              for (final candidate in candidates)
+                RadioListTile<String>(
+                  value: candidate.authUserId,
+                  groupValue: selected?.authUserId,
+                  onChanged: (_) => setState(() => selected = candidate),
+                  title: Text(candidate.fullName),
+                  subtitle: Text([
+                    if (candidate.phoneSuffix != null)
+                      'ينتهي هاتفه بـ ' + candidate.phoneSuffix!,
+                    if (candidate.serviceNames.isNotEmpty)
+                      'خادم في: ' + candidate.serviceNames.join('، '),
+                  ].join(' • ')),
+                ),
+              if (selected != null) ...[
+                const Divider(height: 20),
                 DropdownButtonFormField<String>(
-                  initialValue: stageId,
-                  decoration: const InputDecoration(
-                    labelText: 'تصفية حسب المرحلة (اختياري)',
-                  ),
-                  items: [
-                    const DropdownMenuItem(
-                      value: null,
-                      child: Text('كل المراحل'),
-                    ),
-                    ...widget.stages.map(
-                      (item) => DropdownMenuItem(
-                        value: item.id,
-                        child: Text(item.name),
-                      ),
-                    ),
+                  initialValue: role,
+                  decoration: const InputDecoration(labelText: 'الدور'),
+                  items: const [
+                    DropdownMenuItem(value: 'overall_leader', child: Text('أمين الخدمة')),
+                    DropdownMenuItem(value: 'overall_helper', child: Text('أمين مساعد')),
+                    DropdownMenuItem(value: 'stage_leader', child: Text('أمين المرحلة')),
+                    DropdownMenuItem(value: 'class_leader', child: Text('أمين الفصل')),
+                    DropdownMenuItem(value: 'class_servant', child: Text('خادم الفصل')),
                   ],
                   onChanged: (value) => setState(() {
-                    stageId = value;
-                    classId = null;
+                    role = value ?? role;
+                    if (role != 'stage_leader') stageId = null;
+                    if (role != 'class_leader' && role != 'class_servant') {
+                      classId = null;
+                    }
                   }),
                 ),
-                DropdownButtonFormField<String>(
-                  initialValue: classes.any((item) => item.id == classId)
-                      ? classId
-                      : null,
-                  decoration: const InputDecoration(labelText: 'الفصل'),
-                  items: classes
-                      .map(
-                        (item) => DropdownMenuItem(
-                          value: item.id,
-                          child: Text(item.name),
-                        ),
-                      )
-                      .toList(),
-                  onChanged: (value) => setState(() => classId = value),
-                ),
+                if (role == 'stage_leader')
+                  DropdownButtonFormField<String>(
+                    initialValue: stageId,
+                    decoration: const InputDecoration(labelText: 'المرحلة'),
+                    items: widget.stages.map((item) => DropdownMenuItem(
+                      value: item.id, child: Text(item.name),
+                    )).toList(),
+                    onChanged: (value) => setState(() {
+                      stageId = value;
+                      classId = null;
+                    }),
+                  ),
+                if (role == 'class_leader' || role == 'class_servant') ...[
+                  DropdownButtonFormField<String>(
+                    initialValue: stageId,
+                    decoration: const InputDecoration(
+                      labelText: 'تصفية حسب المرحلة (اختياري)',
+                    ),
+                    items: [
+                      const DropdownMenuItem(
+                        value: null, child: Text('كل المراحل'),
+                      ),
+                      ...widget.stages.map((item) => DropdownMenuItem(
+                        value: item.id, child: Text(item.name),
+                      )),
+                    ],
+                    onChanged: (value) => setState(() {
+                      stageId = value;
+                      classId = null;
+                    }),
+                  ),
+                  DropdownButtonFormField<String>(
+                    initialValue: classes.any((item) => item.id == classId)
+                        ? classId
+                        : null,
+                    decoration: const InputDecoration(labelText: 'الفصل'),
+                    items: classes.map((item) => DropdownMenuItem(
+                      value: item.id, child: Text(item.name),
+                    )).toList(),
+                    onChanged: (value) => setState(() => classId = value),
+                  ),
+                ],
               ],
             ],
           ),
@@ -197,21 +241,14 @@ class NewServantDialogState extends State<NewServantDialog> {
           child: const Text('إلغاء'),
         ),
         FilledButton(
-          onPressed: () {
-            final authId = _authId.text.trim();
-            final name = _name.text.trim();
-            if (authId.isEmpty || name.isEmpty) return;
+          onPressed: selected == null ? null : () {
             if (role == 'stage_leader' && stageId == null) return;
             if ((role == 'class_leader' || role == 'class_servant') &&
-                classId == null) {
-              return;
-            }
+                classId == null) return;
             Navigator.pop(
               context,
               NewServantValues(
-                authUserId: authId,
-                name: name,
-                phone: _phone.text.trim(),
+                authUserId: selected!.authUserId,
                 role: role,
                 stageId: role == 'stage_leader' ? stageId : null,
                 classId: role == 'class_leader' || role == 'class_servant'

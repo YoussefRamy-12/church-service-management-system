@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:uuid/uuid.dart';
 
 import '../../../app/design/app_colors.dart';
 
@@ -81,12 +80,19 @@ class _ServantManagementPageState extends ConsumerState<ServantManagementPage> {
   Widget build(BuildContext context) {
     final repository = ref.watch(servantRepositoryProvider);
     final isSuperAdmin = ref.watch(isSuperAdminProvider);
+    final currentProfile = ref.watch(currentServantProfileProvider).asData?.value;
+    final isServiceOverallAdmin = currentProfile != null &&
+        currentProfile.serviceId == widget.serviceId &&
+        currentProfile.isActive &&
+        (currentProfile.role == 'overall_leader' ||
+            currentProfile.role == 'overall_helper');
+    final canAssignServants = isSuperAdmin || isServiceOverallAdmin;
 
     return Scaffold(
       appBar: AppBar(
         title: const Text('إدارة الخدام'),
         actions: [
-          if (isSuperAdmin)
+          if (canAssignServants)
             IconButton(
               key: const Key('servants_add'),
               tooltip: 'إضافة خادم',
@@ -788,35 +794,35 @@ class _ServantManagementPageState extends ConsumerState<ServantManagementPage> {
   }
 
   Future<void> _addServant() async {
+    final repository = ref.read(servantRepositoryProvider);
     final values = await showDialog<NewServantValues>(
       context: context,
-      builder: (_) => NewServantDialog(stages: stages, classes: classes),
+      builder: (_) => NewServantDialog(
+        stages: stages,
+        classes: classes,
+        onSearch: repository.findServantCandidates,
+      ),
     );
     if (values == null || !mounted) return;
     try {
-      await ref
-          .read(servantRepositoryProvider)
-          .createProfile(
-            id: const Uuid().v4(),
-            serviceId: widget.serviceId,
-            authUserId: values.authUserId,
-            name: values.name,
-            phone: values.phone,
-            role: values.role,
-            stageId: values.stageId,
-            classId: values.classId,
-          );
-      await ref.read(servantRepositoryProvider).refresh(widget.serviceId);
+      await repository.assignServantToService(
+        authUserId: values.authUserId,
+        serviceId: widget.serviceId,
+        role: values.role,
+        stageId: values.stageId,
+        classId: values.classId,
+      );
+      await repository.refresh(widget.serviceId);
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('تمت إضافة الخادم وربط دوره بالخدمة.')),
+        const SnackBar(content: Text('تمت إضافة الخادم الحالي إلى الخدمة.')),
       );
     } catch (error) {
       debugPrint('Presentation operation failed: $error');
       if (!mounted) return;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('تعذرت إضافة الخادم. حاول مرة أخرى.')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('تعذرت إضافة الخادم. تحقق من البيانات وحاول مرة أخرى.')),
+      );
     }
   }
 

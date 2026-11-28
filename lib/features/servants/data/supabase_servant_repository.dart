@@ -1,6 +1,7 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../auth/domain/entities/servant_profile.dart';
+import 'servant_candidate.dart';
 
 class SupabaseServantRepository {
   SupabaseServantRepository(this._client);
@@ -30,6 +31,37 @@ class SupabaseServantRepository {
     });
   }
 
+  Future<List<ServantCandidate>> findServantCandidates(
+    String name,
+    String phone,
+  ) async {
+    final rows = await _client.rpc(
+      'find_servant_candidates',
+      params: {'p_name': name.trim(), 'p_phone': phone.trim()},
+    );
+    return (rows as List)
+        .map((row) => ServantCandidate.fromMap(row as Map<String, dynamic>))
+        .toList(growable: false);
+  }
+
+  Future<void> assignServantToService({
+    required String authUserId,
+    required String serviceId,
+    required String role,
+    String? stageId,
+    String? classId,
+  }) async {
+    await _client.rpc(
+      'assign_servant_to_service',
+      params: {
+        'p_auth_user_id': authUserId,
+        'p_service_id': serviceId,
+        'p_role': role,
+        'p_stage_id': stageId,
+        'p_class_id': classId,
+      },
+    );
+  }
   Future<List<ServantProfile>> fetchForService(String serviceId) async {
     final rows = await _client
         .from('servant_profiles')

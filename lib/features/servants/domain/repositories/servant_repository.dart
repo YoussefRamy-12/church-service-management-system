@@ -1,4 +1,5 @@
 import '../../../auth/domain/entities/servant_profile.dart';
+import '../../data/servant_candidate.dart';
 
 /// Domain contract for servant profile operations.
 abstract interface class ServantRepository {
@@ -24,6 +25,14 @@ abstract interface class ServantRepository {
     String? stageId,
     String? classId,
     required String accountStatus,
+  });
+  Future<List<ServantCandidate>> findServantCandidates(String name, String phone);
+  Future<void> assignServantToService({
+    required String authUserId,
+    required String serviceId,
+    required String role,
+    String? stageId,
+    String? classId,
   });
   Future<void> deleteProfile(String servantId);
 }

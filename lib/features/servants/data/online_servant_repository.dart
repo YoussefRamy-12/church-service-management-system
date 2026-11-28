@@ -1,4 +1,5 @@
 import '../../auth/domain/entities/servant_profile.dart';
+import 'servant_candidate.dart';
 import '../domain/repositories/servant_repository.dart';
 import 'supabase_servant_repository.dart';
 
@@ -68,6 +69,20 @@ class OnlineServantRepository implements ServantRepository {
       accountStatus: accountStatus,
     );
   }
+
+  @override
+  Future<List<ServantCandidate>> findServantCandidates(
+    String name, String phone,
+  ) => _remote.findServantCandidates(name, phone);
+
+  @override
+  Future<void> assignServantToService({
+    required String authUserId, required String serviceId, required String role,
+    String? stageId, String? classId,
+  }) => _remote.assignServantToService(
+    authUserId: authUserId, serviceId: serviceId, role: role,
+    stageId: stageId, classId: classId,
+  );
 
   @override
   Future<void> deleteProfile(String servantId) {

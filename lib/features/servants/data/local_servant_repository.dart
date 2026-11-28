@@ -74,20 +74,28 @@ class LocalServantRepository {
       mustChangePassword: row.mustChangePassword,
     );
 
-    await (_db.update(
-      _db.cachedProfiles,
-    )..where((t) => t.id.equals(servantId))).write(
-      CachedProfilesCompanion(
-        name: Value(name),
-        phone: Value(phone),
-        birthDate: Value(birthDate.toIso8601String().split('T').first),
-        workStudy: Value(workStudy),
-        role: Value(role),
-        stageId: Value(stageId),
-        classId: Value(classId),
-        accountStatus: Value(accountStatus),
-      ),
-    );
+    await _db.transaction(() async {
+      await (_db.update(
+        _db.cachedProfiles,
+      )..where((t) => t.authUserId.equals(row.authUserId))).write(
+        CachedProfilesCompanion(
+          name: Value(name),
+          phone: Value(phone),
+          birthDate: Value(birthDate.toIso8601String().split('T').first),
+          workStudy: Value(workStudy),
+        ),
+      );
+      await (_db.update(
+        _db.cachedProfiles,
+      )..where((t) => t.id.equals(servantId))).write(
+        CachedProfilesCompanion(
+          role: Value(role),
+          stageId: Value(stageId),
+          classId: Value(classId),
+          accountStatus: Value(accountStatus),
+        ),
+      );
+    });
 
     return updated;
   }

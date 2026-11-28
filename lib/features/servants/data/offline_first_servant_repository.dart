@@ -8,6 +8,7 @@ import '../../auth/domain/entities/servant_profile.dart';
 import '../domain/repositories/servant_repository.dart';
 import 'local_servant_repository.dart';
 import 'supabase_servant_repository.dart';
+import 'servant_candidate.dart';
 
 class OfflineFirstServantRepository implements ServantRepository {
   OfflineFirstServantRepository({
@@ -98,6 +99,23 @@ class OfflineFirstServantRepository implements ServantRepository {
     );
 
     return updated;
+  }
+
+  @override
+  Future<List<ServantCandidate>> findServantCandidates(
+    String name, String phone,
+  ) => remote.findServantCandidates(name, phone);
+
+  @override
+  Future<void> assignServantToService({
+    required String authUserId, required String serviceId, required String role,
+    String? stageId, String? classId,
+  }) async {
+    await remote.assignServantToService(
+      authUserId: authUserId, serviceId: serviceId, role: role,
+      stageId: stageId, classId: classId,
+    );
+    await local.cacheProfiles(await remote.fetchForService(serviceId));
   }
 
   @override

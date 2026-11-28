@@ -156,4 +156,50 @@ void main() {
       throwsA(isA<StateError>()),
     );
   });
+  test('identity edits update all cached service assignments', () async {
+    await repo.cacheProfiles([
+      ServantProfile(
+        id: 'servant-a',
+        authUserId: 'shared-auth',
+        serviceId: 'service-a',
+        name: 'Old Name',
+        phone: '01012345678',
+        birthDate: DateTime(2000, 1, 1),
+        workStudy: 'student',
+        role: 'class_servant',
+        accountStatus: 'active',
+      ),
+      ServantProfile(
+        id: 'servant-b',
+        authUserId: 'shared-auth',
+        serviceId: 'service-b',
+        name: 'Old Name',
+        phone: '01012345678',
+        birthDate: DateTime(2000, 1, 1),
+        workStudy: 'student',
+        role: 'overall_helper',
+        accountStatus: 'active',
+      ),
+    ]);
+
+    await repo.updateProfile(
+      servantId: 'servant-a',
+      name: 'New Shared Name',
+      phone: '01123456789',
+      birthDate: DateTime(2001, 2, 3),
+      workStudy: 'engineer',
+      role: 'class_leader',
+      classId: 'class-a',
+      accountStatus: 'active',
+    );
+
+    final serviceB = await repo
+        .watchForService('service-b')
+        .firstWhere((rows) => rows.isNotEmpty);
+    expect(serviceB.single.name, 'New Shared Name');
+    expect(serviceB.single.phone, '01123456789');
+    expect(serviceB.single.workStudy, 'engineer');
+    expect(serviceB.single.role, 'overall_helper');
+  });
+
 }
