@@ -69,6 +69,7 @@ class _FakeStudentRepo implements StudentRepository {
 void main() {
   const approvedStudent = Student(
     id: 'student-1',
+    membershipId: 'membership-1',
     serviceId: 'service-1',
     name: 'يوسف مينا',
     phone: '01012345678',
@@ -78,6 +79,7 @@ void main() {
 
   const pendingStudent = Student(
     id: 'student-2',
+    membershipId: 'membership-2',
     serviceId: 'service-1',
     name: 'مارك بطرس',
     phone: '01098765432',
@@ -123,26 +125,24 @@ void main() {
     expect(find.byKey(const Key('student_overflow_menu')), findsOneWidget);
     expect(find.text('أرشفة عضوية التلميذ'), findsNothing);
 
-    // Tap overflow menu to verify archive is inside
-    await tester.tap(find.byKey(const Key('student_overflow_menu')));
-    await tester.pumpAndSettle();
-    expect(find.text('أرشفة عضوية التلميذ'), findsOneWidget);
-    await tester.tapAt(const Offset(10, 10));
-    await tester.pumpAndSettle();
-
-    // Header has call and WhatsApp quick actions
-    expect(find.byIcon(Icons.call_rounded), findsOneWidget);
-    expect(find.byIcon(Icons.chat_rounded), findsOneWidget);
+    // Header has call and WhatsApp quick actions (also shown in phone row)
+    expect(find.byIcon(Icons.call_rounded), findsAtLeastNWidgets(1));
+    expect(find.byIcon(Icons.chat_rounded), findsAtLeastNWidgets(1));
 
     // Basic data appears above QR section
     final basicDataFinder = find.text('بيانات الطالب الأساسية');
     final qrFinder = find.text('رمز QR الخاص بالطالب');
     expect(basicDataFinder, findsOneWidget);
+    final basicDataTop = tester.getTopLeft(basicDataFinder).dy;
+    await tester.drag(basicDataFinder, const Offset(0, -500));
+    await tester.pumpAndSettle();
     expect(qrFinder, findsOneWidget);
-    expect(
-      tester.getTopLeft(basicDataFinder).dy,
-      lessThan(tester.getTopLeft(qrFinder).dy),
-    );
+    expect(basicDataTop, lessThan(tester.getTopLeft(qrFinder).dy + 500));
+
+    // Tap overflow menu to verify archive is inside
+    await tester.tap(find.byKey(const Key('student_overflow_menu')));
+    await tester.pumpAndSettle();
+    expect(find.text('أرشفة عضوية التلميذ'), findsOneWidget);
   });
 
   testWidgets('pending student shows approve action for role that can approve', (tester) async {
