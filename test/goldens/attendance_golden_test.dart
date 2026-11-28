@@ -35,7 +35,7 @@ void main() {
       (_) async => goldenLeaderProfile,
     ),
     currentSessionIdentityProvider.overrideWith(
-      (_) async => ServantIdentity(goldenLeaderProfile),
+      (_) async => const ServantIdentity(goldenLeaderProfile),
     ),
     isSuperAdminProvider.overrideWithValue(false),
   ];
@@ -92,10 +92,7 @@ void main() {
           variant: variant,
           overrides: attendanceOverrides,
         );
-        await expectGoldenImage(
-          tester,
-          '${screen.name}_${variant.suffix}.png',
-        );
+        await expectGoldenImage(tester, '${screen.name}_${variant.suffix}.png');
       });
     }
   }

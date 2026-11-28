@@ -553,6 +553,18 @@ class _AddStudentPageState extends ConsumerState<AddStudentPage> {
                                                   ),
                                                 ),
                                               ),
+                                              Text(
+                                                _isDeacon ? 'نعم' : 'لا',
+                                                style: TextStyle(
+                                                  fontSize: 13,
+                                                  fontWeight: FontWeight.w700,
+                                                  color: _isDeacon
+                                                      ? theme.colorScheme.primary
+                                                      : theme.colorScheme
+                                                          .onSurfaceVariant,
+                                                ),
+                                              ),
+                                              const SizedBox(width: 6),
                                               Switch(
                                                 key: const Key(
                                                   'add_student_is_deacon',
@@ -1243,6 +1255,7 @@ class _AddStudentPageState extends ConsumerState<AddStudentPage> {
       onTap: onPick,
       borderRadius: BorderRadius.circular(12),
       child: InputDecorator(
+        isEmpty: false,
         decoration: InputDecoration(
           labelText: title,
           prefixIcon: Icon(icon),

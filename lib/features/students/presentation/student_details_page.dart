@@ -136,7 +136,9 @@ class _StudentDetailsPageState extends ConsumerState<StudentDetailsPage> {
   }
 
   bool _canApprove(String role) =>
-      role == 'overall_leader' || role == 'overall_helper';
+      role == 'overall_leader' ||
+      role == 'overall_helper' ||
+      role == 'system_admin';
 
   String _date(DateTime? value) =>
       value == null ? 'غير محدد' : value.toLocal().toString().split(' ').first;
