@@ -3,8 +3,9 @@ import 'package:flutter/material.dart';
 import '../../auth/domain/entities/servant_profile.dart';
 import '../domain/entities/student.dart';
 
-/// Evaluates whether the current servant profile or super admin has permission
-/// to edit or delete the given [student].
+/// Evaluates whether the current servant profile or super admin can manage the
+/// given service membership. Students without a cached membership ID are read-only
+/// until the membership-backed directory has refreshed.
 ///
 /// This matches the scope of Supabase RLS policies `students_update` and `students_delete`:
 /// - System administrators can edit and delete any student.
@@ -18,6 +19,7 @@ bool canEditOrDeleteStudent({
   required ServantProfile? profile,
   required bool isSuperAdmin,
 }) {
+  if (student.membershipId == null) return false;
   if (isSuperAdmin) return true;
   if (profile == null || !profile.isActive) return false;
   if (profile.serviceId != student.serviceId) return false;
@@ -36,9 +38,8 @@ bool canEditOrDeleteStudent({
   return true;
 }
 
-/// Displays a standard permanent confirmation dialog before deleting [studentName].
-///
-/// Clearly identifies the student and explicitly warns that deletion is irreversible.
+/// Confirms archival of a student's membership in the current service.
+/// The global identity and historical records are retained.
 Future<bool?> showDeleteStudentConfirmationDialog({
   required BuildContext context,
   required String studentName,
@@ -48,12 +49,12 @@ Future<bool?> showDeleteStudentConfirmationDialog({
     context: context,
     builder: (dialogContext) => AlertDialog(
       title: const Text(
-        'حذف التلميذ؟',
+        'أرشفة عضوية التلميذ؟',
         style: TextStyle(fontWeight: FontWeight.bold),
       ),
       content: Text(
-        'هل أنت متأكد من حذف التلميذ "$studentName"؟\n\n'
-        '${isOffline ? "سيتم حذف التلميذ محليًا ومزامنة الحذف عند توفر الاتصال." : "هذا الإجراء نهائي وسيتم حذف التلميذ من قاعدة البيانات بشكل دائم ولا يمكن التراجع عنه."}',
+        'هل أنت متأكد من أرشفة عضوية "$studentName" في هذه الخدمة؟\n\n'
+        '${isOffline ? "سيتم إيقاف العضوية محليًا ومزامنة الأرشفة عند توفر الاتصال." : "سيتم إيقاف العضوية مع الاحتفاظ ببيانات التلميذ وسجلاته التاريخية."}',
       ),
       actions: [
         TextButton(
@@ -61,12 +62,12 @@ Future<bool?> showDeleteStudentConfirmationDialog({
           child: const Text('إلغاء'),
         ),
         FilledButton(
-          key: const Key('confirm_delete_student_button'),
+          key: const Key('confirm_archive_student_membership_button'),
           style: FilledButton.styleFrom(
             backgroundColor: const Color(0xFFDC2626),
           ),
           onPressed: () => Navigator.pop(dialogContext, true),
-          child: const Text('تأكيد الحذف'),
+          child: const Text('تأكيد الأرشفة'),
         ),
       ],
     ),

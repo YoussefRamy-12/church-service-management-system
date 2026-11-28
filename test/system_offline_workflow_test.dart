@@ -27,6 +27,8 @@ class _NoopTransport implements SyncTransport {
 
 Student _student() => Student(
   id: 'student-1',
+  membershipId: 'student-1_membership',
+  identityServiceId: 'service-1',
   serviceId: 'service-1',
   currentClassId: 'class-1',
   name: 'Peter',
@@ -75,6 +77,8 @@ void main() {
       final attendanceRecord = await attendance.checkIn(
         meetingId: 'meeting-1',
         studentId: 'student-1',
+        serviceId: 'service-1',
+        serviceStudentId: 'student-1_membership',
         classIdAtAttendance: 'class-1',
         recordedBy: 'servant-1',
         checkedInAt: DateTime(2026, 10, 7, 15, 5),
@@ -82,6 +86,8 @@ void main() {
 
       final followUpRecord = await followUp.create(
         studentId: 'student-1',
+        serviceId: 'service-1',
+        serviceStudentId: 'student-1_membership',
         createdBy: 'servant-1',
         followUpDate: '2026-10-07',
         contactStatus: 'contacted',
@@ -101,10 +107,10 @@ void main() {
 
       final pending = await queue.pending();
 
-      expect(pending, hasLength(3));
+      expect(pending, hasLength(4));
       expect(
         pending.map((item) => item.entityType).toSet(),
-        containsAll(<String>['attendance', 'follow_up', 'student']),
+        containsAll(<String>['attendance', 'follow_up', 'student', 'service_student']),
       );
       expect(
         pending.map((item) => item.operationId).toSet(),
@@ -135,10 +141,19 @@ void main() {
                     .payloadJson,
               )
               as Map<String, dynamic>;
+      final membershipPayload =
+          jsonDecode(
+                pending
+                    .firstWhere((item) => item.entityType == 'service_student')
+                    .payloadJson,
+              )
+              as Map<String, dynamic>;
 
       expect(attendancePayload['student_id'], 'student-1');
       expect(followUpPayload['student_id'], 'student-1');
       expect(studentPayload['name'], 'Peter Updated');
+      expect(membershipPayload['student_id'], 'student-1');
+      expect(membershipPayload['id'], 'student-1_membership');
 
       final cachedStudent = await students.local.findById('student-1');
       expect(cachedStudent?.name, 'Peter Updated');
@@ -148,7 +163,7 @@ void main() {
       expect(attendanceRows.single.studentId, 'student-1');
 
       final followUpRows = await followUp
-          .watchForStudent('student-1')
+          .watchForStudent('student-1', serviceId: 'service-1')
           .firstWhere((rows) => rows.isNotEmpty);
       expect(followUpRows.single.id, followUpRecord.id);
     },
@@ -161,12 +176,16 @@ void main() {
       await attendance.checkIn(
         meetingId: 'meeting-1',
         studentId: 'student-1',
+        serviceId: 'service-1',
+        serviceStudentId: 'student-1_membership',
         classIdAtAttendance: 'class-1',
         recordedBy: 'servant-1',
         checkedInAt: DateTime(2026, 10, 7, 15, 5),
       );
       await followUp.create(
         studentId: 'student-1',
+        serviceId: 'service-1',
+        serviceStudentId: 'student-1_membership',
         createdBy: 'servant-1',
         followUpDate: '2026-10-07',
         contactStatus: 'contacted',

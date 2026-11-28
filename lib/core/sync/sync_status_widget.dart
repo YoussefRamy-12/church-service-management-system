@@ -54,7 +54,7 @@ class SyncStatusWidget extends ConsumerWidget {
           style: TextStyle(
             color: statusColor,
             fontWeight: FontWeight.w700,
-            fontSize: 12,
+            fontSize: 13,
           ),
         ),
       );
@@ -128,7 +128,7 @@ class SyncStatusWidget extends ConsumerWidget {
                 style: TextStyle(
                   color: statusColor,
                   fontWeight: FontWeight.w700,
-                  fontSize: 12,
+                  fontSize: 13,
                 ),
               ),
             );

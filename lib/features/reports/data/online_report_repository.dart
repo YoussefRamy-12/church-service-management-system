@@ -17,12 +17,18 @@ class OnlineReportRepository implements ReportRepository {
     required DateTime start,
     required DateTime end,
     Set<String>? classIds,
+    String? stageId,
+    String? studentId,
+    bool compareWithPrevious = true,
   }) {
     return _remote.fetch(
       serviceId: serviceId,
       start: start,
       end: end,
       classIds: classIds,
+      stageId: stageId,
+      studentId: studentId,
+      compareWithPrevious: compareWithPrevious,
     );
   }
 }

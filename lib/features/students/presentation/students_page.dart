@@ -1,16 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../app/design/app_colors.dart';
+import '../../../app/ui/app_ui.dart';
+import '../../../app/ui/components/empty_state.dart' as comp;
+import '../../../app/ui/components/error_state.dart';
+import '../../../app/ui/components/status_chip.dart';
+import '../../../app/ui/responsive.dart';
 import '../../auth/presentation/auth_providers.dart';
-import '../../service/presentation/service_providers.dart';
 import '../../service/domain/repositories/service_repository.dart';
+import '../../service/presentation/service_providers.dart';
 import '../domain/entities/student.dart';
-import 'class_students_page.dart';
 import 'add_student_page.dart';
+import 'class_students_page.dart';
+import 'import_students_excel_page.dart';
 import 'student_details_page.dart';
 import 'student_providers.dart';
-import 'import_students_excel_page.dart';
-import '../../../app/ui/app_ui.dart';
 
 class StudentsPage extends ConsumerStatefulWidget {
   const StudentsPage({super.key, required this.serviceId});
@@ -21,14 +26,19 @@ class StudentsPage extends ConsumerStatefulWidget {
 }
 
 class _StudentsPageState extends ConsumerState<StudentsPage> {
+  final TextEditingController _searchController = TextEditingController();
   String query = '';
   String statusFilter = 'all';
   String view = 'students';
+  String _sortColumn = 'name';
+  bool _sortAscending = true;
+  Map<String, String> _classDisplayNames = {};
 
   @override
   void initState() {
     super.initState();
     Future.microtask(() async {
+      await _loadClassNames();
       try {
         await ref
             .read(serviceRepositoryProvider)
@@ -47,6 +57,29 @@ class _StudentsPageState extends ConsumerState<StudentsPage> {
   }
 
   @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _loadClassNames() async {
+    try {
+      final serviceRepo = ref.read(serviceRepositoryProvider);
+      final stages = await serviceRepo.getStages(widget.serviceId);
+      final map = <String, String>{};
+      for (final stage in stages) {
+        final classes = await serviceRepo.getClasses(stage.id);
+        for (final c in classes) {
+          map[c.id] = '${stage.name} • ${c.name}';
+        }
+      }
+      if (mounted) {
+        setState(() => _classDisplayNames = map);
+      }
+    } catch (_) {}
+  }
+
+  @override
   Widget build(BuildContext context) {
     final repository = ref.watch(serviceRepositoryProvider);
     final profileState = ref.watch(currentServantProfileProvider);
@@ -54,30 +87,44 @@ class _StudentsPageState extends ConsumerState<StudentsPage> {
     final isClassScoped =
         (profile?.role == 'class_servant' || profile?.role == 'class_leader') &&
         profile?.classId != null;
+    final canAdd =
+        ref.watch(isSuperAdminProvider) ||
+        (profile != null && profile.isActive);
+    final isMobile = context.isMobile;
+
     return Scaffold(
+      floatingActionButton: canAdd && isMobile
+          ? FloatingActionButton.extended(
+              key: const Key('students_add'),
+              onPressed: _addStudent,
+              icon: const Icon(Icons.person_add_alt_1_rounded),
+              label: const Text('إضافة تلميذ'),
+            )
+          : null,
       appBar: AppBar(
         title: const Text('التلاميذ'),
         actions: [
-          IconButton(
-            key: const Key('students_import_excel'),
-            tooltip: 'استيراد الطلاب من Excel',
-            onPressed: () => Navigator.of(context).push(
-              MaterialPageRoute(
-                builder: (_) => ImportStudentsExcelPage(
-                  serviceId: widget.serviceId,
-                  initialClassId: isClassScoped ? profile!.classId : null,
+          if (canAdd)
+            IconButton(
+              key: const Key('students_import_excel'),
+              tooltip: 'استيراد الطلاب من Excel',
+              onPressed: () => Navigator.of(context, rootNavigator: true).push(
+                MaterialPageRoute(
+                  builder: (_) => ImportStudentsExcelPage(
+                    serviceId: widget.serviceId,
+                    initialClassId: isClassScoped ? profile!.classId : null,
+                  ),
                 ),
               ),
+              icon: const Icon(Icons.file_upload_outlined),
             ),
-            icon: const Icon(Icons.file_upload_outlined),
-          ),
-          IconButton(
-            key: const Key('students_add'),
-            tooltip: 'إضافة تلميذ',
-            onPressed: _addStudent,
-            icon: const Icon(Icons.person_add_alt_1_rounded),
-          ),
-
+          if (canAdd && !isMobile)
+            IconButton(
+              key: const Key('students_add'),
+              tooltip: 'إضافة تلميذ',
+              onPressed: _addStudent,
+              icon: const Icon(Icons.person_add_alt_1_rounded),
+            ),
           IconButton(
             key: const Key('students_refresh'),
             tooltip: 'تحديث',
@@ -87,10 +134,14 @@ class _StudentsPageState extends ConsumerState<StudentsPage> {
                 await ref
                     .read(studentRepositoryProvider)
                     .refreshStudentsForService(widget.serviceId);
+                await _loadClassNames();
               } catch (error) {
+                debugPrint('Presentation operation failed: $error');
                 if (!context.mounted) return;
                 ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('تعذر تحديث البيانات: $error')),
+                  const SnackBar(
+                    content: Text('تعذر إتمام العملية. حاول مرة أخرى.'),
+                  ),
                 );
               }
             },
@@ -98,49 +149,43 @@ class _StudentsPageState extends ConsumerState<StudentsPage> {
           ),
         ],
       ),
-      body: AmbientBackground(
-        intensity: 0.5,
-        child: Column(
-          children: [
-            if (!isClassScoped)
-              Padding(
-                padding: const EdgeInsets.fromLTRB(20, 16, 20, 12),
-                child: SegmentedButton<String>(
-                  segments: const [
-                    ButtonSegment(
-                      value: 'students',
-                      icon: Icon(Icons.groups_rounded),
-                      label: Text(
-                        'سجل التلاميذ',
-                        style: TextStyle(fontWeight: FontWeight.w700),
-                      ),
+      body: Column(
+        children: [
+          if (!isClassScoped)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 16, 20, 12),
+              child: SegmentedButton<String>(
+                segments: const [
+                  ButtonSegment(
+                    value: 'students',
+                    icon: Icon(Icons.groups_rounded),
+                    label: Text(
+                      'سجل التلاميذ',
+                      style: TextStyle(fontWeight: FontWeight.w700),
                     ),
-                    ButtonSegment(
-                      value: 'stages',
-                      icon: Icon(Icons.account_tree_outlined),
-                      label: Text(
-                        'المراحل والفصول',
-                        style: TextStyle(fontWeight: FontWeight.w700),
-                      ),
+                  ),
+                  ButtonSegment(
+                    value: 'stages',
+                    icon: Icon(Icons.account_tree_outlined),
+                    label: Text(
+                      'المراحل والفصول',
+                      style: TextStyle(fontWeight: FontWeight.w700),
                     ),
-                  ],
-                  selected: {view},
-                  onSelectionChanged: (selection) =>
-                      setState(() => view = selection.first),
-                ),
+                  ),
+                ],
+                selected: {view},
+                onSelectionChanged: (selection) =>
+                    setState(() => view = selection.first),
               ),
-            Expanded(
-              child: isClassScoped
-                  ? _studentRegistry(
-                      classId: profile!.classId,
-                      classScoped: true,
-                    )
-                  : view == 'students'
-                  ? _studentRegistry()
-                  : _stageExplorer(repository),
             ),
-          ],
-        ),
+          Expanded(
+            child: isClassScoped
+                ? _studentRegistry(classId: profile!.classId, classScoped: true)
+                : view == 'students'
+                ? _studentRegistry()
+                : _stageExplorer(repository),
+          ),
+        ],
       ),
     );
   }
@@ -152,7 +197,7 @@ class _StudentsPageState extends ConsumerState<StudentsPage> {
         profile?.classId != null;
 
     if (!mounted) return;
-    await Navigator.of(context).push(
+    await Navigator.of(context, rootNavigator: true).push(
       MaterialPageRoute(
         builder: (_) => AddStudentPage(
           serviceId: widget.serviceId,
@@ -180,263 +225,430 @@ class _StudentsPageState extends ConsumerState<StudentsPage> {
                       student.proposedClassId == classId,
                 )
                 .toList();
+
       if (snapshot.connectionState == ConnectionState.waiting &&
           students.isEmpty) {
-        return const Center(child: CircularProgressIndicator());
+        return const LoadingView(message: 'جاري تحميل سجل التلاميذ...');
       }
+
       if (snapshot.hasError && students.isEmpty) {
-        return _empty(
-          Icons.cloud_off_rounded,
-          'تعذر تحميل سجل التلاميذ',
-          'تحقق من الاتصال ثم أعد المحاولة.',
-        );
-      }
-      if (students.isEmpty) {
-        return _empty(
-          Icons.school_outlined,
-          'لا توجد بيانات تلاميذ بعد',
-          'ستظهر التلاميذ المسجلون في الخدمة هنا.',
+        return ErrorState(
+          message: 'تعذر تحميل سجل التلاميذ. تحقق من الاتصال ثم أعد المحاولة.',
+          onRetry: () {
+            ref
+                .read(studentRepositoryProvider)
+                .refreshStudentsForService(widget.serviceId);
+          },
         );
       }
 
+      if (students.isEmpty) {
+        return comp.EmptyState(
+          icon: Icons.school_outlined,
+          title: 'لا يوجد تلاميذ في هذه الخدمة',
+          message: 'ستظهر بيانات التلاميذ هنا بعد تسجيلهم أو استيرادهم.',
+          action: OutlinedButton.icon(
+            key: const Key('empty_add_student_button'),
+            onPressed: _addStudent,
+            icon: const Icon(Icons.person_add_alt_1_rounded),
+            label: const Text('إضافة تلميذ'),
+          ),
+        );
+      }
+
+      final needle = query.trim().toLowerCase();
       final filtered = students.where((student) {
         final matchesStatus = switch (statusFilter) {
           'pending' => student.isPending,
           'approved' => student.isApproved,
           _ => true,
         };
-        final needle = query.trim().toLowerCase();
         final matchesQuery =
             needle.isEmpty ||
-            [
-              student.name,
-              student.phone ?? '',
-              student.school ?? '',
-              student.grade ?? '',
-            ].any((value) => value.toLowerCase().contains(needle));
+            student.name.toLowerCase().contains(needle) ||
+            (student.phone ?? '').contains(needle) ||
+            (student.school ?? '').toLowerCase().contains(needle) ||
+            (student.grade ?? '').toLowerCase().contains(needle);
         return matchesStatus && matchesQuery;
       }).toList();
 
+      // Sort filtered list
+      filtered.sort((a, b) {
+        int cmp = 0;
+        switch (_sortColumn) {
+          case 'class':
+            final aClass =
+                _classDisplayNames[a.currentClassId ?? a.proposedClassId] ?? '';
+            final bClass =
+                _classDisplayNames[b.currentClassId ?? b.proposedClassId] ?? '';
+            cmp = aClass.compareTo(bClass);
+            if (cmp == 0) cmp = a.name.compareTo(b.name);
+            break;
+          case 'status':
+            final aStatus = a.isApproved ? 1 : 0;
+            final bStatus = b.isApproved ? 1 : 0;
+            cmp = aStatus.compareTo(bStatus);
+            if (cmp == 0) cmp = a.name.compareTo(b.name);
+            break;
+          case 'name':
+          default:
+            cmp = a.name.compareTo(b.name);
+            break;
+        }
+        return _sortAscending ? cmp : -cmp;
+      });
+
       return ListView(
-        padding: const EdgeInsets.only(bottom: 24),
+        padding: EdgeInsets.only(bottom: context.isMobile ? 88 : 24),
         children: [
           Padding(
-            padding: const EdgeInsets.fromLTRB(20, 4, 20, 12),
-            child: Wrap(
-              spacing: 12,
-              runSpacing: 12,
+            padding: const EdgeInsets.fromLTRB(20, 12, 20, 12),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                _metric(
-                  context,
-                  classScoped ? 'تلاميذ الفصل' : 'إجمالي التلاميذ',
-                  students.length,
-                  Icons.school_rounded,
-                  const Color(0xFF4F46E5),
+                TextField(
+                  key: const Key('service_student_search'),
+                  controller: _searchController,
+                  onChanged: (value) => setState(() => query = value),
+                  decoration: InputDecoration(
+                    prefixIcon: const Icon(Icons.search_rounded),
+                    hintText: 'ابحث بالاسم أو الهاتف...',
+                    suffixIcon: query.isNotEmpty
+                        ? IconButton(
+                            icon: const Icon(Icons.clear_rounded, size: 18),
+                            onPressed: () {
+                              _searchController.clear();
+                              setState(() => query = '');
+                            },
+                          )
+                        : null,
+                  ),
                 ),
-                _metric(
-                  context,
-                  'معتمدون',
-                  students.where((student) => student.isApproved).length,
-                  Icons.verified_rounded,
-                  const Color(0xFF10B981),
-                ),
-                _metric(
-                  context,
-                  'بانتظار الاعتماد',
-                  students.where((student) => student.isPending).length,
-                  Icons.pending_actions_rounded,
-                  const Color(0xFFF59E0B),
+                const SizedBox(height: 10),
+                Align(
+                  alignment: AlignmentDirectional.centerStart,
+                  child: Wrap(
+                    spacing: 8,
+                    children: [
+                      _filter('all', 'الكل (${students.length})'),
+                      _filter(
+                        'approved',
+                        'معتمد (${students.where((s) => s.isApproved).length})',
+                      ),
+                      _filter(
+                        'pending',
+                        'بانتظار الاعتماد (${students.where((s) => s.isPending).length})',
+                      ),
+                    ],
+                  ),
                 ),
               ],
             ),
           ),
           Padding(
-            padding: const EdgeInsetsDirectional.fromSTEB(20, 0, 20, 12),
-            child: GlassCard(
-              borderRadius: 20,
-              padding: const EdgeInsets.all(14),
-              hoverElevation: false,
-              child: Column(
-                children: [
-                  TextField(
-                    key: const Key('service_student_search'),
-                    onChanged: (value) => setState(() => query = value),
-                    decoration: InputDecoration(
-                      prefixIcon: const Icon(Icons.search_rounded),
-                      hintText: 'ابحث بالاسم أو الهاتف أو المدرسة أو الصف...',
-                      suffixIcon: query.isNotEmpty
-                          ? IconButton(
-                              icon: const Icon(Icons.clear_rounded, size: 18),
-                              onPressed: () => setState(() => query = ''),
-                            )
-                          : null,
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  Align(
-                    alignment: AlignmentDirectional.centerStart,
-                    child: Wrap(
-                      spacing: 8,
-                      children: [
-                        _filter('all', 'الكل', students.length),
-                        _filter(
-                          'approved',
-                          'معتمد',
-                          students
-                              .where((student) => student.isApproved)
-                              .length,
-                        ),
-                        _filter(
-                          'pending',
-                          'بانتظار الاعتماد',
-                          students.where((student) => student.isPending).length,
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsetsDirectional.fromSTEB(20, 0, 20, 8),
+            padding: const EdgeInsetsDirectional.fromSTEB(20, 0, 20, 10),
             child: Row(
               children: [
                 Text(
-                  'النتائج المعروضة',
+                  'النتائج',
                   style: Theme.of(
                     context,
                   ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w700),
                 ),
-                const SizedBox(width: 8),
-                GlassBadge(
-                  label: '${filtered.length} تلميذ',
-                  color: Theme.of(context).colorScheme.primary,
-                ),
                 const Spacer(),
-                Text(
-                  classScoped
-                      ? 'بيانات الفصل المحفوظة'
-                      : 'بيانات الخدمة المحفوظة',
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                  ),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      Icons.cloud_done_outlined,
+                      size: 14,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      classScoped ? 'فصل محفوظ محليًا' : 'سجل محفوظ محليًا',
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
           ),
           if (filtered.isEmpty)
-            _empty(
-                    Icons.search_off_rounded,
-                    'لا توجد نتائج مطابقة',
-                    'غيّر كلمات البحث أو حالة الاعتماد.',
-                  )
-          else
+            Padding(
+              padding: const EdgeInsets.only(top: 24),
+              child: comp.EmptyState(
+                icon: Icons.search_off_rounded,
+                title: 'لا توجد نتائج مطابقة',
+                message:
+                    'لم يتم العثور على أي تلميذ يطابق كلمات البحث أو حالة الاعتماد.',
+                action: OutlinedButton.icon(
+                  key: const Key('clear_student_search'),
+                  onPressed: () {
+                    _searchController.clear();
+                    setState(() {
+                      query = '';
+                      statusFilter = 'all';
+                    });
+                  },
+                  icon: const Icon(Icons.clear_all_rounded),
+                  label: const Text('إعادة ضبط البحث'),
+                ),
+              ),
+            )
+          else if (context.isMobile)
             ...filtered.map(
               (student) => Padding(
                 padding: const EdgeInsetsDirectional.fromSTEB(20, 0, 20, 10),
-                child: _studentRow(student),
+                child: _studentCard(student),
               ),
+            )
+          else
+            Padding(
+              padding: const EdgeInsetsDirectional.fromSTEB(20, 0, 20, 10),
+              child: _studentDesktopTable(filtered),
             ),
         ],
       );
     },
   );
 
-  Widget _studentRow(Student student) {
-    final statusColor = student.isApproved
-        ? const Color(0xFF10B981)
-        : const Color(0xFFF59E0B);
-    final details = [
-      if ((student.grade ?? '').isNotEmpty) student.grade!,
-      if ((student.school ?? '').isNotEmpty) student.school!,
-      if ((student.phone ?? '').isNotEmpty) student.phone!,
-    ].join(' • ');
+  Widget _studentCard(Student student) {
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+    final classLabel =
+        _classDisplayNames[student.currentClassId ?? student.proposedClassId] ??
+        (student.grade != null && student.grade!.isNotEmpty
+            ? student.grade!
+            : 'غير مسجل');
 
-    return GlassCard(
+    return Card(
       key: Key('student_item_${student.id}'),
-      borderRadius: 18,
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      onTap: () => Navigator.of(context).push(
-        MaterialPageRoute(builder: (_) => StudentDetailsPage(student: student)),
+      elevation: 0,
+      margin: EdgeInsets.zero,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: BorderSide(color: scheme.outlineVariant),
       ),
-      child: Row(
-        children: [
-          // Glowing initial avatar
-          Container(
-            width: 44,
-            height: 44,
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: student.isApproved
-                    ? [const Color(0xFF4F46E5), const Color(0xFF7C3AED)]
-                    : [const Color(0xFFF59E0B), const Color(0xFFF97316)],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-              shape: BoxShape.circle,
-              boxShadow: [
-                BoxShadow(
-                  color:
-                      (student.isApproved
-                              ? const Color(0xFF4F46E5)
-                              : const Color(0xFFF59E0B))
-                          .withValues(alpha: 0.3),
-                  blurRadius: 10,
-                  offset: const Offset(0, 3),
-                ),
-              ],
-            ),
-            child: Center(
-              child: Text(
-                student.name.isEmpty ? '؟' : student.name.characters.first,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.w800,
-                  fontSize: 18,
-                ),
-              ),
-            ),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(12),
+        onTap: () => Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (_) => StudentDetailsPage(student: student),
           ),
-          const SizedBox(width: 14),
-          // Student Info
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  student.name,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.w800,
-                    fontSize: 15,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  details.isEmpty ? 'لا توجد بيانات إضافية' : details,
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(14),
+          child: Row(
+            children: [
+              CircleAvatar(
+                radius: 22,
+                backgroundColor: scheme.primaryContainer,
+                child: Text(
+                  student.name.isEmpty ? '؟' : student.name.characters.first,
                   style: TextStyle(
-                    fontSize: 12,
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    color: scheme.onPrimaryContainer,
+                    fontWeight: FontWeight.w800,
+                    fontSize: 16,
                   ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      student.name,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w800,
+                        fontSize: 15,
+                      ),
+                    ),
+                    const SizedBox(height: 3),
+                    Text(
+                      student.phone != null && student.phone!.isNotEmpty
+                          ? '$classLabel • ${student.phone!}'
+                          : classLabel,
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: scheme.onSurfaceVariant,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
+              ),
+              if (student.isPending) ...[
+                const SizedBox(width: 8),
+                const StatusChip(
+                  status: AppStatus.pending,
+                  label: 'بانتظار الاعتماد',
                 ),
               ],
+              const SizedBox(width: 4),
+              Icon(
+                Icons.chevron_left_rounded,
+                size: 20,
+                color: scheme.onSurfaceVariant,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _studentDesktopTable(List<Student> students) {
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+
+    return Card(
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: BorderSide(color: scheme.outlineVariant),
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: ConstrainedBox(
+          constraints: BoxConstraints(
+            minWidth: MediaQuery.of(context).size.width - 40,
+          ),
+          child: DataTable(
+            sortColumnIndex: switch (_sortColumn) {
+              'name' => 0,
+              'class' => 1,
+              'status' => 2,
+              _ => null,
+            },
+            sortAscending: _sortAscending,
+            headingRowColor: WidgetStatePropertyAll(
+              theme.brightness == Brightness.dark
+                  ? AppDesignColors.darkSurfaceSubtle
+                  : AppDesignColors.lightSurfaceSubtle,
             ),
+            columns: [
+              DataColumn(
+                label: const Text(
+                  'الاسم',
+                  style: TextStyle(fontWeight: FontWeight.w700),
+                ),
+                onSort: (columnIndex, ascending) {
+                  setState(() {
+                    _sortColumn = 'name';
+                    _sortAscending = ascending;
+                  });
+                },
+              ),
+              DataColumn(
+                label: const Text(
+                  'المرحلة والفصل',
+                  style: TextStyle(fontWeight: FontWeight.w700),
+                ),
+                onSort: (columnIndex, ascending) {
+                  setState(() {
+                    _sortColumn = 'class';
+                    _sortAscending = ascending;
+                  });
+                },
+              ),
+              DataColumn(
+                label: const Text(
+                  'الحالة',
+                  style: TextStyle(fontWeight: FontWeight.w700),
+                ),
+                onSort: (columnIndex, ascending) {
+                  setState(() {
+                    _sortColumn = 'status';
+                    _sortAscending = ascending;
+                  });
+                },
+              ),
+              const DataColumn(
+                label: Text(
+                  'الهاتف',
+                  style: TextStyle(fontWeight: FontWeight.w700),
+                ),
+              ),
+              const DataColumn(
+                label: Text('', style: TextStyle(fontWeight: FontWeight.w700)),
+              ),
+            ],
+            rows: students.map((student) {
+              final classLabel =
+                  _classDisplayNames[student.currentClassId ??
+                      student.proposedClassId] ??
+                  (student.grade != null && student.grade!.isNotEmpty
+                      ? student.grade!
+                      : 'غير مسجل');
+              return DataRow(
+                key: ValueKey('student_item_${student.id}'),
+                onSelectChanged: (_) {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => StudentDetailsPage(student: student),
+                    ),
+                  );
+                },
+                cells: [
+                  DataCell(
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        CircleAvatar(
+                          radius: 16,
+                          backgroundColor: scheme.primaryContainer,
+                          child: Text(
+                            student.name.isEmpty
+                                ? '؟'
+                                : student.name.characters.first,
+                            style: TextStyle(
+                              color: scheme.onPrimaryContainer,
+                              fontWeight: FontWeight.w700,
+                              fontSize: 13,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        Text(
+                          student.name,
+                          style: const TextStyle(fontWeight: FontWeight.w600),
+                        ),
+                      ],
+                    ),
+                  ),
+                  DataCell(Text(classLabel)),
+                  DataCell(
+                    StatusChip(
+                      status: student.isPending
+                          ? AppStatus.pending
+                          : AppStatus.present,
+                      label: student.isPending ? 'بانتظار الاعتماد' : 'معتمد',
+                    ),
+                  ),
+                  DataCell(
+                    Text(
+                      student.phone != null && student.phone!.isNotEmpty
+                          ? student.phone!
+                          : 'غير مسجل',
+                    ),
+                  ),
+                  DataCell(
+                    Icon(
+                      Icons.chevron_left_rounded,
+                      color: scheme.onSurfaceVariant,
+                    ),
+                  ),
+                ],
+              );
+            }).toList(),
           ),
-          const SizedBox(width: 8),
-          // Status badge
-          GlassBadge(
-            label: student.isApproved ? 'معتمد' : 'بانتظار الاعتماد',
-            color: statusColor,
-          ),
-          const SizedBox(width: 6),
-          Icon(
-            Icons.chevron_left_rounded,
-            size: 20,
-            color: Theme.of(context).colorScheme.onSurfaceVariant,
-          ),
-        ],
+        ),
       ),
     );
   }
@@ -447,22 +659,23 @@ class _StudentsPageState extends ConsumerState<StudentsPage> {
       final stages = snapshot.data ?? const [];
       if (snapshot.connectionState == ConnectionState.waiting &&
           stages.isEmpty) {
-        return const Center(child: CircularProgressIndicator());
+        return const LoadingView(message: 'جاري تحميل المراحل والفصول...');
       }
       if (snapshot.hasError && stages.isEmpty) {
-        return _empty(
-          Icons.cloud_off_rounded,
-          'تعذر تحميل المراحل',
-          'تحقق من الاتصال أو حاول مرة أخرى.',
+        return ErrorState(
+          message: 'تعذر تحميل المراحل. تحقق من الاتصال أو حاول مرة أخرى.',
+          onRetry: () => repository.refreshStages(widget.serviceId),
         );
       }
       if (stages.isEmpty) {
-        return _empty(
-          Icons.account_tree_outlined,
-          'لا توجد مراحل محفوظة',
-          'حدّث بيانات الخدمة أو أضف المراحل من الإعدادات.',
+        return const comp.EmptyState(
+          icon: Icons.account_tree_outlined,
+          title: 'لا توجد مراحل محفوظة',
+          message: 'حدّث بيانات الخدمة أو أضف المراحل من الإعدادات.',
         );
       }
+      final primary = Theme.of(context).colorScheme.primary;
+
       return ListView(
         key: const Key('students_stage_list'),
         padding: const EdgeInsets.fromLTRB(20, 8, 20, 28),
@@ -477,10 +690,15 @@ class _StudentsPageState extends ConsumerState<StudentsPage> {
           for (final stage in stages)
             Padding(
               padding: const EdgeInsets.only(bottom: 12),
-              child: GlassCard(
-                borderRadius: 20,
-                padding: EdgeInsets.zero,
-                hoverElevation: false,
+              child: Card(
+                elevation: 0,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  side: BorderSide(
+                    color: Theme.of(context).colorScheme.outlineVariant,
+                  ),
+                ),
+                clipBehavior: Clip.antiAlias,
                 child: Theme(
                   data: Theme.of(
                     context,
@@ -491,13 +709,13 @@ class _StudentsPageState extends ConsumerState<StudentsPage> {
                       width: 40,
                       height: 40,
                       decoration: BoxDecoration(
-                        color: const Color(0xFF4F46E5).withValues(alpha: 0.12),
-                        borderRadius: BorderRadius.circular(12),
+                        color: primary.withValues(alpha: 0.08),
+                        borderRadius: BorderRadius.circular(8),
                       ),
-                      child: const Icon(
+                      child: Icon(
                         Icons.layers_outlined,
-                        color: Color(0xFF4F46E5),
-                        size: 22,
+                        color: primary,
+                        size: 20,
                       ),
                     ),
                     title: Text(
@@ -570,115 +788,10 @@ class _StudentsPageState extends ConsumerState<StudentsPage> {
     },
   );
 
-  Widget _metric(
-    BuildContext context,
-    String label,
-    int value,
-    IconData icon,
-    Color color,
-  ) => SizedBox(
-    width: 220,
-    child: GlassCard(
-      borderRadius: 20,
-      padding: const EdgeInsets.all(16),
-      child: Row(
-        children: [
-          Container(
-            width: 46,
-            height: 46,
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  color.withValues(alpha: 0.2),
-                  color.withValues(alpha: 0.08),
-                ],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-              borderRadius: BorderRadius.circular(14),
-              border: Border.all(color: color.withValues(alpha: 0.2)),
-            ),
-            child: Icon(icon, color: color, size: 24),
-          ),
-          const SizedBox(width: 14),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  label,
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    fontWeight: FontWeight.w600,
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                  ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  '$value',
-                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                    color: color,
-                    fontWeight: FontWeight.w900,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    ),
-  );
-
-  Widget _filter(String value, String label, int count) => ChoiceChip(
+  Widget _filter(String value, String label) => ChoiceChip(
     key: Key('student_filter_$value'),
     selected: statusFilter == value,
-    label: Text('$label ($count)'),
+    label: Text(label),
     onSelected: (_) => setState(() => statusFilter = value),
-  );
-
-  Widget _empty(IconData icon, String title, String message) => Center(
-    child: Padding(
-      padding: const EdgeInsets.all(28),
-      child: GlassCard(
-        borderRadius: 24,
-        padding: const EdgeInsets.all(32),
-        hoverElevation: false,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              width: 64,
-              height: 64,
-              decoration: BoxDecoration(
-                color: Theme.of(
-                  context,
-                ).colorScheme.primary.withValues(alpha: 0.1),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                icon,
-                size: 34,
-                color: Theme.of(context).colorScheme.primary,
-              ),
-            ),
-            const SizedBox(height: 16),
-            Text(
-              title,
-              style: Theme.of(
-                context,
-              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 6),
-            Text(
-              message,
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
-              ),
-            ),
-          ],
-        ),
-      ),
-    ),
   );
 }

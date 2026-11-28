@@ -27,7 +27,6 @@ void main() {
         payloadJson: '{"id":"student-1"}',
       ),
     );
-    await Future<void>.delayed(const Duration(milliseconds: 2));
     await queue.enqueue(
       const SyncOperation(
         operationId: 'op-2',

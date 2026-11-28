@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import 'auth_providers.dart';
-import '../../../app/ui/app_ui.dart';
 import '../../../core/network/supabase_client_provider.dart';
 
 class ForgotPasswordPage extends ConsumerStatefulWidget {
@@ -44,9 +43,9 @@ class _ForgotPasswordPageState extends ConsumerState<ForgotPasswordPage> {
   @override
   Widget build(BuildContext context) => Scaffold(
     appBar: AppBar(title: const Text('استعادة كلمة المرور')),
-    body: AmbientBackground(child: Center(child: ConstrainedBox(
-      constraints: const BoxConstraints(maxWidth: 480),
-      child: GlassCard(padding: const EdgeInsets.all(28), child: _sent
+    body: SafeArea(child: ColoredBox(color: Theme.of(context).scaffoldBackgroundColor, child: Center(child: ConstrainedBox(
+      constraints: const BoxConstraints(maxWidth: 460),
+      child: Container(padding: const EdgeInsets.all(24), decoration: BoxDecoration(color: Theme.of(context).colorScheme.surface, borderRadius: BorderRadius.circular(12), border: Border.all(color: Theme.of(context).colorScheme.outlineVariant)), child: _sent
         ? Column(mainAxisSize: MainAxisSize.min, children: [
             const Icon(Icons.mark_email_read_outlined, size: 48),
             const SizedBox(height: 16),
@@ -57,12 +56,25 @@ class _ForgotPasswordPageState extends ConsumerState<ForgotPasswordPage> {
         : Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.stretch, children: [
             const Text('أدخل البريد المرتبط بحسابك وسنرسل رابطًا آمنًا لإعادة تعيين كلمة المرور.'),
             const SizedBox(height: 18),
-            TextField(controller: _email, keyboardType: TextInputType.emailAddress, decoration: const InputDecoration(labelText: 'البريد الإلكتروني')),
-            if (_error != null) Padding(padding: const EdgeInsets.only(top: 12), child: Text(_error!, style: TextStyle(color: Theme.of(context).colorScheme.error))),
+            TextField(controller: _email, keyboardType: TextInputType.emailAddress, autofillHints: const [AutofillHints.email], textInputAction: TextInputAction.done, onSubmitted: (_) => _send(), decoration: const InputDecoration(labelText: 'البريد الإلكتروني')),
+            if (_error != null) Container(
+              margin: const EdgeInsets.only(top: 12),
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.errorContainer,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: Theme.of(context).colorScheme.error),
+              ),
+              child: Row(children: [
+                Icon(Icons.error_outline_rounded, color: Theme.of(context).colorScheme.error),
+                const SizedBox(width: 8),
+                Expanded(child: Text(_error!, style: TextStyle(color: Theme.of(context).colorScheme.onErrorContainer))),
+              ]),
+            ),
             const SizedBox(height: 18),
-            FilledButton(onPressed: _loading ? null : _send, child: _loading ? const CircularProgressIndicator() : const Text('إرسال رابط الاستعادة')),
+            FilledButton(onPressed: _loading ? null : _send, child: _loading ? const Text('جارٍ إرسال الرابط...') : const Text('إرسال رابط الاستعادة')),
           ])),
-    ))),
+    )))),
   );
 }
 
@@ -77,6 +89,8 @@ class _ResetPasswordPageState extends ConsumerState<ResetPasswordPage> {
   final _password = TextEditingController();
   final _confirm = TextEditingController();
   bool _loading = false;
+  bool _showPassword = false;
+  bool _showConfirmPassword = false;
   String? _error;
 
   @override
@@ -105,19 +119,32 @@ class _ResetPasswordPageState extends ConsumerState<ResetPasswordPage> {
   @override
   Widget build(BuildContext context) => Scaffold(
     appBar: AppBar(title: const Text('إنشاء كلمة مرور جديدة')),
-    body: AmbientBackground(child: Center(child: ConstrainedBox(
-      constraints: const BoxConstraints(maxWidth: 480),
-      child: GlassCard(padding: const EdgeInsets.all(28), child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+    body: SafeArea(child: ColoredBox(color: Theme.of(context).scaffoldBackgroundColor, child: Center(child: ConstrainedBox(
+      constraints: const BoxConstraints(maxWidth: 460),
+      child: Container(padding: const EdgeInsets.all(24), decoration: BoxDecoration(color: Theme.of(context).colorScheme.surface, borderRadius: BorderRadius.circular(12), border: Border.all(color: Theme.of(context).colorScheme.outlineVariant)), child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.stretch, children: [
         const Text('اختر كلمة مرور جديدة لحسابك.'),
         const SizedBox(height: 16),
-        TextField(controller: _password, obscureText: true, decoration: const InputDecoration(labelText: 'كلمة المرور الجديدة')),
+        TextField(controller: _password, obscureText: !_showPassword, autofillHints: const [AutofillHints.newPassword], textInputAction: TextInputAction.next, decoration: InputDecoration(labelText: 'كلمة المرور الجديدة', suffixIcon: Semantics(button: true, label: _showPassword ? 'إخفاء كلمة المرور' : 'إظهار كلمة المرور', child: IconButton(tooltip: _showPassword ? 'إخفاء كلمة المرور' : 'إظهار كلمة المرور', onPressed: () => setState(() => _showPassword = !_showPassword), icon: Icon(_showPassword ? Icons.visibility_off_outlined : Icons.visibility_outlined))))),
         const SizedBox(height: 12),
-        TextField(controller: _confirm, obscureText: true, decoration: const InputDecoration(labelText: 'تأكيد كلمة المرور')),
-        if (_error != null) Padding(padding: const EdgeInsets.only(top: 12), child: Text(_error!, style: TextStyle(color: Theme.of(context).colorScheme.error))),
+        TextField(controller: _confirm, obscureText: !_showConfirmPassword, autofillHints: const [AutofillHints.newPassword], textInputAction: TextInputAction.done, onSubmitted: (_) => _save(), decoration: InputDecoration(labelText: 'تأكيد كلمة المرور', suffixIcon: Semantics(button: true, label: _showConfirmPassword ? 'إخفاء كلمة المرور' : 'إظهار كلمة المرور', child: IconButton(tooltip: _showConfirmPassword ? 'إخفاء كلمة المرور' : 'إظهار كلمة المرور', onPressed: () => setState(() => _showConfirmPassword = !_showConfirmPassword), icon: Icon(_showConfirmPassword ? Icons.visibility_off_outlined : Icons.visibility_outlined))))),
+        if (_error != null) Container(
+          margin: const EdgeInsets.only(top: 12),
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.errorContainer,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: Theme.of(context).colorScheme.error),
+          ),
+          child: Row(children: [
+            Icon(Icons.error_outline_rounded, color: Theme.of(context).colorScheme.error),
+            const SizedBox(width: 8),
+            Expanded(child: Text(_error!, style: TextStyle(color: Theme.of(context).colorScheme.onErrorContainer))),
+          ]),
+        ),
         const SizedBox(height: 18),
-        FilledButton(onPressed: _loading ? null : _save, child: _loading ? const CircularProgressIndicator() : const Text('حفظ كلمة المرور')),
+        FilledButton(onPressed: _loading ? null : _save, child: _loading ? const Text('جارٍ حفظ كلمة المرور...') : const Text('حفظ كلمة المرور')),
       ])),
-    ))),
+    )))),
   );
 }
 

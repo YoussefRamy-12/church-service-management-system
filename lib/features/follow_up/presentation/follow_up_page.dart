@@ -59,7 +59,10 @@ class _FollowUpPageState extends ConsumerState<FollowUpPage> {
             : null);
     final history = ref
         .watch(followUpRepositoryProvider)
-        .watchForStudent(widget.student.id);
+        .watchForStudent(
+          widget.student.id,
+          serviceId: widget.student.serviceId,
+        );
     final formatter = DateFormat('yyyy-MM-dd');
 
     return Scaffold(
@@ -191,7 +194,7 @@ class _FollowUpPageState extends ConsumerState<FollowUpPage> {
               ),
             FilledButton(
               key: const Key('follow_up_save'),
-              onPressed: actorId == null || saving
+              onPressed: actorId == null || saving || widget.student.membershipId == null
                   ? null
                   : () async {
                       setState(() => saving = true);
@@ -200,6 +203,8 @@ class _FollowUpPageState extends ConsumerState<FollowUpPage> {
                             .read(followUpRepositoryProvider)
                             .create(
                               studentId: widget.student.id,
+                              serviceId: widget.student.serviceId,
+                              serviceStudentId: widget.student.membershipId!,
                               createdBy: actorId,
                               followUpDate: formatter.format(date),
                               contactStatus: status,
@@ -230,6 +235,7 @@ class _FollowUpPageState extends ConsumerState<FollowUpPage> {
                         );
                         if (mounted) setState(() => saving = false);
                       } catch (error) {
+                        debugPrint('Presentation operation failed: $error');
                         if (mounted) {
                           setState(() => saving = false);
                           ScaffoldMessenger.of(context).showSnackBar(

@@ -1,0 +1,103 @@
+name: Golden Update
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - ux/mobile-redesign
+    paths:
+      - 'test/goldens/**'
+      - 'lib/**'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: golden-update-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  regenerate-goldens:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 0
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: 3.44.4
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Generate Drift code
+        run: dart run build_runner build --delete-conflicting-outputs
+
+      - name: Prepare Drift Web assets
+        shell: bash
+        run: |
+          mkdir -p web
+          curl -fsSL https://github.com/simolus3/drift/releases/download/drift-2.35.1/sqlite3.wasm -o web/sqlite3.wasm
+          curl -fsSL https://github.com/simolus3/drift/releases/download/drift-2.35.1/drift_worker.js -o web/drift_worker.js
+
+      - name: Regenerate golden images
+        id: update_goldens
+        continue-on-error: true
+        shell: bash
+        run: |
+          set +e
+          flutter test --update-goldens --tags golden --reporter expanded 2>&1 | tee /tmp/golden-update.log
+          test_status=${PIPESTATUS[0]}
+          echo "exit_code=$test_status" >> "$GITHUB_OUTPUT"
+
+          {
+            echo "## Golden update test results"
+            if [ "$test_status" -eq 0 ]; then
+              echo "All tagged golden tests passed during regeneration."
+            else
+              echo "Golden regeneration tests exited with status $test_status."
+              echo
+              echo "### Failed test names / failure markers"
+              grep -E '\[E\]|Some tests failed|Test failed|Expected:|Exception:' /tmp/golden-update.log | tail -n 120 || true
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Commit regenerated PNGs to this branch
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A -- test/goldens/images test/goldens/task6 test/goldens/task7 test/goldens/task8 docs/review-sheets
+          if git diff --cached --quiet; then
+            echo "No golden PNG changes to commit."
+            exit 0
+          fi
+          git commit -m "test(goldens): regenerate [skip ci]"
+          git pull --rebase origin "$GITHUB_REF_NAME"
+          git push origin "HEAD:refs/heads/${GITHUB_REF_NAME}"
+
+      - name: Verify golden determinism without updating
+        shell: bash
+        run: |
+          before="$(find test/goldens/images -type f -name '*.png' -print0 | sort -z | xargs -0 sha256sum | sha256sum)"
+          flutter test --tags golden --reporter expanded
+          after="$(find test/goldens/images -type f -name '*.png' -print0 | sort -z | xargs -0 sha256sum | sha256sum)"
+          if [ "$before" != "$after" ]; then
+            echo "Golden PNGs changed during the non-update test run."
+            exit 1
+          fi
+          echo "Golden images are deterministic."
+
+      - name: Upload golden test files and images
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: golden-test-artifacts
+          path: test/goldens/
+          if-no-files-found: warn

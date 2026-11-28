@@ -13,12 +13,16 @@ class OfflineFirstFollowUpRepository implements FollowUpRepository {
   final SyncQueueRepository queue;
 
   @override
-  Stream<List<FollowUpRecord>> watchForStudent(String id) =>
-      local.watchForStudent(id);
+  Stream<List<FollowUpRecord>> watchForStudent(
+    String id, {
+    required String serviceId,
+  }) => local.watchForStudent(id, serviceId: serviceId);
 
   @override
   Future<FollowUpRecord> create({
     required String studentId,
+    required String serviceId,
+    required String serviceStudentId,
     required String createdBy,
     required String followUpDate,
     required String contactStatus,
@@ -33,6 +37,8 @@ class OfflineFirstFollowUpRepository implements FollowUpRepository {
   }) async {
     final record = await local.create(
       studentId: studentId,
+      serviceId: serviceId,
+      serviceStudentId: serviceStudentId,
       createdBy: createdBy,
       followUpDate: followUpDate,
       contactStatus: contactStatus,
@@ -53,6 +59,8 @@ class OfflineFirstFollowUpRepository implements FollowUpRepository {
         payloadJson: jsonEncode({
           'id': record.id,
           'student_id': record.studentId,
+          'service_id': record.serviceId,
+          'service_student_id': record.serviceStudentId,
           'created_by': record.createdBy,
           'follow_up_date': record.followUpDate,
           'contact_status': record.contactStatus,

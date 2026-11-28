@@ -20,11 +20,14 @@ class SystemSettingsPage extends ConsumerWidget {
         child: identity.when(
           loading: () =>
               const LoadingView(message: 'جاري تحميل بيانات الحساب...'),
-          error: (error, _) => EmptyState(
-            icon: Icons.error_outline,
-            title: 'تعذر تحميل بيانات الحساب',
-            message: '$error',
-          ),
+          error: (error, _) {
+            debugPrint('Failed to load account settings: $error');
+            return const EmptyState(
+              icon: Icons.error_outline,
+              title: 'تعذر تحميل بيانات الحساب',
+              message: 'حاول تحديث الصفحة.',
+            );
+          },
           data: (value) {
             if (value == null) {
               return const EmptyState(

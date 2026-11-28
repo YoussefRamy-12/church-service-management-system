@@ -1,4 +1,3 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -8,7 +7,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'auth_providers.dart';
 import '../../../core/network/supabase_client_provider.dart';
 import '../../../app/theme.dart';
-import '../../../app/ui/app_ui.dart';
 
 class LoginPage extends ConsumerStatefulWidget {
   const LoginPage({super.key});
@@ -92,6 +90,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
       // before rendering the appropriate authenticated area.
       context.go('/session');
     } catch (error) {
+      debugPrint('Presentation operation failed: $error');
       if (!mounted) return;
       final confirmationRequired = _isEmailNotConfirmed(error);
       setState(() {
@@ -127,6 +126,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
         ),
       );
     } catch (error) {
+      debugPrint('Presentation operation failed: $error');
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -156,6 +156,12 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     if (message.contains('Supabase is not configured')) {
       return 'إعدادات الاتصال بالنظام غير مكتملة.';
     }
+    if (message.toLowerCase().contains('socketexception') ||
+        message.toLowerCase().contains('failed host lookup') ||
+        message.toLowerCase().contains('network is unreachable') ||
+        message.toLowerCase().contains('connection refused')) {
+      return 'لا يوجد اتصال بالإنترنت. اتصل بالشبكة ثم حاول تسجيل الدخول مرة أخرى.';
+    }
     return 'حدث خطأ أثناء تسجيل الدخول. حاول مرة أخرى.';
   }
 
@@ -163,17 +169,14 @@ class _LoginPageState extends ConsumerState<LoginPage> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
-    final cardBg = isDark
-        ? const Color(0xFF131D33).withValues(alpha: 0.90)
-        : Colors.white.withValues(alpha: 0.85);
-    final cardBorder = isDark
-        ? const Color(0x33818CF8)
-        : Colors.white.withValues(alpha: 0.8);
+    final cardBg = theme.colorScheme.surface;
+    final cardBorder = theme.colorScheme.outlineVariant;
 
     return Scaffold(
       key: const Key('login_page'),
-      body: AmbientBackground(
-        intensity: 1.2,
+      body: SafeArea(
+        child: ColoredBox(
+        color: theme.scaffoldBackgroundColor,
         child: Stack(
           children: [
             Positioned(
@@ -188,7 +191,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                   isDark ? Icons.light_mode_rounded : Icons.dark_mode_rounded,
                   color: isDark
                       ? const Color(0xFFFBBF24)
-                      : const Color(0xFF4F46E5),
+                      : Theme.of(context).colorScheme.primary,
                 ),
               ),
             ),
@@ -200,35 +203,14 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                     horizontal: 24,
                     vertical: 32,
                   ),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(28),
-                    child: BackdropFilter(
-                      filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
-                      child: Container(
+                  child: Container(
                         decoration: BoxDecoration(
                           color: cardBg,
-                          borderRadius: BorderRadius.circular(28),
-                          border: Border.all(color: cardBorder, width: 1.5),
-                          boxShadow: [
-                            BoxShadow(
-                              color: isDark
-                                  ? Colors.black.withValues(alpha: 0.4)
-                                  : const Color(
-                                      0xFF0F172A,
-                                    ).withValues(alpha: 0.08),
-                              blurRadius: 32,
-                              offset: const Offset(0, 12),
-                            ),
-                            BoxShadow(
-                              color: const Color(
-                                0xFF4F46E5,
-                              ).withValues(alpha: isDark ? 0.15 : 0.08),
-                              blurRadius: 40,
-                              offset: const Offset(0, 16),
-                            ),
-                          ],
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: cardBorder, width: 1),
+                          boxShadow: const [],
                         ),
-                        padding: const EdgeInsets.fromLTRB(32, 36, 32, 36),
+                        padding: const EdgeInsets.fromLTRB(24, 24, 24, 24),
                         child: Form(
                           key: _formKey,
                           child: Column(
@@ -237,32 +219,23 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                             children: [
                               Center(
                                 child: Container(
-                                  width: 76,
-                                  height: 76,
+                                  width: 72,
+                                  height: 72,
                                   decoration: BoxDecoration(
-                                    gradient: const LinearGradient(
-                                      colors: [
-                                        Color(0xFF4338CA),
-                                        Color(0xFF6366F1),
-                                      ],
-                                      begin: Alignment.topLeft,
-                                      end: Alignment.bottomRight,
+                                    color: theme.colorScheme.primary.withValues(
+                                      alpha: isDark ? 0.16 : 0.08,
                                     ),
-                                    borderRadius: BorderRadius.circular(24),
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: const Color(
-                                          0xFF4F46E5,
-                                        ).withValues(alpha: 0.38),
-                                        blurRadius: 20,
-                                        offset: const Offset(0, 8),
+                                    borderRadius: BorderRadius.circular(12),
+                                    border: Border.all(
+                                      color: theme.colorScheme.primary.withValues(
+                                        alpha: isDark ? 0.45 : 0.20,
                                       ),
-                                    ],
+                                    ),
                                   ),
-                                  child: const Icon(
+                                  child: Icon(
                                     Icons.church_rounded,
-                                    size: 40,
-                                    color: Colors.white,
+                                    size: 36,
+                                    color: theme.colorScheme.primary,
                                   ),
                                 ),
                               ),
@@ -277,13 +250,13 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                                 ),
                               ),
                               const SizedBox(height: 4),
-                              const Text(
+                              Text(
                                 'خدمة 5 و6 ابتدائي بنين',
                                 textAlign: TextAlign.center,
                                 style: TextStyle(
                                   fontSize: 14,
-                                  color: Color(0xFF64748B),
-                                  fontWeight: FontWeight.w500,
+                                  color: theme.colorScheme.onSurface,
+                                  fontWeight: FontWeight.w600,
                                 ),
                               ),
                               const SizedBox(height: 2),
@@ -291,10 +264,8 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                                 'كنيسة السيدة العذراء بعياد بك',
                                 textAlign: TextAlign.center,
                                 style: TextStyle(
-                                  fontSize: 12,
-                                  color: isDark
-                                      ? const Color(0xFF94A3B8)
-                                      : const Color(0xFF94A3B8),
+                                  fontSize: 13,
+                                  color: theme.colorScheme.onSurfaceVariant,
                                   fontWeight: FontWeight.w500,
                                 ),
                               ),
@@ -303,6 +274,9 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                                 key: const Key('login_email'),
                                 controller: _emailController,
                                 keyboardType: TextInputType.emailAddress,
+                                autofillHints: const [AutofillHints.email, AutofillHints.username],
+                                textInputAction: TextInputAction.next,
+                                onFieldSubmitted: (_) => FocusScope.of(context).nextFocus(),
                                 onChanged: (_) {
                                   if (_emailConfirmationRequired) {
                                     setState(
@@ -324,13 +298,21 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                                 key: const Key('login_password'),
                                 controller: _passwordController,
                                 obscureText: !_showPassword,
+                                keyboardType: TextInputType.visiblePassword,
+                                autofillHints: const [AutofillHints.password],
+                                textInputAction: TextInputAction.done,
+                                onFieldSubmitted: (_) => _login(),
                                 decoration: InputDecoration(
                                   labelText: 'كلمة المرور',
                                   prefixIcon: const Icon(Icons.lock_outline),
-                                  suffixIcon: IconButton(
+                                  suffixIcon: Semantics(
+                                    label: _showPassword ? 'إخفاء كلمة المرور' : 'إظهار كلمة المرور',
+                                    button: true,
+                                    child: IconButton(
                                     tooltip: _showPassword ? 'إخفاء كلمة المرور' : 'إظهار كلمة المرور',
                                     onPressed: () => setState(() => _showPassword = !_showPassword),
                                     icon: Icon(_showPassword ? Icons.visibility_off_outlined : Icons.visibility_outlined),
+                                  ),
                                   ),
                                 ),
                                 validator: (value) =>
@@ -338,13 +320,20 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                                     ? 'أدخل كلمة المرور'
                                     : null,
                               ),
-                              CheckboxListTile(
-                                key: const Key('login_remember_me'),
-                                contentPadding: EdgeInsets.zero,
-                                controlAffinity: ListTileControlAffinity.leading,
-                                title: const Text('تذكرني'),
-                                value: _rememberMe,
-                                onChanged: _loading ? null : (value) => setState(() => _rememberMe = value ?? false),
+                              Material(
+                                color: Colors.transparent,
+                                child: CheckboxListTile(
+                                  key: const Key('login_remember_me'),
+                                  contentPadding: EdgeInsets.zero,
+                                  controlAffinity: ListTileControlAffinity.leading,
+                                  title: const Text('تذكرني'),
+                                  value: _rememberMe,
+                                  onChanged: _loading
+                                      ? null
+                                      : (value) => setState(
+                                          () => _rememberMe = value ?? false,
+                                        ),
+                                ),
                               ),
                               Align(
                                 alignment: AlignmentDirectional.centerEnd,
@@ -361,25 +350,25 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                                 Container(
                                   padding: const EdgeInsets.all(12),
                                   decoration: BoxDecoration(
-                                    color: const Color(0xFFFEE2E2),
+                                    color: Theme.of(context).colorScheme.errorContainer,
                                     borderRadius: BorderRadius.circular(12),
                                     border: Border.all(
-                                      color: const Color(0xFFFCA5A5),
+                                      color: Theme.of(context).colorScheme.error,
                                     ),
                                   ),
                                   child: Row(
                                     children: [
-                                      const Icon(
+                                      Icon(
                                         Icons.error_outline_rounded,
                                         size: 20,
-                                        color: Color(0xFFDC2626),
+                                        color: theme.colorScheme.error,
                                       ),
                                       const SizedBox(width: 8),
                                       Expanded(
                                         child: Text(
                                           _error!,
-                                          style: const TextStyle(
-                                            color: Color(0xFFDC2626),
+                                          style: TextStyle(
+                                            color: theme.colorScheme.onErrorContainer,
                                             fontSize: 13,
                                             fontWeight: FontWeight.w600,
                                           ),
@@ -414,17 +403,17 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                                 key: const Key('login_submit'),
                                 onPressed: _loading ? null : _login,
                                 style: FilledButton.styleFrom(
-                                  minimumSize: const Size(0, 52),
+                                  minimumSize: const Size(0, 48),
                                   shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(16),
+                                    borderRadius: BorderRadius.circular(14),
                                   ),
                                 ),
                                 child: _loading
-                                    ? const SizedBox(
-                                        height: 22,
-                                        width: 22,
-                                        child: CircularProgressIndicator(
-                                          strokeWidth: 2.5,
+                                    ? const Text(
+                                        'جارٍ تسجيل الدخول...',
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w700,
                                           color: Colors.white,
                                         ),
                                       )
@@ -451,13 +440,12 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                           ),
                         ),
                       ),
-                    ),
-                  ),
                 ),
               ),
             ),
           ],
         ),
+      ),
       ),
     );
   }

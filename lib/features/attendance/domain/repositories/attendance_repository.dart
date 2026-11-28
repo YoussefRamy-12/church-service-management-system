@@ -6,6 +6,8 @@ abstract interface class AttendanceRepository {
   Future<AttendanceRecord> checkIn({
     required String meetingId,
     required String studentId,
+    required String serviceId,
+    required String serviceStudentId,
     required String classIdAtAttendance,
     required String recordedBy,
     required DateTime checkedInAt,

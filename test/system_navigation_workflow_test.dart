@@ -109,7 +109,18 @@ void main() {
       };
 
       for (final entry in workflows.entries) {
-        await tester.tap(find.byKey(Key(entry.key)));
+        var finder = find.byKey(Key(entry.key));
+        if (finder.evaluate().isEmpty) {
+          await tester.drag(find.byType(ListView), const Offset(0, -300));
+          await tester.pumpAndSettle();
+          finder = find.byKey(Key(entry.key));
+        }
+        if (finder.evaluate().isEmpty) {
+          await tester.drag(find.byType(ListView), const Offset(0, 300));
+          await tester.pumpAndSettle();
+          finder = find.byKey(Key(entry.key));
+        }
+        await tester.tap(finder);
         await tester.pumpAndSettle();
         expect(find.text(entry.value), findsOneWidget);
       }
@@ -131,23 +142,18 @@ void main() {
   testWidgets('mobile shell opens navigation and reaches attendance workflow', (
     tester,
   ) async {
-    await tester.binding.setSurfaceSize(const Size(390, 844));
+    tester.view.devicePixelRatio = 1.0;
+    tester.view.physicalSize = const Size(390, 844);
     final router = buildRouter();
 
     try {
       await tester.pumpWidget(buildSubject(router));
       await tester.pumpAndSettle();
 
-      expect(find.byKey(const Key('nav_menu')), findsOneWidget);
+      expect(find.byKey(const Key('app_shell_bottom_navigation')), findsOneWidget);
       expect(find.byKey(const Key('nav_status')), findsNothing);
 
-      await tester.tap(find.byKey(const Key('nav_menu')));
-      await tester.pumpAndSettle();
-
-      expect(find.text('التنقل'), findsOneWidget);
-      expect(find.text('الحضور'), findsOneWidget);
-
-      await tester.tap(find.text('الحضور'));
+      await tester.tap(find.byKey(const Key('nav_tab_attendance')));
       await tester.pumpAndSettle();
 
       expect(router.state.uri.path, '/service/service-1/attendance');
@@ -157,7 +163,8 @@ void main() {
       await tester.pumpWidget(const SizedBox.shrink());
       await tester.pump();
       await tester.pump(const Duration(milliseconds: 1));
-      await tester.binding.setSurfaceSize(null);
+      tester.view.resetDevicePixelRatio();
+      tester.view.resetPhysicalSize();
     }
   });
 }

@@ -27,6 +27,8 @@ void main() {
     () async {
       final record = await repo.create(
         studentId: 'student-1',
+        serviceId: 'service-1',
+        serviceStudentId: 'student-1_membership',
         createdBy: 'servant-1',
         followUpDate: '2026-10-07',
         contactStatus: 'contacted',
@@ -38,7 +40,7 @@ void main() {
       );
 
       final local = await repo
-          .watchForStudent('student-1')
+          .watchForStudent('student-1', serviceId: 'service-1')
           .firstWhere((items) => items.isNotEmpty);
       final pending = await queue.pending();
       final payload =
@@ -53,47 +55,117 @@ void main() {
       expect(pending.single.operationType, 'insert');
       expect(payload['client_operation_id'], record.clientOperationId);
       expect(payload['student_id'], 'student-1');
+      expect(payload['service_id'], 'service-1');
+      expect(payload['service_student_id'], 'student-1_membership');
       expect(payload['contact_method'], 'phone');
     },
   );
 
+  test('queued follow-ups retain their original service after a service switch', () async {
+    await repo.create(
+      studentId: 'shared-student',
+      serviceId: 'service-a',
+      serviceStudentId: 'membership-a',
+      createdBy: 'servant-a',
+      followUpDate: '2026-10-07',
+      contactStatus: 'contacted',
+    );
+    await repo.create(
+      studentId: 'shared-student',
+      serviceId: 'service-b',
+      serviceStudentId: 'membership-b',
+      createdBy: 'servant-b',
+      followUpDate: '2026-10-08',
+      contactStatus: 'contacted',
+    );
+
+    final payloads = (await queue.pending())
+        .map((operation) => queue.decode(operation.payloadJson))
+        .toList();
+
+    expect(payloads, hasLength(2));
+    expect(payloads.map((payload) => payload['service_id']),
+        ['service-a', 'service-b']);
+    expect(payloads.map((payload) => payload['service_student_id']),
+        ['membership-a', 'membership-b']);
+  });
+
   test('follow-up history is ordered newest first', () async {
     await repo.create(
       studentId: 'student-1',
+      serviceId: 'service-1',
+      serviceStudentId: 'student-1_membership',
       createdBy: 'servant-1',
       followUpDate: '2026-10-01',
       contactStatus: 'no_answer',
     );
     await repo.create(
       studentId: 'student-1',
+      serviceId: 'service-1',
+      serviceStudentId: 'student-1_membership',
       createdBy: 'servant-1',
       followUpDate: '2026-10-07',
       contactStatus: 'contacted',
     );
 
     final rows = await repo
-        .watchForStudent('student-1')
+        .watchForStudent('student-1', serviceId: 'service-1')
         .firstWhere((items) => items.length == 2);
 
     expect(rows.map((item) => item.followUpDate), ['2026-10-07', '2026-10-01']);
   });
 
+  test('same global identity has isolated follow-up histories per service', () async {
+    await repo.create(
+      studentId: 'shared-student',
+      serviceId: 'service-a',
+      serviceStudentId: 'shared-student-service-a',
+      createdBy: 'servant-a',
+      followUpDate: '2026-11-01',
+      contactStatus: 'contacted',
+    );
+    await repo.create(
+      studentId: 'shared-student',
+      serviceId: 'service-b',
+      serviceStudentId: 'shared-student-service-b',
+      createdBy: 'servant-b',
+      followUpDate: '2026-11-02',
+      contactStatus: 'contacted',
+    );
+
+    final serviceA = await repo
+        .watchForStudent('shared-student', serviceId: 'service-a')
+        .firstWhere((rows) => rows.isNotEmpty);
+    final serviceB = await repo
+        .watchForStudent('shared-student', serviceId: 'service-b')
+        .firstWhere((rows) => rows.isNotEmpty);
+
+    expect(serviceA, hasLength(1));
+    expect(serviceA.single.serviceStudentId, 'shared-student-service-a');
+    expect(serviceB, hasLength(1));
+    expect(serviceB.single.serviceStudentId, 'shared-student-service-b');
+  });
+
   test('follow-up records for another student are excluded', () async {
     await repo.create(
       studentId: 'student-1',
+      serviceId: 'service-1',
+      serviceStudentId: 'student-1_membership',
       createdBy: 'servant-1',
       followUpDate: '2026-10-07',
       contactStatus: 'contacted',
     );
     await repo.create(
       studentId: 'student-2',
+      serviceId: 'service-1',
+      serviceStudentId: 'student-2_membership',
       createdBy: 'servant-1',
       followUpDate: '2026-10-07',
       contactStatus: 'contacted',
     );
 
     final rows = await repo
-        .watchForStudent('student-1')
+        .watchForStudent('student-1', serviceId: 'service-1')
         .firstWhere((items) => items.length == 1);
 
     expect(rows.single.studentId, 'student-1');

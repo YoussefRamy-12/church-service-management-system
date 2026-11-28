@@ -74,13 +74,8 @@ final isSuperAdminProvider = Provider<bool>((ref) {
 Future<void> signOutAndGoToLogin(WidgetRef ref, BuildContext context) async {
   try {
     await ref.read(authRepositoryProvider).signOut();
-  } catch (error) {
-    if (context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('تعذر تسجيل الخروج: $error')),
-      );
-    }
-    return;
+  } catch (_) {
+    // In an offline-first app, network or Supabase failure should still allow local sign out.
   }
   ref.read(selectedServantProfileProvider.notifier).state = null;
   ref.invalidate(currentSessionIdentityProvider);

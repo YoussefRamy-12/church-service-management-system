@@ -22,7 +22,9 @@ class SessionGate extends ConsumerWidget {
     return session.when(
       loading: () =>
           const Scaffold(body: Center(child: CircularProgressIndicator())),
-      error: (error, _) => Scaffold(
+      error: (error, _) {
+        debugPrint('Failed to load session identity: $error');
+        return Scaffold(
         body: Center(
           child: Padding(
             padding: const EdgeInsets.all(24),
@@ -36,7 +38,6 @@ class SessionGate extends ConsumerWidget {
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 8),
-                Text(error.toString(), textAlign: TextAlign.center),
                 const SizedBox(height: 16),
                 FilledButton.icon(
                   onPressed: () =>
@@ -48,7 +49,8 @@ class SessionGate extends ConsumerWidget {
             ),
           ),
         ),
-      ),
+      );
+      },
       data: (identity) {
         if (identity == null) {
           return const _SessionError(
@@ -150,6 +152,7 @@ class _ServiceChooserState extends ConsumerState<_ServiceChooser> {
         .map((profile) => profile.serviceId)
         .toSet()
         .toList();
+    if (ids.isEmpty) return {};
     final rows = await ref
         .read(supabaseClientProvider)
         .from('services')
@@ -172,8 +175,7 @@ class _ServiceChooserState extends ConsumerState<_ServiceChooser> {
         ),
       ],
     ),
-    body: AmbientBackground(
-      child: Center(
+    body: Center(
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 760),
           child: ListView(
@@ -191,75 +193,99 @@ class _ServiceChooserState extends ConsumerState<_ServiceChooser> {
               const SizedBox(height: 20),
               FutureBuilder<Map<String, String>>(
                 future: _serviceNames,
-                builder: (context, snapshot) => Column(
-                  children: [
-                    for (final profile in widget.profiles)
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: 12),
-                        child: GlassCard(
-                          borderRadius: 18,
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 8,
-                          ),
-                          child: ListTile(
-                            contentPadding: EdgeInsets.zero,
-                            leading: Container(
-                              width: 44,
-                              height: 44,
-                              decoration: BoxDecoration(
-                                gradient: const LinearGradient(
-                                  colors: [
-                                    Color(0xFF4338CA),
-                                    Color(0xFF6366F1),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Padding(
+                      padding: EdgeInsets.all(24),
+                      child: Center(child: CircularProgressIndicator()),
+                    );
+                  }
+                  if (snapshot.hasError) {
+                    return EmptyState(
+                      icon: Icons.cloud_off_outlined,
+                      title: 'تعذر تحميل الخدمات',
+                      message: 'تحقق من الاتصال ثم أعد المحاولة.',
+                      action: OutlinedButton.icon(
+                        onPressed: () => setState(() => _serviceNames = _loadServiceNames()),
+                        icon: const Icon(Icons.refresh),
+                        label: const Text('إعادة المحاولة'),
+                      ),
+                    );
+                  }
+                  if (widget.profiles.isEmpty) {
+                    return const EmptyState(
+                      icon: Icons.church_outlined,
+                      title: 'لا توجد خدمات مرتبطة',
+                      message: 'تواصل مع مسؤول النظام لربط حسابك بخدمة.',
+                    );
+                  }
+                  return LayoutBuilder(
+                    builder: (context, constraints) {
+                      final columns = constraints.maxWidth >= 768 ? 2 : 1;
+                      return GridView.builder(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        itemCount: widget.profiles.length,
+                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: columns,
+                          mainAxisSpacing: 12,
+                          crossAxisSpacing: 12,
+                          mainAxisExtent: 112,
+                        ),
+                        itemBuilder: (context, index) {
+                          final profile = widget.profiles[index];
+                          return Card(
+                            child: InkWell(
+                              borderRadius: BorderRadius.circular(12),
+                              onTap: () async {
+                                ref.read(selectedServantProfileProvider.notifier).state = profile;
+                                try {
+                                  await ref.read(meetingRepositoryProvider).refresh(profile.serviceId);
+                                } catch (_) {}
+                                if (!context.mounted) return;
+                                context.go('/service/${profile.serviceId}/dashboard');
+                              },
+                              child: Padding(
+                                padding: const EdgeInsets.all(12),
+                                child: Row(
+                                  children: [
+                                    Icon(Icons.church_rounded, size: 28, color: Theme.of(context).colorScheme.primary),
+                                    const SizedBox(width: 12),
+                                    Expanded(
+                                      child: Column(
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            snapshot.data?[profile.serviceId] ?? 'الخدمة',
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                            style: Theme.of(context).textTheme.titleMedium,
+                                          ),
+                                          const SizedBox(height: 6),
+                                          Chip(
+                                            visualDensity: VisualDensity.compact,
+                                            label: Text(_roleLabel(profile.role)),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    const Icon(Icons.chevron_left_rounded),
                                   ],
                                 ),
-                                borderRadius: BorderRadius.circular(14),
-                              ),
-                              child: const Icon(
-                                Icons.church_rounded,
-                                color: Colors.white,
                               ),
                             ),
-                            title: Text(
-                              snapshot.data?[profile.serviceId] ?? 'الخدمة',
-                              style: const TextStyle(
-                                fontWeight: FontWeight.w800,
-                                fontSize: 16,
-                              ),
-                            ),
-                            subtitle: Text(
-                              '${profile.name} • ${_roleLabel(profile.role)}',
-                            ),
-                            trailing: const Icon(Icons.chevron_left_rounded),
-                            onTap: () async {
-                              ref
-                                      .read(
-                                        selectedServantProfileProvider.notifier,
-                                      )
-                                      .state =
-                                  profile;
-                              try {
-                                await ref
-                                    .read(meetingRepositoryProvider)
-                                    .refresh(profile.serviceId);
-                              } catch (_) {}
-                              if (!context.mounted) return;
-                              context.go(
-                                '/service/${profile.serviceId}/dashboard',
-                              );
-                            },
-                          ),
-                        ),
-                      ),
-                  ],
-                ),
+                          );
+                        },
+                      );
+                    },
+                  );
+                },
               ),
             ],
           ),
         ),
       ),
-    ),
   );
 
   String _roleLabel(String role) => formatRoleLabel(role);
@@ -353,10 +379,13 @@ class _PendingRegistrationState extends ConsumerState<_PendingRegistration> {
           );
       ref.invalidate(currentSessionIdentityProvider);
     } catch (error) {
+      debugPrint('Presentation operation failed: $error');
       if (mounted) {
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(SnackBar(content: Text('تعذر حفظ البيانات: $error')));
+        ).showSnackBar(
+          const SnackBar(content: Text('تعذر حفظ البيانات. حاول مرة أخرى.')),
+        );
       }
     } finally {
       if (mounted) setState(() => _saving = false);
@@ -385,9 +414,7 @@ class _PendingRegistrationState extends ConsumerState<_PendingRegistration> {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-    body: AmbientBackground(
-      intensity: 0.8,
-      child: Center(
+    body: Center(
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 540),
           child: SingleChildScrollView(
@@ -500,7 +527,7 @@ class _PendingRegistrationState extends ConsumerState<_PendingRegistration> {
                           Text(
                             'هذه البيانات تساعد مسؤول النظام في تحديد هويتك.',
                             style: TextStyle(
-                              fontSize: 12,
+                              fontSize: 13,
                               color: Theme.of(
                                 context,
                               ).colorScheme.onSurfaceVariant,
@@ -613,7 +640,6 @@ class _PendingRegistrationState extends ConsumerState<_PendingRegistration> {
           ),
         ),
       ),
-    ),
   );
 }
 
@@ -639,8 +665,7 @@ class _SessionError extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-    body: AmbientBackground(
-      child: Center(
+    body: Center(
         child: Padding(
           padding: const EdgeInsets.all(32),
           child: GlassCard(
@@ -678,6 +703,5 @@ class _SessionError extends StatelessWidget {
           ),
         ),
       ),
-    ),
   );
 }

@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import 'auth_providers.dart';
-import '../../../app/ui/app_ui.dart';
 
 class ServantSignUpPage extends ConsumerStatefulWidget {
   const ServantSignUpPage({super.key});
@@ -23,6 +22,8 @@ class _ServantSignUpPageState extends ConsumerState<ServantSignUpPage> {
   DateTime? _birthDate;
   bool _loading = false;
   bool _submitted = false;
+  bool _showPassword = false;
+  bool _showConfirmPassword = false;
   String? _error;
 
   @override
@@ -79,6 +80,7 @@ class _ServantSignUpPageState extends ConsumerState<ServantSignUpPage> {
       }
       setState(() => _submitted = true);
     } catch (error) {
+      debugPrint('Presentation operation failed: $error');
       if (!mounted) return;
       final message = error.toString();
       setState(() {
@@ -96,18 +98,23 @@ class _ServantSignUpPageState extends ConsumerState<ServantSignUpPage> {
     return Scaffold(
       key: const Key('servant_signup_page'),
       appBar: AppBar(title: const Text('إنشاء حساب خادم')),
-      body: AmbientBackground(
-        intensity: 0.9,
-        child: Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 580),
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
-              child: GlassCard(
-                borderRadius: 24,
-                padding: const EdgeInsets.all(28),
-                hoverElevation: false,
-                child: _submitted ? _success() : _form(),
+      body: SafeArea(
+        child: ColoredBox(
+          color: Theme.of(context).scaffoldBackgroundColor,
+          child: Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 460),
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+                child: Container(
+                  padding: const EdgeInsets.all(24),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.surface,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
+                  ),
+                  child: _submitted ? _success() : _form(),
+                ),
               ),
             ),
           ),
@@ -138,6 +145,8 @@ class _ServantSignUpPageState extends ConsumerState<ServantSignUpPage> {
           key: const Key('signup_name'),
           controller: _name,
           textCapitalization: TextCapitalization.words,
+          textInputAction: TextInputAction.next,
+          onFieldSubmitted: (_) => FocusScope.of(context).nextFocus(),
           decoration: const InputDecoration(labelText: 'الاسم بالكامل'),
           validator: (value) => value == null || value.trim().isEmpty
               ? 'أدخل الاسم بالكامل'
@@ -163,7 +172,7 @@ class _ServantSignUpPageState extends ConsumerState<ServantSignUpPage> {
               'تاريخ الميلاد مطلوب',
               style: TextStyle(
                 color: Theme.of(context).colorScheme.error,
-                fontSize: 12,
+                fontSize: 13,
               ),
             ),
           ),
@@ -172,6 +181,8 @@ class _ServantSignUpPageState extends ConsumerState<ServantSignUpPage> {
           key: const Key('signup_work_study'),
           controller: _workStudy,
           textCapitalization: TextCapitalization.sentences,
+          textInputAction: TextInputAction.next,
+          onFieldSubmitted: (_) => FocusScope.of(context).nextFocus(),
           decoration: const InputDecoration(
             labelText: 'العمل أو الدراسة',
             hintText: 'مثال: طالب جامعي أو مهندس',
@@ -185,6 +196,9 @@ class _ServantSignUpPageState extends ConsumerState<ServantSignUpPage> {
           key: const Key('signup_email'),
           controller: _email,
           keyboardType: TextInputType.emailAddress,
+          autofillHints: const [AutofillHints.email, AutofillHints.username],
+          textInputAction: TextInputAction.next,
+          onFieldSubmitted: (_) => FocusScope.of(context).nextFocus(),
           decoration: const InputDecoration(labelText: 'البريد الإلكتروني'),
           validator: (value) => value == null || !value.contains('@')
               ? 'أدخل بريدًا إلكترونيًا صحيحًا'
@@ -195,6 +209,8 @@ class _ServantSignUpPageState extends ConsumerState<ServantSignUpPage> {
           key: const Key('signup_phone'),
           controller: _phone,
           keyboardType: TextInputType.phone,
+          textInputAction: TextInputAction.next,
+          onFieldSubmitted: (_) => FocusScope.of(context).nextFocus(),
           decoration: const InputDecoration(labelText: 'رقم الهاتف'),
           validator: (value) =>
               value == null || value.trim().isEmpty ? 'أدخل رقم الهاتف' : null,
@@ -203,8 +219,22 @@ class _ServantSignUpPageState extends ConsumerState<ServantSignUpPage> {
         TextFormField(
           key: const Key('signup_password'),
           controller: _password,
-          obscureText: true,
-          decoration: const InputDecoration(labelText: 'كلمة المرور'),
+          obscureText: !_showPassword,
+          autofillHints: const [AutofillHints.newPassword],
+          textInputAction: TextInputAction.next,
+          onFieldSubmitted: (_) => FocusScope.of(context).nextFocus(),
+          decoration: InputDecoration(
+            labelText: 'كلمة المرور',
+            suffixIcon: Semantics(
+              button: true,
+              label: _showPassword ? 'إخفاء كلمة المرور' : 'إظهار كلمة المرور',
+              child: IconButton(
+                tooltip: _showPassword ? 'إخفاء كلمة المرور' : 'إظهار كلمة المرور',
+                onPressed: () => setState(() => _showPassword = !_showPassword),
+                icon: Icon(_showPassword ? Icons.visibility_off_outlined : Icons.visibility_outlined),
+              ),
+            ),
+          ),
           validator: (value) => value == null || value.length < 8
               ? 'استخدم 8 أحرف على الأقل'
               : null,
@@ -213,16 +243,41 @@ class _ServantSignUpPageState extends ConsumerState<ServantSignUpPage> {
         TextFormField(
           key: const Key('signup_confirm_password'),
           controller: _confirmPassword,
-          obscureText: true,
-          decoration: const InputDecoration(labelText: 'تأكيد كلمة المرور'),
+          obscureText: !_showConfirmPassword,
+          autofillHints: const [AutofillHints.newPassword],
+          textInputAction: TextInputAction.done,
+          onFieldSubmitted: (_) => _submit(),
+          decoration: InputDecoration(
+            labelText: 'تأكيد كلمة المرور',
+            suffixIcon: Semantics(
+              button: true,
+              label: _showConfirmPassword ? 'إخفاء كلمة المرور' : 'إظهار كلمة المرور',
+              child: IconButton(
+                tooltip: _showConfirmPassword ? 'إخفاء كلمة المرور' : 'إظهار كلمة المرور',
+                onPressed: () => setState(() => _showConfirmPassword = !_showConfirmPassword),
+                icon: Icon(_showConfirmPassword ? Icons.visibility_off_outlined : Icons.visibility_outlined),
+              ),
+            ),
+          ),
           validator: (value) =>
               value != _password.text ? 'كلمتا المرور غير متطابقتين' : null,
         ),
         if (_error != null) ...[
           const SizedBox(height: 12),
-          Text(
-            _error!,
-            style: TextStyle(color: Theme.of(context).colorScheme.error),
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.errorContainer,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: Theme.of(context).colorScheme.error),
+            ),
+            child: Row(
+              children: [
+                Icon(Icons.error_outline_rounded, color: Theme.of(context).colorScheme.error),
+                const SizedBox(width: 8),
+                Expanded(child: Text(_error!, style: TextStyle(color: Theme.of(context).colorScheme.onErrorContainer))),
+              ],
+            ),
           ),
         ],
         const SizedBox(height: 20),
@@ -230,10 +285,7 @@ class _ServantSignUpPageState extends ConsumerState<ServantSignUpPage> {
           key: const Key('signup_submit'),
           onPressed: _loading || _birthDate == null ? null : _submit,
           child: _loading
-              ? const SizedBox.square(
-                  dimension: 20,
-                  child: CircularProgressIndicator(strokeWidth: 2),
-                )
+              ? const Text('جارٍ إنشاء الحساب...')
               : const Text('إنشاء الحساب وإرسال الطلب'),
         ),
         TextButton(

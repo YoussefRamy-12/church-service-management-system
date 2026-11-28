@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/network/supabase_client_provider.dart';
+import '../../../app/ui/components/status_chip.dart';
 
 class ServantRegistrationRequestsPage extends ConsumerStatefulWidget {
   const ServantRegistrationRequestsPage({super.key});
@@ -270,6 +271,7 @@ class _ServantRegistrationRequestsPageState
         context,
       ).showSnackBar(SnackBar(content: Text(message)));
     } catch (error) {
+      debugPrint('Presentation operation failed: $error');
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -330,10 +332,11 @@ class _ServantRegistrationRequestsPageState
           .eq('auth_user_id', request['auth_user_id']);
       if (mounted) _reload();
     } catch (error) {
+      debugPrint('Presentation operation failed: $error');
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('تعذر تحديث الطلب: $error')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('تعذر إتمام العملية. حاول مرة أخرى.')),
+        );
       }
     }
   }
@@ -370,7 +373,7 @@ class _ServantRegistrationRequestsPageState
                 children: [
                   const Text('تعذر تحميل حسابات الخدام المسجلة.'),
                   const SizedBox(height: 8),
-                  Text('${snapshot.error}', textAlign: TextAlign.center),
+                  const Text('تحقق من الاتصال ثم حاول تحديث القائمة.'),
                   TextButton.icon(
                     onPressed: _reload,
                     icon: const Icon(Icons.refresh),
@@ -450,7 +453,14 @@ class _ServantRegistrationRequestsPageState
                             },
                           ),
                           const SizedBox(height: 4),
-                          Chip(label: Text(_statusLabel(status))),
+                          StatusChip(
+                            status: status == 'pending'
+                                ? AppStatus.pending
+                                : status == 'rejected'
+                                ? AppStatus.conflict
+                                : AppStatus.synced,
+                            label: _statusLabel(status),
+                          ),
                         ],
                       ),
                     ),

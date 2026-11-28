@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../../app/design/app_colors.dart';
+
 /// Compact WhatsApp and dialer actions for an existing phone number.
 /// The call action opens the system dialer; it never places a call directly.
 class PhoneContactActions extends StatelessWidget {
@@ -42,21 +44,31 @@ class PhoneContactActions extends StatelessWidget {
   Widget build(BuildContext context) {
     if (_digits.isEmpty) return const SizedBox.shrink();
     final iconSize = compact ? 19.0 : 21.0;
+    final buttonConstraints = compact
+        ? null
+        : const BoxConstraints(minWidth: 48, minHeight: 48);
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
         IconButton(
           tooltip: 'إرسال رسالة عبر WhatsApp',
-          visualDensity: VisualDensity.compact,
+          visualDensity:
+              compact ? VisualDensity.compact : VisualDensity.standard,
+          constraints: buttonConstraints,
           iconSize: iconSize,
           onPressed: _internationalDigits.isEmpty
               ? null
               : () => _launch(context, Uri.https('wa.me', '/$_internationalDigits')),
-          icon: const Icon(Icons.chat_rounded, color: Color(0xFF16A34A)),
+          icon: Icon(
+            Icons.chat_rounded,
+            color: AppColors.of(context).synced.foreground,
+          ),
         ),
         IconButton(
           tooltip: 'فتح الرقم في تطبيق الاتصال',
-          visualDensity: VisualDensity.compact,
+          visualDensity:
+              compact ? VisualDensity.compact : VisualDensity.standard,
+          constraints: buttonConstraints,
           iconSize: iconSize,
           onPressed: () => _launch(context, Uri(scheme: 'tel', path: phone.trim())),
           icon: const Icon(Icons.call_rounded),
