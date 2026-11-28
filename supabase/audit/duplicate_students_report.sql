@@ -20,7 +20,7 @@ WITH normalized AS (
       WHEN digits ~ '^0020[0-9]{10}$' THEN '0' || substring(digits FROM 5)
       WHEN digits ~ '^20[0-9]{10}$' THEN '0' || substring(digits FROM 3)
       WHEN digits ~ '^[1-9][0-9]{8}$' THEN '0' || digits
-      WHEN digits ~ '^[0-9]{10}$' THEN '0' || digits
+      WHEN digits ~ '^[1-9][0-9]{9}$' THEN '0' || digits
       ELSE digits
     END AS normalized_phone
   FROM (

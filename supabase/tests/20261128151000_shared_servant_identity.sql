@@ -249,4 +249,85 @@ BEGIN
 END;
 $phone_report_only$;
 
+DO $single_person_two_services$
+DECLARE
+  v_person_count integer;
+  v_profile_count integer;
+BEGIN
+  SELECT count(*) INTO v_person_count
+  FROM public.servant_persons
+  WHERE auth_user_id = current_setting('app.phase2_servant')::uuid;
+  SELECT count(DISTINCT service_id) INTO v_profile_count
+  FROM public.servant_profiles
+  WHERE auth_user_id = current_setting('app.phase2_servant')::uuid;
+  IF v_person_count <> 1 OR v_profile_count <> 2 THEN
+    RAISE EXCEPTION 'expected 1 servant_persons row and 2 services, got % and %',
+      v_person_count, v_profile_count;
+  END IF;
+END;
+$single_person_two_services$;
+
+-- Overall admin of service B cannot assign into service A,
+-- and cannot reactivate a suspended servant in service B.
+SET LOCAL ROLE authenticated;
+SELECT set_config('request.jwt.claim.sub', current_setting('app.phase2_admin_b'), true);
+SELECT set_config('request.jwt.claims',
+  jsonb_build_object('sub', current_setting('app.phase2_admin_b'),
+                     'role', 'authenticated')::text, true);
+
+DO $cross_service_assign_blocked$
+BEGIN
+  BEGIN
+    PERFORM public.assign_servant_to_service(
+      current_setting('app.phase2_servant')::uuid,
+      current_setting('app.phase2_service_a')::uuid,
+      'overall_helper',
+      NULL,
+      NULL
+    );
+    RAISE EXCEPTION 'expected overall_admin_required_for_service';
+  EXCEPTION
+    WHEN SQLSTATE '42501' THEN
+      IF SQLERRM NOT LIKE '%overall_admin_required_for_service%' THEN
+        RAISE;
+      END IF;
+  END;
+END;
+$cross_service_assign_blocked$;
+
+RESET ROLE;
+
+UPDATE public.servant_profiles
+SET account_status = 'suspended'::public.servant_account_status
+WHERE auth_user_id = current_setting('app.phase2_servant')::uuid
+  AND service_id = current_setting('app.phase2_service_b')::uuid;
+
+SET LOCAL ROLE authenticated;
+SELECT set_config('request.jwt.claim.sub', current_setting('app.phase2_admin_b'), true);
+SELECT set_config('request.jwt.claims',
+  jsonb_build_object('sub', current_setting('app.phase2_admin_b'),
+                     'role', 'authenticated')::text, true);
+
+DO $suspended_reactivation_blocked$
+BEGIN
+  BEGIN
+    PERFORM public.assign_servant_to_service(
+      current_setting('app.phase2_servant')::uuid,
+      current_setting('app.phase2_service_b')::uuid,
+      'overall_helper',
+      NULL,
+      NULL
+    );
+    RAISE EXCEPTION 'expected reactivation_requires_super_admin';
+  EXCEPTION
+    WHEN SQLSTATE '42501' THEN
+      IF SQLERRM NOT LIKE '%reactivation_requires_super_admin%' THEN
+        RAISE;
+      END IF;
+  END;
+END;
+$suspended_reactivation_blocked$;
+
+RESET ROLE;
+
 ROLLBACK;

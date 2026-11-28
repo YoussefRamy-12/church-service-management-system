@@ -36,9 +36,9 @@ BEGIN
   v_digits := pg_catalog.regexp_replace(v_digits, '[^0-9]', '', 'g');
   IF v_digits = '' THEN RETURN NULL; END IF;
   IF v_digits ~ '^0020[0-9]{10}$' THEN
-    RETURN '0' || pg_catalog.substring(v_digits FROM 5);
+    RETURN '0' || pg_catalog.substr(v_digits, 5);
   ELSIF v_digits ~ '^20[0-9]{10}$' THEN
-    RETURN '0' || pg_catalog.substring(v_digits FROM 3);
+    RETURN '0' || pg_catalog.substr(v_digits, 3);
   ELSIF v_digits ~ '^[1-9][0-9]{9}$' THEN
     RETURN '0' || v_digits;
   END IF;
@@ -49,6 +49,7 @@ REVOKE ALL ON FUNCTION private.normalize_servant_name(text)
   FROM PUBLIC, anon, authenticated, service_role;
 REVOKE ALL ON FUNCTION private.normalize_servant_phone(text)
   FROM PUBLIC, anon, authenticated, service_role;
+GRANT EXECUTE ON FUNCTION private.normalize_servant_name(text), private.normalize_servant_phone(text) TO authenticated;
 
 CREATE TABLE IF NOT EXISTS public.servant_persons (
   auth_user_id uuid PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
@@ -175,7 +176,7 @@ BEGIN
       ADD CONSTRAINT servant_profiles_person_fkey
       FOREIGN KEY (auth_user_id)
       REFERENCES public.servant_persons(auth_user_id)
-      ON DELETE RESTRICT NOT VALID;
+      ON DELETE CASCADE NOT VALID;
   END IF;
 END;
 $$;
@@ -198,6 +199,23 @@ CREATE POLICY servant_persons_read
     )
   );
 
+CREATE OR REPLACE FUNCTION private.is_user_super_admin(p_auth_user_id uuid)
+RETURNS boolean
+LANGUAGE sql
+STABLE
+SECURITY DEFINER
+SET search_path = ''
+AS $$
+  SELECT EXISTS (
+    SELECT 1
+    FROM public.super_admins AS sa
+    WHERE sa.auth_user_id = p_auth_user_id
+  );
+$$;
+REVOKE ALL ON FUNCTION private.is_user_super_admin(uuid)
+  FROM PUBLIC, anon, service_role;
+GRANT EXECUTE ON FUNCTION private.is_user_super_admin(uuid) TO authenticated;
+
 DROP POLICY IF EXISTS servant_persons_update
   ON public.servant_persons;
 CREATE POLICY servant_persons_update
@@ -206,21 +224,27 @@ CREATE POLICY servant_persons_update
   USING (
     auth_user_id = (SELECT auth.uid())
     OR (SELECT private.is_super_admin())
-    OR EXISTS (
-      SELECT 1
-      FROM public.servant_profiles AS sp
-      WHERE sp.auth_user_id = servant_persons.auth_user_id
-        AND (SELECT private.is_overall_admin_for_service(sp.service_id))
+    OR (
+      NOT (SELECT private.is_user_super_admin(servant_persons.auth_user_id))
+      AND EXISTS (
+        SELECT 1
+        FROM public.servant_profiles AS sp
+        WHERE sp.auth_user_id = servant_persons.auth_user_id
+          AND (SELECT private.is_overall_admin_for_service(sp.service_id))
+      )
     )
   )
   WITH CHECK (
     auth_user_id = (SELECT auth.uid())
     OR (SELECT private.is_super_admin())
-    OR EXISTS (
-      SELECT 1
-      FROM public.servant_profiles AS sp
-      WHERE sp.auth_user_id = servant_persons.auth_user_id
-        AND (SELECT private.is_overall_admin_for_service(sp.service_id))
+    OR (
+      NOT (SELECT private.is_user_super_admin(servant_persons.auth_user_id))
+      AND EXISTS (
+        SELECT 1
+        FROM public.servant_profiles AS sp
+        WHERE sp.auth_user_id = servant_persons.auth_user_id
+          AND (SELECT private.is_overall_admin_for_service(sp.service_id))
+      )
     )
   );
 
@@ -432,10 +456,13 @@ AS $$
 DECLARE
   v_person public.servant_persons%ROWTYPE;
   v_profile_id uuid;
+  v_is_super_admin boolean;
+  v_existing_status public.servant_account_status;
 BEGIN
+  v_is_super_admin := (SELECT private.is_super_admin());
   IF (SELECT auth.uid()) IS NULL
      OR (
-       NOT (SELECT private.is_super_admin())
+       NOT v_is_super_admin
        AND NOT (SELECT private.is_overall_admin_for_service(p_service_id))
      ) THEN
     RAISE EXCEPTION 'overall_admin_required_for_service' USING ERRCODE = '42501';
@@ -482,6 +509,16 @@ BEGIN
     RAISE EXCEPTION 'invalid_servant_role' USING ERRCODE = '22023';
   END IF;
 
+  SELECT sp.account_status INTO v_existing_status
+  FROM public.servant_profiles AS sp
+  WHERE sp.auth_user_id = p_auth_user_id
+    AND sp.service_id = p_service_id;
+  IF v_existing_status IS NOT NULL
+     AND v_existing_status NOT IN ('active', 'pending')
+     AND NOT v_is_super_admin THEN
+    RAISE EXCEPTION 'reactivation_requires_super_admin' USING ERRCODE = '42501';
+  END IF;
+
   INSERT INTO public.servant_profiles (
     auth_user_id, service_id, name, phone, birth_date, work_study,
     role, stage_id, class_id, account_status
@@ -499,7 +536,10 @@ BEGIN
     role = EXCLUDED.role,
     stage_id = EXCLUDED.stage_id,
     class_id = EXCLUDED.class_id,
-    account_status = 'active'::public.servant_account_status,
+    account_status = CASE
+      WHEN v_is_super_admin THEN 'active'::public.servant_account_status
+      ELSE public.servant_profiles.account_status
+    END,
     updated_at = now()
   RETURNING id INTO v_profile_id;
 
