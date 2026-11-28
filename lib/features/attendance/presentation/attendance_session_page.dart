@@ -428,12 +428,6 @@ class _AttendanceSessionPageState extends ConsumerState<AttendanceSessionPage> {
           style: TextStyle(fontWeight: FontWeight.w800),
         ),
         actions: [
-          IconButton(
-            key: const Key('attendance_review'),
-            tooltip: 'مراجعة الحضور',
-            icon: const Icon(Icons.fact_check_outlined),
-            onPressed: () => _review(_studentsSnapshot),
-          ),
           if (!_readOnly && !_allStudentsMode)
             IconButton(
               icon: const Icon(Icons.person_add_rounded),

@@ -63,7 +63,7 @@ class _FollowUpHubPageState extends ConsumerState<FollowUpHubPage>
           IconButton(
             key: const Key('follow_up_weekly'),
             tooltip: 'متابعات الأسبوع',
-            icon: const Icon(Icons.calendar_view_week_rounded),
+            icon: const Icon(Icons.date_range_rounded),
             onPressed: () => Navigator.push(
               context,
               MaterialPageRoute(
@@ -74,7 +74,7 @@ class _FollowUpHubPageState extends ConsumerState<FollowUpHubPage>
           IconButton(
             key: const Key('follow_up_priority'),
             tooltip: 'أولوية الغياب المتتالي',
-            icon: const Icon(Icons.priority_high_rounded),
+            icon: const Icon(Icons.assignment_late_outlined),
             onPressed: () => Navigator.push(
               context,
               MaterialPageRoute(
